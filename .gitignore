@@ -1,0 +1,8 @@
+.ipynb_checkpoints
+.DS_Store
+__pycache__
+
+data/media.csv
+data/media.numbers
+
+example/

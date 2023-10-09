@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>specimen.util package &mdash; SPECIMEN 1.0.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Help" href="help.html" />
+    <link rel="prev" title="specimen.core.refinement package" href="specimen.core.refinement.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SPECIMEN
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="about-pipeline.html">About the SPECIMEN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run-pipeline.html">Run the Pipeline</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="specimen.html">Contents of SPECIMEN</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="specimen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="specimen.classes.html">specimen.classes package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="specimen.core.html">specimen.core package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">specimen.util package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-specimen.util.cobra_models">specimen.util.cobra_models module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-specimen.util.io">specimen.util.io module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-specimen.util.set_up">specimen.util.set_up module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-specimen.util.util">specimen.util.util module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-specimen.util">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="specimen.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specimen.html#module-specimen.cmd_access">specimen.cmd_access module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specimen.html#module-specimen.workflow">specimen.workflow module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specimen.html#module-specimen">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="help.html">Help</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dev-notes.html">Notes for Developers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SPECIMEN</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="specimen.html">Contents of SPECIMEN</a></li>
+      <li class="breadcrumb-item active">specimen.util package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/specimen.util.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="specimen-util-package">
+<h1>specimen.util package<a class="headerlink" href="#specimen-util-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-specimen.util.cobra_models">
+<span id="specimen-util-cobra-models-module"></span><h2>specimen.util.cobra_models module<a class="headerlink" href="#module-specimen.util.cobra_models" title="Permalink to this heading"></a></h2>
+<p>Utility functions &amp; Co. for handling cobra models.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.cobra_models.are_compartment_names_valid">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.cobra_models.</span></span><span class="sig-name descname"><span class="pre">are_compartment_names_valid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.cobra_models.are_compartment_names_valid" title="Permalink to this definition"></a></dt>
+<dd><p>Checks if the compartments of a model are valid.</p>
+<p>Note:
+Valid means their keys are part of VALID_COMPARTMENTS.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model</strong> (<em>cobra.Model</em>) – A model.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result of the test. True if names are valid.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.cobra_models.build_core_pan_model">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.cobra_models.</span></span><span class="sig-name descname"><span class="pre">build_core_pan_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">based_on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_genes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.cobra_models.build_core_pan_model" title="Permalink to this definition"></a></dt>
+<dd><p>From a list of file paths to models, create a core-pan model from their reactions.</p>
+<p>The core-pan model is created by merging all reactions of the models into
+one model. Reactions that are found in all models are characterised as ‘core’,
+while the others are characterised as ‘pan’. This characterisation is saved
+in the notes-field unter ‘core-pan’.</p>
+<dl class="simple">
+<dt>Note:</dt><dd><p>To make the final model ‘cleaner’, each model is checked for their
+compartment names using <cite>resolve_compartment_names()</cite>.</p>
+</dd>
+<dt>Matching of the reactions can be based on:</dt><dd><p>‘id’ : use the reaction id for comparison</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_list</strong> (<em>list</em>) – List of file paths to GEMs.</p></li>
+<li><p><strong>based_on</strong> (<em>string</em>) – Option on how to define reactions as equal.
+Default is ‘id’, all options can be found in the function description.</p></li>
+<li><p><strong>remove_genes</strong> (<em>bool</em>) – Option to remove the genes / gene reaction rules from the model.
+Default is True, as the core-pan differentiation is based on ID and therefore on the reactions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The core-pan model.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>cobra.Model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.cobra_models.compare_to_core_pan">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.cobra_models.</span></span><span class="sig-name descname"><span class="pre">compare_to_core_pan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">based_on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'id'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.cobra_models.compare_to_core_pan" title="Permalink to this definition"></a></dt>
+<dd><p>Perform a pan-core model analysis by comparing an input model and a pan-core model.</p>
+<p>Currently only checks the reactions. Depends highly on the pan-core model being
+build with <cite>build_core_pan_model()</cite>.</p>
+<dl class="simple">
+<dt>Matching/Comparison can be based on:</dt><dd><p>‘id’ : use the reaction id for comparison</p>
+</dd>
+<dt>&#64;TODO</dt><dd><ul class="simple">
+<li><p>implements more options for comparison</p></li>
+<li><p>include checking for metabolites</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>cobra.Model</em>) – The model to perform the analysis on.</p></li>
+<li><p><strong>cp_model</strong> (<em>cobra.Model</em>) – The pan-core model to compare to.</p></li>
+<li><p><strong>based_on</strong> (<em>string</em>) – Option on how to define reactions as equal.
+Default is ‘id’, all options can be found in the function description.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A report of the comparison.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>report.PanCoreAnalysisReport</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.cobra_models.define_core_pan_reactions">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.cobra_models.</span></span><span class="sig-name descname"><span class="pre">define_core_pan_reactions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reac_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">based_on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'id'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.cobra_models.define_core_pan_reactions" title="Permalink to this definition"></a></dt>
+<dd><p>Given three lists of new reactions, core reaction and pan reactions,
+sort the reactions of the first list into the latter two.</p>
+<dl class="simple">
+<dt>Matching of the reactions can be based on:</dt><dd><p>‘id’ : use the reaction id for comparison</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reac_list</strong> (<em>list</em><em>, </em><em>list elements should be cobra.Reaction</em>) – The list of new reactions.</p></li>
+<li><p><strong>core</strong> (<em>list</em><em>, </em><em>list elements should be cobra.Reaction</em>) – The list of core reactions.</p></li>
+<li><p><strong>pan</strong> (<em>list</em><em>, </em><em>list elements should be cobra.Reaction</em>) – The list of pan reactions.</p></li>
+<li><p><strong>based_on</strong> (<em>string</em>) – Option on how to define reactions as equal.
+Default is ‘id’, all options can be found in the function description.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated lists of core and pan reactions.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple, (core,pan)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.cobra_models.find_growth_obj_func">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.cobra_models.</span></span><span class="sig-name descname"><span class="pre">find_growth_obj_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.cobra_models.find_growth_obj_func" title="Permalink to this definition"></a></dt>
+<dd><p>Get the ID of the growth function of the model.</p>
+<p>Uses a list of standart names to search for a match and returns the first one.
+If no match is found, uses the objective expression instead.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model</strong> (<em>cobra.Model</em>) – The model.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The ID of the reaction identified/set as the growth.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.cobra_models.generate_statistics">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.cobra_models.</span></span><span class="sig-name descname"><span class="pre">generate_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.cobra_models.generate_statistics" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.cobra_models.get_intersecting_reactions">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.cobra_models.</span></span><span class="sig-name descname"><span class="pre">get_intersecting_reactions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reacA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reacB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">based_on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'id'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.cobra_models.get_intersecting_reactions" title="Permalink to this definition"></a></dt>
+<dd><p>From two lists of reactions, get the intersection.
+If reactions are determined the same, the reaction object from the first
+reaction list is taken for the output list.</p>
+<dl class="simple">
+<dt>The intersection can be done based on:</dt><dd><p>‘id’ : use the reaction id for comparison</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reacA</strong> (<em>list</em><em>, </em><em>list elements should be cobra.Reaction</em>) – List of reactions.</p></li>
+<li><p><strong>reacB</strong> (<em>list</em><em>, </em><em>list elements should be cobra.Reaction</em>) – Another list of reactions.</p></li>
+<li><p><strong>based_on</strong> (<em>string</em>) – Option on how to define reactions as equal.
+Default is ‘id’, all options can be found in the function description.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code>: Unknown option for intersection based_on.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The intersection of the two lists.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list, list elements should be cobra.Reaction</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.cobra_models.get_unique_reactions">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.cobra_models.</span></span><span class="sig-name descname"><span class="pre">get_unique_reactions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reacA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reacB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">based_on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'id'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.cobra_models.get_unique_reactions" title="Permalink to this definition"></a></dt>
+<dd><p>From two lists of reactions, get the unique reactions of the first list.</p>
+<dl class="simple">
+<dt>Unique reactions are determined by comparing:</dt><dd><p>‘id’ : use the reaction id for comparison</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reacA</strong> (<em>list</em><em>, </em><em>list elements should be cobra.Reaction</em>) – List of reactions.</p></li>
+<li><p><strong>reacB</strong> (<em>list</em><em>, </em><em>list elements should be cobra.Reaction</em>) – Another list of reactions.</p></li>
+<li><p><strong>based_on</strong> (<em>string</em>) – Option on how to define reactions as equal.
+Default is ‘id’, all options can be found in the function description.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code>: Unknown option for based_on.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The reactions of list A that are not in list B.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list, list elements should be cobra.Reaction</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.cobra_models.reannotate_sbo_memote">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.cobra_models.</span></span><span class="sig-name descname"><span class="pre">reannotate_sbo_memote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.cobra_models.reannotate_sbo_memote" title="Permalink to this definition"></a></dt>
+<dd><p>Remap the very specific SBO terms from SBOannotator to the high-level ones
+used by memote. Directly changes the model annotations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model</strong> (<em>cobra.Model</em>) – The model to be reannotated.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The reannotated model</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>cobra.Model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.cobra_models.remove_duplicate_reactions">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.cobra_models.</span></span><span class="sig-name descname"><span class="pre">remove_duplicate_reactions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reac</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">based_on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'id'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.cobra_models.remove_duplicate_reactions" title="Permalink to this definition"></a></dt>
+<dd><p>From a list of reactions, remove the duplicate reactions.</p>
+<dl class="simple">
+<dt>Duplicate reactions are determined by comparing:</dt><dd><p>‘id’ : use the reaction id for comparison</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reacA</strong> (<em>list</em><em>, </em><em>list elements should be cobra.Reaction</em>) – List of reactions.</p></li>
+<li><p><strong>reacB</strong> (<em>list</em><em>, </em><em>list elements should be cobra.Reaction</em>) – Another list of reactions.</p></li>
+<li><p><strong>based_on</strong> (<em>string</em>) – Option on how to define reactions as equal.
+Default is ‘id’, all options can be found in the function description.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code>: Unknown option for based_on.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The reactions of list A that are not in list B.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list, list elements should be cobra.Reaction</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.cobra_models.resolve_compartment_names">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.cobra_models.</span></span><span class="sig-name descname"><span class="pre">resolve_compartment_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.cobra_models.resolve_compartment_names" title="Permalink to this definition"></a></dt>
+<dd><p>Try to resolve invalid compartment names for a given model.</p>
+<p>Note:
+Valid means their keys are part of VALID_COMPARTMENTS.
+Valid mappings for solving the problem are in COMP_MAPPING.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model</strong> (<em>cobra.Model</em>) – A model.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">KeyError</span></code>: Unknown compartment detected. Cannot resolve problem.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The updated model if possible</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>cobra.Model</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-specimen.util.io">
+<span id="specimen-util-io-module"></span><h2>specimen.util.io module<a class="headerlink" href="#module-specimen.util.io" title="Permalink to this heading"></a></h2>
+<p>Classes to import, handle, manipulate and save different objects etc.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.io.kegg_reaction_parser">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.io.</span></span><span class="sig-name descname"><span class="pre">kegg_reaction_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rn_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.io.kegg_reaction_parser" title="Permalink to this definition"></a></dt>
+<dd><p>Get the KEGG reaction entry for a KEGG reaction ID
+and parse it to retrieve information in form of a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rn_id</strong> (<em>string</em>) – The KEGG reaction ID that shall be retrived and parsed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Information about name, equationand database links of the entry (reaction).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict, keys include ‘name’,’db’,’rc’ and ‘equation’</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.io.read_model_cobra">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.io.</span></span><span class="sig-name descname"><span class="pre">read_model_cobra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.io.read_model_cobra" title="Permalink to this definition"></a></dt>
+<dd><p>Reads in a model, depending on the given file type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>string</em>) – Path to the model.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code>: Unknown file extension for model.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The model read in with cobra.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>cobra.Model</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-specimen.util.set_up">
+<span id="specimen-util-set-up-module"></span><h2>specimen.util.set_up module<a class="headerlink" href="#module-specimen.util.set_up" title="Permalink to this heading"></a></h2>
+<p>Collection of functions for setting up the environment for the pipeline.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.set_up.build_data_directories">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">build_data_directories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2048</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.set_up.build_data_directories" title="Permalink to this definition"></a></dt>
+<dd><p>Set up the directory structure for the data and download the files
+from MetaNetX and BiGG.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dir</strong> (<em>string</em>) – Parent folder to write the subfolder structure to.</p></li>
+<li><p><strong>chunk_size</strong> (<em>int</em>) – Size of the chunks of data while downloading.
+Default is 2048. Only used for downloading the MetaNetX files.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.set_up.dict_recursive_check">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">dict_recursive_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dictA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.set_up.dict_recursive_check" title="Permalink to this definition"></a></dt>
+<dd><p>Function to check if a configuration is valid to run the pipeline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dictA</strong> (<em>dict</em><em> or </em><em>other</em>) – Current dictionary or value to be validated.</p></li>
+<li><p><strong>key</strong> (<em>string</em>) – key of dictA, if it was an entry of a dictionary.
+Default is None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.set_up.dict_recursive_combine">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">dict_recursive_combine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dictA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dictB</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.set_up.dict_recursive_combine" title="Permalink to this definition"></a></dt>
+<dd><p>Helper-function to combine two configuration file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.set_up.download_bigg">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">download_bigg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BiGG-namespace'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.set_up.download_bigg" title="Permalink to this definition"></a></dt>
+<dd><p>Download the BiGG namespace files and rewrite them into
+the format needed for the workflow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dir</strong> (<em>string</em>) – Name of the directory to write the files into.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.set_up.download_config">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">download_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./my_basic_config.yaml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'basic'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.set_up.download_config" title="Permalink to this definition"></a></dt>
+<dd><p>Load a configuration file from the package and save a copy for the user to edit.</p>
+<p>Depending on the knowledge of the user, either a ‘basic’ or an ‘advanced’ type
+of configuration file can be downloaded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>string</em>) – Filename/filepath to save the downloaded config file under.</p></li>
+<li><p><strong>type</strong> (<em>string</em>) – The type of file to download. Can either be ‘basic’ or ‘advanced’.
+Default is ‘basic’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code>: ‘Unknown type of config file detected’</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.set_up.download_mnx">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">download_mnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MetaNetX/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.set_up.download_mnx" title="Permalink to this definition"></a></dt>
+<dd><p>Download the data needed from the MetaNetX database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dir</strong> (<em>string</em><em>, </em><em>should end with '/'.</em>) – Directory to write the diwnloaded files to.</p></li>
+<li><p><strong>chunk_size</strong> (<em>int</em>) – Size of the chunk of data that is loaded into memory during download.
+Default is 1024.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.set_up.validate_config">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">validate_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">userc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.set_up.validate_config" title="Permalink to this definition"></a></dt>
+<dd><p>Validate a user config file for use in the pipeline.</p>
+<p>Note: currently not everything is checked, mainly the needed files are.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>userc</strong> (<em>string</em>) – Path to the user configuration file.</p>
+</dd>
+<dt class="field-even">Raise<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="field-list simple">
+<dt class="field-odd">FileNotFoundError<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Directory set for config:data:data:direc does not exist.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The validated, read-in configuration file.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict, nested (read-in yaml file)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-specimen.util.util">
+<span id="specimen-util-util-module"></span><h2>specimen.util.util module<a class="headerlink" href="#module-specimen.util.util" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.util.create_DIAMOND_db_from_folder">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.util.</span></span><span class="sig-name descname"><span class="pre">create_DIAMOND_db_from_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'database'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'faa'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.util.create_DIAMOND_db_from_folder" title="Permalink to this definition"></a></dt>
+<dd><p>Build a DIAMOND database from a folder containing FASTA files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dir</strong> (<em>string</em><em>, </em><em>required</em>) – Path to the directory to search for FASTA files for the database (recursive file search).</p></li>
+<li><p><strong>out</strong> (<em>string</em><em>, </em><em>required</em>) – Path of the directory of the output.</p></li>
+<li><p><strong>name</strong> (<em>string</em><em>, </em><em>optional</em>) – Name of the created database.
+Default is ‘database’.</p></li>
+<li><p><strong>extension</strong> (<em>string</em><em>, </em><em>optional</em>) – File extension of the FASTA files (to determine which files to search for).
+Default is ‘faa’.</p></li>
+<li><p><strong>threads</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of threads to use for DIAMOND.
+Default is 2</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.util.create_NCBIinfo_mapping">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.util.</span></span><span class="sig-name descname"><span class="pre">create_NCBIinfo_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gbff'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.util.create_NCBIinfo_mapping" title="Permalink to this definition"></a></dt>
+<dd><p>Create a NCBI information mapping file from a folder containing e.g. gbff files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dir</strong> (<em>string</em>) – Path to the directory for the recursive file search for the mapping.</p></li>
+<li><p><strong>out</strong> (<em>string</em>) – Path of the directory for the output.</p></li>
+<li><p><strong>extension</strong> (<em>string</em>) – Name of the file extension to be searched.
+Default is gbff, and currently it is advised to leave it at that.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.util.get_info_GenBank_Record">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.util.</span></span><span class="sig-name descname"><span class="pre">get_info_GenBank_Record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.util.get_info_GenBank_Record" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieves a table containg information about the following qualifiers from a
+Genbank file: [‘protein_id’,’locus_tag’,’db_xref’,’old_locus_tag’,’EC_number’].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>str</em>) – Path to the Genbank (.gbff) file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A table containing the information above.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame, columns= [‘ncbi_accession_version’, ‘locus_tag_ref’,’old_locus_tag’,’GeneID’,’EC number’]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.util.rewrite_metabolites">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.util.</span></span><span class="sig-name descname"><span class="pre">rewrite_metabolites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.util.rewrite_metabolites" title="Permalink to this definition"></a></dt>
+<dd><p>Rewrites or reformates a given BiGG metabolites namespace TXT file to the following columns:
+bigg_id, name, reaction_string, EC number, BioCyc, MetaNetX (MNX) Equation, SEED Reaction</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>string</em>) – Path of the input file.</p></li>
+<li><p><strong>out</strong> (<em>string</em>) – Path of the output file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.util.rewrite_reactions">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.util.</span></span><span class="sig-name descname"><span class="pre">rewrite_reactions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.util.rewrite_reactions" title="Permalink to this definition"></a></dt>
+<dd><p>Rewrites or reformates a given BiGG reaction namespace TXT file to the following columns:
+bigg_id, name, reaction_string, EC number, BioCyc, MetaNetX (MNX) Equation, SEED Reaction</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>string</em>) – Path of the input file.</p></li>
+<li><p><strong>out</strong> (<em>string</em>) – Path of the output file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.util.separate_db_links_metabolite">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.util.</span></span><span class="sig-name descname"><span class="pre">separate_db_links_metabolite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.util.separate_db_links_metabolite" title="Permalink to this definition"></a></dt>
+<dd><p>Separate the database links in the column of the same name
+from a metabolite BiGG namespace file row.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>row</strong> (<em>pandas object</em><em>, </em><em>a pd.DataFrame row</em>) – one row of the table</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The row with new columns for certain database links (CHEBI, BioCyc, KEGG, MNX, SEED, InChI)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas object, a pd.DataFrame row</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.util.separate_db_links_reaction">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.util.</span></span><span class="sig-name descname"><span class="pre">separate_db_links_reaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.util.separate_db_links_reaction" title="Permalink to this definition"></a></dt>
+<dd><p>Separate the database links in the column of the same name
+from a reaction BiGG namespace file row.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>row</strong> (<em>pandas object</em><em>, </em><em>a pd.DataFrame row</em>) – one row of the table</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The row with new columns for certain database links (EC number, BioCyc, KEGG, MNX, SEED)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas object, a pd.DataFrame row</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.util.write_BiGG_namespace_to_table">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.util.</span></span><span class="sig-name descname"><span class="pre">write_BiGG_namespace_to_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reactions'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.util.util.write_BiGG_namespace_to_table" title="Permalink to this definition"></a></dt>
+<dd><p>Rewrite a BiGG namespace into a table format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> (<em>string</em>) – The input BiGG namespace txt-file (its path). Can be for reactions or metabolites.</p></li>
+<li><p><strong>out</strong> (<em>string</em>) – Path to the output file. Default is the name of the input file with the additional tag ‘_rewritte’.</p></li>
+<li><p><strong>type</strong> (<em>string</em>) – Specifies if the input file is for reactions or metabolites.
+Can either be ‘reactions’ (default) or ‘metabolites’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-specimen.util">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-specimen.util" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="specimen.core.refinement.html" class="btn btn-neutral float-left" title="specimen.core.refinement package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="help.html" class="btn btn-neutral float-right" title="Help" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Carolin Brune.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

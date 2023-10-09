@@ -1,0 +1,13 @@
+biopython
+click
+cobra
+python-libsbml
+matplotlib
+memote
+numpy
+pandas
+requests
+seaborn
+tqdm
+pyyaml
+z3-solver

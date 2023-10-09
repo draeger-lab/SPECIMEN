@@ -1,0 +1,12 @@
+BiGG-namespace
+BioCyc
+KEGG
+MetaNetX
+RefSeqs
+annotated-genomes
+config
+medium
+pan-core-models
+specimen
+template-models
+universal-models

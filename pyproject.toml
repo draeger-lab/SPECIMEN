@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = 'specimen'
+authors = [
+  { name="Carolin Brune"},
+]
+description = ""
+readme = "README.md"
+requires-python = ">=3.10"
+#keywords = []
+#license = {}
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    'Operating System :: MacOS',
+    "Operating System :: Unix"
+]
+dependencies = [
+    'biopython',
+    'click',
+    'cobra',
+    'python-libsbml',
+    # MCC@git+https://github.com/Biomathsys/MassChargeCuration
+    'matplotlib',
+    'memote',
+    'numpy',
+    'pandas',
+    'requests',
+    'SBOannotator',
+    'seaborn',
+    'tqdm',
+    'pyyaml',
+    'z3-solver'
+]
+# additional missing tools:
+#    EntrezDirect
+#    DIAMOND
+dynamic = ['version']
+
+[project.scripts]
+specimen = "specimen.cmd_access:cli"
+
+# include data
+[tool.setuptools.packages.find]
+where = ['src','data']
+[tool.setuptools.package-data]
+medium = ['media.csv']
+KEGG = ['KEGG_pathway_metabolism.csv']
+config = ['*.yaml']

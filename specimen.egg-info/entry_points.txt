@@ -1,0 +1,2 @@
+[console_scripts]
+specimen = specimen.cmd_access:cli

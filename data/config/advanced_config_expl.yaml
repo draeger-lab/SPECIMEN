@@ -1,0 +1,149 @@
+# information about the genome to be used to generate the new model
+subject:
+    annotated_genome: __USER__
+    full_sequence: __USER__
+
+# information about the template model/genome
+template:
+    annotated_genome: __USER__
+    model: __USER__
+
+# information about the output
+out:
+    dir: ./specimen_run/
+    name: specimen_model
+    memote: False
+
+# data(bases) required to run the program
+data:
+    # if this parameter is set, assumes that the directory structure from setup
+    # is used and uses this path to a directory as the parent folder for the
+    # following paths (assumes all data paths are relative ones)
+    data_direc: null
+    # media database:
+    # already available internally, can be optionally changed to user input
+    media: null
+    # required
+    diamond: __USER__
+    # required but can be downloaded using setup
+    bigg_reac: BiGG-namespace/bigg_models_reactions_rewritten.tsv
+    bigg_meta: BiGG-namespace/bigg_models_metabolites_rewritten.tsv
+    mnx_chem_prop: MetaNetX/chem_prop.tsv
+    mnx_chem_xref: MetaNetX/chem_xref.tsv
+    mnx_reac_prop: MetaNetX/reac_prop.tsv
+    mnx_reac_xref: MetaNetX/reac_xref.tsv
+    # optional, but good and manual
+    ncbi_map: null
+    ncbi_dat: null
+    # optional for directionality control
+    biocyc: null
+    # optional:
+    #   the pan-core model is used for analysis and if no universal model
+    #   is given, also for gapfilling
+    #   if the pan-core model is too small for useful gapfilling, use an
+    #   additional universal model for gapfilling
+    #   if none if given gapfilling (and core-pan analysis) is skipped
+    universal: null
+    pan-core: null
+
+# paramters for the single steps of the pipeline
+parameters:
+    bidirectional_blast:
+        # options for giveng customised names and setting a header
+        # -> default uses information from the models/files directly
+        template_name: null
+        input_name: null
+        temp_header: null
+        in_header: null
+        # which information to pick from NCBI, default has to be included
+        extra_info:
+            - locus_tag
+            - product
+            - protein_id
+        # change the sensitivity of DIAMOND
+        sensitivity: more-sensitive
+
+    generate_draft_model:
+        # if the gene ids of the template model do not match the
+        # identifiers of the annotated genome file, use this option to edit them
+        edit_names: no
+        # filter for genes based on percentage identity value
+        pid: 80.0
+        # Which medium to save the model with.
+        medium: default
+
+    refinement_extension:
+        # Id to use for checking (change not advised)
+        id: locus_tag
+        # change the sensitivity of DIAMOND
+        sensitivity: more-sensitive
+        coverage: 95.0
+        pid: 90.0
+        # Ex/Include RNA and DNA genes (excluded for purely metabolic model,
+        # include for knowledge-based model)
+        exclude_dna: True
+        exclude_rna: True
+
+    refinement_cleanup:
+        # Options for duplicate checking/removal
+        check_dupl_reac: True
+        check_dupl_meta: default
+        remove_unused_meta: False
+        remove_dupl_reac: True
+        remove_dupl_meta: True
+        # Optional for gapfilling
+        load_media: null
+        external_media: null
+        change_to_aerobic: null
+        change_to_anaerobic: null
+        add_casamino: null
+        growth_threshold: 0.5
+
+    refinement_annotation:
+        # for KEGG pathway annotation
+        viaEC: False
+        viaRC: False
+
+    refinement_smoothing:
+        # apply, skip or extra: Usage of MassChargeCuration
+        mcc: skip
+        # BOFdat weight fractions: depend on organism (current: Klebsiella )
+        dna_weight_frac: 0.023
+        ion_weight_frac: 0.05
+
+    validation:
+        # which tests to include for validation (or run all)
+        tests: null
+        run_all: True
+
+    analysis:
+        # How to compare to pan-core model (current option only id)
+        pc_based_on: id
+        # simulate growth on different media
+        load_media:
+            - LB
+            - M9
+        change_to_aerobic: null
+        change_to_anaerobic:
+            - LB
+            - M9
+        add_casamino: null
+        external_media: null
+        # test for minimal medium (time-consuming!)
+        test_min_medium: False
+        growth_rate: 0.1
+        # test for amino acid auxotrophies
+        test_aa_auxotrophies: True
+        # perform pathway analysis with KEGG
+        pathway: True
+
+# options for performance
+performance:
+    threads: 2
+    # for the gapfilling, if iterations and chunk_size are set (not null)
+    # use a heuristic for faster performance:
+    #     instead of using all reactions that can be added at once,
+    #     run x interations of gapfilling with n-size randomised chunks of reactions
+    gapfilling:
+        iterations: 3
+        chunk_size: 10000
