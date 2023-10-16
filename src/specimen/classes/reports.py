@@ -381,7 +381,7 @@ class GrowthAnalysisReport():
         # construct the plot
         max_ydata = max(ydata)
         if max_ydata <= 0:
-            warning.warn('Model is not able to grow on all media. Returning empty figure.')
+            warnings.warn('Model is not able to grow on all media. Returning empty figure.')
             return fig
         cont = ax.barh(data['medium'], ydata, color=cmap([_/max_ydata for _ in ydata]),
                label=data['medium'])
@@ -610,7 +610,7 @@ class PathwayAnalysisReport():
                             data[label_map[k]] += old_data[k]
 
             case _:
-                warning.warn(F'Unknown input for label: {label}. Using "id" instead.')
+                warnings.warn(F'Unknown input for label: {label}. Using "id" instead.')
                 for k in label_map:
                     if k not in data:
                         data[k] = 0

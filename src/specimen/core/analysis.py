@@ -9,6 +9,7 @@ __author__ = 'Carolin Brune'
 
 import cobra
 import copy
+import pandas as pd
 import re
 import time
 import warnings
@@ -193,8 +194,8 @@ def analyse_growth(model, db_path=None, load_media=None, change_to_aerobic=None,
     # load external media
     if external_media:
         for filepath in external_media:
-            tmp_table = pd.read_csv(path, sep=';', header=0)
-            media_list.append(from_table(tmp_table))
+            tmp_table = pd.read_csv(filepath, sep=';', header=0)
+            media_list.append(classes.medium.from_table(tmp_table))
 
     # performs tests
     # --------------

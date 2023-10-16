@@ -63,7 +63,7 @@ def create_DIAMOND_db_from_folder(dir, out, name='database', extension='faa', th
             answer = input('Do you want to [overwrite] or [use] the file or [end] the programm?: ')
             if answer == 'use':
                 save = False
-            elif anwer == 'end':
+            elif answer == 'end':
                 sys.exit()
             elif answer == 'overwrite':
                 save = True
@@ -104,7 +104,7 @@ def get_info_GenBank_Record(file_path):
     temp_table = pd.DataFrame(columns=['ncbi_accession_version', 'locus_tag_ref','old_locus_tag','GeneID','EC number'])
     attributes = ['protein_id','locus_tag','old_locus_tag','db_xref','EC_number']
 
-    for record in SeqIO.parse(gbff_name,"genbank"):
+    for record in SeqIO.parse(file_path,"genbank"):
         if record.features:
             for feature in record.features:
                 if feature.type == 'CDS':

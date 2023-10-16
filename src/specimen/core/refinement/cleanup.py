@@ -809,8 +809,8 @@ def run(model, dir, biocyc_db=None, check_dupl_reac = False,
     # load external media
     if external_media:
         for filepath in external_media:
-            tmp_table = pd.read_csv(path, sep=';', header=0)
-            media_list.append(from_table(tmp_table))
+            tmp_table = pd.read_csv(filepath, sep=';', header=0)
+            media_list.append(medium.from_table(tmp_table))
 
     # perform gapfilling
     # -----------------

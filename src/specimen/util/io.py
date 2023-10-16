@@ -38,7 +38,7 @@ def read_model_cobra(path: str):
         case 'json':
             data = cobra.io.load_json_model(path)
         case 'yml':
-            data = load_yaml_model(path)
+            data = cobra.io.load_yaml_model(path)
         case 'mat':
             data = cobra.io.load_matlab_model(path)
         case _:

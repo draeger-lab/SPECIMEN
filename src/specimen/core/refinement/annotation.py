@@ -13,6 +13,7 @@ import subprocess
 import time
 from tqdm import tqdm
 import urllib.error
+import pandas as pd
 
 # from SBOannotator import *
 from SBOannotator import sbo_annotator

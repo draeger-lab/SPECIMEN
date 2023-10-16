@@ -14,8 +14,10 @@ import cobra
 import numpy as np
 import re
 import subprocess
+import warnings
 
 from ..util import cobra_models, io
+from . import classes
 
 # further required programs:
 #        - MEMOTE, tested with version 0.13.0
@@ -246,7 +248,7 @@ def gen_draft_model(model, bbh, name, dir, edit, medium='default',db_path=None):
         # set all exchanges open + as medium
         # note: gapfilling using cobra becomes not feasible using this option
         model.medium = {_.id:1000.0 for _ in model.exchanges}
-    elif not pd.isnull(medium_path):
+    elif not pd.isnull(medium):
         # load a medium from a file (database)
         db = classes.medium.load_media_db(db_path)
         if medium in db.keys():

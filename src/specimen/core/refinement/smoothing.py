@@ -7,6 +7,7 @@ __author__ = 'Carolin Brune'
 # requirements
 ################################################################################
 
+import subprocess
 import time
 import tempfile
 from pathlib import Path
