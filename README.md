@@ -2,7 +2,7 @@
 
 SPECIMEN (strain-specific metabolic modelling) provides a pipeline for curating a strain-specific metabolic model from a high-quality template model with further functionalities build around this pipeline. 
 
-[Overview of the main pipeline of SPECIMEN](docs/source/images/pipeline-overview.png)
+![Overview of the main pipeline of SPECIMEN](docs/source/images/pipeline-overview.png)
 
 ## Installation  
 
