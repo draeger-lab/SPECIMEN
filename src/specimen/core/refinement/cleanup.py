@@ -465,7 +465,11 @@ def resolve_duplicates(model, check_reac = True, check_meta = 'default', replace
         # resolve duplicates by starting at every database identifer one after another
         # note: bigg and sbo are skipped as sbo gives not much information and bigg is
         #       usually the one that differs (naming issue)
-        for colname in [_ for _ in df_meta.columns.tolist() if not _ in ['id','compartment','bigg.metabolite','sbo']]:
+        anno_types = set()
+        # get all database annotation types present in the model
+        for m in model.metabolites:
+            anno_types = anno_types | set(m.annotation.keys())
+        for colname in [_ for _ in anno_types if not _ in ['bigg.metabolite','sbo']]:
             model = resolve_duplicate_metabolites(model,colname,replace=replace_dupl_meta)
     elif check_meta == 'skip':
         print('\tSkip check for duplicate metabolites.')
