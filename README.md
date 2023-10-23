@@ -22,4 +22,5 @@ To further get into SPECIMEN, try out the jupyter notebooks in the HowTo folder,
 
 ## Documentation
 
-- see future updates
+Currently, see docs folder in this repository. The rendered html pages can be found in the `build` subdirectory.
+  
