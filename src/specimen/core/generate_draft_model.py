@@ -17,7 +17,7 @@ import subprocess
 import warnings
 
 from ..util import cobra_models, io
-from . import classes
+from .. import classes
 
 # further required programs:
 #        - MEMOTE, tested with version 0.13.0

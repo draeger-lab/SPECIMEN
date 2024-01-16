@@ -17,7 +17,8 @@ import warnings
 # functions
 ################################################################################
 
-# added
+# @DELETE
+# added to refinegems
 def read_model_cobra(path: str):
     """Reads in a model, depending on the given file type.
 

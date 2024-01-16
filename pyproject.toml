@@ -27,6 +27,7 @@ dependencies = [
     'memote',
     'numpy',
     'pandas',
+    'refinegems',
     'requests',
     'SBOannotator',
     'seaborn',

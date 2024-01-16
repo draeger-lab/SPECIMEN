@@ -1,3 +1,4 @@
+LICENSE
 README.md
 pyproject.toml
 data/KEGG/KEGG_pathway_metabolism.csv

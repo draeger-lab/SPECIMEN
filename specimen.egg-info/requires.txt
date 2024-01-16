@@ -6,7 +6,9 @@ matplotlib
 memote
 numpy
 pandas
+refinegems
 requests
+SBOannotator
 seaborn
 tqdm
 pyyaml
