@@ -13,10 +13,7 @@ from Bio import SeqIO
 from pathlib import Path
 import os.path
 import time
-import sys
 import subprocess
-
-
 
 ################################################################################
 # functions

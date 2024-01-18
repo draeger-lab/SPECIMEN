@@ -5,19 +5,19 @@ __author__ = 'Carolin Brune'
 # requirements
 ################################################################################
 
-import sys
 from pathlib import Path
 import os.path
 import time
 import pandas as pd
 import cobra
 import numpy as np
-import re
 import subprocess
 import warnings
 
-from ..util import cobra_models, io
-from .. import classes
+from refinegems.medium import load_medium_from_db, medium_to_model
+from refinegems.io import load_model_cobra
+
+from ..util import cobra_models
 
 # further required programs:
 #        - MEMOTE, tested with version 0.13.0
@@ -43,7 +43,7 @@ def pid_filter(data: pd.DataFrame, pid: float):
 
     return data
 
-
+# @TODO
 def edit_template_identifiers(data, edit):
     """Edit the subject IDs to fit the gene IDs of the template model.
     Requires further extention, if needed edits are not included.
@@ -63,6 +63,7 @@ def edit_template_identifiers(data, edit):
             data['subject_ID'] = [x.replace('.','_') for x in data['subject_ID']]
             return data
         # ...........
+        # @TODO
         # extendable
         # ...........
     return data
@@ -220,7 +221,7 @@ def check_unchanged(draft, bbh):
     return draft
 
 
-def gen_draft_model(model, bbh, name, dir, edit, medium='default',db_path=None):
+def gen_draft_model(model, bbh, name, dir, edit, medium='default', namespace='BiGG'):
     """Generate a draft model from a template model and the results of a bidirectional blastp (blast best hits) table
     and save it as a new model.
 
@@ -237,27 +238,24 @@ def gen_draft_model(model, bbh, name, dir, edit, medium='default',db_path=None):
     :param medium: Name of the to be loaded from a database or 'default' = the one
         from the template model.
     :type medium: string
-    :param db_path: Path to a medium database file. Optional.
-    :type db_path: string
+    :param namespace:        Namespace of the model.
+    :type  namespace:        Literal['BiGG'], optional
     """
 
-    if medium == 'default':
-        # leave the medium from the template
-        pass
-    elif medium == 'exchanges':
+    match medium:
+        # use the medium from the template
+        case 'default':
+            pass
         # set all exchanges open + as medium
-        # note: gapfilling using cobra becomes not feasible using this option
-        model.medium = {_.id:1000.0 for _ in model.exchanges}
-    elif not pd.isnull(medium):
-        # load a medium from a file (database)
-        db = classes.medium.load_media_db(db_path)
-        if medium in db.keys():
-            model.medium = db[medium].export_to_cobra()
-        else:
+        case 'exchanges':
+            # @NOTE: gapfilling using cobra becomes not feasible using this option
+            model.medium = {_.id:1000.0 for _ in model.exchanges}
+        # use a medium from the refinegems database
+        case str():
+            new_m = load_medium_from_db(medium)
+            medium_to_model(model, new_m, namespace, double_o2=False, add=True)
+        case _:
             warnings.warn('Unknown or incomplete input for setting the medium. Using the one from the template.')
-    else:
-        warnings.warn('Unknown or incomplete input for setting the medium. Using the one from the template.')
-
 
     # delete absent genes, including associated reactions
     bbh = edit_template_identifiers(bbh, edit)
@@ -287,7 +285,7 @@ def gen_draft_model(model, bbh, name, dir, edit, medium='default',db_path=None):
     cobra.io.write_sbml_model(draft, F'{dir}{name}_draft.xml')
 
 
-def run(template, bpbbh, dir, edit_names='no', pid=80.0, name=None, medium='default', db_path=None, memote=False):
+def run(template, bpbbh, dir, edit_names='no', pid=80.0, name=None, medium='default', namespace='BiGG', memote=False):
     """Generate a draft model from a blastp best hits tsv file and a template model.
 
     :param template: Path to the file containing the template model.
@@ -308,9 +306,8 @@ def run(template, bpbbh, dir, edit_names='no', pid=80.0, name=None, medium='defa
         If given the keyword "exchanges", will open all exchange reaction and use them as the medium.
         If given together with db_path, the corresponding medium is loaded.
     :type medium: string
-    :param db_path: Path to a medium database file. If specified together with "medium",
-        the name from medium will be searched and loaded from the database as the new medium.
-    :type db_path: string
+    :param namespace: Namespace of the model.
+    :type  namespace: Literal['BiGG'], optional
     :param memote: Option to run memote after creating the draft model.
         Default is False (not running memote).
     :type memote: bool
@@ -344,7 +341,7 @@ def run(template, bpbbh, dir, edit_names='no', pid=80.0, name=None, medium='defa
         print('Given directory already exists.')
 
     bbh_data = pd.read_csv(bpbbh, sep='\t')
-    template_model = io.read_model_cobra(template)
+    template_model = load_model_cobra(template)
     # if possible, set growth function as model objective
     growth_objfunc = cobra_models.find_growth_obj_func(template_model)
     template_model.objective = growth_objfunc
@@ -365,7 +362,7 @@ def run(template, bpbbh, dir, edit_names='no', pid=80.0, name=None, medium='defa
 
     print('\n# --------------------\n# generate draft model\n# --------------------')
     start = time.time()
-    gen_draft_model(template_model, bbh_data, name, dir, edit_names, medium='default',db_path=None)
+    gen_draft_model(template_model, bbh_data, name, dir, edit_names, medium=medium, namespace=namespace)
     end = time.time()
     print(F'\ttotal time: {end - start}s')
 

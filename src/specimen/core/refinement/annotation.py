@@ -15,6 +15,9 @@ from tqdm import tqdm
 import urllib.error
 import pandas as pd
 
+# refinegems
+from refinegems.io import load_model_cobra
+
 # from SBOannotator import *
 from SBOannotator import sbo_annotator
 from ... import util
@@ -32,7 +35,8 @@ def kegg_reaction_to_kegg_pathway(model, viaEC=False, viaRC=False):
     they have yet to be added. Depending on the given options, only the
     reactions is searched or additional searches are started using the
     EC number and reactions class if the first search was unsuccesful.
-    NOTE: EC number and reaction class cover a broader set of pathways and might
+    
+    @NOTE: EC number and reaction class cover a broader set of pathways and might
     not be entirely accurate for the given reaction.
 
     :param model: The model to be annotated with KEGG pathway.
@@ -182,7 +186,7 @@ def run(model, dir, kegg_viaEC=False, kegg_viaRC=False, memote=False):
     print(F'\ttime: {end - start}s')
 
     # reload model
-    model = util.io.read_model_cobra(F"{dir}step3-annotation/"+libsbml_model.getId()+'_SBOannotated.xml')
+    model = load_model_cobra(F"{dir}step3-annotation/"+libsbml_model.getId()+'_SBOannotated.xml')
 
     # ................................................................
     # @EXTENDABLE

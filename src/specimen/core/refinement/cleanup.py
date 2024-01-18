@@ -20,6 +20,8 @@ import copy
 import re
 import sys
 
+from refinegems.io import load_model_cobra
+
 from ...classes import medium
 from ... import util
 # further required programs:
@@ -820,7 +822,7 @@ def run(model, dir, biocyc_db=None, check_dupl_reac = False,
     # -----------------
     if len(media_list) > 0:
         # load universal model
-        universal_model = util.io.read_model_cobra(universal)
+        universal_model = load_model_cobra(universal)
         # run gapfilling
         model = multiple_cobra_gapfill(model,universal_model,media_list,iterations=iterations, chunk_size=chunk_size, growth_threshold=growth_threshold)
 

@@ -26,7 +26,7 @@ import urllib.error
 from Bio.KEGG import REST
 from Bio.KEGG import Enzyme, Compound
 
-from ...util import io
+from refinegems.io import kegg_reaction_parser
 
 # further required programs:
 #        - DIAMOND, tested with version 0.9.14 (works only for certain sensitivity mode)
@@ -1080,7 +1080,7 @@ def add_reaction(model,row,reac_xref,reac_prop,chem_xref,chem_prop,bigg_metaboli
     # ------------------------
     else:
         # retrieve reaction information from KEGG
-        reac_kegg = io.kegg_reaction_parser(row['KEGG.reaction'])
+        reac_kegg = kegg_reaction_parser(row['KEGG.reaction'])
 
         # add id and name
         # ---------------

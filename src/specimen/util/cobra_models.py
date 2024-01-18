@@ -7,14 +7,9 @@ __author__ = 'Carolin Brune'
 # requirements
 ################################################################################
 
-import cobra
 import logging
-import os.path
-from tqdm import tqdm
-import warnings
 
-from . import io
-from ..classes import reports,medium
+from ..classes import reports
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +36,7 @@ sbo_bioch_terms = ["SBO:0000377", "SBO:0000399", "SBO:0000402", "SBO:0000403",
 
 # very similar to refinegems.biomass.test_biomass_presence(model)
 # -> however that returns a list and not a string
+# @DELETE, probably
 def find_growth_obj_func(model):
     """Get the ID of the growth function of the model.
 
