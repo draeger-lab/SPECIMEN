@@ -33,6 +33,5 @@ src/specimen/core/refinement/extension.py
 src/specimen/core/refinement/smoothing.py
 src/specimen/util/__init__.py
 src/specimen/util/cobra_models.py
-src/specimen/util/io.py
 src/specimen/util/set_up.py
 src/specimen/util/util.py

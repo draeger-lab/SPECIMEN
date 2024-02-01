@@ -1,3 +1,3 @@
-__all__ = ['util','io', 'cobra_models', 'set_up']
+__all__ = ['util', 'cobra_models', 'set_up']
 
-from . import util, io, cobra_models, set_up
+from . import util, cobra_models, set_up

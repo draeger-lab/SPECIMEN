@@ -3,6 +3,14 @@
 
 __author__ = 'Carolin Brune'
 
+# deletion blocks are for which parts already have been transfered to the 
+# module in refinegems
+# the goal is to completely transfer this module to refinegems
+
+# ========================
+# delete below
+# ========================
+
 ################################################################################
 # requirements
 ################################################################################
@@ -23,6 +31,7 @@ PATH_TO_MEDIA_DB = files('medium').joinpath('media.csv')
 ################################################################################
 # classes
 ################################################################################
+
 
 class Compound:
     """The Compound objects describe the compounds of a Medium object.
@@ -173,7 +182,10 @@ class Medium:
             else:
                 raise ValueError('Neither bigg id nor formula found. Cannot add to medium.')
 
-
+# ========================
+# delete above
+# ========================
+            
     def has_compound(self, c):
         """Checks, if a compound is part of the medium.
 
@@ -238,7 +250,9 @@ class Medium:
             return test[0]
         else:
             return []
-
+# ========================
+# delete below
+# ========================
 
     def remove_compound(self, c):
         """Remove a compound from the medium.
@@ -280,6 +294,10 @@ class Medium:
 
         return found
 
+
+# ========================
+# delete above
+# ========================
 
     def set_source_of(self, element, new_source, remove_all=False):
         """Set the source of an element to a given new source (Compound).
@@ -336,6 +354,10 @@ class Medium:
 
         # add new source
         self.add_compound(new_source)
+
+# ========================
+# delete below
+# ========================
 
 
     def is_aerobic(self):
@@ -530,6 +552,9 @@ def import_medium_from_cobra(model):
 
     return medium
 
+# ========================
+# delete above 
+# ========================
 
 # ......
 #@ TODO:
@@ -599,6 +624,11 @@ def model_minimal_medium(model, objective='flux', growth_rate=0.5, open_exchange
         medium = import_medium_from_cobra(tmp_model)
 
     return medium
+
+
+# ========================
+# delete below
+# ========================
 
 # .........................................................................,
 # @TODO
