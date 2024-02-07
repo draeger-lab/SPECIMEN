@@ -11,11 +11,8 @@ from importlib.resources import files
 import os
 from pathlib import Path
 import requests
-import sys
 from tqdm import tqdm
 import yaml
-
-from . import util
 
 ################################################################################
 # variables
@@ -24,7 +21,7 @@ from . import util
 # config keys
 # -----------
 CONFIG_PATH_OPTIONAL = ['media', 'ncbi_map', 'ncbi_dat','biocyc','universal','pan-core']
-CONFIG_PATH_REQUIRED = ['annotated_genome','full_sequence','model','diamond', 'bigg_reac','bigg_meta',
+CONFIG_PATH_REQUIRED = ['annotated_genome','full_sequence','model','diamond',
                         'mnx_chem_prop', 'mnx_chem_xref','mnx_reac_prop','mnx_reac_xref']
 
 
@@ -37,9 +34,6 @@ MNX_REAC_PROP_URL = 'https://www.metanetx.org/cgi-bin/mnxget/mnxref/reac_prop.ts
 MNX_URL_DICT = {'chem_prop.tsv':MNX_CHEM_PROP_URL, 'chem_xref.tsv':MNX_CHEM_XREF_URL,
                 'reac_prop.tsv':MNX_REAC_PROP_URL, 'reac_xref.tsv':MNX_REAC_XREF_URL}
 
-BIGG_REAC = 'http://bigg.ucsd.edu/static/namespace/bigg_models_reactions.txt'
-BIGG_META = 'http://bigg.ucsd.edu/static/namespace/bigg_models_metabolites.txt'
-
 ################################################################################
 # functions
 ################################################################################
@@ -47,6 +41,7 @@ BIGG_META = 'http://bigg.ucsd.edu/static/namespace/bigg_models_metabolites.txt'
 # ----------------------
 # setup data (structure)
 # ----------------------
+# @TEST : deleted BiGG part, since its already covered with refinegems
 
 def download_mnx(dir='MetaNetX/', chunk_size=1024):
     """Download the data needed from the MetaNetX database.
@@ -68,30 +63,9 @@ def download_mnx(dir='MetaNetX/', chunk_size=1024):
                 bar.update(size)
 
 
-def download_bigg(dir='BiGG-namespace'):
-    """Download the BiGG namespace files and rewrite them into
-    the format needed for the workflow.
-
-    :param dir: Name of the directory to write the files into.
-    :type dir: string
-    """
-
-    # BiGG metabolites
-    r = requests.get(BIGG_META)
-    with open(dir+'bigg_models_metabolites.txt', 'wb') as f:
-        f.write(r.content)
-    util.write_BiGG_namespace_to_table(dir+'bigg_models_metabolites.txt', type='metabolites')
-
-    # BiGG reactions
-    r = requests.get(BIGG_REAC)
-    with open(dir+'bigg_models_reactions.txt', 'wb') as f:
-        f.write(r.content)
-    util.write_BiGG_namespace_to_table(dir+'bigg_models_reactions.txt', type='reactions')
-
-
 def build_data_directories(dir, chunk_size=2048):
     """Set up the directory structure for the data and download the files
-    from MetaNetX and BiGG.
+    from MetaNetX.
 
     :param dir: Parent folder to write the subfolder structure to.
     :type dir: string
@@ -106,7 +80,7 @@ def build_data_directories(dir, chunk_size=2048):
 
     # create the data directory structure
     print('Creating directory structure...')
-    DATA_DIRECTORIES = ['annotated_genomes', 'BiGG-namespace', 'BioCyc', 'RefSeqs',
+    DATA_DIRECTORIES = ['annotated_genomes', 'BioCyc', 'RefSeqs',
                         'medium', 'MetaNetX', 'pan-core-models', 'template-models',
                         'universal-models']
     for sub_dir in DATA_DIRECTORIES:
@@ -118,12 +92,8 @@ def build_data_directories(dir, chunk_size=2048):
             print(F'Directory {new_dir} already exists.')
 
     # download data for those directories where this is possible
-    print('Downloading BiGG-namespace...')
-    download_bigg(dir + 'BiGG-namespace/')
     print('Downloading MetaNetX...')
     download_mnx(dir + 'MetaNetX/', chunk_size=chunk_size)
-
-
 
 
 # ---------------------
@@ -255,7 +225,3 @@ def validate_config(userc):
     return combined_config
 
 
-
-# ----------------
-# installing tools
-# ----------------

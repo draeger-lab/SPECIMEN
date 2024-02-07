@@ -26,7 +26,7 @@ import urllib.error
 from Bio.KEGG import REST
 from Bio.KEGG import Enzyme, Compound
 
-from refinegems.io import kegg_reaction_parser
+from refinegems.io import kegg_reaction_parser, load_a_table_from_database
 
 # further required programs:
 #        - DIAMOND, tested with version 0.9.14 (works only for certain sensitivity mode)
@@ -418,18 +418,19 @@ def map_Bigg_reactions_row(row, namespace):
     return row
 
 
-def map_BiGG_reactions(table_file, file):
+# @TEST : fitted to refinegems
+# @CHECK : connections, e.g. input is now a param short 
+def map_BiGG_reactions(table_file):
     """Map the output of map_to_KEGG() to a BiGG namespace file (rewritten-type, see auxilliaries).
 
     :param table_file: The path to the saved table from running map_to_KEGG().
     :type  table_file: string
-    :param file:       The path to the BiGG namespace (reactions!) file.
-    :type  file:       string
     :returns:          The table with an additional column for the mapping to BiGG reactions.
     :rtype:            pd.DataFrame
     """
 
-    r_namespace = pd.read_csv(file, sep='\t').fillna('-')
+    r_namespace = load_a_table_from_database('bigg_reactions', False)
+
     table = pd.read_csv(table_file)
     table['bigg_id'] = pd.Series(dtype='str')
 
@@ -1151,7 +1152,9 @@ def add_reaction(model,row,reac_xref,reac_prop,chem_xref,chem_prop,bigg_metaboli
 
 
 # notes
-def extent_model(table, model,chem_prop_file,chem_xref_file,reac_prop_file,reac_xref_file,bigg_metabolites_file, exclude_dna=True, exclude_rna=True):
+# @TEST : fitted to refinegems
+# @CHECK : connections, e.g. input is now a param short 
+def extent_model(table, model,chem_prop_file,chem_xref_file,reac_prop_file,reac_xref_file, exclude_dna=True, exclude_rna=True):
     """Add reactions, metabolites and genes to a model based on the output of map_to_bigg().
 
     :param table:                 The table with the information to be added to the model.
@@ -1166,8 +1169,6 @@ def extent_model(table, model,chem_prop_file,chem_xref_file,reac_prop_file,reac_
     :type  reac_prop_file:        string
     :param reac_xref_file:        Path to the MetaNetX reac_xref file.
     :type  reac_xref_file:        string
-    :param bigg_metabolites_file: Path to the BiGG Metabolites namespace file (rewritten).
-    :type  bigg_metabolites_file: string
     :param exclude_dna:           Tag to include or exclude DNA reactions.
     :type  exclude_dna:           bool, default is True.
     :param exclude_rna:           Tag to include or exclude RNA reactions.
@@ -1184,7 +1185,9 @@ def extent_model(table, model,chem_prop_file,chem_xref_file,reac_prop_file,reac_
     reac_xref = pd.read_csv(reac_xref_file, sep='\t', comment='#', names=['source','ID','description'])
 
     # load bigg metabolite namespace
-    bigg_metabolites = pd.read_csv(bigg_metabolites_file, sep='\t', names=['bigg_id','universal_bigg_id','name','CHEBI','BioCyc','KEGG Compound','MetaNetX (MNX) Chemical','SEED Compound','InChI Key'])
+    bigg_metabolites = load_a_table_from_database('bigg_metabolites', False)
+    bigg_metabolites.rename(columns={'id':'bigg_id'}, inplace=True)
+    bigg_metabolites = bigg_metabolites[['bigg_id','universal_bigg_id','name','CHEBI','BioCyc','KEGG Compound','MetaNetX (MNX) Chemical','SEED Compound','InChI Key']]
 
     # add genes one by one to model
     print('\tAdding genes and if needed reactions and metabolites to model:')
@@ -1231,8 +1234,10 @@ def extent_model(table, model,chem_prop_file,chem_xref_file,reac_prop_file,reac_
     return model
 
 
+# @TEST : fitted to refinegems
+# @CHECK : connections, e.g. input is now two params short 
 # run the main as function
-def run(draft, gene_list, fasta, db, dir, bigg_reac, bigg_meta, mnx_chem_prop, mnx_chem_xref, mnx_reac_prop, mnx_reac_xref, ncbi_map, ncbi_dat, id='locus_tag', sensitivity='more-sensitive', coverage=95.0, pid=90.0, threads=2, exclude_dna=True, exclude_rna=True, memote=False):
+def run(draft, gene_list, fasta, db, dir, mnx_chem_prop, mnx_chem_xref, mnx_reac_prop, mnx_reac_xref, ncbi_map, ncbi_dat, id='locus_tag', sensitivity='more-sensitive', coverage=95.0, pid=90.0, threads=2, exclude_dna=True, exclude_rna=True, memote=False):
     """Create a draft model.
 
     Explaination missing ....
@@ -1247,11 +1252,6 @@ def run(draft, gene_list, fasta, db, dir, bigg_reac, bigg_meta, mnx_chem_prop, m
     :type db: string
     :param dir: Path to the directory for the output (directories).
     :type dir: string
-
-    :param bigg_reac: Path to the BiGG reaction namespace file (rewritten version).
-    :type bigg_reac: string
-    :param bigg_meta: Path to the BiGG metabolite namespace file (rewritten version).
-    :type bigg_meta: string
 
     :param mnx_chem_prop: Path to the MetaNetX chem_prop namespace file.
     :type mnx_chem_prop: string
@@ -1386,7 +1386,7 @@ def run(draft, gene_list, fasta, db, dir, bigg_reac, bigg_meta, mnx_chem_prop, m
 
     # map to BiGG
     print('\tmap information to BiGG namespace via EC number AND KEGG.reaction ID')
-    genes_to_add = map_BiGG_reactions(genes_to_add, bigg_reac)
+    genes_to_add = map_BiGG_reactions(genes_to_add)
 
     end = time.time()
     print(F'\ttime: {end - start}s')
@@ -1404,7 +1404,7 @@ def run(draft, gene_list, fasta, db, dir, bigg_reac, bigg_meta, mnx_chem_prop, m
     g_before = len(draft.genes)
 
     # extent the model
-    draft = extent_model(genes_to_add,draft,mnx_chem_prop,mnx_chem_xref,mnx_reac_prop,mnx_reac_xref,bigg_meta, exclude_dna, exclude_rna)
+    draft = extent_model(genes_to_add,draft,mnx_chem_prop,mnx_chem_xref,mnx_reac_prop,mnx_reac_xref, exclude_dna, exclude_rna)
     # save it
     name = F'{draft.id}_extended'
     cobra.io.write_sbml_model(draft, F'{dir}step1-extension/{name}.xml')
