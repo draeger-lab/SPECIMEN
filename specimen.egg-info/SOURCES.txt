@@ -19,7 +19,6 @@ src/specimen/__init__.py
 src/specimen/cmd_access.py
 src/specimen/workflow.py
 src/specimen/classes/__init__.py
-src/specimen/classes/medium.py
 src/specimen/classes/reports.py
 src/specimen/core/__init__.py
 src/specimen/core/analysis.py

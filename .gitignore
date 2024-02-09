@@ -6,3 +6,5 @@ data/media.csv
 data/media.numbers
 
 example/
+
+build/
