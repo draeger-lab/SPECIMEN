@@ -7,7 +7,9 @@ __author__ = 'Carolin Brune'
 # requirements
 ################################################################################
 
-from pathlib import Path
+import pandas as pd
+
+from refinegems.classes.reports import ModelInfoReport
 
 ################################################################################
 # variables
@@ -17,90 +19,34 @@ from pathlib import Path
 # classes
 ################################################################################
 
-class ModelStatisticsReport():
-    """ModelStatisticsReport objects are used to store statistical information
-    about a model. Additionally, this class provides functionalities to report
-    said information.
+class SpecimenModelInfoReport(ModelInfoReport):
+    
+    def __init__(self, model) -> None:
 
-    :param model_id: The model's ID (its name).
-    :type model_id: string
-    :param total_reac: Total number of reactions in the model.
-    :type total_reac: int
-    :param total_gene: Total number of genes in the model.
-    :type total_gene: int
-    :param total_meta: Total number of metabolites in the model.
-    :type total_meta: int
-    :param reac_origin_counts: Descriptors and corresponding count for where the reactions where build from.
-        Should be a dictionary of string and ints.
-    :type reac_origin_counts: dict
-    :param reac_with_gpr: Number of reactions that are associated with a gene reaction rule (GPR)
-    :type reac_with_gpr: int
+        # call the superclass
+        super().__init__(model)
 
-    :var model_id: The model's ID the statistic is about.
-    :vartype model_id: string
-    :var reac: Information about the reaction objects, including "total" count, "origin" count and number of reactions "with gpr".
-    :vartype reac: dict (string as above, int or dict as value)
-    :var meta: Information about the metabolite objects, including "total" count.
-    :vartype meta: dict (string as above, int as value)
-    :var gene: Information about the gene objects, including "total" count.
-    :vartype gene: dict (string as above, int as value)
-    """
+        # find out the origin of the reactions
+        reac_origin_counts = {'via template':0, 'via MetaNetX':0, 'via KEGG':0, 'via gapfilling':0, 'else':0}
+        for reac in model.reactions:
+            # get origin of reaction (based on workflow notation)
+            if 'creation' in reac.notes.keys():
+                if reac.notes['creation'] in reac_origin_counts.keys():
+                    reac_origin_counts[reac.notes['creation']] += 1
+                else:
+                    reac_origin_counts['else'] += 1
+            else:
+                reac_origin_counts['else'] += 1
+        
+        # add new attribute
+        self.reac_origin_c = reac_origin_counts
 
-    def __init__(self, model_id, total_reac, total_meta, total_gene,
-                 reac_origin_counts, reac_with_gpr):
-
-        self.model_id = model_id
-        self.reac = {'total': total_reac, 'origin':reac_origin_counts, 'with gpr':reac_with_gpr}
-        self.meta = {'total': total_meta}
-        self.gene = {'total': total_gene}
-
-    def get_statistics(self):
-        """Generate a string got the statistics.
-
-        @TODO find a better format, maybe html?
-
-        :returns: the statistics
-        :rtype: string
-        """
-
-        report = F'''Statistical report for model {self.model_id}
-
-reactions
----------
-total : {self.reac['total']}
-origin:
-    {(chr(10)+"    ").join([F"{k}: {v}" for k,v in self.reac['origin'].items()])}
-with gpr : {self.reac['with gpr']}
-
-metabolites
------------
-total : {self.meta['total']}
-
-genes
------
-total : {self.gene['total']}
-'''
-        return report
-
-
-    def save(self, dir):
-        """Save the report.
-
-        :param dir: Path to a directory to save the output to.
-        :type dir: string
-        """
-        # make sure given directory path ends with '/'
-        if not dir.endswith('/'):
-            dir = dir + '/'
-
-        # collect all produced file in one directory
-        try:
-            Path(F"{dir}statistics/").mkdir(parents=True, exist_ok=False)
-            print(F'Creating new directory {F"{dir}statistics/"}')
-        except FileExistsError:
-            print('Given directory already has required structure.')
-
-        # save the statistics report
-        with open(F'{dir}/statistics/statistics_report.txt','w') as f:
-            f.write(self.get_statistics())
+    # extemd format table function from parent class
+    def format_table(self) -> pd.DataFrame:
+        table = super().format_table()
+        table['#reaction origin'] = str(self.reac_origin_c).replace('{',r'').replace('}',r'').replace('\'',r'')
+        return table
+    
+    # depending on the implementation, save and make html 
+    # can be inherited or need to be overwritten 
 
