@@ -14,10 +14,12 @@ import numpy as np
 import subprocess
 import warnings
 
-from refinegems.medium import load_medium_from_db, medium_to_model
-from refinegems.io import load_model_cobra
+from refinegems.classes.medium import load_medium_from_db, medium_to_model
+from refinegems.utility.io import load_model
+from refinegems.utility.entities import resolve_compartment_names
+from refinegems.curation.biomass import test_biomass_presence
 
-from ..util import cobra_models
+from ..util.util import MIN_GROWTH_RATE
 
 # further required programs:
 #        - MEMOTE, tested with version 0.13.0
@@ -98,7 +100,7 @@ def remove_absent_genes(model, genes):
                 test.knock_out()
                 variant.optimize()
                 # set gene for deletion if model still works without it
-                if variant.objective.value > cobra_models.MIN_GROWTH_RATE:
+                if variant.objective.value > MIN_GROWTH_RATE:
                     remove = True
                     genes_to_delete += 1
                 # keep gene, if model stops growing
@@ -200,8 +202,8 @@ def check_unchanged(draft, bbh):
     for g in not_renamed:
         with draft as model:
             g.knock_out()
-            model.optimize()
-            if model.slim_optimize() > cobra_models.MIN_GROWTH_RATE:
+            res = model.optimize()
+            if res.objective_value > MIN_GROWTH_RATE:
                 # set for deletion
                 remove = True
                 to_delete += 1
@@ -270,7 +272,7 @@ def gen_draft_model(model, bbh, name, dir, edit, medium='default', namespace='Bi
     draft = check_unchanged(draft, bbh)
 
     # rename compartments to the standart
-    draft = cobra_models.resolve_compartment_names(draft)
+    draft = resolve_compartment_names(draft)
 
     # for each object, save a note that it was added during draft construction
     for r in draft.reactions:
@@ -341,10 +343,18 @@ def run(template, bpbbh, dir, edit_names='no', pid=80.0, name=None, medium='defa
         print('Given directory already exists.')
 
     bbh_data = pd.read_csv(bpbbh, sep='\t')
-    template_model = load_model_cobra(template)
+    template_model = load_model(template,'cobra')
     # if possible, set growth function as model objective
-    growth_objfunc = cobra_models.find_growth_obj_func(template_model)
-    template_model.objective = growth_objfunc
+    growth_objfunc = test_biomass_presence(template_model)
+    if len(growth_objfunc) == 1:
+        template_model.objective = growth_objfunc[0]
+    elif len(growth_objfunc) > 1:
+        mes = f'Multiple BOF detected. Chosing the following: {growth_objfunc[0]}'
+        warnings.warn(mes, category=UserWarning)
+        template_model.objective = growth_objfunc[0]
+    else:
+        mes = f'No BOF detected. Can lead to problems downstream the SPECIMEN pipeline.'
+        warnings.warn(mes, category=UserWarning)
 
     # -----------------------------
     # determine presence or absence

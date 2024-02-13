@@ -7,13 +7,17 @@ __author__ = 'Carolin Brune'
 # requirements
 ################################################################################
 
-import refinegems as rg
 import time
 import warnings
 
 from pathlib import Path
 
-from .. import util
+from refinegems.analysis import growth
+from refinegems.utility.io import load_model
+from refinegems.classes.reports import ModelInfoReport
+from refinegems.analysis.core_pan import compare_to_core_pan
+from refinegems.curation.pathways import kegg_pathway_analysis
+from refinegems.curation.biomass import test_biomass_presence
 
 ################################################################################
 # functions
@@ -47,7 +51,7 @@ def run(model_path, dir,
         print('Given directory already has required structure.')
 
     # load model
-    model = rg.io.load_model_cobra(model_path)
+    model = load_model(model_path,'cobra')
 
     # ------------------
     # general statistics
@@ -55,7 +59,7 @@ def run(model_path, dir,
 
     print('\n# ------------------\n# general statistics\n# ------------------')
 
-    statistics_report = util.cobra_models.generate_statistics(model)
+    statistics_report = ModelInfoReport(model)
     statistics_report.save(F'{dir}05_analysis/')
 
     # -----------------
@@ -64,8 +68,8 @@ def run(model_path, dir,
 
     if pc_model_path:
         print('\n# ------------------\n# pan-core analysis\n# ------------------')
-        pc_model = rg.io.load_model_cobra(pc_model_path) 
-        pan_core_report = rg.core_pan.compare_to_core_pan(model, pc_model, pc_based_on)
+        pc_model = load_model(pc_model_path,'cobra') 
+        pan_core_report = compare_to_core_pan(model, pc_model, pc_based_on)
         pan_core_report.save(F'{dir}05_analysis/')
 
     # ----------------
@@ -74,7 +78,7 @@ def run(model_path, dir,
 
     if pathway:
         print('\n# -----------------\n# pathway analysis\n# -----------------')
-        pathway_report = rg.pathways.kegg_pathway_analysis(model)
+        pathway_report = kegg_pathway_analysis(model)
         pathway_report.save(F'{dir}05_analysis/')
 
     # ---------------
@@ -85,12 +89,12 @@ def run(model_path, dir,
         print('\n# ---------------\n# growth analysis\n# ---------------')
 
         # try to set objective to growth
-        growth_func_list = rg.biomass.test_biomass_presence(model)
+        growth_func_list = test_biomass_presence(model)
         if growth_func_list:
             # independently of how many growth functions are found, the first one will be used
             model.objective = growth_func_list[0]
             # simulate growth on different media
-            growth_report = rg.growth.growth_analysis(model, media_path, namespace=namespace, retrieve='report')
+            growth_report = growth.growth_analysis(model, media_path, namespace=namespace, retrieve='report')
             growth_report.save(F'{dir}05_analysis/')
 
         else:
@@ -98,8 +102,8 @@ def run(model_path, dir,
 
         # test auxotrophies
         if test_aa_auxotrophies:
-            media_list = rg.growth.read_media_config(media_path)
-            auxo_report = rg.growth.test_auxotrophies(model, media_list[0], media_list[1], namespace)
+            media_list = growth.read_media_config(media_path)
+            auxo_report = growth.test_auxotrophies(model, media_list[0], media_list[1], namespace)
             auxo_report.save(F'{dir}05_analysis/')
 
     total_time_e = time.time()

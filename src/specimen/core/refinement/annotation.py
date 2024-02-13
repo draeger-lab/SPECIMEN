@@ -16,11 +16,10 @@ import urllib.error
 import pandas as pd
 
 # refinegems
-from refinegems.io import load_model_cobra
+from refinegems.utility.io import load_model, kegg_reaction_parser
 
 # from SBOannotator import *
 from SBOannotator import sbo_annotator
-from ... import util
 
 # further required programs:
 #        - SBOannotator
@@ -59,7 +58,7 @@ def kegg_reaction_to_kegg_pathway(model, viaEC=False, viaRC=False):
 
             # via reaction
             try:
-                reaction = util.io.kegg_reaction_parser(reac.annotation['kegg.reaction'])
+                reaction = kegg_reaction_parser(reac.annotation['kegg.reaction'])
                 if 'db' in reaction and 'kegg.pathway' in reaction['db']:
                     pathways = reaction['db']['kegg.pathway']
             except urllib.error.HTTPError:
@@ -186,7 +185,7 @@ def run(model, dir, kegg_viaEC=False, kegg_viaRC=False, memote=False):
     print(F'\ttime: {end - start}s')
 
     # reload model
-    model = load_model_cobra(F"{dir}step3-annotation/"+libsbml_model.getId()+'_SBOannotated.xml')
+    model = load_model(F"{dir}step3-annotation/"+libsbml_model.getId()+'_SBOannotated.xml', 'cobra')
 
     # ................................................................
     # @EXTENDABLE

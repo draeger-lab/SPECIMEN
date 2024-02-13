@@ -19,10 +19,10 @@ from BOFdat.util import update
 from BOFdat.util.update import determine_coefficients
 from MCC import MassChargeCuration
 
-import pandas as pd
 import cobra
+from cobra import Reaction
 
-from ... import util
+from refinegems.curation.biomass import test_biomass_presence
 
 # further required programs:
 #        - MEMOTE,  tested with version 0.13.0
@@ -224,8 +224,15 @@ def adjust_BOF(genome, model_file, model, dna_weight_fraction, weight_frac):
     # update BOF
     # ----------
     #  retrieve previously used BOF
-    growth_objname = util.cobra_models.find_growth_obj_func(model)
-    objective_list = model.reactions.get_by_id(growth_objname).reaction.split(' ')
+    growth_func_list = test_biomass_presence(model)
+    if len(growth_func_list) == 1: 
+        objective_list = model.reactions.get_by_id(growth_func_list[0]).reaction.split(' ')
+    elif len(growth_func_list) > 1:
+        mes = f'Multiple BOFs found. Using {growth_func_list[0]} for BOF adjustment.'
+        warnings.warn(mes,category=UserWarning)
+        objective_list = model.reactions.get_by_id(growth_func_list[0]).reaction.split(' ')
+    # else not needed, as if there is no BOF, a new one will be created
+
     # ...............................................................
     objective_reactant = {}
     objective_product = {}
@@ -239,7 +246,6 @@ def adjust_BOF(genome, model_file, model, dna_weight_fraction, weight_frac):
         elif '.' in s:
             factor = s
         else:
-            metabolite = s
             if product:
                 objective_product[s] = factor
             else:
@@ -387,7 +393,17 @@ def run(genome,model,dir,mcc='skip',dna_weight_frac=0.023,ion_weight_frac=0.05, 
         # generate an up-to-date model xml-file
         cobra.io.write_sbml_model(model,temp_model.name)
         # update BOF
-        model.reactions.get_by_id(util.cobra_models.find_growth_obj_func(model)).reaction = adjust_BOF(genome, temp_model.name, model, dna_weight_frac, ion_weight_frac)
+        pos_bofs = test_biomass_presence(model)
+        if pos_bofs:
+            model.reactions.get_by_id(pos_bofs[0]).reaction = adjust_BOF(genome, temp_model.name, model, dna_weight_frac, ion_weight_frac)
+        else:
+            # @TEST: does it work?
+            # create new BOF
+            bof_reac = Reaction('Biomass_BOFdat')
+            bof_reac.name = 'Biomass objective function created by BOFdat'
+            model.add_reactions([bof_reac])
+            model.reactions.get_by_id(pos_bofs[0]).reaction = adjust_BOF(genome, temp_model.name, model, dna_weight_frac, ion_weight_frac)
+
 
     end = time.time()
     print(F'\ttime: {end - start}s')

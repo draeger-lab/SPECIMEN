@@ -9,24 +9,21 @@ __author__ = 'Carolin Brune'
 ################################################################################
 
 import time
-from io import StringIO
 import pandas as pd
 from tqdm import tqdm
 from tqdm.auto import tqdm
 tqdm.pandas()
 import cobra
-import numpy as np
 from pathlib import Path
 from Bio import SeqIO
 import subprocess
 import re
 import sys
-import os
 import urllib.error
 from Bio.KEGG import REST
 from Bio.KEGG import Enzyme, Compound
 
-from refinegems.io import kegg_reaction_parser, load_a_table_from_database
+from refinegems.utility.io import kegg_reaction_parser, load_a_table_from_database
 
 # further required programs:
 #        - DIAMOND, tested with version 0.9.14 (works only for certain sensitivity mode)

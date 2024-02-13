@@ -7,23 +7,24 @@ __author__ = 'Carolin Brune'
 # requirements
 ################################################################################
 
-import time
-from pathlib import Path
-import warnings
-import subprocess
-
-import pandas as pd
-import numpy as np
-import math
 import cobra
-import copy
+import math
+import numpy as np
+import pandas as pd
 import re
+import subprocess
 import sys
+import time
+import warnings
 
-from refinegems.io import load_model_cobra
+from pathlib import Path
+from typing import Literal
 
-from ...classes import medium
-from ... import util
+from refinegems.utility.io import load_model
+from refinegems.classes.medium import medium_to_model
+from refinegems.curation.biomass import test_biomass_presence
+from refinegems.analysis.growth import read_media_config
+
 # further required programs:
 #        - MEMOTE,  tested with version 0.13.0
 
@@ -301,7 +302,17 @@ def resolve_duplicate_metabolites(model, based_on='metanetx.chemical', replace=T
     # set basic parameters
     skip_cols = ['id','compartment','bigg.metabolite',based_on]
     colnames = df_meta.columns.tolist()
-    objective_function = util.cobra_models.find_growth_obj_func(model)
+    # get objective function
+    bof_list = test_biomass_presence(model)
+    if len(bof_list) == 1:
+        objective_function = bof_list[0]
+    elif len(bof_list) > 1:
+        mes = f'Multiple BOFs detected. Will be using {bof_list[0]}'
+        warnings.warn(mes,category=UserWarning)
+        objective_function = bof_list[0]
+    else:
+        mes = 'No BOF detected. Might lead to problems during duplicate removal.'
+        warnings.warn(mes, category=UserWarning) 
 
     for c in df_meta.groupby('compartment'):
         # note: using groupby drops nans
@@ -493,7 +504,7 @@ def resolve_duplicates(model, check_reac = True, check_meta = 'default', replace
 # gap filling
 # -----------
 
-def single_cobra_gapfill(model, universal, medium, growth_threshold = 0.05):
+def single_cobra_gapfill(model, universal, medium, namespace:Literal['BiGG']='BiGG', growth_threshold = 0.05):
     """Attempt gapfilling (with cobra) for a given model to allow growth on a given
     medium.
 
@@ -514,10 +525,9 @@ def single_cobra_gapfill(model, universal, medium, growth_threshold = 0.05):
     solution = []
     with model as model_copy:
         # set medium model should grow on
-        medium.validate_for_model(model)
-        model_copy.medium = medium.export_to_cobra()
+        medium_to_model(model_copy, medium, namespace, double_o2=False) 
         # if model does not show growth (depending on threshold), perform gapfilling
-        if model_copy.slim_optimize() < growth_threshold:
+        if model_copy.optimize().objective_value < growth_threshold:
             try:
                 solution = cobra.flux_analysis.gapfill(model_copy, universal,
                                                        lower_bound = growth_threshold,
@@ -531,7 +541,7 @@ def single_cobra_gapfill(model, universal, medium, growth_threshold = 0.05):
     return solution
 
 
-def cobra_gapfill_wrapper(model, universal, medium, iterations=3, chunk_size=10000, growth_threshold = 0.05):
+def cobra_gapfill_wrapper(model, universal, medium, namespace:Literal['BiGG']='BiGG',iterations=3, chunk_size=10000, growth_threshold = 0.05):
     """Wrapper for single_cobra_gapfill().
 
     Either use the full set of reactions in universal model by setting iteration to
@@ -585,7 +595,7 @@ def cobra_gapfill_wrapper(model, universal, medium, iterations=3, chunk_size=100
                     subset_reac.add_reactions([universal.reactions[n].copy()])
 
                 # gapfilling
-                solution = single_cobra_gapfill(model, subset_reac, medium, growth_threshold)
+                solution = single_cobra_gapfill(model, subset_reac, medium, namespace, growth_threshold)
 
                 if (isinstance(solution,bool) and solution) or (isinstance(solution, list) and len(solution) > 0):
                     break
@@ -597,7 +607,7 @@ def cobra_gapfill_wrapper(model, universal, medium, iterations=3, chunk_size=100
     #     not advised for Laptops and PCs with small computing power
     #     may take a long time
     else:
-        solution = single_cobra_gapfill(model, universal, medium, growth_threshold)
+        solution = single_cobra_gapfill(model, universal, medium, namespace, growth_threshold)
 
     # if solution is found add new reactions to model
     if isinstance(solution, list) and len(solution) > 0:
@@ -609,7 +619,7 @@ def cobra_gapfill_wrapper(model, universal, medium, iterations=3, chunk_size=100
     return model
 
 
-def multiple_cobra_gapfill(model, universal, media_list, growth_threshold = 0.05, iterations=3, chunk_size=10000):
+def multiple_cobra_gapfill(model, universal, media_list, namespace:Literal['BiGG']='BiGG', growth_threshold = 0.05, iterations=3, chunk_size=10000):
     """Perform single_cobra_gapfill() on a list of models.
 
     :param model: The model to perform gapfilling on.
@@ -632,7 +642,7 @@ def multiple_cobra_gapfill(model, universal, media_list, growth_threshold = 0.05
     """
 
     for medium in media_list:
-        model = cobra_gapfill_wrapper(model,universal,medium, iterations, chunk_size, growth_threshold)
+        model = cobra_gapfill_wrapper(model,universal,medium, namespace, iterations, chunk_size, growth_threshold)
 
     return model
 
@@ -643,9 +653,8 @@ def multiple_cobra_gapfill(model, universal, media_list, growth_threshold = 0.05
 def run(model, dir, biocyc_db=None, check_dupl_reac = False,
         check_dupl_meta = 'default',
         remove_unused_meta = False, remove_dupl_reac = False, remove_dupl_meta = False,
-        universal = None, media_db = None, load_media = None, external_media = None,
-        change_to_aerobic = None, change_to_anaerobic = None,
-        add_casamino = None, growth_threshold = 0.05,
+        universal = None, 
+        media_path = None, namespace:Literal['BiGG']='BiGG', growth_threshold = 0.05,
         iterations=3, chunk_size=10000,
         memote = False):
 
@@ -734,6 +743,7 @@ def run(model, dir, biocyc_db=None, check_dupl_reac = False,
         start = time.time()
 
         # check direction
+        # @TODO : check namespace independency
         model = check_direction(model,biocyc_db)
 
         end = time.time()
@@ -779,52 +789,17 @@ def run(model, dir, biocyc_db=None, check_dupl_reac = False,
 
     media_list = []
 
-    # load media from database
-    if load_media:
-        db = medium.load_media_db(media_db)
-
-        # load medium as it is
-        if load_media:
-            for medium_name in load_media:
-                if medium_name in db.keys():
-                    media_list.append(db[medium_name])
-                else:
-                    raise KeyError('Medium not found in database: ', medium_name)
-
-        # load medium + make aerobic
-        if change_to_aerobic:
-            for medium_name in change_to_aerobic:
-                new_medium = copy.deepcopy(db[medium_name])
-                new_medium.make_aerobic()
-                new_medium.name = new_medium.name + ' (aerobic)'
-                media_list.append(new_medium)
-
-        # load medium + make anaerobic
-        if change_to_anaerobic:
-            for medium_name in change_to_anaerobic:
-                new_medium = copy.deepcopy(db[medium_name])
-                new_medium.make_anaerobic()
-                new_medium.name = new_medium.name + ' (anaerobic)'
-                media_list.append(new_medium)
-
-        # load medium + add CASAMINO_ACIDS
-        if add_casamino:
-            for medium_name in add_casamino:
-                media_list.append(db[medium_name] + medium.CASAMINO_ACIDS)
-
-    # load external media
-    if external_media:
-        for filepath in external_media:
-            tmp_table = pd.read_csv(filepath, sep=';', header=0)
-            media_list.append(medium.from_table(tmp_table))
+    # load media from config file
+    if media_path:
+        media_list = read_media_config(media_path)
 
     # perform gapfilling
     # -----------------
     if len(media_list) > 0:
         # load universal model
-        universal_model = load_model_cobra(universal)
+        universal_model = load_model(universal,'cobra')
         # run gapfilling
-        model = multiple_cobra_gapfill(model,universal_model,media_list,iterations=iterations, chunk_size=chunk_size, growth_threshold=growth_threshold)
+        model = multiple_cobra_gapfill(model,universal_model,media_list,namespace,iterations=iterations, chunk_size=chunk_size, growth_threshold=growth_threshold)
 
     end = time.time()
     print(F'\ttime: {end - start}s')
