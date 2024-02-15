@@ -24,9 +24,7 @@ from refinegems.utility.io import load_model
 from refinegems.classes.medium import medium_to_model
 from refinegems.curation.biomass import test_biomass_presence
 from refinegems.analysis.growth import read_media_config
-
-# further required programs:
-#        - MEMOTE,  tested with version 0.13.0
+from refinegems.analysis.investigate import run_memote
 
 ################################################################################
 # variables
@@ -819,12 +817,7 @@ def run(model, dir, biocyc_db=None, check_dupl_reac = False,
     # ---------------------------------
     # assess model quality using memote
     # ---------------------------------
-
+        
     if memote:
-        print('\n# -------------------\n# analyse with MEMOTE\n# -------------------')
-        start = time.time()
-        draft_path = F'{dir}step2-clean-up/{name}.xml'.replace(" ", "\ ")
-        memote_path = F'{dir}step2-clean-up/{name}.html'.replace(" ", "\ ")
-        subprocess.run([F'memote report snapshot --filename {memote_path} {draft_path}'], shell=True)
-        end = time.time()
-        print(F'\ttotal time: {end - start}s')
+        memote_path = F'{dir}step2-clean-up/{name}.html'
+        run_memote(model, 'html', return_res=False, save_res=memote_path, verbose=True)

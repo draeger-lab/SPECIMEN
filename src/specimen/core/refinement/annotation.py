@@ -17,13 +17,13 @@ import pandas as pd
 
 # refinegems
 from refinegems.utility.io import load_model, kegg_reaction_parser
+from refinegems.analysis.investigate import run_memote
 
 # from SBOannotator import *
 from SBOannotator import sbo_annotator
 
 # further required programs:
 #        - SBOannotator
-#        - MEMOTE,  tested with version 0.13.0
 
 ################################################################################
 # functions
@@ -223,3 +223,7 @@ def run(model, dir, kegg_viaEC=False, kegg_viaRC=False, memote=False):
         subprocess.run([F'memote report snapshot --skip test_consistency --filename {memote_path} {draft_path}'], shell=True)
         end = time.time()
         print(F'\ttotal time: {end - start}s')
+
+    if memote:
+        memote_path = F'{dir}step3-annotation/{name}_SBOannotated.html'
+        run_memote(model, 'html', return_res=False, save_res=memote_path, verbose=True)

@@ -18,6 +18,7 @@ from refinegems.classes.medium import load_medium_from_db, medium_to_model
 from refinegems.utility.io import load_model
 from refinegems.utility.entities import resolve_compartment_names
 from refinegems.curation.biomass import test_biomass_presence
+from refinegems.analysis.investigate import run_memote
 
 from ..util.util import MIN_GROWTH_RATE
 
@@ -286,6 +287,8 @@ def gen_draft_model(model, bbh, name, dir, edit, medium='default', namespace='Bi
     draft.id = name
     cobra.io.write_sbml_model(draft, F'{dir}{name}_draft.xml')
 
+    return draft
+
 
 def run(template, bpbbh, dir, edit_names='no', pid=80.0, name=None, medium='default', namespace='BiGG', memote=False):
     """Generate a draft model from a blastp best hits tsv file and a template model.
@@ -372,21 +375,18 @@ def run(template, bpbbh, dir, edit_names='no', pid=80.0, name=None, medium='defa
 
     print('\n# --------------------\n# generate draft model\n# --------------------')
     start = time.time()
-    gen_draft_model(template_model, bbh_data, name, dir, edit_names, medium=medium, namespace=namespace)
+    draft = gen_draft_model(template_model, bbh_data, name, dir, edit_names, medium=medium, namespace=namespace)
     end = time.time()
     print(F'\ttotal time: {end - start}s')
 
     # -------------------
     # analyse with MEMOTE
     # -------------------
+
     if memote:
-        print('\n# -------------------\n# analyse with MEMOTE\n# -------------------')
-        start = time.time()
-        draft_path = F'{dir}{name}_draft.xml'.replace(" ", "\ ")
-        memote_path = F'{dir}{name}_draft.html'.replace(" ", "\ ")
-        subprocess.run([F'memote report snapshot --filename {memote_path} {draft_path}'], shell=True)
-        end = time.time()
-        print(F'\ttotal time: {end - start}s')
+        memote_path = F'{dir}step1-extension/{name}.html'
+        run_memote(draft, 'html', return_res=False, save_res=memote_path, verbose=True)
 
     total_time_e = time.time()
     print(F'total runtime: {total_time_e-total_time_s}')
+

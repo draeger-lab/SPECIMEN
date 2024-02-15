@@ -23,9 +23,9 @@ import cobra
 from cobra import Reaction
 
 from refinegems.curation.biomass import test_biomass_presence
+from refinegems.analysis.investigate import run_memote
 
 # further required programs:
-#        - MEMOTE,  tested with version 0.13.0
 #        - BOFdat
 #        - MassChargeCuration
 
@@ -422,10 +422,6 @@ def run(genome,model,dir,mcc='skip',dna_weight_frac=0.023,ion_weight_frac=0.05, 
     # ---------------------------------
 
     if memote:
-        print('\n# -------------------\n# analyse with MEMOTE\n# -------------------')
-        start = time.time()
-        draft_path = outname.replace(" ", "\ ")
-        memote_path = F'{dir}step4-smoothing/{model_name}.html'.replace(" ", "\ ")
-        subprocess.run([F'memote report snapshot --filename {memote_path} {draft_path}'], shell=True)
-        end = time.time()
-        print(F'\ttotal time: {end - start}s')
+        memote_path = F'{dir}step4-smoothing/{model_name}.html'
+        run_memote(model, 'html', return_res=False, save_res=memote_path, verbose=True)
+

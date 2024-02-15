@@ -8,27 +8,31 @@ __author__ = 'Carolin Brune'
 # requirements
 ################################################################################
 
-import time
+from pathlib import Path
+from Bio import SeqIO
+
 import pandas as pd
+import re
+import subprocess
+import sys
+import time
+import urllib.error
+
 from tqdm import tqdm
 from tqdm.auto import tqdm
 tqdm.pandas()
 import cobra
-from pathlib import Path
-from Bio import SeqIO
-import subprocess
-import re
-import sys
-import urllib.error
+
 from Bio.KEGG import REST
 from Bio.KEGG import Enzyme, Compound
 
 from refinegems.utility.io import kegg_reaction_parser, load_a_table_from_database
+from refinegems.utility.entities import create_random_id, get_reaction_annotation_dict, match_id_to_namespace
+from refinegems.analysis.investigate import run_memote
 
 # further required programs:
 #        - DIAMOND, tested with version 0.9.14 (works only for certain sensitivity mode)
 #                   tested with version 2.1.8 (works for all sensitivity modes for that version)
-#        - MEMOTE,  tested with version 0.13.0
 
 ################################################################################
 # functions
@@ -98,6 +102,9 @@ def find_best_diamond_hits(file, pid):
 # -----------------------------
 # map to additional information
 # -----------------------------
+
+# mapping zo NCBI
+# ---------------
 def map_to_NCBI_efetch_row(row):
     """Map a single entry from the table in get_ncbi_info() to NCBI using EntrezDirect.
 
@@ -188,7 +195,8 @@ def get_ncbi_info(table, ncbi_map_file=None):
 
     return table
 
-
+# mapping to KEGG
+# ---------------
 # @TODO
 def map_to_KEGG_row(row, loci_list=None):
     """Map a single entry of the table in map_to_KEGG() to KEGG.
@@ -377,8 +385,10 @@ def map_to_KEGG(gene_table,working_dir,manual_dir,genome_summary=None):
     return F'{working_dir}genes_mapped.csv'
 
 
+# mapping to BiGG
+# ---------------
 
-def map_Bigg_reactions_row(row, namespace):
+def map_BiGG_reactions_row(row, namespace):
     """Map a single entry from the table in map_BiGG_reactions() to the BiGG reaction namespace.
 
     :param row:       A single row of the table.
@@ -405,12 +415,12 @@ def map_Bigg_reactions_row(row, namespace):
 
     # case 2 : exactly one match
     elif len(matches) == 1:
-        row['bigg_id'] = matches['bigg_id'].values[0]
+        row['bigg_id'] = matches['id'].values[0]
 
     # case 3 : multiple matches
     #          often due to reaction being in different compartments
     else:
-        row['bigg_id'] = ' '.join(matches['bigg_id'].values)
+        row['bigg_id'] = ' '.join(matches['id'].values)
 
     return row
 
@@ -431,36 +441,15 @@ def map_BiGG_reactions(table_file):
     table = pd.read_csv(table_file)
     table['bigg_id'] = pd.Series(dtype='str')
 
-    table = table.apply(lambda row: map_Bigg_reactions_row(row,r_namespace), axis=1)
+    table = table.apply(lambda row: map_BiGG_reactions_row(row,r_namespace), axis=1)
 
     return table
-
 
 # ------------
 # extent model
 # ------------
-def make_reaction_dict(model):
-    """For a given model, create a dictionary of reaction IDs and their
-    KEGG IDs, if annotated.
 
-    :param model: A genome-scale metabolic model.
-    :type  model: cobra.Model
-    :returns:     The reaction.id - kegg.reaction.id mapping.
-    :rtype:       dict
-    """
-
-    react_dict = {}
-
-    for r in model.reactions:
-        if 'kegg.reaction' in r.annotation.keys():
-            react_dict[r.id] = r.annotation['kegg.reaction']
-        else:
-            react_dict[r.id] = '-'
-
-    return react_dict
-
-
-#@Todo
+# @TODO
 def isreaction_complete(reac, exclude_dna=True, exclude_rna=True):
     """Check, if a reaction is complete and ready to be added to the model.
     Additionally, it is possible to check for DNA and RNA reations
@@ -477,6 +466,7 @@ def isreaction_complete(reac, exclude_dna=True, exclude_rna=True):
     """
 
     # ................
+    # @TODO
     # extendable
     # ................
 
@@ -497,42 +487,9 @@ def isreaction_complete(reac, exclude_dna=True, exclude_rna=True):
 
     return True
 
-#@TODO
-def create_reac_id(name):
-    """From a given reaction name, create an ID for a model.
 
-    @TODO (if needed):
-
-    - check, if created name already exists
-    - find a more sensible way to create an ID
-
-
-    :param name: The name of the reaction.
-    :type name: string
-    :returns: The generated ID
-    :rtype: string
-    """
-
-    # create new name from description string
-    id_str = []
-    take = False
-    for idx,c in enumerate(name):
-        if c.isupper() or c.isnumeric() or (idx == 0) or (take and not c in ['[',']','(',')','-']):
-            id_str.append(c.upper())
-            take = False
-        elif c in [' ','-','(']:
-            take = True
-        else:
-            take = False
-
-    id_str = ''.join(id_str)
-
-    # @TODO..........................................
-    #     check if name is already in model?
-    # ...............................................
-
-    return id_str
-
+# build genes
+# -----------
 
 def add_gene(model, reaction, row, first=False):
     """Add a new gene to a genome-scale metabolic cobra model.
@@ -567,16 +524,18 @@ def add_gene(model, reaction, row, first=False):
     return model
 
 
-#@TODO
-def build_metabolite_mnx(metabolite, model, model_metabolites, mnx_chem_prop, mnx_chem_xref, bigg_metabolites):
+# build metabolites
+# -----------------
+# @TODO
+# @DOCS wrong
+# UNDER CONSTRUCTION
+def build_metabolite_mnx(metabolite, model, mnx_chem_prop, mnx_chem_xref, bigg_metabolites, namespace):
     """Create or retrieve (from model) a metabolite based on its MetaNetX ID.
 
     :param metabolite:        The MetaNetX ID of the metabolite.
     :type  metabolite:        string
     :param model:             The underlying genome-scale metabolic model.
     :type  model:             cobra.model
-    :param model_metabolites: List of the formulas of all metabolites in the model.
-    :type  model_metabolites: list
     :param mnx_chem_xref:     The chem_xref table from MetaNetX
     :type  mnx_chem_xref:     pd.DataFrame
     :param mnx_chem_prop:     The chem_prop table from MetaNetX
@@ -591,24 +550,18 @@ def build_metabolite_mnx(metabolite, model, model_metabolites, mnx_chem_prop, mn
     metabolite_anno = mnx_chem_xref[mnx_chem_xref['ID']==metabolite]
     model_mnx = [x.annotation['metanetx.chemical'] for x in model.metabolites if 'metanetx.chemical' in x.annotation]
 
-    # check if compound already in model
-    # ----------------------------------
+    # fast check if compound already in model
+    # ------------------------------------------
     # @TODO ..........................................
         #   currently no checking for compartments
-        #   first match will be taken (_c in most cases)
+        #   first match will be taken (most often cytosol one)
         #   regardless of the compartment
         #.............................................
+    # step 1: check if MetaNetX ID in model
     if metabolite in model_mnx:
-        # step 1: transform metanetx.id --> model identifier
         matches = [x.id for x in model.metabolites if 'metanetx.chemical' in x.annotation and x.annotation['metanetx.chemical']==metabolite]
-    elif not pd.isnull(metabolite_prop['formula'].iloc[0]) and metabolite_prop['formula'].iloc[0] in model_metabolites:
-        # step 1: transform metabolite_prop['formula'].iloc[0] --> model identifier
-        matches = [x.id for x in model.metabolites if x.formula == metabolite_prop['formula'].iloc[0]]
-    else:
-        matches = None
 
-    if matches:
-    # step 2: model id --> metabolite object
+    # step 2: if yes, retrieve metabolite from model
     #  case 1: multiple matches found
         if len(matches) > 1:
             # ................
@@ -625,84 +578,82 @@ def build_metabolite_mnx(metabolite, model, model_metabolites, mnx_chem_prop, mn
     # if not, create new metabolite
     # -----------------------------
     else:
-        # create metabolite with id
-        if metabolite_anno['source'].str.contains('bigg.reaction').any():
-            # use BiGG id, if one exists
-            # ........
-            # the usual compartment problem
-            #........
-            new_metabolite = cobra.Metabolite(metabolite_anno[metabolite_anno['source'].str.contains('bigg.reaction')].iloc[0])
-            new_metabolite.annotation['bigg.metabolite'] = metabolite_anno[metabolite_anno['source'].str.contains('bigg.reaction')].iloc[0]
-        elif metabolite in bigg_metabolites['MetaNetX (MNX) Chemical']:
-            # ........
-            # the usual compartment problem
-            #........
-            bigg_id = bigg_metabolites[bigg_metabolites['MetaNetX (MNX) Chemical']==metabolite].iloc[0]
-            new_metabolite = cobra.Metabolite(bigg_id)
-            new_metabolite.annotation['bigg.metabolite'] = bigg_id
-        elif not pd.isnull(metabolite_prop['formula'].iloc[0]):
-            new_metabolite = cobra.Metabolite(metabolite_prop['formula'].iloc[0])
-        else:
-            #@TODO .............
-            #   formula = NaN
-            #   ---> current solution:
-            #        use name (replace whitespaces)
-            # ..................
-            if ' ' in metabolite_prop['name'].iloc[0]:
-                new_metabolite = cobra.Metabolite(metabolite_prop['name'].iloc[0].replace(' ','_'))
-            else:
-                new_metabolite = cobra.Metabolite(metabolite_prop['name'].iloc[0])
 
-        # add features
-        # ------------
+        # step 1: create a random metabolite ID
+        # ...........................
+        # @TODO : compartment problem 
+        # - does it have to be in the name?
+        # ...........................
+        new_metabolite = cobra.Metabolite(create_random_id(model, 'meta','SPECIMEN')) 
+
+
+        # step 2: add features
+        # --------------------
         # @TODO ..........................................
         #   currently no checking for compartments
-        #.............................................
+        #   defaults to c
+        #   makes it difficult to add exchange reactions
+        #.................................................
         new_metabolite.formula = metabolite_prop['formula'].iloc[0]
         new_metabolite.name = metabolite_prop['name'].iloc[0]
         new_metabolite.charge = metabolite_prop['charge'].iloc[0]
         new_metabolite.compartment = 'c'
 
-        # add notes
-        # ---------
+        # step 3: add notes
+        # -----------------
         new_metabolite.notes['added via'] = 'metanetx.chemical'
 
-        # add annotations
-        # ---------------
+        # step 4: add annotations
+        # -----------------------
         new_metabolite.annotation['metanetx.chemical'] = metabolite_prop['ID'].iloc[0]
         new_metabolite.annotation['chebi'] = metabolite_prop['reference'].iloc[0].upper()
         if not pd.isnull(metabolite_prop['InChIKey'].iloc[0]):
             new_metabolite.annotation['inchikey'] = metabolite_prop['InChIKey'].iloc[0].split('=')[1]
-        for db in ['kegg.compound','metacyc.compound','seed.compound']:
+        for db in ['kegg.compound','metacyc.compound','seed.compound','bigg.metabolite']:
             db_matches = metabolite_anno[metabolite_anno['source'].str.contains(db)]
             if len(db_matches) == 1:
                  new_metabolite.annotation[db] = db_matches['source'].iloc[0].split(':',1)[1]
             elif len(db_matches) > 1:
                 new_metabolite.annotation[db] = [m.split(':',1)[1] for m in db_matches['source'].tolist()]
-        # add additional information from bigg if possible
-        if new_metabolite.id in bigg_metabolites['bigg_id']:
-            bigg_information = bigg_metabolites[bigg_metabolites['bigg_id']==new_metabolite.id]
+
+        # if no BiGG was found in MetaNetX, try reverse search in BiGG
+        if metabolite in bigg_metabolites['MetaNetX (MNX) Chemical']:
+            new_metabolite.annotation['bigg.metabolite'] =  bigg_metabolites[bigg_metabolites['MetaNetX (MNX) Chemical']==metabolite].iloc[0]
+        
+        # add additional information from bigg if possible    
+        if 'bigg.metabolite' in new_metabolite.annotation.keys():
+            bigg_information = bigg_metabolites[bigg_metabolites['bigg_id'].str.contains('|'.join(new_metabolite.annotation['bigg.metabolite']))]
             db_id_bigg = {'BioCyc':'biocyc', 'MetaNetX (MNX) Chemical':'metanetx.chemical','SEED Compound':'seed.compound','InChI Key':'inchikey'}
             for db in db_id_bigg:
-                if not pd.isnull(bigg_information[db]):
-                    info = bigg_information[db]
-                    if ',' in info:
-                        info = [x.strip() for x in info.split(',')]
+                info = bigg_information[db].dropna().to_list()
+                if len(info) > 0:
+                    info = ','.join(info)
+                    info = [x.strip() for x in info.split(',')] # make sure all entries are a separate list object
                     new_metabolite.annotation[db_id_bigg[db]] = info
 
+        # step 5: change ID according to namespace
+        # ----------------------------------------
+        match_id_to_namespace(new_metabolite,namespace)
+       
+        # step 6: re-check existence of ID in model
+        # -----------------------------------------
+        # @TODO : check complete annotations? 
+        #        - or let those be covered by the duplicate check later on?
+        if new_metabolite.id in [_.id for _ in model.metabolites]:
+            return model.metabolites.get_by_id(new_metabolite.id)
+        
     return new_metabolite
 
-
-#@TODO
-def build_metabolite_kegg(kegg_id, model, model_metabolites, model_kegg_ids, bigg_metabolites):
+# @TODO
+# @DOCS
+# UNDER CONSTRUCTION
+def build_metabolite_kegg(kegg_id, model, model_kegg_ids, bigg_metabolites, namespace):
     """Create or retrieve (from model) a metabolite based on its KEGG ID.
 
     :param kegg_id:           The KEGG.compound ID of the metabolite in question.
     :type  kegg_id:           string
     :param model:             The model.
     :type  model:             cobra.Model
-    :param model_metabolites: List of the formulas of all metabolites in the model.
-    :type  model_metabolites: list
     :param model_kegg_ids:    List of all annotated KEGG Compound IDs in the model.
     :type  model_kegg_ids:    list
     :param bigg_metabolites:  The BiGG compound namespace table.
@@ -726,26 +677,21 @@ def build_metabolite_kegg(kegg_id, model, model_metabolites, model_kegg_ids, big
         print(F'URLError: {kegg_id}')
         return cobra.Metabolite()
 
-    # check, if compound in model
-    # via KEGG ID
+    # ---------------------------------------
+    # fast check if compound already in model
+    # ---------------------------------------
+    # @TODO ..........................................
+        #   currently no checking for compartments
+        #   first match will be taken (most often cytosol one)
+        #   regardless of the compartment
+        #.............................................
+    # step 1: check via KEGG ID
     if kegg_id in model_kegg_ids:
-        # step 1: transform kegg_id --> model identifier
         matches = [x.id for x in model.metabolites if ('kegg.compound' in x.annotation and x.annotation['kegg.compound'] == kegg_id)]
-    # via formula
-    elif kegg_record.formula != '' and kegg_record.formula in model_metabolites:
-        # step 1: transform formula --> model identifier
-        matches = [x.id for x in model.metabolites if x.formula == kegg_record.formula]
-    else:
-        matches = None
 
-    if matches:
         # step 2: model id --> metabolite object
         #  case 1: multiple matches found
         if len(matches) > 1:
-            # ................
-            # @TODO
-            #    compartment problem again
-            # ................
             match = model.metabolites.get_by_id(matches[0])
         #  case 2: only one match found
         else:
@@ -754,72 +700,46 @@ def build_metabolite_kegg(kegg_id, model, model_metabolites, model_kegg_ids, big
         # step 3: add metabolite
         return match
 
-    # create new metabolite
-    # ---------------------
+    # -----------------------------
+    # if not, create new metabolite
+    # -----------------------------
     # ...............
-    # note:
-    #    even if annotation is in model, as long as no formula match can be found
-    #    a new compound will be created for the model
-
     # @TODO
-    #     check if new metabolite ID already in model
-    #     -> current ID is just the name of the compound
+    #     compartment
     # ...............
     else:
-        # set name and id
-        # ---------------
-        # first try BIGG for ID
-        found_check = False
-        if kegg_id in bigg_metabolites['KEGG Compound']:
-            found = bigg_metabolites[bigg_metabolites['KEGG Compound']==kegg_id]['bigg_id']
-            found_check = True
-            if len(found) > 1:
-                # ................
-                # @TODO
-                #    compartment problem again
-                # ................
-                 new_metabolite = cobra.Metabolite(found[0])
-            else:
-                new_metabolite = cobra.Metabolite(found[0])
+        # step 1: create a random metabolite ID
+        # -------------------------------------
+        # ...........................
+        # @TODO : compartment problem 
+        # - does it have to be in the name?
+        # ...........................
+        new_metabolite = cobra.Metabolite(create_random_id(model, 'meta','SPECIMEN')) 
 
+        # step 2: add features
+        # --------------------
+        # @TODO ..........................................
+        #   currently no checking for compartments
+        #.............................................
         # set name from KEGG and additionally use it as ID if there is none yet
         if isinstance(kegg_record.name, list):
-            if not found_check:
-                if ' ' in kegg_record.name[0]:
-                    meta_id = kegg_record.name[0].replace(' ','_')
-                else:
-                    meta_id = kegg_record.name[0]
-                new_metabolite = cobra.Metabolite(meta_id)
             if len(kegg_record.name) > 1:
                 new_metabolite.name = kegg_record.name[1]
             else:
                 new_metabolite.name = kegg_record.name[0]
         else:
-            if not found_check:
-                if ' ' in kegg_record.name:
-                    meta_id = kegg_record.name.replace(' ','_')
-                else:
-                    meta_id = kegg_record.name
-                new_metabolite = cobra.Metabolite(meta_id)
             new_metabolite.name = kegg_record.name
-
+        # set compartment
+        new_metabolite.compartment = 'c'
         # set formula
-        # -----------
         new_metabolite.formula = kegg_record.formula
 
-        # set compartment
-        # ---------------
-        # @TODO ..........................................
-        #   currently no checking for compartments
-        #.............................................
-        new_metabolite.compartment = 'c'
-
-        # add note
-        # --------
+        # step 3: add notes
+        # -----------------
         new_metabolite.notes['added via'] = 'KEGG.compound'
 
-        # add annotations
-        # ---------------
+        # step 4: add annotations
+        # -----------------------
         new_metabolite.annotation['kegg.compound'] = kegg_id
         db_idtf = {'CAS':'cas','PubChem':'pubchem.compound','ChEBI':'chebi'}
         for db,ids in kegg_record.dblinks:
@@ -830,21 +750,38 @@ def build_metabolite_kegg(kegg_id, model, model_metabolites, model_kegg_ids, big
                     new_metabolite.annotation[db_idtf[db]] = ids[0]
 
         # add additional information from BiGG
-        if found_check:
-            bigg_information = bigg_metabolites[bigg_metabolites['bigg_id']==new_metabolite.id]
-            db_id_bigg = {'BioCyc':'biocyc', 'MetaNetX (MNX) Chemical':'metanetx.chemical','SEED Compound':'seed.compound','InChI Key':'inchikey'}
-            for db in db_id_bigg:
-                if not pd.isnull(bigg_information[db]):
-                    info = bigg_information[db]
-                    if ',' in info:
-                        info = [x.strip() for x in info.split(',')]
-                    new_metabolite.annotation[db_id_bigg[db]] = info
+        if kegg_id in bigg_metabolites['KEGG Compound']:
+
+            bigg_information = bigg_metabolites[bigg_metabolites['KEGG Compound']==kegg_id]
+            if len(bigg_information) > 0:
+
+                new_metabolite.annotation['bigg.metabolite'] = bigg_information['bigg_id'].to_list()
+
+                db_id_bigg = {'BioCyc':'biocyc', 'MetaNetX (MNX) Chemical':'metanetx.chemical','SEED Compound':'seed.compound','InChI Key':'inchikey'}
+                for db in db_id_bigg:
+                    info = bigg_information[db].dropna().to_list()
+                    if len(info) > 0:
+                        info = ','.join(info)
+                        info = [x.strip() for x in info.split(',')] # make sure all entries are a separate list object
+                        new_metabolite.annotation[db_id_bigg[db]] = info
+
+        # step 5: change ID according to namespace
+        # ----------------------------------------
+        match_id_to_namespace(new_metabolite,namespace)
+       
+        # step 6: re-check existence of ID in model
+        # -----------------------------------------
+        # @TODO : check complete annotations? 
+        #        - or let those be covered by the duplicate check later on?
+        if new_metabolite.id in [_.id for _ in model.metabolites]:
+            return model.metabolites.get_by_id(new_metabolite.id)
 
         return new_metabolite
 
-
-#@TODO
-def get_metabolites_mnx(model,equation,mnx_chem_xref,mnx_chem_prop,bigg_metabolites):
+# @TODO
+# @DOCS
+# UNDER CONSTRUCTION
+def get_metabolites_mnx(model,equation,mnx_chem_xref,mnx_chem_prop,bigg_metabolites, namespace):
     """Based on a given MetaNetX equation and a model, get or
     create metabolite entires in/for the model.
 
@@ -870,7 +807,6 @@ def get_metabolites_mnx(model,equation,mnx_chem_xref,mnx_chem_prop,bigg_metaboli
     metabolites = {}
     produced = -1.0
     factor = 0
-    mnx_id = ''
 
     for s in equation.split(' '):
         # switch from reactants to products
@@ -887,9 +823,16 @@ def get_metabolites_mnx(model,equation,mnx_chem_xref,mnx_chem_prop,bigg_metaboli
             # get information from MetaNetX
             metabolite, compartment = s.split('@')
             # build or identify metabolite
-            new_metabolite = build_metabolite_mnx(metabolite, model, model_metabolites, mnx_chem_prop, mnx_chem_xref,bigg_metabolites)
+            new_metabolite = build_metabolite_mnx(metabolite, model, mnx_chem_prop, mnx_chem_xref,bigg_metabolites, namespace)
             # add metabolite
             if new_metabolite.id in [_.id for _ in metabolites]:
+                # ......................................................
+                # @TODO: 
+                #   check if metabolite if both reactant and product
+                #   suggests exchange reaction 
+                #   -> maybe a good place to change compartment for one?
+                #   -> what about name and directions???
+                # ......................................................
                 try:
                     test = model.metabolites.get_by_id(new_metabolite.id)
                     new_metabolite = new_metabolite.copy()
@@ -902,8 +845,10 @@ def get_metabolites_mnx(model,equation,mnx_chem_xref,mnx_chem_prop,bigg_metaboli
     return metabolites
 
 
-#@TODO
-def get_metabolites_kegg(model,equation,chem_xref,chem_prop,bigg_metabolites):
+# @TODO
+# @DOCS
+# UNDER CONSTRUCTION
+def get_metabolites_kegg(model,equation,chem_xref,chem_prop,bigg_metabolites, namespace):
     """Based on a given KEGG equation and a model, get or
     create metabolite entires in/for the model.
 
@@ -953,7 +898,7 @@ def get_metabolites_kegg(model,equation,chem_xref,chem_prop,bigg_metabolites):
                 #     currently note in brackets gets ignored
                 # ..................................
             elif not s.isalnum():
-                print('Problem: unknown character in ID inside get_metabolites_kegg() detected.\nPlease adjust code accordingly.')
+                print('Problem: unknown character in ID inside get_metabolites_kegg() detected.\nPlease contact dev about your problem.')
                 sys.exit(1)
 
             mnx_id = chem_xref[chem_xref['source'] == F'kegg.compound:{s}']
@@ -962,13 +907,14 @@ def get_metabolites_kegg(model,equation,chem_xref,chem_prop,bigg_metabolites):
             #     -> make sure, only 1 ID match is found (match is unambiguous)
             if len(mnx_id) == 1:
                 mnx_id = mnx_id['ID'].item()
-                metabolite = build_metabolite_mnx(mnx_id, model, model_metabolites, chem_prop, chem_xref, bigg_metabolites)
+                metabolite = build_metabolite_mnx(mnx_id, model, chem_prop, chem_xref, bigg_metabolites, namespace)
             # case 2:
             #     add metabolite via KEGG
             else:
-                metabolite = build_metabolite_kegg(s, model, model_metabolites, model_kegg_ids, bigg_metabolites)
+                metabolite = build_metabolite_kegg(s, model, model_kegg_ids, bigg_metabolites, namespace)
 
             # add new metabolite
+            # @TODO : place to check for exchanges?
             if metabolite.id in [_.id for _ in metabolites]:
                 try:
                     test = model.metabolites.get_by_id(metabolite.id)
@@ -982,65 +928,35 @@ def get_metabolites_kegg(model,equation,chem_xref,chem_prop,bigg_metabolites):
     return metabolites
 
 
+# build reaction
+# --------------
 #@TODO
-def add_reaction(model,row,reac_xref,reac_prop,chem_xref,chem_prop,bigg_metabolites,exclude_dna=True, exclude_rna=True):
-    """Add a reaction to a given genome-scale metabolic model.
-    If possible, the reaction is added via MetaNetX way. If the reaction cannot
-    be found within the MetaNetX namespace, it will be added via KEGG.
+# UNDER CONSTRUCTION
+def add_reaction(model,row,reac_xref,reac_prop,chem_xref,chem_prop,bigg_metabolites, namespace:str='BiGG', exclude_dna=True, exclude_rna=True):
 
-    :param model:             A GEM.
-    :type  model:             cobra.Model
-    :param row:               A single row of the output table of map_BiGG_reactions().
-    :type  row:               pd.Series
-    :param reac_xref:         The chem_xref table from MetaNetX
-    :type  reac_xref:         pd.DataFrame
-    :param reac_prop:         The chem_prop table from MetaNetX
-    :type  reac_prop:         pd.DataFrame
-    :param chem_xref:         The chem_xref table from MetaNetX
-    :type  chem_xref:         pd.DataFrame
-    :param chem_prop:         The chem_prop table from MetaNetX
-    :type  chem_prop:         pd.DataFrame
-    :param bigg_metabolites:  The BiGG compound namespace table.
-    :type  bigg_metabolites:  pd.DataFrame
-    :param exclude_dna:       Tag to include or exclude DNA reactions.
-    :type  exclude_dna:       bool, default is True.
-    :param exclude_rna:       Tag to include or exclude RNA reactions.
-    :type  exclude_rna:       bool, default is True.
-    :returns:                 The updated model.
-    :rtype:                   cobra.Model
-    """
+    # create reaction object
+    reac = cobra.Reaction(create_random_id(model,'reac','SPECIMEN'))
 
     # ----------------------------
     # curate reaction via MetaNetX
     # ----------------------------
     # try kegg.reaction --> metanetx.reaction
     if F'kegg.reaction:{row["KEGG.reaction"]}' in list(reac_xref['source']):
-
+        
         # get MetaNetX ID
         met_reac_kegg = reac_xref[reac_xref['source']==F'kegg.reaction:{row["KEGG.reaction"]}']
         met_reac = reac_prop[reac_prop['ID']==met_reac_kegg['ID'].iloc[0]]
 
         # make sure exactly one entry is parsed
+        # @TODO : parallel parsing
         if len(met_reac) > 1:
             print(F'Warning: multiple matches for kegg.reaction {row["KEGG.reaction"]} found. Only first one will be used.')
             met_reac = met_reac.head(1)
 
-        # add id and name
-        # ---------------
-        #     id:   from BiGG or create anew
-        #     name: from MetaNetX KEGG description
-        if not pd.isnull(row['bigg_id']):
-            #@TODO .............
-            #   multiple value for BiGG reaction
-            #   ---> current solution:
-            #        use first one only
-            # ..................
-            reac = cobra.Reaction(min(row['bigg_id'].split(' '),key=len))
-            reac.name = met_reac_kegg['description'].iloc[0].split('|')[0]
-
-        else:
-            reac = cobra.Reaction(create_reac_id(met_reac_kegg['description'].iloc[0].split('|')[0]))
-            reac.name = met_reac_kegg['description'].iloc[0].split('|')[0]
+        # add name
+        # --------
+        #     from MetaNetX KEGG description
+        reac.name = met_reac_kegg['description'].iloc[0].split('|')[0]
 
         # add notes
         # ---------
@@ -1049,7 +965,7 @@ def add_reaction(model,row,reac_xref,reac_prop,chem_xref,chem_prop,bigg_metaboli
 
         # add metabolites
         # ----------------
-        reac.add_metabolites(get_metabolites_mnx(model,met_reac['mnx equation'].iloc[0],chem_xref,chem_prop,bigg_metabolites))
+        reac.add_metabolites(get_metabolites_mnx(model,met_reac['mnx equation'].iloc[0],chem_xref,chem_prop,bigg_metabolites, namespace))
         #@TODO .............
         #   direction of reaction
         #   ---> current solution:
@@ -1070,33 +986,20 @@ def add_reaction(model,row,reac_xref,reac_prop,chem_xref,chem_prop,bigg_metaboli
                 reac.annotation[db] = [r.split(':',1)[1] for r in db_matches['source'].tolist()]
             else:
                 continue
-
-
+    
     # if not possible, use information from KEGG only
     # ------------------------
     # curate reaction via KEGG
     # ------------------------
     else:
+        
         # retrieve reaction information from KEGG
         reac_kegg = kegg_reaction_parser(row['KEGG.reaction'])
 
-        # add id and name
-        # ---------------
-        #     id:   from BiGG or create anew
-        #     name: from KEGG name
-        if not pd.isnull(row['bigg_id']):
-            #@TODO .............
-            #   multiple value for BiGG reaction
-            #   ---> current solution:
-            #        use first one only
-            # ..................
-            reac = cobra.Reaction(min(row['bigg_id'].split(' '),key=len))
-            reac.name = reac_kegg['name']
-            reac.annotation['bigg.reaction'] = min(row['bigg_id'].split(' '),key=len)
-
-        else:
-            reac = cobra.Reaction(create_reac_id(reac_kegg['name']))
-            reac.name = reac_kegg['name']
+        # add name
+        # --------
+        #     from KEGG name
+        reac.name = reac_kegg['name']
 
         # add notes
         # ---------
@@ -1105,7 +1008,7 @@ def add_reaction(model,row,reac_xref,reac_prop,chem_xref,chem_prop,bigg_metaboli
 
         # add metabolites
         # ----------------
-        reac.add_metabolites(get_metabolites_kegg(model,reac_kegg['equation'],chem_xref,chem_prop,bigg_metabolites))
+        reac.add_metabolites(get_metabolites_kegg(model,reac_kegg['equation'],chem_xref,chem_prop,bigg_metabolites, namespace))
             #@TODO .............
             #   direction of reaction
             #   ---> current solution:
@@ -1123,35 +1026,56 @@ def add_reaction(model,row,reac_xref,reac_prop,chem_xref,chem_prop,bigg_metaboli
                 reac.annotation[db] = identifiers
 
 
+    # --------------------------------------
+    # re-set ID to fit namespace if possible
+    # --------------------------------------
+    match_id_to_namespace(reac, namespace)
+
     # ---------------------
     # add reaction to model
     # ---------------------
-    # check if reaction is complete
-    # and fullfills the requirements / parameters
-    if isreaction_complete(reac, exclude_dna, exclude_rna):
-        model.add_reactions([reac])
+    
+    # if the ID change results in an ID already in the model, use that reaction
+    if reac.id in [_.id for _ in model.reactions]:
+        print(f'{reac.id} already in model, not added a second time.')
     else:
-        print(F'reaction {reac.name} for gene {row["locus_tag"]} could not be completely reconstructed, not added to model.')
-        return model
+        # check if reaction is complete
+        # and fullfills the requirements / parameters
+        if isreaction_complete(reac, exclude_dna, exclude_rna):
+            model.add_reactions([reac])
+        else:
+            print(F'reaction {reac.name} for gene {row["locus_tag"]} could not be completely reconstructed, not added to model.')
+            return model
 
     # --------
     # add gene
     # --------
     # check if gene is already in model
     if row['locus_tag'] in model.genes:
-        # only need to add the gene reaction rule
-        model.reactions.get_by_id(reac.id).gene_reaction_rule = row['locus_tag']
+        # if - for whatever reason - gene already in gpr, skip
+        if row['locus_tag'] in model.reactions.get_by_id(reac.id).gene_reaction_rule:
+            return model
+        # create new gpr, if nonexistent
+        elif not model.reactions.get_by_id(reac.id).gene_reaction_rule or len(model.reactions.get_by_id(reac.id).gene_reaction_rule) == 0:
+            model.reactions.get_by_id(reac.id).gene_reaction_rule = row['locus_tag']
+        # add gene to existing gpr
+        else:
+            model.reactions.get_by_id(reac.id).gene_reaction_rule = model.reactions.get_by_id(reac.id).gene_reaction_rule + ' or ' + row['locus_tag']
     else:
-        # add gene reaction rule and curate new gene object
-        model = add_gene(model, reac.id, row, first=True)
+        # add (to) gene reaction rule and curate new gene object
+        if not model.reactions.get_by_id(reac.id).gene_reaction_rule or len(model.reactions.get_by_id(reac.id).gene_reaction_rule) == 0:
+            model = add_gene(model, reac.id, row, first=True)
+        else:
+            model = add_gene(model, reac.id, row, first=False)
 
     return model
 
 
+# extend model
+# ------------
 # notes
-# @TEST : fitted to refinegems
 # @CHECK : connections, e.g. input is now a param short 
-def extent_model(table, model,chem_prop_file,chem_xref_file,reac_prop_file,reac_xref_file, exclude_dna=True, exclude_rna=True):
+def extent_model(table, model,chem_prop_file,chem_xref_file,reac_prop_file,reac_xref_file, namespace, exclude_dna=True, exclude_rna=True):
     """Add reactions, metabolites and genes to a model based on the output of map_to_bigg().
 
     :param table:                 The table with the information to be added to the model.
@@ -1190,25 +1114,30 @@ def extent_model(table, model,chem_prop_file,chem_xref_file,reac_prop_file,reac_
     print('\tAdding genes and if needed reactions and metabolites to model:')
     for row_idx in tqdm(table.index):
 
-        # generate BiGG name -> KEGG.reaction dictionary
-        react_dict = make_reaction_dict(model)
+        # generate Name -> KEGG.reaction dictionary
+        react_dict = get_reaction_annotation_dict(model,'KEGG')
+        # generate Name -> BiGG.reaction dictionary
+        react_dict_2 = get_reaction_annotation_dict(model,'BiGG')
 
         # get row in pandas format
         row = table.iloc[row_idx]
 
-        # case 1: BiGG name already in model = reaction in model
-        if not pd.isnull(row['bigg_id']) and len([x for x in react_dict.keys() if (x in row['bigg_id'].split(' '))])>0:
-            # get matching reaction id
-            react_found = [x for x in react_dict.keys() if (x in row['bigg_id'].split(' '))][0]
-            # add gene only
-            model = add_gene(model, react_found, row)
 
-        # case 2: KEGG reaction ID in model = reaction probably in model as well
+        # case 1: BiGG name already in model = reaction in model
+        if not pd.isnull(row['bigg_id']) and any((True for _ in row['bigg_id'].split(' ') if _ in react_dict_2.values())):
+            # get matching reaction id(s)
+            reac_found = [_ for _ in row['bigg_id'].split(' ') if _ in react_dict_2.values()]
+            # add genes to all reactions
+            for r in reac_found:
+                model = add_gene(model, r, row)
+
+        # case 1: KEGG reaction ID in model = reaction probably in model as well
         elif row['KEGG.reaction'] in react_dict.values():
             # get corresponding reaction
-            react_found = list(react_dict.keys())[list(react_dict.values()).index(row['KEGG.reaction'])]
-            # add gene only
-            model = add_gene(model, react_found, row)
+            react_found = [_ for _ in react_dict.keys() if row['KEGG.reaction'] == react_dict[_]]
+            # add gene to all reactions found
+            for r in react_found:
+                model = add_gene(model,r,row)
 
         # case 3: reaction not in model
         #         -> add reaction(s), gene and metabolites if needed
@@ -1216,7 +1145,7 @@ def extent_model(table, model,chem_prop_file,chem_xref_file,reac_prop_file,reac_
             # case 3.1: one reaction
             react = row['KEGG.reaction'].split(' ')
             if len(react) == 1:
-                model = add_reaction(model,row,reac_xref,reac_prop,chem_xref,chem_prop,bigg_metabolites, exclude_dna, exclude_rna)
+                model = add_reaction(model,row,reac_xref,reac_prop,chem_xref,chem_prop,bigg_metabolites, namespace, exclude_dna, exclude_rna)
 
             # case 3.2: multiple reactions
             #           add each reaction separatly, with the same gene for th gene reaction rule
@@ -1226,10 +1155,12 @@ def extent_model(table, model,chem_prop_file,chem_xref_file,reac_prop_file,reac_
                 for r in react:
                     temp_row = row.copy(deep=True)
                     temp_row['KEGG.reaction'] = r
-                    model = add_reaction(model,temp_row,reac_xref,reac_prop,chem_xref,chem_prop,bigg_metabolites, exclude_dna, exclude_rna)
+                    model = add_reaction(model,temp_row,reac_xref,reac_prop,chem_xref,chem_prop,bigg_metabolites, namespace, exclude_dna, exclude_rna)
 
     return model
 
+# main
+# ----
 
 # @TEST : fitted to refinegems
 # @CHECK : connections, e.g. input is now two params short 
@@ -1422,10 +1353,5 @@ def run(draft, gene_list, fasta, db, dir, mnx_chem_prop, mnx_chem_xref, mnx_reac
     # ---------------------------------
 
     if memote:
-        print('\n# -------------------\n# analyse with MEMOTE\n# -------------------')
-        start = time.time()
-        draft_path = F'{dir}step1-extension/{name}.xml'.replace(" ", "\ ")
-        memote_path = F'{dir}step1-extension/{name}.html'.replace(" ", "\ ")
-        subprocess.run([F'memote report snapshot --filename {memote_path} {draft_path}'], shell=True)
-        end = time.time()
-        print(F'\ttotal time: {end - start}s')
+        memote_path = F'{dir}step1-extension/{name}.html'
+        run_memote(draft, 'html', return_res=False, save_res=memote_path, verbose=True)
