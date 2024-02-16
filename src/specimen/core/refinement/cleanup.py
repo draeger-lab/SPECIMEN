@@ -12,7 +12,6 @@ import math
 import numpy as np
 import pandas as pd
 import re
-import subprocess
 import sys
 import time
 import warnings
@@ -253,22 +252,24 @@ def resolve_duplicate_reactions(model, based_on='reaction', remove_reac = True):
 
                 # if duplicate found
                 if dupl:
-                    # choose reaction to keep
-                    keep_reac = model.reactions.get_by_id(mnx[1]['id'].tolist()[0])
+                    if remove_reac:
 
-                    # resolve annotations
-                    for key, value in annotations.items():
-                        if len(value) > 0 and not key in keep_reac.annotation:
-                            keep_reac.annotation[key] = value
+                        # choose reaction to keep
+                        keep_reac = model.reactions.get_by_id(mnx[1]['id'].tolist()[0])
 
-                    # combine gene reaction rules
-                    for r_id in mnx[1]['id'].tolist()[1:]:
-                        keep_reac.gene_reaction_rule = keep_reac.gene_reaction_rule + model.reactions.get_by_id(r_id).gene_reaction_rule
-                        if remove_reac:
+                        # resolve annotations
+                        for key, value in annotations.items():
+                            if len(value) > 0 and not key in keep_reac.annotation:
+                                keep_reac.annotation[key] = value
+
+                        # combine gene reaction rules
+                        for r_id in mnx[1]['id'].tolist()[1:]:
+                            keep_reac.gene_reaction_rule = keep_reac.gene_reaction_rule + model.reactions.get_by_id(r_id).gene_reaction_rule
                             model.reactions.get_by_id(r_id).delete()
                             print(F'\tDuplicate reaction {r_id} found. Combined to {keep_reac.id} and deleted.')
-                        else:
-                            print(F'\tDuplicate reaction {r_id} found. Combined to {keep_reac.id}. Deletion skipped.')
+                    else:
+                        print(f'\tDuplicate reactions {", ".join(mnx[1]["id"].tolist())} found.')
+
     return model
 
 
@@ -793,11 +794,17 @@ def run(model, dir, biocyc_db=None, check_dupl_reac = False,
 
     # perform gapfilling
     # -----------------
+        
+    # ..........................................
+    # @TODO 
+    #   add an option for refinegems gapfilling
+    #   separate option for cobra gapfilling 
     if len(media_list) > 0:
         # load universal model
         universal_model = load_model(universal,'cobra')
         # run gapfilling
         model = multiple_cobra_gapfill(model,universal_model,media_list,namespace,iterations=iterations, chunk_size=chunk_size, growth_threshold=growth_threshold)
+    # ..........................................
 
     end = time.time()
     print(F'\ttime: {end - start}s')
@@ -805,7 +812,8 @@ def run(model, dir, biocyc_db=None, check_dupl_reac = False,
     # ---------------------
     # dead ends and orphans
     # ---------------------
-    # no removal of dead ends and orphans as they may be interesting
+    # @TODO
+    # currently no removal of dead ends and orphans as they may be interesting
     # for manual curation
 
     # ----------
