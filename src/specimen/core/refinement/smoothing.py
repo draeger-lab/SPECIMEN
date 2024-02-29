@@ -7,7 +7,6 @@ __author__ = 'Carolin Brune'
 # requirements
 ################################################################################
 
-import subprocess
 import time
 import tempfile
 from pathlib import Path
@@ -22,7 +21,7 @@ from MCC import MassChargeCuration
 import cobra
 from cobra import Reaction
 
-from refinegems.curation.biomass import test_biomass_presence
+from refinegems.curation.biomass import test_biomass_presence, check_normalise_biomass
 from refinegems.analysis.investigate import run_memote
 
 # further required programs:
@@ -91,6 +90,7 @@ def perform_mcc(model, dir, apply = True):
     return model
 
 
+# @SEE Tobias / refinegems
 def check_for_cycles(model):
     """Check a given metabolic model for futile cycles and energy generating cycles.
     As the correction of those is highly dependant on biological evidence, the correction
@@ -258,29 +258,6 @@ def adjust_BOF(genome, model_file, model, dna_weight_fraction, weight_frac):
         else:
             objective_product[m] = bd_step2[m]
 
-    # check if values are within range
-    #     (sum(reactant * reactant_mol_weight) - sum(product * mol_weight)) / 1000 = x
-    #     acceptance if solution  1-x < -1e-06 or 1-x > 1e-03
-    t = 0
-    for m,x in objective_reactant.items():
-        t += float(x) * float(model.metabolites.get_by_id(m).formula_weight)/1000
-    for m,x in objective_product.items():
-        t -= float(x) * float(model.metabolites.get_by_id(m).formula_weight)/1000
-
-    i = 0
-    # if not, normalise them until they are
-    # or 10 rounds of correction have been run
-    while 1-t < -1e-06 or 1-t > 1e-03 or i >= 10:
-        y = t
-        t = 0
-        for m,x in objective_reactant.items():
-            objective_reactant[m] = float(x)/y
-            t += (float(x)/y) * float(model.metabolites.get_by_id(m).formula_weight)/1000
-        for m,x in objective_product.items():
-            objective_product[m] = float(x)/y
-            t -= (float(x)/y) * float(model.metabolites.get_by_id(m).formula_weight)/1000
-        i += 1
-
     # create new objective function
     new_objective = ' + '.join('{} {}'.format(value, key) for key, value in objective_reactant.items())
     new_objective += ' --> '
@@ -396,13 +373,17 @@ def run(genome,model,dir,mcc='skip',dna_weight_frac=0.023,ion_weight_frac=0.05, 
         pos_bofs = test_biomass_presence(model)
         if pos_bofs:
             model.reactions.get_by_id(pos_bofs[0]).reaction = adjust_BOF(genome, temp_model.name, model, dna_weight_frac, ion_weight_frac)
+            # optimise BOF(s)
+            model = check_normalise_biomass
         else:
-            # @TEST: does it work?
             # create new BOF
             bof_reac = Reaction('Biomass_BOFdat')
             bof_reac.name = 'Biomass objective function created by BOFdat'
             model.add_reactions([bof_reac])
             model.reactions.get_by_id(pos_bofs[0]).reaction = adjust_BOF(genome, temp_model.name, model, dna_weight_frac, ion_weight_frac)
+       
+            # optimise BOF(s)
+            model = check_normalise_biomass
 
 
     end = time.time()

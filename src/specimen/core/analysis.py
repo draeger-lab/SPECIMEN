@@ -11,6 +11,7 @@ import time
 import warnings
 
 from pathlib import Path
+from typing import Literal
 
 from refinegems.analysis import growth
 from refinegems.utility.io import load_model
@@ -27,10 +28,28 @@ from refinegems.curation.biomass import test_biomass_presence
 # -------------
 # @NOTE: The below completely changes the parameters, change and check the other connection as needed (e.g. setup, workflow)
 
-def run(model_path, dir, 
-        media_path=None, namespace='BiGG',
-        pc_model_path=None, pc_based_on='id', 
-        test_aa_auxotrophies=True, pathway=True):
+def run(model_path:str, dir:str, 
+        media_path:str=None, namespace:Literal['BiGG']='BiGG',
+        pc_model_path:str=None, pc_based_on:Literal['id']='id', 
+        test_aa_auxotrophies:bool=True, pathway:bool=True):
+    """SPECIMEN Step 5: Analyse the generated model.
+
+    Args:
+        model_path (str): Path to the model.
+        dir (str): Path to the output directory.
+        media_path (str, optional): Path to a media config file. 
+            Using this enables growth simulation.
+            Defaults to None.
+        namespace (Literal['BiGG'], optional): Namespace to work on. 
+            Defaults to 'BiGG'.
+        pc_model_path (str, optional): Path to a core-pan model. Defaults to None.
+        pc_based_on (Literal['id'], optional): How to compare the model to the core-pan model. 
+            Defaults to 'id'.
+        test_aa_auxotrophies (bool, optional): Option to enable the amino acid
+            auxotrophy simulation. Defaults to True.
+        pathway (bool, optional): Optional to enable KEGG pathway analysis. 
+            Defaults to True.
+    """
 
     total_time_s = time.time()
 
