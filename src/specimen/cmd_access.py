@@ -335,7 +335,7 @@ def smoothing(model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, memote)
 @run.command()
 @click.argument('model',type=str)
 @click.option('--dir', '-d', default='./validation/', type=str, help='Path to a directory for the output.')
-@click.option('--run_test', '--test', multiple=True, default=['all'], help='define, which tests should be run. Current possibilities are "all" and "cobra"')
+@click.option('--run_test', '-t', multiple=True, default=['all'], help='define, which tests should be run. Current possibilities are "all" and "cobra"')
 def validation(model,dir,run_test):
     """Step 4 of the pipeline: Validate the model.
 

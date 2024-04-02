@@ -15,12 +15,26 @@ import pprint
 import time
 
 from pathlib import Path
+from typing import Literal
 
 ################################################################################
 # functions
 ################################################################################
 
-def run(dir, model_path, tests=None, run_all=True):
+# @TODO: add more validation options.´
+
+def run(dir:str, model_path:str, tests:None|Literal['cobra']=None, run_all:bool=True):
+    """SPECIMEN Step 4: Validate the model.
+
+    Args:
+        - dir (str): Path to the output directory.
+        - model_path (str): Path to the model to be validated
+        - tests (None | Literal['cobra'], optional): Tests to perform. 
+            Defaults to None.
+        - run_all (bool, optional): Run al available tests. If True, overwrites
+            the previous parameter.
+            Defaults to True.
+    """
 
     total_time_s = time.time()
 
