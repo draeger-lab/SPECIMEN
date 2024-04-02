@@ -83,9 +83,9 @@ def perform_mcc(model, dir, apply = True):
             balancer = MassChargeCuration(model_copy, update_ids = False, data_path=temp)
 
     # save reports
-    balancer.generate_reaction_report(F'{dir}{model.id}_mcc_reactions')
-    balancer.generate_metabolite_report(F'{dir}{model.id}_mcc_metabolites')
-    balancer.generate_visual_report(F'{dir}{model.id}_mcc_visual')
+    balancer.generate_reaction_report(Path(dir,model.id+'_mcc_reactions'))
+    balancer.generate_metabolite_report(Path(dir,model.id+'_mcc_metabolites'))
+    balancer.generate_visual_report(Path(dir,model.id+'_mcc_visual'))
 
     return model
 
@@ -303,19 +303,15 @@ def run(genome,model,dir,mcc='skip',dna_weight_frac=0.023,ion_weight_frac=0.05, 
     # create output directory
     # -----------------------
 
-    # make sure given directory path ends with '/'
-    if not dir.endswith('/'):
-        dir = dir + '/'
-
     try:
-        Path(F"{dir}step4-smoothing/").mkdir(parents=True, exist_ok=False)
-        print(F'Creating new directory {F"{dir}step4-smoothing/"}')
+        Path(dir,"step4-smoothing").mkdir(parents=True, exist_ok=False)
+        print(F'Creating new directory {str(Path(dir,"step4-smoothing"))}')
     except FileExistsError:
         print('Given directory already has required structure.')
 
     try:
-        Path(F"{dir}manual_curation/").mkdir(parents=True, exist_ok=False)
-        print(F'Creating new directory {F"{dir}manual_curation/"}')
+        Path(dir,"manual_curation").mkdir(parents=True, exist_ok=False)
+        print(F'Creating new directory {str(Path(dir,"manual_curation"))}')
     except FileExistsError:
         print('Given directory already has required structure.')
 
@@ -331,13 +327,13 @@ def run(genome,model,dir,mcc='skip',dna_weight_frac=0.023,ion_weight_frac=0.05, 
     if mcc == 'apply':
         print('\n# ----------------------------------\n# mass and charge curation (applied)\n# ----------------------------------')
         start = time.time()
-        model = perform_mcc(model,F"{dir}step4-smoothing/")
+        model = perform_mcc(model,Path(dir,"step4-smoothing"))
         end = time.time()
         print(F'\ttime: {end - start}s')
     elif mcc == 'extra':
         print('\n# --------------------------------\n# mass and charge curation (extra)\n# --------------------------------')
         start = time.time()
-        model = perform_mcc(model,F"{dir}manual_curation/",False)
+        model = perform_mcc(model,Path(dir,"manual_curation"),False)
         end = time.time()
         print(F'\ttime: {end - start}s')
     elif mcc == 'skip':
@@ -394,7 +390,7 @@ def run(genome,model,dir,mcc='skip',dna_weight_frac=0.023,ion_weight_frac=0.05, 
     # ----------------
     print('\n# ----------\n# save model\n# ----------')
     model_name = F'{model.id}_smooth'
-    outname = F"{dir}step4-smoothing/{model_name}.xml"
+    outname = Path(dir,'step4-smoothing',model_name+".xml")
     print(F'\tsaving to: {outname}')
     cobra.io.write_sbml_model(model,outname)
 
@@ -403,6 +399,6 @@ def run(genome,model,dir,mcc='skip',dna_weight_frac=0.023,ion_weight_frac=0.05, 
     # ---------------------------------
 
     if memote:
-        memote_path = F'{dir}step4-smoothing/{model_name}.html'
+        memote_path = Path(dir,'step4-smoothing',model_name+'.html')
         run_memote(model, 'html', return_res=False, save_res=memote_path, verbose=True)
 

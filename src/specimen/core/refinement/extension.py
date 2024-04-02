@@ -66,7 +66,7 @@ def identify_missing_genes(gene_path, model, id, fasta_path, dir):
     gene_list_missing = gene_list_all[gene_list_all[id].isin(gene_list_model) == False]
     # extract wanted sequences from the FASTA and save new FASTA
     fasta = SeqIO.parse(fasta_path, 'fasta')
-    SeqIO.write((seq for seq in fasta if seq.id in gene_list_missing[id].tolist()), F'{dir}missing_genes.fasta', 'fasta')
+    SeqIO.write((seq for seq in fasta if seq.id in gene_list_missing[id].tolist()), Path(dir,'missing_genes.fasta'), 'fasta')
 
     return gene_list_missing
 
@@ -377,12 +377,12 @@ def map_to_KEGG(gene_table,working_dir,manual_dir,genome_summary=None):
     #    -> best idea would probably be get more EC numbers to check
     # .....................................................................
     print(F'\t\tgenes mapped to KEGG + EC: {len(gene_table.loc[gene_table["KEGG.reaction"].notna()])}')
-    gene_table.loc[gene_table['KEGG.reaction'].notna()].to_csv(F'{working_dir}genes_mapped.csv', index=False, header=True)
+    gene_table.loc[gene_table['KEGG.reaction'].notna()].to_csv(Path(working_dir,'genes_mapped.csv'), index=False, header=True)
     # without for possible manual curation
     print(F'\t\tgenes NOT mapped to KEGG + EC: {len(gene_table.loc[gene_table["KEGG.reaction"].isna()])}, saved for manual curation')
-    gene_table.loc[gene_table['KEGG.reaction'].isna()].to_csv(F'{manual_dir}genes_no_reaction.csv', index=False, header=True)
+    gene_table.loc[gene_table['KEGG.reaction'].isna()].to_csv(Path(manual_dir,'genes_no_reaction.csv'), index=False, header=True)
 
-    return F'{working_dir}genes_mapped.csv'
+    return Path(working_dir,'genes_mapped.csv')
 
 
 # mapping to BiGG
@@ -1236,14 +1236,14 @@ def run(draft, gene_list, fasta, db, dir, mnx_chem_prop, mnx_chem_xref, mnx_reac
     # -----------------------
 
     try:
-        Path(F"{dir}step1-extension/").mkdir(parents=True, exist_ok=False)
-        print(F'Creating new directory {F"{dir}step1-extension/"}')
+        Path(dir,"step1-extension").mkdir(parents=True, exist_ok=False)
+        print(F'Creating new directory {str(Path(dir,"step1-extension"))}')
     except FileExistsError:
         print('Given directory already has required structure.')
 
     try:
-        Path(F"{dir}manual_curation/").mkdir(parents=True, exist_ok=False)
-        print(F'Creating new directory {F"{dir}manual_curation/"}')
+        Path(dir,"manual_curation").mkdir(parents=True, exist_ok=False)
+        print(F'Creating new directory {str(Path(dir,"manual_curation"))}')
     except FileExistsError:
         print('Given directory already has required structure.')
 
@@ -1258,7 +1258,7 @@ def run(draft, gene_list, fasta, db, dir, mnx_chem_prop, mnx_chem_xref, mnx_reac
     # read in the draft model
     draft = cobra.io.read_sbml_model(Path(draft))
     # identify missing genes and create new FASTA
-    missing_genes = identify_missing_genes(gene_list, draft, id, fasta, F'{dir}step1-extension/')
+    missing_genes = identify_missing_genes(gene_list, draft, id, fasta, Path(dir,'step1-extension'))
     print(F'\tmissing genes: {len(missing_genes)}')
 
     end = time.time()
@@ -1272,11 +1272,11 @@ def run(draft, gene_list, fasta, db, dir, mnx_chem_prop, mnx_chem_xref, mnx_reac
 
     start = time.time()
 
-    outname_diamond = F'{dir}step1-extension/DIAMOND_results.tsv'
+    outname_diamond = Path(dir,'step1-extension','DIAMOND_results.tsv')
     bl = "\\ "
     print(F'\tRunning the following command:')
-    print(F'diamond blastp -d {db.replace(" ",bl)} -q {dir.replace(" ",bl)}step1-extension/missing_genes.fasta --{sensitivity} --query-cover {coverage} -p {int(threads)} -o {outname_diamond} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore')
-    subprocess.run([F'diamond blastp -d {db.replace(" ",bl)} -q {dir.replace(" ",bl)}step1-extension/missing_genes.fasta --{sensitivity} --query-cover {coverage} -p {int(threads)} -o {outname_diamond} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore'], shell=True)
+    print(F'diamond blastp -d {db.replace(" ",bl)} -q {Path(dir.replace(" ",bl),"step1-extension","missing_genes.fasta")} --{sensitivity} --query-cover {coverage} -p {int(threads)} -o {outname_diamond} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore')
+    subprocess.run([F'diamond blastp -d {db.replace(" ",bl)} -q {Path(dir.replace(" ",bl),"step1-extension","missing_genes.fasta")} --{sensitivity} --query-cover {coverage} -p {int(threads)} -o {outname_diamond} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore'], shell=True)
 
     end = time.time()
     print(F'\ttime: {end - start}s')
@@ -1310,7 +1310,7 @@ def run(draft, gene_list, fasta, db, dir, mnx_chem_prop, mnx_chem_xref, mnx_reac
 
     # map to KEGG (gene or ec --> enzyme and reaction)
     print('\tMap to KEGG')
-    genes_to_add = map_to_KEGG(genes_to_add, F"{dir}step1-extension/", F"{dir}manual_curation/", ncbi_dat)
+    genes_to_add = map_to_KEGG(genes_to_add, Path(dir,"step1-extension"), Path(dir,"manual_curation"), ncbi_dat)
 
     # map to BiGG
     print('\tmap information to BiGG namespace via EC number AND KEGG.reaction ID')
@@ -1335,7 +1335,7 @@ def run(draft, gene_list, fasta, db, dir, mnx_chem_prop, mnx_chem_xref, mnx_reac
     draft = extent_model(genes_to_add,draft,mnx_chem_prop,mnx_chem_xref,mnx_reac_prop,mnx_reac_xref, exclude_dna, exclude_rna)
     # save it
     name = F'{draft.id}_extended'
-    cobra.io.write_sbml_model(draft, F'{dir}step1-extension/{name}.xml')
+    cobra.io.write_sbml_model(draft, Path(dir,'step1-extension',name+'.xml'))
 
     # find out the differences to before
     r_after = len(draft.reactions)
@@ -1353,5 +1353,5 @@ def run(draft, gene_list, fasta, db, dir, mnx_chem_prop, mnx_chem_xref, mnx_reac
     # ---------------------------------
 
     if memote:
-        memote_path = F'{dir}step1-extension/{name}.html'
+        memote_path = Path(dir,'step1-extension',name+'.html')
         run_memote(draft, 'html', return_res=False, save_res=memote_path, verbose=True)

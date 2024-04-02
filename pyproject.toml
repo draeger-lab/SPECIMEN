@@ -15,7 +15,7 @@ requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3.10",
     'Operating System :: MacOS',
-    "Operating System :: Unix"
+    "Operating System :: Unix" # make it OS independant  - main problem currently are the paths
 ]
 dependencies = [
     # refinegems >= 2.0.0,

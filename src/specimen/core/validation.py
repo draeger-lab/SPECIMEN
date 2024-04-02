@@ -31,8 +31,8 @@ def run(dir, model_path, tests=None, run_all=True):
     # -----------------------
 
     try:
-        Path(F"{dir}04_validation/").mkdir(parents=True, exist_ok=False)
-        print(F'Creating new directory {F"{dir}04_validation/"}')
+        Path(dir,"04_validation").mkdir(parents=True, exist_ok=False)
+        print(F'Creating new directory {str(Path(dir,"04_validation"))}')
     except FileExistsError:
         print('Given directory already has required structure.')
 

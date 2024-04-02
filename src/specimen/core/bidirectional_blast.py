@@ -40,17 +40,17 @@ def extract_cds(file: str, name: str, dir: str, collect_info: list, identifier: 
     match extension:
 
         case '.gbff':
-            fasta_name = F"{dir}FASTA/{name}_prot.fa"
+            fasta_name = Path(dir,'FASTA',name+'_prot.fa')
             # check, if CDS were already extracted
-            if os.path.isfile(F"{dir}FASTA/{name}_nucs.fa") and os.path.isfile(F"{dir}FASTA/{name}_prot.fa"):
+            if os.path.isfile(Path(dir,'FASTA',name+'_nucs.fa')) and os.path.isfile(Path(dir,'FASTA',name+'_prot.fa')):
                 print(F'CDS for {name} were already extracted')
             else:
                 # run extraction process
                 info_list = []
                 with (
                     open(file) as f,
-                    open(F"{dir}FASTA/{name}_nucs.fa", "w") as nucs_f,
-                    open(F"{dir}FASTA/{name}_prot.fa", "w") as prot_f,
+                    open(Path(dir,'FASTA',name+'_nucs.fa'), "w") as nucs_f,
+                    open(Path(dir,'FASTA',name+'_prot.fa'), "w") as prot_f,
                 ):
 
                     for record in SeqIO.parse(f,"genbank"):
@@ -92,14 +92,14 @@ def extract_cds(file: str, name: str, dir: str, collect_info: list, identifier: 
 
                 info_df = pd.DataFrame.from_dict(info_list)
                 print(F'{len(info_df)} CDS were extracted from {name}')
-                info_df.to_csv(F"{dir}{name}_info.csv", index=False)
+                info_df.to_csv(Path(dir,name+'_info.csv'), index=False)
             return fasta_name
 
         case '.faa':
             # no CDS extraction needed, only the info-file
             print('faa extension detected. Assuming no CDS extraction is needed.')
             info_df = pd.DataFrame([seq.id for seq in SeqIO.parse(file, 'fasta')], columns=['locus_tag'])
-            info_df.to_csv(F"{dir}{name}_info.csv", index=False)
+            info_df.to_csv(Path(dir,name+'_info.csv'), index=False)
             fasta_name = file
             return fasta_name
 
@@ -120,15 +120,16 @@ def create_diamond_db(dir: str, name: str, path: str, threads: int):
     :type  threads:  int
     """
     # check if database already exists
-    if os.path.isfile(F'{dir}DIAMONDdb/{name}.dmnd'):
+    if os.path.isfile(Path(dir,'DIAMONDdb',name+'.dmnd')):
         print(F'database for {name} already exists')
     else:
         # generate new database using diamond makedb
+        # @TODO: check if commands run under different OS
         bl = "\\ "
         print(F'create DIAMOND database for {name} using:')
-        print(F'diamond makedb --in {path.replace(" ",bl)} -d {F"{dir}db/{name}".replace(" ",bl)} -p {int(threads)}')
+        print(F'diamond makedb --in {path.replace(" ",bl)} -d {str(Path(dir,"db",name)).replace(" ",bl)} -p {int(threads)}')
         start = time.time()
-        subprocess.run([F'diamond makedb --in {path.replace(" ",bl)} -d {F"{dir}db/{name}".replace(" ",bl)} -p {int(threads)}'], shell=True)
+        subprocess.run([F'diamond makedb --in {path.replace(" ",bl)} -d {str(Path(dir,"db",name)).replace(" ",bl)} -p {int(threads)}'], shell=True)
         end = time.time()
         print(F'\t time: {end - start}s')
 
@@ -151,7 +152,7 @@ def run_diamond_blastp(dir: str, db: str, query: str, fasta_path:str , sensitivi
     :type  threads:     int
     """
 
-    outname = F'{dir}DIAMONDblastp/{query}_vs_{db}.tsv'
+    outname = Path(dir,'DIAMONDblastp',f'{query}_vs_{db}.tsv')
     # check if file already exists
     if os.path.isfile(outname):
         print(F'file or filename for {query} vs. {db} blastp already exists')
@@ -159,9 +160,9 @@ def run_diamond_blastp(dir: str, db: str, query: str, fasta_path:str , sensitivi
         # blast file
         bl = "\\ "
         print(F'blast {query} against {db} using:')
-        print(F'diamond blastp -d {F"{dir}db/{db}.dmnd".replace(" ",bl)} -q {F"{fasta_path}".replace(" ",bl)} --{sensitivity} -p {int(threads)} -o {outname.replace(" ",bl)} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen ')
+        print(F'diamond blastp -d {str(Path(dir,"db/",db+".dmnd")).replace(" ",bl)} -q {F"{fasta_path}".replace(" ",bl)} --{sensitivity} -p {int(threads)} -o {outname.replace(" ",bl)} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen ')
         start = time.time()
-        subprocess.run([F'diamond blastp -d {F"{dir}db/{db}.dmnd".replace(" ",bl)} -q {F"{fasta_path}".replace(" ",bl)} --{sensitivity} -p {int(threads)} -o {outname.replace(" ",bl)} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen '], shell=True)
+        subprocess.run([F'diamond blastp -d {str(Path(dir,"db",db+".dmnd")).replace(" ",bl)} -q {F"{fasta_path}".replace(" ",bl)} --{sensitivity} -p {int(threads)} -o {outname.replace(" ",bl)} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen '], shell=True)
         end = time.time()
         print(F'\ttime: {end - start}s')
 
@@ -189,14 +190,14 @@ def bdbp_diamond(dir: str, template_name:str, input_name: str, template_path: st
     # create output directory
     # -----------------------
     try:
-        Path(F"{dir}db/").mkdir(parents=True, exist_ok=False)
-        print(F'Creating new directory {F"{dir}db"}')
+        Path(dir,"db").mkdir(parents=True, exist_ok=False)
+        print(F'Creating new directory {str(Path(dir,"db"))}')
     except FileExistsError:
         print('Given directory already has required structure.')
 
     try:
-        Path(F"{dir}DIAMONDblastp/").mkdir(parents=True, exist_ok=False)
-        print(F'Creating new directory {F"{dir}DIAMONDblastp"}')
+        Path(dir,"DIAMONDblastp").mkdir(parents=True, exist_ok=False)
+        print(F'Creating new directory {str(Path(dir,"DIAMONDblastp"))}')
     except FileExistsError:
         print('Given directory already has required structure.')
 
@@ -345,8 +346,8 @@ def run(template, input, dir,template_name=None, input_name=None, temp_header='p
     print('\n# ----------------------\n# extract CDS into FASTA\n# ----------------------\n')
 
     try:
-        Path(F"{dir}FASTA/").mkdir(parents=True, exist_ok=False)
-        print(F'Creating new directory {F"{dir}FASTA"}')
+        Path(dir,"FASTA").mkdir(parents=True, exist_ok=False)
+        print(F'Creating new directory {str(Path(dir,"FASTA"))}')
     except FileExistsError:
         print('Given directory already has required structure.')
 
@@ -379,7 +380,7 @@ def run(template, input, dir,template_name=None, input_name=None, temp_header='p
     print('\n# ----------------------------\n# find best bidirectional hits\n# ----------------------------\n')
 
     start = time.time()
-    extract_bestbdbp_hits(F'{dir}DIAMONDblastp/{template_name}_vs_{input_name}.tsv',F'{dir}DIAMONDblastp/{input_name}_vs_{template_name}.tsv', F'{dir}{input_name}_{template_name}_bbh')
+    extract_bestbdbp_hits(Path(dir,'DIAMONDblastp',f'{template_name}_vs_{input_name}.tsv'),Path(dir,'DIAMONDblastp',F'{input_name}_vs_{template_name}.tsv'), Path(dir,F'{input_name}_{template_name}_bbh'))
     end = time.time()
     print(F'\ttotal time: {end - start}s')
 

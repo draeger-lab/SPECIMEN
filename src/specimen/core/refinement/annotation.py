@@ -155,8 +155,8 @@ def run(model, dir, kegg_viaEC=False, kegg_viaRC=False, memote=False):
     # -----------------------
 
     try:
-        Path(F"{dir}step3-annotation/").mkdir(parents=True, exist_ok=False)
-        print(F'Creating new directory {F"{dir}step3-annotation/"}')
+        Path(dir,"step3-annotation").mkdir(parents=True, exist_ok=False)
+        print(F'Creating new directory {str(Path(dir,"step3-annotation"))}')
     except FileExistsError:
         print('Given directory already has required structure.')
 
@@ -179,13 +179,14 @@ def run(model, dir, kegg_viaEC=False, kegg_viaRC=False, memote=False):
     #    SBOannotator should be downloadable as a python tool
     #    if not included download from github
 
-    sbo_annotator(libsbml_doc, libsbml_model, 'constraint-based', True, 'create_dbs', F"{dir}step3-annotation/"+libsbml_model.getId()+'_SBOannotated.xml')
+    sbo_annotator(libsbml_doc, libsbml_model, 'constraint-based', True, 'create_dbs', 
+                  Path(dir,'step3-annotation',libsbml_model.getId()+'_SBOannotated.xml'))
 
     end = time.time()
     print(F'\ttime: {end - start}s')
 
     # reload model
-    model = load_model(F"{dir}step3-annotation/"+libsbml_model.getId()+'_SBOannotated.xml', 'cobra')
+    model = load_model(Path(dir,'step3-annotation',libsbml_model.getId()+'_SBOannotated.xml'), 'cobra')
 
     # ................................................................
     # @EXTENDABLE
@@ -208,7 +209,7 @@ def run(model, dir, kegg_viaEC=False, kegg_viaRC=False, memote=False):
     # ----------
     # save model
     # ----------
-    cobra.io.write_sbml_model(model, F'{dir}step3-annotation/{model.id}_annotated.xml')
+    cobra.io.write_sbml_model(model, Path(dir,'step3-annotation',{model.id}+'_annotated.xml'))
 
     # ---------------------------------
     # assess model quality using memote
@@ -218,12 +219,12 @@ def run(model, dir, kegg_viaEC=False, kegg_viaRC=False, memote=False):
         print('\n# -------------------\n# analyse with MEMOTE\n# -------------------')
         start = time.time()
         name = libsbml_model.getId()
-        draft_path = F'{dir}step3-annotation/{name}_SBOannotated.xml'.replace(" ", "\ ")
-        memote_path = F'{dir}step3-annotation/{name}_SBOannotated.html'.replace(" ", "\ ")
+        draft_path = str(Path(dir,'step3-annotation',name+'_SBOannotated.xml')).replace(" ", "\ ")
+        memote_path = str(Path(dir,'step3-annotation',name+'_SBOannotated.html')).replace(" ", "\ ")
         subprocess.run([F'memote report snapshot --skip test_consistency --filename {memote_path} {draft_path}'], shell=True)
         end = time.time()
         print(F'\ttotal time: {end - start}s')
 
     if memote:
-        memote_path = F'{dir}step3-annotation/{name}_SBOannotated.html'
+        memote_path = Path(dir,'step3-annotation',name+'_SBOannotated.html')
         run_memote(model, 'html', return_res=False, save_res=memote_path, verbose=True)

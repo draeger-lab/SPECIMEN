@@ -59,13 +59,9 @@ def run(model_path:str, dir:str,
     # create output directory
     # -----------------------
 
-    # make sure given directory path ends with '/'
-    if not dir.endswith('/'):
-        dir = dir + '/'
-
     try:
-        Path(F"{dir}05_analysis/").mkdir(parents=True, exist_ok=False)
-        print(F'Creating new directory {F"{dir}05_analysis/"}')
+        Path(dir,"05_analysis").mkdir(parents=True, exist_ok=False)
+        print(F'Creating new directory {Path(dir,"05_analysis")}')
     except FileExistsError:
         print('Given directory already has required structure.')
 
@@ -79,7 +75,7 @@ def run(model_path:str, dir:str,
     print('\n# ------------------\n# general statistics\n# ------------------')
 
     statistics_report = ModelInfoReport(model)
-    statistics_report.save(F'{dir}05_analysis/')
+    statistics_report.save(Path(dir,'05_analysis'))
 
     # -----------------
     # pan-core analysis
@@ -89,7 +85,7 @@ def run(model_path:str, dir:str,
         print('\n# ------------------\n# pan-core analysis\n# ------------------')
         pc_model = load_model(pc_model_path,'cobra') 
         pan_core_report = compare_to_core_pan(model, pc_model, pc_based_on)
-        pan_core_report.save(F'{dir}05_analysis/')
+        pan_core_report.save(Path(dir,'05_analysis'))
 
     # ----------------
     # pathway analysis
@@ -98,7 +94,7 @@ def run(model_path:str, dir:str,
     if pathway:
         print('\n# -----------------\n# pathway analysis\n# -----------------')
         pathway_report = kegg_pathway_analysis(model)
-        pathway_report.save(F'{dir}05_analysis/')
+        pathway_report.save(Path(dir,'05_analysis'))
 
     # ---------------
     # growth analysis
@@ -114,7 +110,7 @@ def run(model_path:str, dir:str,
             model.objective = growth_func_list[0]
             # simulate growth on different media
             growth_report = growth.growth_analysis(model, media_path, namespace=namespace, retrieve='report')
-            growth_report.save(F'{dir}05_analysis/')
+            growth_report.save(Path(dir,'05_analysis'))
 
         else:
             warnings.warn('No growth/biomass function detected, growth simulation will be skipped.')
@@ -123,7 +119,7 @@ def run(model_path:str, dir:str,
         if test_aa_auxotrophies:
             media_list = growth.read_media_config(media_path)
             auxo_report = growth.test_auxotrophies(model, media_list[0], media_list[1], namespace)
-            auxo_report.save(F'{dir}05_analysis/')
+            auxo_report.save(Path(dir,'05_analysis'))
 
     total_time_e = time.time()
     print(F'total runtime: {total_time_e-total_time_s}')

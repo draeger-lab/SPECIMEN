@@ -285,7 +285,7 @@ def gen_draft_model(model, bbh, name, dir, edit, medium='default', namespace='Bi
 
     # save draft model
     draft.id = name
-    cobra.io.write_sbml_model(draft, F'{dir}{name}_draft.xml')
+    cobra.io.write_sbml_model(draft, Path(dir,name+'_draft.xml'))
 
     return draft
 
@@ -384,7 +384,7 @@ def run(template, bpbbh, dir, edit_names='no', pid=80.0, name=None, medium='defa
     # -------------------
 
     if memote:
-        memote_path = F'{dir}step1-extension/{name}.html'
+        memote_path = Path(dir,'step1-extension',name+'.html')
         run_memote(draft, 'html', return_res=False, save_res=memote_path, verbose=True)
 
     total_time_e = time.time()

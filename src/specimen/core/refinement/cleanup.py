@@ -328,7 +328,6 @@ def run(model, dir, biocyc_db=None, check_dupl_reac = False,
     # -------------------
     if not check_dupl_meta in ['default','skip','exhaustive']:
         raise ValueError('Unknown option {check_dupl_meta} for checking duplicate metabolite. Use one of: default, skip, exhaustive')
-        sys.exit(1)
 
     # -------------
     # start program
@@ -339,13 +338,9 @@ def run(model, dir, biocyc_db=None, check_dupl_reac = False,
     # create output directory
     # -----------------------
 
-    # make sure given directory path ends with '/'
-    if not dir.endswith('/'):
-        dir = dir + '/'
-
     try:
-        Path(F"{dir}step2-clean-up/").mkdir(parents=True, exist_ok=False)
-        print(F'Creating new directory {F"{dir}step2-clean-up/"}')
+        Path(dir,"step2-clean-up").mkdir(parents=True, exist_ok=False)
+        print(F'Creating new directory {str(Path(dir,"step2-clean-up"))}')
     except FileExistsError:
         print('Given directory already has required structure.')
 
@@ -440,12 +435,12 @@ def run(model, dir, biocyc_db=None, check_dupl_reac = False,
     # save model
     # ----------
     name = F'{model.id}_clean'
-    cobra.io.write_sbml_model(model, F'{dir}step2-clean-up/{name}.xml')
+    cobra.io.write_sbml_model(model, Path(dir,'step2-clean-up',name+'.xml'))
 
     # ---------------------------------
     # assess model quality using memote
     # ---------------------------------
         
     if memote:
-        memote_path = F'{dir}step2-clean-up/{name}.html'
+        memote_path = Path(dir,'step2-clean-up',name+'.html')
         run_memote(model, 'html', return_res=False, save_res=memote_path, verbose=True)
