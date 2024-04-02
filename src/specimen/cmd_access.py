@@ -330,6 +330,11 @@ def smoothing(model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, memote)
     """
     specimen.core.refinement.smoothing.run(model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, memote)
 
+
+#######################
+    # below runs #
+#######################
+
 # validation
 # ----------
 @run.command()

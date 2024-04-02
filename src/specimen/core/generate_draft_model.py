@@ -20,7 +20,7 @@ from refinegems.utility.entities import resolve_compartment_names
 from refinegems.curation.biomass import test_biomass_presence
 from refinegems.analysis.investigate import run_memote
 
-from ..util.util import MIN_GROWTH_RATE
+from refinegems.analysis.growth import MIN_GROWTH_THRESHOLD
 
 # further required programs:
 #        - MEMOTE, tested with version 0.13.0
@@ -101,7 +101,7 @@ def remove_absent_genes(model, genes):
                 test.knock_out()
                 variant.optimize()
                 # set gene for deletion if model still works without it
-                if variant.objective.value > MIN_GROWTH_RATE:
+                if variant.objective.value > MIN_GROWTH_THRESHOLD:
                     remove = True
                     genes_to_delete += 1
                 # keep gene, if model stops growing
@@ -204,7 +204,7 @@ def check_unchanged(draft, bbh):
         with draft as model:
             g.knock_out()
             res = model.optimize()
-            if res.objective_value > MIN_GROWTH_RATE:
+            if res.objective_value > MIN_GROWTH_THRESHOLD:
                 # set for deletion
                 remove = True
                 to_delete += 1
