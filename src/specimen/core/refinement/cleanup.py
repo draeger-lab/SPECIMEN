@@ -34,7 +34,7 @@ from refinegems.curation.curate import resolve_duplicates, complete_BioMetaCyc
 
 
 # @ADDED TO refinegems 
-# @TODO - use the functions here as well, without skipping the createion label
+# @TODO - use the functions here as well, without skipping the creation label
 def check_direction(model,data_file):
     """Check the direction of newly created reactions (01-extention) by searching for matching MetaCyc,
     KEGG and MetaNetX IDs as well as EC number in a downloaded BioCyc (MetaCyc)
