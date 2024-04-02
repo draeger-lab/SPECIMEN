@@ -125,21 +125,7 @@ parameters:
         # new 
         ##################
         media_analysis: __USER__ # edit to fit a default media config file
-        ##################
-        # old - delete
-        ##################
-        #load_media:
-        #    - LB
-        #    - M9
-        #change_to_aerobic: null
-        #change_to_anaerobic:
-        #    - LB
-        #    - M9
-        #add_casamino: null
-        #external_media: null
-        #test_min_medium: False
-        #growth_rate: 0.1
-        #test_aa_auxotrophies: True
+        test_aa_auxotrophies: True
         # perform pathway analysis with KEGG
         pathway: True
 

@@ -165,6 +165,7 @@ def run(genome,model,dir,mcc='skip',
         namespace:Literal['BiGG']='BiGG',
         dna_weight_frac=0.023,ion_weight_frac=0.05, 
         memote=False):
+    # @TODO fix docs below
     """Perform the fourth step of the refinement, smoothing, on a model.
 
     The fourth step of the refinment, smoothing, includes:

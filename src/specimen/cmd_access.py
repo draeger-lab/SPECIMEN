@@ -358,28 +358,16 @@ def validation(model,dir,run_test):
 @click.option('--pan-core-comparison', '--pcc', type=str, default='id', help='Option on which feature the comparison of pan-core model and model should should be based on.\nDefault is "id".')
 @click.option('--pan-core-model', '--pcm', required=False, type=str, help='Path to a pan-core model.')
 # growth analysis
-@click.option('--media_db', required=False, type=str, help='string, path to a database csv file containing media.')
-@click.option('--load_media', required=False, multiple=True, help='List of media names to be loaded from media_db. Can be used multiple times')
-@click.option('--external_media', required=False, multiple=True, help='List of paths (strings) to media files (containing one media from the user). Can be used multiple times.')
-@click.option('--aerobic', required=False, multiple=True, help='List of media names to be loaded from media_db and changed to aerobic conditions. Can be used multiple times.')
-@click.option('--anaerobic', required=False, multiple=True, help='Medium name to be loaded from media_db and changed to anaerobic conditions. Can be used multiple times.')
-@click.option('--add_casamino', '--cas', required=False, multiple=True, help='Medium name to be loaded from media_db. Afterwards add the casamino acids to it. Can be used multiple times')
-@click.option('--find_min_medium', '--min', required=False, is_flag=True, default=False, help='Option to find and test minimal medium based on all exchange reactions in the model.')
-@click.option('--growth_rate', '--gwr', default=0.5, type=float, show_default=True, help='float, minimal growth rate for the minimal model')
+@click.option('--namespace','-n',required=False, type=click.Choice(['BiGG']), multiple=False, default='BiGG', help='Namespace used by the given model.')
+@click.option('--media-path','--mp',required=False, type=str, default=None, help='Path to a media config file. Enables growth analysis if given.')
 @click.option('--test_aa_auxotrophies', '--taa', is_flag=True, default=False, help='Option to test media/model for auxotrophies.')
 @click.option('--pathway', '--pathway-analysis', is_flag=True, default=False, help='Option to perform a pathway analysis using KEGG pathway identifiers.')
 def analysis(model,
         dir,
         pcm,
         pcc,
-        media_db,
-        load_media,
-        aerobic,
-        anaerobic,
-        add_casamino,
-        external_media,
-        find_min_medium,
-        growth_rate,
+        n,
+        mp,
         test_aa_auxotrophies,
         pathway):
     """Step 5 of the pipeline: Analyse the final model.
@@ -389,17 +377,11 @@ def analysis(model,
 
     MODEL is the path to the model to be analysed.
     """
-    specimen.core.analysis.run(model,
-        dir,
-        pcm,
-        pcc,
-        media_db,
-        load_media,
-        aerobic,
-        anaerobic,
-        add_casamino,
-        external_media,
-        find_min_medium,
-        growth_rate,
-        test_aa_auxotrophies,
-        pathway)
+    specimen.core.analysis.run(model_path=model, 
+                               dir=dir, 
+                               media_path=mp, 
+                               namespace=n,
+                               pc_model_path=pcm, 
+                               pc_based_on=pcc, 
+                               test_aa_auxotrophies=test_aa_auxotrophies, 
+                               pathway=pathway)

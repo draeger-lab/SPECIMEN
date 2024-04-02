@@ -46,8 +46,6 @@ specimen = "specimen.cmd_access:cli"
 
 # include data
 [tool.setuptools.packages.find]
-where = ['src','data']
+where = ['src']
 [tool.setuptools.package-data]
-medium = ['media.csv']
-KEGG = ['KEGG_pathway_metabolism.csv']
-config = ['*.yaml']
+"specimen.data.config" = ['*.yaml']
