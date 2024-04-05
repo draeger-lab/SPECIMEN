@@ -32,18 +32,15 @@ def kegg_reaction_to_kegg_pathway(model:cobra.Model, viaEC:bool=False, viaRC:boo
     they have yet to be added. Depending on the given options, only the
     reactions is searched or additional searches are started using the
     EC number and reactions class if the first search was unsuccesful.
-    
-    @NOTE: EC number and reaction class cover a broader set of pathways and might
-    not be entirely accurate for the given reaction.
 
-    :param model: The model to be annotated with KEGG pathway.
-    :type model: cobra.Model
-    :param viaEC: Option to search for KEGG pathway ID using the EC number if
-        previous searches were unsuccesful. Default is False.
-    :type viaEC: bool
-    :param viaRC: Option to search for KEGG pathway ID using the reaction class if
-        previous searches were unsuccesful. Default is False.
-    :type viaEC: bool
+    Args:
+        - model (cobra.Model): The model - loaded with COBRApy - to be annotated.
+        - viaEC (bool, optional): Option to search for KEGG pathway ID 
+            using the EC number if previous searches were unsuccesful. 
+            Defaults to False.
+        - viaRC (bool, optional): Option to search for KEGG pathway ID 
+            using the reaction class if previous searches were unsuccesful. 
+            Defaults to False.
     """
 
     # identify reaction with KEGG reaction annotation
@@ -129,23 +126,23 @@ def run(model:str, dir:str, kegg_viaEC:bool=False,
         kegg_viaRC:bool=False, memote:bool=False):
     """Further annotate a given model.
 
-    Currently add annotations for:
+    Currently can add annotations for:
     - SBO using SBOannotator
+    - KEGG.reaction -> KEGG.pathway
 
-    :param model: Path to the model (sbml)
-    :type model: string
-    :param dir: Path to the output directory.
-    :type dir: string
-    :param kegg_viaEC: Option to search for KEGG pathway ID using the EC number if
-        previous searches were unsuccesful. Default is False.
-    :type kegg_viaEC: bool
-    :param kegg_viaRC: Option to search for KEGG pathway ID using the reaction class if
-        previous searches were unsuccesful. Default is False.
-    :type kegg_viaEC: bool
-    :param memote: Option to run memote after the annotation on the model.
-        Default is False.
-    :type memote: bool, optional
+    Args:
+        - model (str): Path to the model.
+        - dir (str): Path to the output directory.
+        - kegg_viaEC (bool, optional):  Option to search for KEGG pathway ID using the 
+            EC number if previous searches were unsuccesful. 
+            Defaults to False.
+        - kegg_viaRC (bool, optional): Option to search for KEGG pathway ID using the 
+            reaction class if previous searches were unsuccesful. 
+            Defaults to False.
+        - memote (bool, optional): Optionally run memote after the annotation. 
+            Defaults to False.
     """
+    
 
     print('\nrefinement step 3: annotation\n################################################################################\n')
 
