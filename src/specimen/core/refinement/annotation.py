@@ -1,19 +1,20 @@
 """Further annotate a model.
 """
 __author__ = 'Carolin Brune'
+
 ################################################################################
 # requirements
 ################################################################################
 
 from Bio.KEGG import REST, Enzyme
-import cobra
 from libsbml import *
 from pathlib import Path
-import subprocess
-import time
 from tqdm import tqdm
-import urllib.error
+
+import cobra
 import pandas as pd
+import time
+import urllib.error
 
 # refinegems
 from refinegems.utility.io import load_model, kegg_reaction_parser
@@ -22,14 +23,11 @@ from refinegems.analysis.investigate import run_memote
 # from SBOannotator import *
 from SBOannotator import sbo_annotator
 
-# further required programs:
-#        - SBOannotator
-
 ################################################################################
 # functions
 ################################################################################
 
-def kegg_reaction_to_kegg_pathway(model, viaEC=False, viaRC=False):
+def kegg_reaction_to_kegg_pathway(model:cobra.Model, viaEC:bool=False, viaRC:bool=False):
     """Retrieve the KEGG pathways for existing KEGG reaction IDs, if
     they have yet to be added. Depending on the given options, only the
     reactions is searched or additional searches are started using the
@@ -127,7 +125,8 @@ def kegg_reaction_to_kegg_pathway(model, viaEC=False, viaRC=False):
                 reac.annotation['kegg.pathway'] = pathways
 
 
-def run(model, dir, kegg_viaEC=False, kegg_viaRC=False, memote=False):
+def run(model:str, dir:str, kegg_viaEC:bool=False, 
+        kegg_viaRC:bool=False, memote:bool=False):
     """Further annotate a given model.
 
     Currently add annotations for:
@@ -216,15 +215,9 @@ def run(model, dir, kegg_viaEC=False, kegg_viaRC=False, memote=False):
     # ---------------------------------
 
     if memote:
-        print('\n# -------------------\n# analyse with MEMOTE\n# -------------------')
         start = time.time()
-        name = libsbml_model.getId()
-        draft_path = str(Path(dir,'step3-annotation',name+'_SBOannotated.xml')).replace(" ", "\ ")
-        memote_path = str(Path(dir,'step3-annotation',name+'_SBOannotated.html')).replace(" ", "\ ")
-        subprocess.run([F'memote report snapshot --skip test_consistency --filename {memote_path} {draft_path}'], shell=True)
+        name = model.id
+        memote_path = Path(dir,'step3-annotation',name+'_annotated.html')
+        run_memote(model, 'html', return_res=False, save_res=memote_path, verbose=True)
         end = time.time()
         print(F'\ttotal time: {end - start}s')
-
-    if memote:
-        memote_path = Path(dir,'step3-annotation',name+'_SBOannotated.html')
-        run_memote(model, 'html', return_res=False, save_res=memote_path, verbose=True)

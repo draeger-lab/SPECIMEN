@@ -18,8 +18,6 @@ import subprocess
 # variables
 ################################################################################
 
-MIN_GROWTH_RATE = 0.005
-
 ################################################################################
 # functions
 ################################################################################
@@ -45,12 +43,6 @@ def create_DIAMOND_db_from_folder(dir, out, name='database', extension='faa', th
     :type threads: int, optional
     """
 
-    # check directory ending
-    if not dir.endswith("/"):
-        dir = dir + "/"
-    if not out.endswith("/"):
-        out = out + "/"
-
     # get fasta file names
     fasta_files = Path(dir).rglob(F'*.{extension}')
 
@@ -59,7 +51,7 @@ def create_DIAMOND_db_from_folder(dir, out, name='database', extension='faa', th
     # -----------------------
 
     # check if folder already has a combined FASTA
-    outname_fasta = F'{out}combinded.faa'
+    outname_fasta = Path(out,'combinded.faa')
     save = True
     if os.path.isfile(outname_fasta):
         print('A combined.faa files already exists in the given folder.')
@@ -86,7 +78,7 @@ def create_DIAMOND_db_from_folder(dir, out, name='database', extension='faa', th
     # generate DIAMOND database
     # -------------------------
 
-    outname_dnmd = F'{out}{name}'
+    outname_dnmd = Path(out,name)
     bl = "\\ "
     print(F'running the following command:\ndiamond makedb --in {outname_fasta.replace(" ",bl)} -d {outname_dnmd.replace(" ",bl)} -p {threads}')
     subprocess.run([F'diamond makedb --in {outname_fasta.replace(" ",bl)} -d {outname_dnmd.replace(" ",bl)} -p {threads}'], shell=True)
@@ -139,10 +131,6 @@ def create_NCBIinfo_mapping(dir, out, extension='gbff'):
         Default is gbff, and currently it is advised to leave it at that.
     :type extension: string
     """
-
-    # check directory ending
-    if not dir.endswith("/"):
-        dir = dir + "/"
 
     # get gbff file names
     gbff_files = Path(dir).rglob(F'*.{extension}')

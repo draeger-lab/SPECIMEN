@@ -15,10 +15,11 @@ from typing import Literal
 
 from refinegems.analysis import growth
 from refinegems.utility.io import load_model
-from refinegems.classes.reports import ModelInfoReport
 from refinegems.analysis.core_pan import compare_to_core_pan
 from refinegems.curation.pathways import kegg_pathway_analysis
 from refinegems.curation.biomass import test_biomass_presence
+
+from ..classes.reports import SpecimenModelInfoReport
 
 ################################################################################
 # functions
@@ -74,7 +75,7 @@ def run(model_path:str, dir:str,
 
     print('\n# ------------------\n# general statistics\n# ------------------')
 
-    statistics_report = ModelInfoReport(model)
+    statistics_report = SpecimenModelInfoReport(model)
     statistics_report.save(Path(dir,'05_analysis'))
 
     # -----------------

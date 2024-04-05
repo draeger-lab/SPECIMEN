@@ -7,7 +7,13 @@ __author__ = 'Carolin Brune'
 # requirements
 ################################################################################
 
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import warnings
+
+from pathlib import Path
 
 from refinegems.classes.reports import ModelInfoReport
 
@@ -49,4 +55,53 @@ class SpecimenModelInfoReport(ModelInfoReport):
     
     # depending on the implementation, save and make html 
     # can be inherited or need to be overwritten 
+    # but currently a @TODO
+    def visualise(self, color_palette: str = 'YlGn') -> matplotlib.figure.Figure:
+        
+        # @TODO maybe change plot type, as with small numbers its barely visibale
+        def plot_origin(data, color_palette):
+
+            # create colour gradient
+            try:
+                cmap = matplotlib.colormaps[color_palette]
+            except ValueError:
+                warnings.warn('Unknown color palette, setting it to "YlGn"')
+                cmap = matplotlib.colormaps['YlGn']
+
+            # generate the stacked bar plot
+            fig, ax = plt.subplots()
+
+            tdata = {}
+            for label,count in data.items():
+                tdata[label] = np.array([count])
+
+            bottom = np.zeros(1)
+            c = 0.2
+
+            for label,count in tdata.items():
+                p = ax.barh(['reacs'],count, label=label, left=0.0,
+                            color=cmap(c))
+                ax.bar_label(p,count,rotation=270)
+                bottom += count
+                c += 0.2
+
+            return fig
+        
+        fig1 = super().visualise(color_palette)
+        fig2 = plot_origin(self.reac_origin_c, color_palette)
+
+        return (fig1,fig2)
+    
+    def save(self, dir: str, color_palette: str = 'YlGn') -> None:
+       
+        # save the statistics report
+        self.format_table().to_csv(Path(dir,f'{self.name}_report.csv'),sep=';')
+        # save the visualisation
+        figs = self.visualise(color_palette)
+        figs[0].savefig(Path(dir,'info_report_vis.png'), bbox_inches='tight', dpi=400)
+        figs[1].savefig(Path(dir,'info_origin_vis.png'), bbox_inches='tight', dpi=400)
+
+
+
+
 

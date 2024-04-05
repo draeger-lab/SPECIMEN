@@ -56,7 +56,7 @@ def download_mnx(dir='MetaNetX/', chunk_size=1024):
     for mnx_name,mnx_url in MNX_URL_DICT.items():
         r = requests.get(mnx_url, stream=True)
         total = int(r.headers.get('content-length', 0))
-        with open(dir+mnx_name, 'wb') as f, tqdm(desc=dir+mnx_name, total=total,
+        with open(Path(dir,mnx_name), 'wb') as f, tqdm(desc=Path(dir,mnx_name), total=total,
             unit='iB', unit_scale=True, unit_divisor=1024,) as bar:
             for data in r.iter_content(chunk_size=chunk_size):
                 size = f.write(data)
@@ -74,17 +74,13 @@ def build_data_directories(dir, chunk_size=2048):
     :type chunk_size: int
     """
 
-    # make sure given directory path ends with '/'
-    if not dir.endswith('/'):
-        dir = dir + '/'
-
     # create the data directory structure
     print('Creating directory structure...')
     DATA_DIRECTORIES = ['annotated_genomes', 'BioCyc', 'RefSeqs',
                         'medium', 'MetaNetX', 'pan-core-models', 'template-models',
                         'universal-models']
     for sub_dir in DATA_DIRECTORIES:
-        new_dir = dir + sub_dir + '/'
+        new_dir = Path(dir,sub_dir)
         try:
             Path(new_dir).mkdir(parents=True, exist_ok=False)
             print(F'Creating new directory {new_dir}')
@@ -93,7 +89,7 @@ def build_data_directories(dir, chunk_size=2048):
 
     # download data for those directories where this is possible
     print('Downloading MetaNetX...')
-    download_mnx(dir + 'MetaNetX/', chunk_size=chunk_size)
+    download_mnx(Path(dir,'MetaNetX'), chunk_size=chunk_size)
 
 
 # ---------------------
@@ -120,13 +116,13 @@ def download_config(filename='./my_basic_config.yaml', type='basic'):
     match type:
         # the 'beginner' version
         case 'basic':
-            config_file = files('config').joinpath('basic_config_expl.yaml')
+            config_file = files('specimen.data.config').joinpath('basic_config_expl.yaml')
             with open(config_file, "r") as cfg_file, open(filename, 'w') as cfg_out:
                 for line in cfg_file:
                     cfg_out.write(line)
         # for advanced users
         case 'advanced':
-            config_file = files('config').joinpath('advanced_config_expl.yaml')
+            config_file = files('specimen.data.config').joinpath('advanced_config_expl.yaml')
             with open(config_file, "r") as cfg_file, open(filename, 'w') as cfg_out:
                 for line in cfg_file:
                     cfg_out.write(line)
@@ -184,6 +180,7 @@ def dict_recursive_check(dictA, key=None):
     return
 
 
+# @TODO need to fix this after fixing the config
 def validate_config(userc):
     """Validate a user config file for use in the pipeline.
 
