@@ -24,7 +24,7 @@ from cobra import Reaction
 
 from refinegems.curation.biomass import test_biomass_presence, check_normalise_biomass
 from refinegems.analysis.investigate import run_memote
-from refinegems.curation import egcs
+from refinegems.classes import egcs
 
 # further required programs:
 #        - BOFdat

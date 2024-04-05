@@ -9,32 +9,34 @@ __author__ = 'Carolin Brune'
 
 import pandas as pd
 pd.options.mode.chained_assignment = None # editing on copy and saving is elsewhere
+
+import subprocess
+import time
+import os.path
+
 from Bio import SeqIO
 from pathlib import Path
-import os.path
-import time
-import subprocess
+from typing import Literal
 
 ################################################################################
 # functions
 ################################################################################
 
-def extract_cds(file: str, name: str, dir: str, collect_info: list, identifier: str):
-    """Extract the CDS from a genbank file (annotated genome). Produces a FASTA
-    file.
+def extract_cds(file: str, name: str, dir: str, collect_info: list, identifier: str) -> str:
+    """Extract the CDS from a genbank file (annotated genome). 
+    Produces a FASTA-file.
 
-    :param file:          filename to extract CDS from
-    :type  file:          string
-    :param dir:           directory for the generated files
-    :type  dir:           string
-    :param name:          name of the genome
-    :type  name:          string
-    :param collect_info:  feature identifiers to collect information from
-    :type  collect_info:  list
-    :param identifier:    feature identifier to use as a header for the FASTA files
-    :type  identifier:    string
+    Args:
+        - file (str): File to extract CDS from.
+        - name (str): Name of the genome.
+        - dir (str): Directory for the ouput.
+        - collect_info (list): Feature identifiers to collect information from.
+        - identifier (str): Feature identifier to use of the header of the FASTA.
+
+    Returns:
+        str: Name of the FASTA-file 
     """
-
+    
     extension = os.path.splitext(os.path.basename(file))[1]
 
     match extension:
@@ -110,15 +112,13 @@ def extract_cds(file: str, name: str, dir: str, collect_info: list, identifier: 
 def create_diamond_db(dir: str, name: str, path: str, threads: int):
     """Create a DIAMOND database for a given protein FASTA file.
 
-    :param dir:      path to the data directory
-    :type  dir:      string
-    :param name:     name of the genome
-    :type  name:     string
-    :param path:     path to the FASTA file
-    :type  path:     string
-    :param threads:  number of threads to be used
-    :type  threads:  int
+    Args:
+        - dir (str): Path to the data directory.
+        - name (str): Name of the genome/database.
+        - path (str): Path to the FASTA-file.
+        - threads (int): Number of threads to use.
     """
+
     # check if database already exists
     if os.path.isfile(Path(dir,'DIAMONDdb',name+'.dmnd')):
         print(F'database for {name} already exists')
@@ -138,18 +138,13 @@ def run_diamond_blastp(dir: str, db: str, query: str, fasta_path:str , sensitivi
     """Run DIAMOND blastp for a given database name and FASTA - relies on the structure
     created by this file (bidirectional_blast.py).
 
-    :param dir:         parent directory of the place to save the files to.
-    :type  dir:         string
-    :param db:          name of the genome used as the database.
-    :type  db:          string
-    :param query:       name of the genome used as the query.
-    :type  query:       string
-    :param fasta_path:  path of the fasta file (for the CDS)
-    :type  fasta_path:  string
-    :param sensitivity: sensitivity mode that should be used for blastp.
-    :type  sensitivity: string
-    :param threads:     number of threads should be used for running DIAMOND
-    :type  threads:     int
+    Args:
+        - dir (str): Parent directory of the place to save the files to.
+        - db (str): Name of the genome/database used as the database.
+        - query (str): Name of the genome used as the query.
+        - fasta_path (str): Path to the FASTA-file containing the CDS.
+        - sensitivity (str): Sensitivity mode to use for DIAMOND blastp.
+        - threads (int): Number of threads that will be used for running DIAMOND
     """
 
     outname = Path(dir,'DIAMONDblastp',f'{query}_vs_{db}.tsv')
@@ -170,20 +165,16 @@ def run_diamond_blastp(dir: str, db: str, query: str, fasta_path:str , sensitivi
 def bdbp_diamond(dir: str, template_name:str, input_name: str, template_path: str, input_path: str, sensitivity='sensitive', threads=2):
     """Perform bidirectional blastp using DIAMOND.
 
-    :param dir:           path to the working directory
-    :type  dir:           string
-    :param template_name: name of the template genome
-    :type  template_name: string
-    :param input_name:    name of the input genome
-    :type  input_name:    string
-    :param template_path: path of the template genome fasta file (for the CDS)
-    :type  template_path: string
-    :param input_path:    path of the input genome fasta file (for the CDS)
-    :type  input_path:    string
-    :param sensitivity:   sensitivity mode of DIAMOND, default is mid-sensitive
-    :type  sensitivity:   string
-    :param threads:       number of threads to be used for computation, default is 2
-    :type  threads:       int
+    Args:
+        - dir (str): Path to the directory parent to in/out.
+        - template_name (str): Name of the template genome.
+        - input_name (str): name of the input genome.
+        - template_path (str): Path to the CDS FASTA-file of the template.
+        - input_path (str): Path to the CDS FASTA-file of the input.
+        - sensitivity (str, optional): Sensitivity mode for DIAMOND. 
+            Defaults to 'sensitive'.
+        - threads (int, optional): Number of threads to use when running DIAMOND. 
+            Defaults to 2.
     """
 
     # -----------------------
@@ -216,19 +207,19 @@ def bdbp_diamond(dir: str, template_name:str, input_name: str, template_path: st
     run_diamond_blastp(dir, input_name, template_name, template_path, sensitivity, threads)
 
 
-def extract_bestbdbp_hits(tvq: str, qvt: str, name: str, cov=0.25):
+def extract_bestbdbp_hits(tvq: str, qvt: str, name: str, cov:float=0.25):
     """Extract the best directional blastp hits from two tsv files,
     which were generate by bdbp_diamond() generated or similar steps.
 
-    :param tvq:  path to the template_vs_query file.
-    :type  tvq:  string
-    :param qvt:  path to the query_vs_template file.
-    :type  qvt:  string
-    :param name: name (path) of the output file.
-    :type  name: string
-    :param cov:  cutoff value for the coverage. The default if 0.25, which means all hits with coverage <0.25 will be excluded.
-    :type  cov:  float
+    Args:
+        - tvq (str): Path to the template vs. query file.
+        - qvt (str): Path to the query vs. template file.
+        - name (str): Name (path) of the output file.
+        - cov (float, optional): Cut-off value for the coverage.
+            All hits with coverage < cov will be excluded. 
+            Defaults to 0.25.
     """
+
     # default value for coverage (currently) based on Norsigian et al. 2020
 
     # read in data and filter for coverage and percentage identity values (PID)
@@ -268,35 +259,40 @@ def extract_bestbdbp_hits(tvq: str, qvt: str, name: str, cov=0.25):
     out.to_csv(F"{name}.tsv", index=False, sep="\t")
 
 
-def run(template, input, dir,template_name=None, input_name=None, temp_header='protein_id', in_header='locus_tag', threads=2, extra_info=['locus_tag', 'product', 'protein_id'], sensitivity='more-sensitive'):
-    """Run the bidirectional blast on a template and inpute genome (annotated).
+def run(template:str, input:str, dir:str,
+        template_name:str=None, input_name:str=None, 
+        temp_header:str='protein_id', in_header:str='locus_tag', 
+        threads:int=2, 
+        extra_info:list[str]=['locus_tag', 'product', 'protein_id'], 
+        sensitivity:Literal['sensitive', 'more-sensitive', 'very-sensitive', 'ultra-sensitive']='more-sensitive'):
+    """Run the bidirectional blast on a template and input genome (annotated).
 
-    :param template: Path to the annotated genome file used as a template.
-    :type template: string
-    :param input: Path to the annotated genome file used as a input.
-    :type input: string
-    :param dir: Path to the output directory.
-    :type dir: string
-    :param template_name: Name of the annotated genome file used as a template.
-    :type template_name: string, optional
-    :param input_name: Name of the annotated genome file used as input.
-    :type input_name: string, optional
-    :param temp_header: Feature qualifier of the gbff (NCBI) / faa (PROKKA) of the template to use as header for the FASTA files.
-        Default is None. If None is given, sets it based on file extension (currently only implememted for gbff and faa).
-    :type temp_header: string, optional
-    :param in_header: Feature qualifier of the gbff (NCBI) / faa (PROKKA) of the input to use as header for the FASTA files.
-        Default is None. If None is given, sets it based on file extension (currently only implememted for gbff and faa).
-    :type in_header: string, optional
-    :param threads: Number of threads to be used for DIAMOND.
-        Default is 2.
-    :type threads: int, optional
-    :param extra_info: List of feature qualifiers to be extracted from the annotated genome files as additional information.
-        Default is ['locus_tag', 'product', 'protein_id'].
-    :type extra_info: list, optional
-    :param sensitivity: Sensitivity mode for DIAMOND blastp run.
-        Can be sensitive, more-sensitive, very-sensitive or ultra-sensitive.
-        Default is 'more-sensitive'.
-    :type sensitivity: string
+    Args:
+        - template (str): Path to the annotated genome file used as a template.
+        - input (str): Path to the annotated genome file used as a input.
+        - dir (str): Path to the output directory.
+        - template_name (str, optional): Name of the annotated genome file used as a template.. 
+            Defaults to None.
+        - input_name (str, optional): Name of the annotated genome file used as input.. 
+            Defaults to None.
+        - temp_header (str, optional): Feature qualifier of the gbff (NCBI) / faa (PROKKA) of the template to use as header for the FASTA files.
+            If None is given, sets it based on file extension (currently only implememted for gbff and faa).
+            Defaults to 'protein_id'.
+        - in_header (str, optional): Feature qualifier of the gbff (NCBI) / faa (PROKKA) of the input to use as header for the FASTA files. 
+            If None is given, sets it based on file extension (currently only implememted for gbff and faa).
+            Defaults to 'locus_tag'.
+        - threads (int, optional):  Number of threads to be used for DIAMOND. 
+            Defaults to 2.
+        - extra_info (list[str], optional):  List of feature qualifiers to be extracted from the annotated genome files as additional information. 
+            Defaults to ['locus_tag', 'product', 'protein_id'].
+        - sensitivity (Literal['sensitive', 'more-sensitive', 'very-sensitive', 'ultra-sensitive'], optional): 
+            Sensitivity mode for DIAMOND blastp run.. 
+            Defaults to 'more-sensitive'.
+
+    Raises:
+        ValueError: Unknown file extension. Please set value for temp_header manually or check file.
+        ValueError: Unknown file extension. Please set value for in_header manually or check file.
+        ValueError: Unknown sensitive mode
     """
 
     total_time_s = time.time()
