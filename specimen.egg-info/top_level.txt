@@ -1,4 +1,0 @@
-KEGG
-config
-medium
-specimen
