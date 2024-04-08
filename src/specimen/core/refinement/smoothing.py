@@ -42,18 +42,17 @@ from refinegems.classes import egcs
 # functions
 ################################################################################
 
-def perform_mcc(model, dir, apply = True):
-    """Use the MassChargeCuration tool on the model. Either apply it directly
-    or on a copy.
+def perform_mcc(model: cobra.Model, dir: str, apply:bool = True) -> cobra.Model:
+    """_summary_
 
-    :param model: The model to use the tool on.
-    :type  model: cobra.Model
-    :param dir:   Path of the directory to save MCC output in.
-    :type  dir:   string
-    :param apply: Option, if MCC should be used directly on the model or not.
-    :type  apply: bool, true if MCC should be used directly on the model.
-    :returns:     The model (updated or not).
-    :rtype:       cobra.Model
+    Args:
+        - model (cobra.Model): The model to use the tool on.
+        - dir (str): Path of the directory to save MCC output in.
+        - apply (bool, optional): If True, model is directly updated with the results. 
+            Defaults to True.
+
+    Returns:
+        cobra.Model: The model (updated or not)
     """
 
     # make temporary directory to save files for MCC in
@@ -76,23 +75,21 @@ def perform_mcc(model, dir, apply = True):
     return model
 
 
-def adjust_BOF(genome, model_file, model, dna_weight_fraction, weight_frac):
+def adjust_BOF(genome:str, model_file:str, model:cobra.Model, dna_weight_fraction:float, weight_frac:float) -> str:
     """Adjust the model's BOF using BOFdat. Currently implemented are step 1
-    dna coefficients and step 2.
+    DNA coefficients and step 2.
 
-    :param genome:              Path to the genome (e.g. .fna) FASTA file.
-    :type  genome:              string
-    :param model_file:          Path to the sbml (.xml) file of the model.
-    :param model_file:          string
-    :param model:               The loaded genome-scale metabolic model (from the string above).
-    :type  model:               cobra.Model
-    :param dna_weight_fraction: DNA weight fraction for BOF step 1.
-    :type  dna_weight_fraction: float
-    :param weight_frac:         Weight fraction for the second step of BOFdat (enzymes and ions)
-    :type  weight_frac:         float
-    :returns:                   The updated BOF reaction.
-    :rtype:                     string
+    Args:
+        - genome (str): Path to the genome (e.g. .fna) FASTA file.
+        - model_file (str): Path to the sbml (.xml) file of the model.
+        - model (cobra.Model): The genome-scale metabolic model (from the string above), loaded with COBRApy.
+        - dna_weight_fraction (float): DNA weight fraction for BOF step 1.
+        - weight_frac (float): Weight fraction for the second step of BOFdat (enzymes and ions)
+
+    Returns:
+        str: The updated BOF reaction as a reaction string.
     """
+    
 
     # BOFdat step 1:
     # --------------
@@ -160,40 +157,38 @@ def adjust_BOF(genome, model_file, model, dna_weight_fraction, weight_frac):
     return new_objective
 
 
-def run(genome,model,dir,mcc='skip',
+def run(genome:str,model:str,dir:str,mcc='skip',
         egc_solver:None|Literal['greedy']=None,
         namespace:Literal['BiGG']='BiGG',
         dna_weight_frac=0.023,ion_weight_frac=0.05, 
         memote=False):
-    # @TODO fix docs below
     """Perform the fourth step of the refinement, smoothing, on a model.
 
     The fourth step of the refinment, smoothing, includes:
     - Mass-Charge curation
-    - checking for futile and energy generating cycles
+    - checking energy generating cycles
     - adjusting Biomass objective function parameters based on genome
 
-    :param genome: Path to the genome FASTA (e.g. .fna) file of your genome.
-    :type genome: string
-    :param model: Path to the model. Should be sbml.
-    :type model: string
-    :param dir: Path of the output directory.
-    :type dir: string
-
-    :param mcc: Option for the Mass-Charge curation.
-        Can be 'skip', 'apply' (directly use MCC on model) or 'extra' (only generate information).
-        Default is 'skip'.
-    :type mcc: string
-    :param dna_weight_frac: DNA weight fraction to use for BOFdat.
-        Default is 0.023 for Klebsiella pneumoniae based on Liao et al.
-    :type dna_weight_frac: float
-    :param ion_weight_frac: Ion weight fraction to use for BOFdat.
-        Default is the BOFdat default.
-    :type ion_weight_frac: float
-    :param memote: Option to run memote after the refinement.
-        Default is False.
-    :type memote: bool
+    Args:
+        - genome (str): Path to the genome FASTA (e.g. .fna) file of your genome.
+        - model (str): Path to the model. Should be sbml-format.
+        - dir (str): Path of the output directory.
+        - mcc (str, optional): Option for the Mass-Charge curation.
+            Can be 'skip', 'apply' (directly use MCC on model) or 'extra' (only generate information). 
+            Defaults to 'skip'.
+        - egc_solver (None | Literal['greedy'], optional): If given, uses the option to solve EGCs.
+            Current options include greedy (Greedy Solver).
+            Defaults to 'greedy'.
+        - namespace (Literal['BiGG'], optional): Namespace to use for the model.
+            Defaults to 'BiGG'.
+        - dna_weight_frac (float, optional):  DNA weight fraction to use for BOFdat.
+            Default is 0.023 for Klebsiella pneumoniae based on Liao et al.
+        - ion_weight_frac (float, optional): Ion weight fraction to use for BOFdat.
+            Defaults to 0.05.
+        - memote (bool, optional): Option to run memote after the refinement.
+            Defaults to False.
     """
+    
 
 
     print('\nrefinement step 4: smoothing\n################################################################################\n')
