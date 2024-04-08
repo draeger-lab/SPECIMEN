@@ -2,9 +2,6 @@
 .DS_Store
 __pycache__
 
-data/media.csv
-data/media.numbers
-
-example/
-
-build/
+build
+specimen.egg-info
+**/specimen.egg-info/* 
