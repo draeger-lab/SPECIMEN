@@ -39,6 +39,7 @@ dependencies = [
 # additional missing tools:
 #    EntrezDirect
 #    DIAMOND
+#    BOFdat
 dynamic = ['version']
 
 [project.scripts]

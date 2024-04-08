@@ -189,8 +189,6 @@ def run(genome:str,model:str,dir:str,mcc='skip',
             Defaults to False.
     """
     
-
-
     print('\nrefinement step 4: smoothing\n################################################################################\n')
 
     # -----------------------
@@ -246,10 +244,13 @@ def run(genome:str,model:str,dir:str,mcc='skip',
     match egc_solver:
         # greedy solver
         case 'greedy':
+            print('GreedyEGCSolver:')
             solver = egcs.GreedyEGCSolver()
-            results = solver.find_egcs(model,namespace)
-            for k,v in results.items():
-                print(f'\t{k}: {v}')
+            results = solver.solve_egcs(model,namespace=namespace) # @NOTE automatically uses c,p as compartments - maybe change later
+            if results:
+                for k,v in results.items():
+                    print(f'\t{k}: {v}')
+        
         # no solver = EGCs will only be reported
         case _:
             solver = egcs.EGCSolver()
@@ -275,7 +276,7 @@ def run(genome:str,model:str,dir:str,mcc='skip',
         if pos_bofs:
             model.reactions.get_by_id(pos_bofs[0]).reaction = adjust_BOF(genome, temp_model.name, model, dna_weight_frac, ion_weight_frac)
             # optimise BOF(s)
-            model = check_normalise_biomass
+            model = check_normalise_biomass(model)
         else:
             # create new BOF
             bof_reac = Reaction('Biomass_BOFdat')
@@ -284,7 +285,7 @@ def run(genome:str,model:str,dir:str,mcc='skip',
             model.reactions.get_by_id(pos_bofs[0]).reaction = adjust_BOF(genome, temp_model.name, model, dna_weight_frac, ion_weight_frac)
        
             # optimise BOF(s)
-            model = check_normalise_biomass
+            model = check_normalise_biomass(model)
 
 
     end = time.time()
