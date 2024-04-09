@@ -5,14 +5,15 @@ __author__ = 'Carolin Brune'
 # requirements
 ################################################################################
 
-from pathlib import Path
-import os.path
-import time
-import pandas as pd
 import cobra
 import numpy as np
-import subprocess
+import os.path
+import pandas as pd
+import time
 import warnings
+
+from pathlib import Path
+from typing import Literal,Union
 
 from refinegems.classes.medium import load_medium_from_db, medium_to_model
 from refinegems.utility.io import load_model
@@ -29,15 +30,15 @@ from refinegems.analysis.growth import MIN_GROWTH_THRESHOLD
 # functions
 ################################################################################
 
-def pid_filter(data: pd.DataFrame, pid: float):
+def pid_filter(data: pd.DataFrame, pid: float) -> pd.DataFrame:
     """Filter the data based on PID threshold. Entries above the given value are kept.
 
-    :param data: The data from bidirectional_blast.py containing at least a 'PID' column.
-    :type  data: pd.DataFrame
-    :param pid:  PID threshold value.
-    :type  pid:  double, should be given in percentage e.g. 80.0.
-    :returns:    The filtered data.
-    :rtype:      pd.DataFrame
+    Args:
+        - data (pd.DataFrame): The data from bidirectional_blast.py containing at least a 'PID' column.
+        - pid (float): PID threshold value, given in percentage e.g. 80.0.
+
+    Returns:
+        pd.DataFrame: The filtered data.
     """
 
     data['homolog_found'] = np.where(data['PID'] > pid, 1, 0)
@@ -47,17 +48,19 @@ def pid_filter(data: pd.DataFrame, pid: float):
     return data
 
 # @TODO
-def edit_template_identifiers(data, edit):
+def edit_template_identifiers(data:pd.DataFrame, edit:Literal['no','dot-to-underscore']) -> pd.DataFrame:
     """Edit the subject IDs to fit the gene IDs of the template model.
     Requires further extention, if needed edits are not included.
 
-    :param data: the data frame containing the bidirectional blastp best hits information.
-    :type  data: pd.DataFrame
-    :param edit: type of edit that is to be performed
-    :type  edit: string, currently implemented: no, dot-to-underscore
-    :returns:    the edited data
-    :rtype:      pd.DataFrame
+    Args:
+        - data (pd.DataFrame): The data frame containing the bidirectional blastp best hits information.
+        - edit (Literal['no','dot-to-underscore']): Type of edit to perform.
+            Currently possible options: no, dot-to-underscore.
+
+    Returns:
+        pd.DataFrame: The (un)edited DataFrame.
     """
+    
 
     match edit:
         case 'no':
@@ -65,23 +68,27 @@ def edit_template_identifiers(data, edit):
         case 'dot-to-underscore':
             data['subject_ID'] = [x.replace('.','_') for x in data['subject_ID']]
             return data
+        case _:
+            mes = 'Unknown option for parameter edit. Nothing will be edited.'
+            warnings.warn(mes)
+            return data
         # ...........
         # @TODO
         # extendable
         # ...........
-    return data
 
 
-def remove_absent_genes(model, genes):
+def remove_absent_genes(model:cobra.Model, genes:list[str]) -> cobra.Model:
     """Remove a list of genes from a given model.
     Note: genes that are not found in the model are skipped.
 
-    :param model: A model to delete genes from. A copy will be created before deleting.
-    :type  model: cobra.Model
-    :param genes: Gene identifiers of genes that should be deleted.
-    :type  genes: list, of strings
-    :returns:     A new model with the given genes deleted, if found in the original model.
-    :rtype:       cobra.Model
+    Args:
+        - model (cobra.Model): A template model to delete genes from. 
+            A copy will be created before deleting.
+        - genes (list[str]): Gene identifiers of genes that should be deleted.
+
+    Returns:
+        cobra.Model: A new model with the given genes deleted, if found in the original model.
     """
 
     print('\tremove absent (low PID) genes')
@@ -123,15 +130,15 @@ def remove_absent_genes(model, genes):
     return modelCopy
 
 
-def rename_found_homologs(draft, bbh):
+def rename_found_homologs(draft:cobra.Model, bbh:pd.DataFrame) -> cobra.Model:
     """Rename the genes in the model correnspondingly to the homologous ones found in the query.
 
-    :param draft: The draft model with the to-be-renamed genes.
-    :type  draft: cobra.Model
-    :param bbh:   The table from the bidirectional_blast.py script containing the bidirectional blastp best hits information
-    :type  bbh:   pd.DataFrame
-    :returns:     The draft model with renamed genes.
-    :rtype:       cobra.Model
+    Args:
+        - draft (cobra.Model): The draft model with the to-be-renamed genes.
+        - bbh (pd.DataFrame): The table from the bidirectional_blast.py script containing the bidirectional blastp best hits information
+
+    Returns:
+        cobra.Model: The draft model with renamed genes.
     """
 
     print('\trename found homologs')
@@ -177,16 +184,16 @@ def rename_found_homologs(draft, bbh):
     return draft
 
 
-def check_unchanged(draft, bbh):
+def check_unchanged(draft:cobra.Model, bbh:pd.DataFrame) -> cobra.Model:
     """Check the genes names (more correctly, the IDs) for still existing original col_names.
     Depending on the case, decide if to keep or remove them.
 
-    :param draft:            The draft model currently in the making.
-    :type  draft:            cobra.Model
-    :param bbh:              The table from the bidirectional_blast.py script containing the bidirectional blastp best hits information
-    :type  bbh:              pd.DataFrame
-    :returns:                The edited draft model.
-    :rtype:                  cobra.Model
+    Args:
+        - draft (cobra.Model): The draft model currently in the making.
+        - bbh (pd.DataFrame): The table from the bidirectional_blast.py script containing the bidirectional blastp best hits information.
+
+    Returns:
+        cobra.Model: The model after the check and possible removal of genes.
     """
 
     print('\tcheck not renamed genes')
@@ -224,26 +231,29 @@ def check_unchanged(draft, bbh):
     return draft
 
 
-def gen_draft_model(model, bbh, name, dir, edit, medium='default', namespace='BiGG'):
+def gen_draft_model(model:cobra.Model, bbh:pd.DataFrame, 
+                    name:str, dir:str, edit:Literal['no','dot-to-underscore'], 
+                    medium:str='default', namespace:Literal['BiGG']='BiGG') -> cobra.Model:
     """Generate a draft model from a template model and the results of a bidirectional blastp (blast best hits) table
     and save it as a new model.
 
-    :param model:            The template model.
-    :type  model:            cobra.Model
-    :param bbh:              The bidirectional blastp best hits table.
-    :type  bbh:              pd.DataFrame
-    :param name:             The name of the generated model.
-    :type  name:             string
-    :param dir:              Path to the directory to save the new model in.
-    :type  dir:              string
-    :param edit:             Allows for editing the subject_ID od the bbh table to be edited
-    :type  edit:             string, currently implemented are options no and dot-to-underscore
-    :param medium: Name of the to be loaded from a database or 'default' = the one
-        from the template model.
-    :type medium: string
-    :param namespace:        Namespace of the model.
-    :type  namespace:        Literal['BiGG'], optional
+    Args:
+        - model (cobra.Model): The template model.
+        - bbh (pd.DataFrame): The bidirectional blastp best hits table.
+        - name (str): Name of the newly generated model.
+        - dir (str): Path to the directory to save the new model in.
+        - edit (Literal['no','dot-to-underscore'):  Type of edit to perform.
+            Currently possible options: no, dot-to-underscore.
+        - medium (str, optional):  Name of the to be loaded from the refineGEMs database or 'default' = the one
+            from the template model. If given the keyword 'exchanges', will use all exchange reactions in the model as a medium.
+            Defaults to 'default'.
+        - namespace (Literal['BiGG'], optional): Namespace of the model. 
+            Defaults to 'BiGG'.
+
+    Returns:
+        cobra.Model: The generated draft model.
     """
+    
 
     match medium:
         # use the medium from the template
@@ -290,37 +300,37 @@ def gen_draft_model(model, bbh, name, dir, edit, medium='default', namespace='Bi
     return draft
 
 
-def run(template, bpbbh, dir, edit_names='no', pid=80.0, name=None, medium='default', namespace='BiGG', memote=False):
+def run(template:str, bpbbh:str, dir:str, 
+        edit_names:Literal['no','dot-to-underscore']='no', 
+        pid:float=80.0, name:Union[str,None]=None, 
+        medium:str='default', namespace:str='BiGG', memote:bool=False):
     """Generate a draft model from a blastp best hits tsv file and a template model.
 
-    :param template: Path to the file containing the template model.
-    :type template: string
-    :param bpbbh: Path to the blastp bidirectional best hits.
-    :type bpbbh: string
-    :param dir: Path to output directory.
-    :type dir: string
-    :param edit_names: Edit the identifier of the FASTA files to match the names in the model.
-        Default is no. Currently implemented edits: dot-to-underscore'.
-    :type edit_names: string
-    :param pid: Threshold value for determining, if a gene is counted as present or absent.
-        The default is 80.0 (percentage).
-    :type pid: float
-    :param name: Name of the output.
-    :type name: string, optional
-    :param medium: Set the medium for the new model. If not set, will use the one from the template.
-        If given the keyword "exchanges", will open all exchange reaction and use them as the medium.
-        If given together with db_path, the corresponding medium is loaded.
-    :type medium: string
-    :param namespace: Namespace of the model.
-    :type  namespace: Literal['BiGG'], optional
-    :param memote: Option to run memote after creating the draft model.
-        Default is False (not running memote).
-    :type memote: bool
+    Args:
+        - template (str): Path to the file containing the template model.
+        - bpbbh (str): Path to the blastp bidirectional best hits.
+        - dir (str): Path to output directory.
+        - edit_names (Literal['no','dot-to-underscore', optional):  Type of edit to perform.
+            Currently possible options: no, dot-to-underscore. 
+            Defaults to 'no'.
+        - pid (float, optional): Threshold value for determining, if a gene is counted as present or absent. 
+            Given in percentage, e.g. 80.0 = 80%.
+            Defaults to 80.0.
+        - name (Union[str,None], optional): Name of the output model. 
+            If not given, takes name from filename. 
+            Defaults to None.
+        - medium (str, optional):  Name of the to be loaded from the refineGEMs database or 'default' = the one
+            from the template model. If given the keyword 'exchanges', will use all exchange reactions in the model as a medium.
+            Defaults to 'default'.
+        - namespace (str, optional): Namespace of the model. 
+            Defaults to 'BiGG'.
+        - memote (bool, optional): Option to run memote after creating the draft model. 
+            Defaults to False.
 
-    :raises: :class:`ValueError`: 'Edit_names value {edit_names} not in list of allowed values: no, dot-to-underscore'
-    :raises: :class:`ValueError`: 'Model type {model_type} not in list of allowed values: sbml, json, matlab'
+    Raises:
+        ValueError: 'Edit_names value {edit_names} not in list of allowed values: no, dot-to-underscore'
     """
-
+    
     total_time_s = time.time()
 
     # -----------

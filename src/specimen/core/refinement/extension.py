@@ -23,6 +23,8 @@ from tqdm.auto import tqdm
 tqdm.pandas()
 import cobra
 
+from typing import Literal
+
 from Bio.KEGG import REST
 from Bio.KEGG import Enzyme, Compound
 
@@ -41,22 +43,21 @@ from refinegems.analysis.investigate import run_memote
 # ----------------------
 # identify missing genes
 # ----------------------
-def identify_missing_genes(gene_path, model, id, fasta_path, dir):
-    """identify missing genes in a model based on the draft model and a list of genes.
+def identify_missing_genes(gene_path:str, model:cobra.Model, 
+                           id:str, fasta_path:str, dir:str) -> pd.DataFrame:
+    """Identify missing genes in a model based on the draft model and a list of genes.
     Save the missing genes' sequences in a new FASTA file.
 
-    :param gene_path:  Path to the csv file containing the list of genes.
-    :type  gene_path:  string, csv file should have a header
-    :param model:      The draft model.
-    :type  model:      cobra.Model
-    :param id:         Name of the column in gene_path, that equal the ids in the model.
-    :type  id:         string
-    :param fasta_path: Path to the FASTA file containing all genes for the genome.
-    :type  fasta_path: string
-    :param dir:        Path to the directory to save the new FASTA in.
-    :type  dir:        string
-    :returns:          A table with the missing genes information.
-    :rtype:            pd.DataFrame
+
+    Args:
+        - gene_path (str): Path to the csv file containing the list of genes.
+        - model (cobra.Model): The draft model.
+        - id (str): Name of the column in gene_path, that equal the ids in the model.
+        - fasta_path (str): Path to the FASTA file containing all genes for the genome.
+        - dir (str): Path to the directory to save the new FASTA in.
+
+    Returns:
+        pd.DataFrame:  A table with the missing genes' information.
     """
 
     # get list of all genes
@@ -71,15 +72,16 @@ def identify_missing_genes(gene_path, model, id, fasta_path, dir):
     return gene_list_missing
 
 
-def find_best_diamond_hits(file, pid):
+def find_best_diamond_hits(file:str, pid:float) -> pd.DataFrame:
     """Identify the best hits from the DIAMOND run.
 
-    :param file: File name (path) of the "missing_genes" file.
-    :type  file: string
-    :param pid:  Threshold value for the PID .
-    :type  pid:  float, should be between 0.0 and 100.0 (given in percentage)
-    :returns:    Table of the locus tags of the query and the NCBI accession version numbers of the RefSeqs.
-    :rtype:      pd.DataFrame
+    Args:
+        - file (str): File name (path) of the "missing_genes" file.
+        - pid (float): Threshold value for the PID. 
+            Should be between 0.0 and 100.0 (given in percentage)
+
+    Returns:
+        pd.DataFrame: Table of the locus tags of the query and the NCBI accession version numbers of the RefSeqs.
     """
 
     # load diamond results
@@ -105,13 +107,14 @@ def find_best_diamond_hits(file, pid):
 
 # mapping zo NCBI
 # ---------------
-def map_to_NCBI_efetch_row(row):
+def map_to_NCBI_efetch_row(row:pd.Series) -> pd.Series:
     """Map a single entry from the table in get_ncbi_info() to NCBI using EntrezDirect.
 
-    :param row: A single row of the table.
-    :type  row: pd.Series()
-    :returns:   The edited row.
-    :rtype:     pd.Series()
+    Args:
+        - row (pd.Series): A single row of the table.
+
+    Returns:
+        pd.Series: The edited row.
     """
 
     #  EC number
@@ -151,18 +154,21 @@ def map_to_NCBI_efetch_row(row):
     return row
 
 
-def get_ncbi_info(table, ncbi_map_file=None):
+# @TODO
+def get_ncbi_info(table:pd.DataFrame, ncbi_map_file:str=None) -> pd.DataFrame:
     """Retrieve information from NCBI via mapping to precomputed files.
        If no mapping exists, try via Entrez - implemented, but does not work well
        -> problems with connecting successfully to NCBI.
        @TODO if time, rewrite using the Bioppython package, see if it works better
 
-    :param table:         A table containing the output of "find_best_diamond_hits".
-    :type  table:         pd.DataFrame, must have the column ncbi_accession_version
-    :param ncbi_map_file: A csv file containing the ncbi mapping.
-    :type  ncbi_map_file: string
-    :returns:             A table with the added information.
-    :rtype:               pd.DataFrame
+    Args:
+        - table (pd.DataFrame):  A table containing the output of "find_best_diamond_hits".
+            Must have the column 'ncbi_accession_version'.
+        - ncbi_map_file (str, optional): A csv file containing the ncbi mapping. 
+            Defaults to None.
+
+    Returns:
+        pd.DataFrame:  A table with the added information.
     """
 
     # case 1: if precomputed mapping was given
@@ -198,16 +204,17 @@ def get_ncbi_info(table, ncbi_map_file=None):
 # mapping to KEGG
 # ---------------
 # @TODO
-def map_to_KEGG_row(row, loci_list=None):
+def map_to_KEGG_row(row:pd.Series, loci_list:list[str]=None) -> pd.Series:
     """Map a single entry of the table in map_to_KEGG() to KEGG.
 
-    :param row:       A single row of the table.
-    :type  row:       pd.Series
-    :param loci_list: Dictionary of starting letters of locus tags belong to organisms, that are listed in KEGG
-        and the corresponding organism three-letter code
-    :type  loci_list: dict, of strings, default None (searches all entries)
-    :returns:         The edited row.
-    :rtype:           pd.Series
+    Args:
+        - row (pd.Series): A single row of the table.
+        - loci_list (list[str], optional): List of starting letters of locus tags belong to organisms, that are listed in KEGG
+            and the corresponding organism three-letter code. 
+            Defaults to None (= search all entries).
+
+    Returns:
+        pd.Series: The mapped row.
     """
 
     # --------------------------------
@@ -336,22 +343,22 @@ def map_to_KEGG_row(row, loci_list=None):
     return row
 
 
-def map_to_KEGG(gene_table,working_dir,manual_dir,genome_summary=None):
+def map_to_KEGG(gene_table:pd.DataFrame,working_dir:str,
+                manual_dir:str,genome_summary:str=None) -> Path:
     """Map entries of the table from get_ncbi_info() to KEGG.
     Get KEGG.reaction ID from locus tag, if available, otherwise try EC number.
     Entries of the finalised table are saved depending whether they were assigned
     a KEGG.reaction ID (further use) or not (possible starting point for manual curation).
 
-    :param gene_table:     The input table containing the output of get_ncbi_info().
-    :type  gene_table:     pd.DataFrame
-    :param genome_summary: Path to a information file for the reference genomes to check if they are in KEGG.
-    :type  genome_summary: string, default None
-    :param working_dir:    Path to the working directory - place to save genes with a KEGG.reaction ID.
-    :type  working_dir:    string
-    :param manual_dir:     Path to a directory to save the genes without KEGG assignment for possible manual curation.
-    :type  manual_dir:     string
-    :returns:              The path to the file containing the genes with KEGG assignment.
-    :rtype:                string
+    Args:
+        - gene_table (pd.DataFrame): The input table containing the output of get_ncbi_info().
+        - working_dir (str): Path to the working directory - place to save genes with a KEGG.reaction ID.
+        - manual_dir (str): Path to a directory to save the genes without KEGG assignment for possible manual curation.
+        - genome_summary (str, optional):  Path to a information file for the reference genomes to check if they are in KEGG. 
+            Defaults to None.
+
+    Returns:
+        Path: The path to the file containing the genes with KEGG assignment.
     """
 
     if genome_summary:
@@ -388,24 +395,23 @@ def map_to_KEGG(gene_table,working_dir,manual_dir,genome_summary=None):
 # mapping to BiGG
 # ---------------
 
-def map_BiGG_reactions_row(row, namespace):
+# @TODO
+def map_BiGG_reactions_row(row:pd.Series, namespace:pd.DataFrame) -> pd.Series:
     """Map a single entry from the table in map_BiGG_reactions() to the BiGG reaction namespace.
 
-    :param row:       A single row of the table.
-    :type  row:       pd.Series
-    :param namespace: The BiGG reaction namespace table.
-    :type  namespace: pd.DataFrame
-    :returns:         The edited row.
-    :rtype:           pd.Series
-    """
-
-    """
     @TODO
         NOTE: only works for cases, where KEGG.reaction in row contains EXACTLY one entry
               in the rare case that multiple reactions belong to one enzyme, they are omitted
               in this search
-    """
+    
+    Args:
+        - row (pd.Series): A single row of the table.
+        - namespace (pd.DataFrame): The BiGG reaction namespace table.
 
+    Returns:
+        pd.Series:  The edited row.
+    """
+    
     # match by EC number AND KEGG id
     matches = namespace.loc[namespace['EC Number'].str.contains(row['EC number']) & namespace['KEGG Reaction'].str.contains(row['KEGG.reaction'])]
 
@@ -427,13 +433,14 @@ def map_BiGG_reactions_row(row, namespace):
 
 # @TEST : fitted to refinegems
 # @CHECK : connections, e.g. input is now a param short 
-def map_BiGG_reactions(table_file):
+def map_BiGG_reactions(table_file:str) -> pd.DataFrame:
     """Map the output of map_to_KEGG() to a BiGG namespace file (rewritten-type, see auxilliaries).
 
-    :param table_file: The path to the saved table from running map_to_KEGG().
-    :type  table_file: string
-    :returns:          The table with an additional column for the mapping to BiGG reactions.
-    :rtype:            pd.DataFrame
+    Args:
+        - table_file (str): The path to the saved table from running map_to_KEGG().
+
+    Returns:
+        pd.DataFrame: The table with an additional column for the mapping to BiGG reactions.
     """
 
     r_namespace = load_a_table_from_database('bigg_reactions', False)
@@ -450,19 +457,21 @@ def map_BiGG_reactions(table_file):
 # ------------
 
 # @TODO
-def isreaction_complete(reac, exclude_dna=True, exclude_rna=True):
+def isreaction_complete(reac:cobra.Reaction, 
+                        exclude_dna:bool=True, exclude_rna:bool=True) -> bool:
     """Check, if a reaction is complete and ready to be added to the model.
     Additionally, it is possible to check for DNA and RNA reations
     and set them to be excluded or included.
 
-    :param reac:        The reaction to be checked.
-    :type  reac:        cobra.Reaction
-    :param exclude_dna: Tag to include or exclude DNA reactions.
-    :type  exclude_dna: bool, default is True.
-    :param exclude_rna: Tag to include or exclude RNA reactions.
-    :type  exclude_rna: bool, default is True.
-    :returns:           True if the check is successful, else false.
-    :rtype:             bool
+    Args:
+        - reac (cobra.Reaction): The reaction to be checked.
+        - exclude_dna (bool, optional): Tag to include or exclude DNA reactions. 
+            Defaults to True.
+        - exclude_rna (bool, optional): Tag to include or exclude RNA reactions. 
+            Defaults to True.
+
+    Returns:
+        bool: True if the check is successful, else false.
     """
 
     # ................
@@ -491,19 +500,20 @@ def isreaction_complete(reac, exclude_dna=True, exclude_rna=True):
 # build genes
 # -----------
 
-def add_gene(model, reaction, row, first=False):
+def add_gene(model:cobra.Model, reaction:str, row:pd.Series, 
+             first:bool=False) -> cobra.Model:
     """Add a new gene to a genome-scale metabolic cobra model.
 
-    :param model:    The model.
-    :type  model:    cobra.Model
-    :param reaction: The reaction id to add the gene to.
-    :type  reaction: string
-    :param row:      A single row of the output table of map_BiGG_reactions().
-    :type  row:      pd.Series
-    :param first:    Shows, if gene is the first gene to be added to the reaction.
-    :type  first:    bool, true if gene is first to be added.
-    :returns:       The updated model.
-    :rtype: cobra.Model
+    Args:
+        - model (cobra.Model): The model.
+        - reaction (str): The reaction id to add the gene to.
+        - row (pd.Series): A single row of the output table of map_BiGG_reactions().
+        - first (bool, optional):  Shows, if gene is the first gene to be added to the reaction. 
+            True if gene is first to be added.
+            Defaults to False.
+
+    Returns:
+        cobra.Model: Updated model.
     """
 
     # add gene
@@ -529,21 +539,21 @@ def add_gene(model, reaction, row, first=False):
 # @TODO
 # @DOCS wrong
 # UNDER CONSTRUCTION
-def build_metabolite_mnx(metabolite, model, mnx_chem_prop, mnx_chem_xref, bigg_metabolites, namespace):
+def build_metabolite_mnx(metabolite: str, model:cobra.Model, 
+                         mnx_chem_prop:pd.DataFrame, mnx_chem_xref:pd.DataFrame, 
+                         bigg_metabolites:pd.DataFrame, namespace:pd.DataFrame) -> cobra.Metabolite:
     """Create or retrieve (from model) a metabolite based on its MetaNetX ID.
 
-    :param metabolite:        The MetaNetX ID of the metabolite.
-    :type  metabolite:        string
-    :param model:             The underlying genome-scale metabolic model.
-    :type  model:             cobra.model
-    :param mnx_chem_xref:     The chem_xref table from MetaNetX
-    :type  mnx_chem_xref:     pd.DataFrame
-    :param mnx_chem_prop:     The chem_prop table from MetaNetX
-    :type  mnx_chem_prop:     pd.DataFrame
-    :param bigg_metabolites:  The BiGG compound namespace table.
-    :type  bigg_metabolites:  pd.DataFrame
-    :returns:                 The retrieved or newly build metabolite.
-    :rtype:                   cobra.Metabolite
+    Args:
+        - metabolite (str): The MetaNetX ID of the metabolite.
+        - model (cobra.Model):  The underlying genome-scale metabolic model.
+        - mnx_chem_prop (pd.DataFrame): The chem_xref table from MetaNetX.
+        - mnx_chem_xref (pd.DataFrame): The chem_prop table from MetaNetX.
+        - bigg_metabolites (pd.DataFrame): The BiGG compound namespace table.
+        - namespace (pd.DataFrame): The namespace of the model.
+
+    Returns:
+        cobra.Metabolite: The retrieved or newly build metabolite.
     """
 
     metabolite_prop = mnx_chem_prop[mnx_chem_prop['ID']==metabolite]
@@ -647,19 +657,20 @@ def build_metabolite_mnx(metabolite, model, mnx_chem_prop, mnx_chem_xref, bigg_m
 # @TODO
 # @DOCS
 # UNDER CONSTRUCTION
-def build_metabolite_kegg(kegg_id, model, model_kegg_ids, bigg_metabolites, namespace):
+def build_metabolite_kegg(kegg_id:str, model:cobra.Model, 
+                          model_kegg_ids:list[str], bigg_metabolites:pd.DataFrame, 
+                          namespace:Literal['BiGG']='BiGG') -> cobra.Metabolite:
     """Create or retrieve (from model) a metabolite based on its KEGG ID.
 
-    :param kegg_id:           The KEGG.compound ID of the metabolite in question.
-    :type  kegg_id:           string
-    :param model:             The model.
-    :type  model:             cobra.Model
-    :param model_kegg_ids:    List of all annotated KEGG Compound IDs in the model.
-    :type  model_kegg_ids:    list
-    :param bigg_metabolites:  The BiGG compound namespace table.
-    :type  bigg_metabolites:  pd.DataFrame
-    :returns:                 The retrieved or newly build metabolite.
-    :rytpe:                   cobra.Metabolite
+    Args:
+        - kegg_id (str): The KEGG.compound ID of the metabolite in question.
+        - model (cobra.Model): The model.
+        - model_kegg_ids (list[str]): List of all annotated KEGG Compound IDs in the model.
+        - bigg_metabolites (pd.DataFrame):  The BiGG compound namespace table.
+        - namespace (Literal[&#39;BiGG&#39;], optional): Namespace of the model. Defaults to 'BiGG'.
+
+    Returns:
+        cobra.Metabolite:  The retrieved or newly build metabolite.
     """
 
     # retrieve KEGG entry for compound
@@ -781,23 +792,24 @@ def build_metabolite_kegg(kegg_id, model, model_kegg_ids, bigg_metabolites, name
 # @TODO
 # @DOCS
 # UNDER CONSTRUCTION
-def get_metabolites_mnx(model,equation,mnx_chem_xref,mnx_chem_prop,bigg_metabolites, namespace):
+def get_metabolites_mnx(model:cobra.Model,equation:str,
+                        mnx_chem_xref:pd.DataFrame,mnx_chem_prop:pd.DataFrame,
+                        bigg_metabolites:pd.DataFrame, namespace:Literal['BiGG']='BiGG') -> dict[cobra.Metabolite,int]:
     """Based on a given MetaNetX equation and a model, get or
     create metabolite entires in/for the model.
 
-    :param model:             A GEM.
-    :type  model:             cobra.Model
-    :param equation:          The equation from MetaNetX
-    :type  equation:          string
-    :param mnx_chem_xref:     The chem_xref table from MetaNetX
-    :type  mnx_chem_xref:     pd.DataFrame
-    :param mnx_chem_prop:     The chem_prop table from MetaNetX
-    :type  mnx_chem_prop:     pd.DataFrame
-    :param bigg_metabolites:  The BiGG compound namespace table.
-    :type  bigg_metabolites:  pd.DataFrame
-    :returns:                 Dictonary of metabolites and stoichiometric factors.
-    :rtype:                   dict
-    """
+    Args:
+        - model (cobra.Model): The GEM.
+        - equation (str): The equation from MetaNetX.
+        - mnx_chem_xref (pd.DataFrame):  The chem_xref table from MetaNetX.
+        - mnx_chem_prop (pd.DataFrame):  The chem_prop table from MetaNetX.
+        - bigg_metabolites (pd.DataFrame): The BiGG compound namespace table.
+        - namespace (Literal['BiGG'], optional): Namespace of the model. 
+            Defaults to 'BiGG'.
+
+    Returns:
+        dict[cobra.Metabolite,int]: Dictonary of metabolites and stoichiometric factors.
+    """  
 
     # @TODO ...................................
     #   currently no checking for compartments
@@ -848,22 +860,24 @@ def get_metabolites_mnx(model,equation,mnx_chem_xref,mnx_chem_prop,bigg_metaboli
 # @TODO
 # @DOCS
 # UNDER CONSTRUCTION
-def get_metabolites_kegg(model,equation,chem_xref,chem_prop,bigg_metabolites, namespace):
+def get_metabolites_kegg(model:cobra.Model,equation:str,
+                         chem_xref:pd.DataFrame,chem_prop:pd.DataFrame,
+                         bigg_metabolites:pd.DataFrame, 
+                         namespace:Literal['BiGG']='BiGG') -> dict[cobra.Metabolite,int]:
     """Based on a given KEGG equation and a model, get or
     create metabolite entires in/for the model.
 
-    :param model:             A GEM.
-    :type  model:             cobra.Model
-    :param equation:          The equation from KEGG
-    :type  equation:          string
-    :param chem_xref:         The chem_xref table from MetaNetX
-    :type  chem_xref:         pd.DataFrame
-    :param chem_prop:         The chem_prop table from MetaNetX
-    :type  chem_prop:         pd.DataFrame
-    :param bigg_metabolites:  The BiGG compound namespace table.
-    :type  bigg_metabolites:  pd.DataFrame
-    :returns:                 Dictonary of metabolites and stoichiometric factors.
-    :rtype:                   dict
+    Args:
+        - model (cobra.Model): A GEM.
+        - equation (str): The equation from KEGG.
+        - chem_xref (pd.DataFrame): The chem_xref table from MetaNetX.
+        - chem_prop (pd.DataFrame): The chem_prop table from MetaNetX.
+        - bigg_metabolites (pd.DataFrame): The BiGG compound namespace table.
+        - namespace (Literal['BiGG'], optional): The namespace of the model. 
+            Defaults to 'BiGG'.
+
+    Returns:
+        dict[cobra.Metabolite,int]: Dictonary of metabolites and stoichiometric factors.
     """
 
     # @TODO ...................................
@@ -932,7 +946,35 @@ def get_metabolites_kegg(model,equation,chem_xref,chem_prop,bigg_metabolites, na
 # --------------
 #@TODO
 # UNDER CONSTRUCTION
-def add_reaction(model,row,reac_xref,reac_prop,chem_xref,chem_prop,bigg_metabolites, namespace:str='BiGG', exclude_dna=True, exclude_rna=True):
+def add_reaction(model:cobra.Model,row:pd.Series,
+                 reac_xref:pd.DataFrame,reac_prop:pd.DataFrame,
+                 chem_xref:pd.DataFrame,chem_prop:pd.DataFrame,
+                 bigg_metabolites:pd.DataFrame, 
+                 namespace:str='BiGG', 
+                 exclude_dna:bool=True, exclude_rna:bool=True) -> cobra.Model:
+    """Helper function for extent_model. For a given row of a gene to be added, add the 
+    corresponding reactions and metabolites via MetaNetX/KEGG as needed and available.
+
+    Args:
+        - model (cobra.Model): The model.
+        - row (pd.Series): A row from the table in function extend_model.
+        - reac_xref (pd.DataFrame): The MetaNetX reac_xref table.
+        - reac_prop (pd.DataFrame): The MetaNetX reac_prop table.
+        - chem_xref (pd.DataFrame): The MetaNetX chem_xref table.
+        - chem_prop (pd.DataFrame): The MetaNetX chem_prop table.
+        - bigg_metabolites (pd.DataFrame): The BiGG compound namespace table.
+        - namespace (str, optional): Namespace of the model. 
+            Defaults to 'BiGG'.
+        - exclude_dna (bool, optional): Flag to exclude the addition of 
+            directly DNA-related reactions. 
+            Defaults to True.
+        - exclude_rna (bool, optional): Flag to exclude the addition of 
+            directly RNA-related reactions. 
+            Defaults to True.
+
+    Returns:
+        cobra.Model: The extended model.
+    """
 
     # create reaction object
     reac = cobra.Reaction(create_random_id(model,'reac','SPECIMEN'))
@@ -1075,27 +1117,30 @@ def add_reaction(model,row,reac_xref,reac_prop,chem_xref,chem_prop,bigg_metaboli
 # ------------
 # notes
 # @CHECK : connections, e.g. input is now a param short 
-def extent_model(table, model,chem_prop_file,chem_xref_file,reac_prop_file,reac_xref_file, namespace, exclude_dna=True, exclude_rna=True):
+def extent_model(table:pd.DataFrame, model:cobra.Model,
+                 chem_prop_file:str,chem_xref_file:str,
+                 reac_prop_file:str,reac_xref_file:str, 
+                 namespace:str='BiGG', 
+                 exclude_dna:bool=True, exclude_rna:bool=True) -> cobra.Model:
     """Add reactions, metabolites and genes to a model based on the output of map_to_bigg().
 
-    :param table:                 The table with the information to be added to the model.
-    :type  table:                 pd.DataFrame, output of map_to_bigg
-    :param model:                 The genome-scale metabolic model to be extended
-    :type  model:                 cobra.Model
-    :param chem_prop_file:        Path to the MetaNetX chem_prop file.
-    :type  chem_prop_file:        string
-    :param chem_xref_file:        Path to the MetaNetX chem_xref file.
-    :type  chem_xref_file:        string
-    :param reac_prop_file:        Path to the MetaNetX reac_prop file.
-    :type  reac_prop_file:        string
-    :param reac_xref_file:        Path to the MetaNetX reac_xref file.
-    :type  reac_xref_file:        string
-    :param exclude_dna:           Tag to include or exclude DNA reactions.
-    :type  exclude_dna:           bool, default is True.
-    :param exclude_rna:           Tag to include or exclude RNA reactions.
-    :type  exclude_rna:           bool, default is True.
-    :returns:                     The extended model.
-    :rytpe:                       cobra.Model
+    Args:
+        - table (pd.DataFrame): The table with the information to be added to the model.
+            Output of :py:func:`map_to_bigg`.
+        - model (cobra.Model): The model to extend.
+        - chem_prop_file (str): Path to the MetaNetX chem_prop file.
+        - chem_xref_file (str): Path to the MetaNetX chem_xref file.
+        - reac_prop_file (str): Path to the MetaNetX reac_prop file.
+        - reac_xref_file (str): Path to the MetaNetX reac_xref file.
+        - namespace (str, optional): Namespace of the model. 
+            Defaults to 'BiGG'.
+        - exclude_dna (bool, optional): Tag to include or exclude DNA reactions. 
+            Defaults to True.
+        - exclude_rna (bool, optional): Tag to include or exclude RNA reactions. 
+            Defaults to True.
+
+    Returns:
+        cobra.Model: The extended model.
     """
 
     # load MetaNetX database / namespace
@@ -1165,64 +1210,64 @@ def extent_model(table, model,chem_prop_file,chem_xref_file,reac_prop_file,reac_
 # @TEST : fitted to refinegems
 # @CHECK : connections, e.g. input is now two params short 
 # run the main as function
-def run(draft, gene_list, fasta, db, dir, mnx_chem_prop, mnx_chem_xref, mnx_reac_prop, mnx_reac_xref, ncbi_map, ncbi_dat, id='locus_tag', sensitivity='more-sensitive', coverage=95.0, pid=90.0, threads=2, exclude_dna=True, exclude_rna=True, memote=False):
-    """Create a draft model.
+def run(draft:str, gene_list:str, fasta:str, 
+        db:str, dir:str, 
+        mnx_chem_prop:str, mnx_chem_xref:str, 
+        mnx_reac_prop:str, mnx_reac_xref:str, 
+        ncbi_map:str, ncbi_dat:str, 
+        id:str='locus_tag', 
+        sensitivity:Literal['sensitive', 'more-sensitive', 'very-sensitive','ultra-sensitive']='more-sensitive', 
+        coverage:float=95.0, pid:float=90.0, 
+        threads:int=2, 
+        exclude_dna:bool=True, exclude_rna:bool=True, 
+        memote:bool=False):
+    """Extend a draft model.
 
-    Explaination missing ....
+    Using a multitude of information from MetaNetX, KEGG, NCBI and more,
+    extend a draft model by yet unadded genes ("missing genes") by mapping them against
+    a database using DIAMOND.
 
-    :param draft: Path to the draft model
-    :type draft: string
-    :param gene_list: Path to a csv file containing information on all the genes found in the annotated genome.
-    :type gene_list: string
-    :param fasta: Path to the (protein) FASTA file containing the CDS sequences
-    :type fasta: string
-    :param db: Path to the database used for running DIAMOND.
-    :type db: string
-    :param dir: Path to the directory for the output (directories).
-    :type dir: string
+    Args:
+        - draft (str): Path to the draft model.
+        - gene_list (str): Path to a csv file containing information on all the genes found in the annotated genome.
+        - fasta (str): Path to the (protein) FASTA file containing the CDS sequences.
+        - db (str): Path to the database used for running DIAMOND.
+        - dir (str):  Path to the directory for the output (directories).
 
-    :param mnx_chem_prop: Path to the MetaNetX chem_prop namespace file.
-    :type mnx_chem_prop: string
-    :param mnx_chem_xref: Path to the MetaNetX chem_xref namespace file.
-    :type mnx_chem_xref: string
-    :param mnx_reac_prop: Path to the MetaNetX reac_prop namespace file.
-    :type mnx_reac_prop: string
-    :param mnx_reac_xref: path to the MetaNetX reac_xref namespace file.
-    :type mnx_reac_xref: string
+        - mnx_chem_prop (str): Path to the MetaNetX chem_prop namespace file.
+        - mnx_chem_xref (str): Path to the MetaNetX chem_xref namespace file.
+        - mnx_reac_prop (str): Path to the MetaNetX reac_prop namespace file.
+        - mnx_reac_xref (str): Path to the MetaNetX reac_xref namespace file.
 
-    :param ncbi_map: Path to the ncbi information mapping file. Optional, but recommended.
-    :type ncbi_map: string
-    :param ncbi_dat: Path to the ncbi database information file. Optional, but recommended.
-    :type ncbi_dat: string
+        - ncbi_map (str): Path to the ncbi information mapping file. Optional, but recommended.
+        - ncbi_dat (str): Path to the ncbi database information file. Optional, but recommended.
 
-    :param id: Name of the column of the csv file that contains the entries that were used as gene identifiers in the draft model.
-        Default is 'locus_tag'.
-    :type id: string
-    :param sensitivity: Sensitivity mode for DIAMOND blastp run.
-        Can be sensitive, more-sensitive, very-sensitive or ultra-sensitive.
-        Default is more-sensitive.
-    :type sensitivity: string, optional
-    :param coverage: Threshold value for the query coverage for DIAMOND.
-        Default is 95.0.
-    :type coverage: float, optional
-    :param pid: PID (percentage identity value) to filter the blast hist by.
-        Default is 90.0, only hits equal or above the given value are kept.')
-    :type pid: float, optional
-    :param threads: Number of threads to be used.
-        Default is 2.
-    :type threads: int
+        - id (str, optional): Name of the column of the csv file that contains the entries that were 
+            used as gene identifiers in the draft model. 
+            Defaults to 'locus_tag'.
+        - sensitivity (Literal['sensitive', 'more-sensitive', 'very-sensitive','ultra-sensitive'], optional): Sensitivity mode for DIAMOND blastp run.
+            Can be sensitive, more-sensitive, very-sensitive or ultra-sensitive.
+            Defaults to 'more-sensitive'.
+        - coverage (float, optional): Threshold value for the query coverage for DIAMOND. 
+            Defaults to 95.0.
+        - pid (float, optional): PID (percentage identity value) to filter the blast hist by. 
+            Only hits equal or above the given value are kept.
+            Defaults to 90.0.
+        - threads (int, optional): Number of threads to be used for DIAMOND. 
+            Defaults to 2.
 
-    :param exclude_dna: Exclude reactions with DNA in their name when added.
-        Default is True.
-    :type exclude_dna: bool
-    :param exclude_rna: Exclude reactions with RNA in their name when added.
-        Default is True.
-    :type exclude_rna: bool
+        - exclude_dna (bool, optional): Exclude reactions with DNA in their name when added. 
+            Defaults to True.
+        - exclude_rna (bool, optional): Exclude reactions with RNA in their name when added. 
+            Defaults to True.
 
-    :param memote: Use memote on the extended model.
-        Default is False
-    :type memote: bool
+        - memote (bool, optional): Use memote on the extended model. 
+            Defaults to False.
+
+    Raises:
+        ValueError: Unknown sensitivity mode.
     """
+    
 
     if not sensitivity in ['sensitive','more-sensitive','very-sensitive','ultra-sensitive']:
         raise ValueError(F'Unknown sensitivity mode {sensitivity}. Choose from: sensitive, more-sensitive, very-sensitive, ultra-sensitive')
