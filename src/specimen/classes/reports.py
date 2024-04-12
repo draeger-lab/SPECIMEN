@@ -26,6 +26,13 @@ from refinegems.classes.reports import ModelInfoReport
 ################################################################################
 
 class SpecimenModelInfoReport(ModelInfoReport):
+    """A SPECIMEN-specific report for a given model.
+
+    Child-class of the refineGEMs class ModelInfoReport.
+
+    Attributes:
+        model: The GEM loaded with COBRApy.
+    """
     
     def __init__(self, model) -> None:
 
@@ -47,8 +54,14 @@ class SpecimenModelInfoReport(ModelInfoReport):
         # add new attribute
         self.reac_origin_c = reac_origin_counts
 
-    # extemd format table function from parent class
+    # extend format table function from parent class
     def format_table(self) -> pd.DataFrame:
+        """Extent the functin format_table to include the reaction origin as 
+        set by SPECIMEN.
+
+        Returns:
+            pd.DataFrame: The information in table format.
+        """
         table = super().format_table()
         table['#reaction origin'] = str(self.reac_origin_c).replace('{',r'').replace('}',r'').replace('\'',r'')
         return table
@@ -56,8 +69,19 @@ class SpecimenModelInfoReport(ModelInfoReport):
     # depending on the implementation, save and make html 
     # can be inherited or need to be overwritten 
     # but currently a @TODO
-    def visualise(self, color_palette: str = 'YlGn') -> matplotlib.figure.Figure:
-        
+    def visualise(self, color_palette: str = 'YlGn') -> tuple[matplotlib.figure.Figure]:
+        """Extend the visualisation function to include a graph for the creation type.
+
+        Args:
+            - color_palette (str, optional): Color palette to be used. 
+                Defaults to 'YlGn'.
+
+        Returns:
+            tuple:
+                (1) matplotlib.figure.Figure: The original report figure.
+                (2) matplotlib.figure.Figure: Report for the creation origin.
+        """
+
         # @TODO maybe change plot type, as with small numbers its barely visibale
         def plot_origin(data, color_palette):
 
@@ -93,7 +117,13 @@ class SpecimenModelInfoReport(ModelInfoReport):
         return (fig1,fig2)
     
     def save(self, dir: str, color_palette: str = 'YlGn') -> None:
-       
+        """Save the report and the 
+
+        Args:
+            - dir (str): _description_
+            - color_palette (str, optional): _description_. Defaults to 'YlGn'.
+        """
+
         # save the statistics report
         self.format_table().to_csv(Path(dir,f'{self.name}_report.csv'),sep=';')
         # save the visualisation

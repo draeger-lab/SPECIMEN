@@ -7,6 +7,7 @@ subject:
 template:
     annotated_genome: __USER__
     model: __USER__
+    namespace: BiGG
 
 # information about the output
 out:
@@ -57,16 +58,16 @@ parameters:
 
     refinement_cleanup:
         # current default means no gapfilling
-        load_media: null
-        external_media: null
-        change_to_aerobic: null
-        change_to_anaerobic: null
-        add_casamino: null
-        growth_threshold: 0.5
+        media_gap: null
 
     refinement_smoothing:
         # skip, apply or extra for MassChargeCuration
         mcc: skip
+        # ECG correction
+        egc: null
         # BOFdat weight fractions: depend on organism (current: Klebsiella )
         dna_weight_frac: 0.023
         ion_weight_frac: 0.05
+
+    analysis:
+        media_analysis: __USER__

@@ -2,14 +2,17 @@
 # requirements
 ################################################################################
 
-from Bio import SeqIO
+
 import os
 import os.path
 import pandas as pd
-from pathlib import Path
 import re
-import sys
 import subprocess
+import sys
+
+from Bio import SeqIO
+from pathlib import Path
+from typing import Literal
 
 # further required programs:
 #        - DIAMOND, tested with version 0.9.14
@@ -25,22 +28,21 @@ import subprocess
 # create a DIAMOND reference database
 # -----------------------------------
 
-def create_DIAMOND_db_from_folder(dir, out, name='database', extension='faa', threads=2):
+def create_DIAMOND_db_from_folder(dir:str, out:str, name:str='database',
+                                  extension:str='faa', threads:int=2):
     """Build a DIAMOND database from a folder containing FASTA files.
 
-    :param dir: Path to the directory to search for FASTA files for the database (recursive file search).
-    :type dir: string, required
-    :param out: Path of the directory of the output.
-    :type out: string, required
-    :param name: Name of the created database.
-        Default is 'database'.
-    :type name: string, optional
-    :param extension: File extension of the FASTA files (to determine which files to search for).
-        Default is 'faa'.
-    :type extension: string, optional
-    :param threads: Number of threads to use for DIAMOND.
-        Default is 2
-    :type threads: int, optional
+    Args:
+        - dir (str): Path to the directory to search for FASTA files for 
+            the database (recursive file search).
+        - out (str): Path of the directory of the output.
+        - name (str, optional): Name of the created database. 
+            Defaults to 'database'.
+        - extension (str, optional): File extension of the FASTA files 
+            (to determine which files to search for). 
+            Defaults to 'faa'.
+        - threads (int, optional): Number of threads to use for DIAMOND. 
+            Defaults to 2.
     """
 
     # get fasta file names
@@ -88,14 +90,16 @@ def create_DIAMOND_db_from_folder(dir, out, name='database', extension='faa', th
 # create a NCBI mapping file for the database
 # -------------------------------------------
 
-def get_info_GenBank_Record(file_path):
+def get_info_GenBank_Record(file_path:str) -> pd.DataFrame:
     """Retrieves a table containg information about the following qualifiers from a
     Genbank file: ['protein_id','locus_tag','db_xref','old_locus_tag','EC_number'].
 
-    :param file_path: Path to the Genbank (.gbff) file.
-    :type  file_path: str
-    :returns:         A table containing the information above.
-    :rtype:           pd.DataFrame, columns= ['ncbi_accession_version', 'locus_tag_ref','old_locus_tag','GeneID','EC number']
+    Args:
+        - file_path (str): Path to the Genbank (.gbff) file.
+
+    Returns:
+        pd.DataFrame: A table containing the information above.
+            Has the following  columns= ['ncbi_accession_version', 'locus_tag_ref','old_locus_tag','GeneID','EC number'].
     """
 
     temp_table = pd.DataFrame(columns=['ncbi_accession_version', 'locus_tag_ref','old_locus_tag','GeneID','EC number'])
@@ -120,16 +124,15 @@ def get_info_GenBank_Record(file_path):
     return temp_table
 
 
-def create_NCBIinfo_mapping(dir, out, extension='gbff'):
+def create_NCBIinfo_mapping(dir:str, out:str, extension:Literal['gbff']='gbff'):
     """Create a NCBI information mapping file from a folder containing e.g. gbff files.
 
-    :param dir: Path to the directory for the recursive file search for the mapping.
-    :type dir: string
-    :param out: Path of the directory for the output.
-    :type out: string
-    :param extension: Name of the file extension to be searched.
-        Default is gbff, and currently it is advised to leave it at that.
-    :type extension: string
+    Args:
+        - dir (str): Path to the directory for the recursive file search for the mapping.
+        - out (str): Path of the directory for the output.
+        - extension (Literal['gbff'], optional): Name of the file extension to be searched.
+            Default is gbff, and currently it is advised to leave it at that.
+            Defaults to 'gbff'.
     """
 
     # get gbff file names

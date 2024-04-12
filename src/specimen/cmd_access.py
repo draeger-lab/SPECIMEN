@@ -14,6 +14,10 @@ import click
 # entry points
 ################################################################################
 
+###############################
+# unchanged
+###############################
+
 @click.group()
 @click.help_option("--help", "-h")
 @click.version_option()
@@ -59,25 +63,6 @@ def data_structure(dir, chunk_size):
     the MetaNetX and BiGG data files.
     """
     specimen.util.set_up.build_data_directories(dir, chunk_size)
-
-# handle medium / media database
-# ------------------------------
-@setup.command()
-@click.option('--list', is_flag=True, default=False, help='List the names of the media in the database.')
-@click.option('--copy', is_flag=False, flag_value='./media.csv', default=None, type=click.Path(exists=False), help='Produce and save a copy of the media database.')
-def medium(list,copy):
-    """Access the in-build media database.
-
-    Can be used to either check the available media or to make a copy for further use.
-    """
-    if list:
-        db = specimen.classes.medium.load_media_db()
-        for key in db:
-            print(key)
-    if copy:
-        db = specimen.classes.medium.load_media_db()
-        specimen.classes.medium.save_db(db,click.format_filename(copy))
-
 
 # ---------------
 # run the program
@@ -134,6 +119,9 @@ def bdb(template, input, template_name, input_name, temp_header, in_header, dir,
     """
     specimen.core.bidirectional_blast.run(template, input, dir,template_name, input_name, temp_header, in_header, threads, extra_info=['locus_tag', 'product', 'protein_id'], sensitivity=sensitivity)
 
+###############################
+# below untested, but corrected
+###############################
 
 # generafte draft
 # ---------------
@@ -144,16 +132,17 @@ def bdb(template, input, template_name, input_name, temp_header, in_header, dir,
 @click.option('--edit_names', type=click.Choice(['no', 'dot-to-underscore']), default='no', show_default=True, help='Edit the identifier of the FASTA files to match the names in the model.')
 @click.option('--pid', type=float, default=80.0, show_default=True, help='Threshold value (percentage identity) for determining, if a gene is counted as present or absent')
 @click.option('--name', type=str, default=None, help='Name of the output model, will be taken from the file name if not specified.')
-@click.option('--medium', type=str, default='default', help='Set the medium for the new model. If not set, will use the one from the template. If given the keyword "exchanges", will open all exchange reaction and use them as the medium. If given together with db_path, the corresponding medium is loaded.')
-@click.option('--db_path', type=str, help='Path to a medium database file. If specified together with "medium", the name from medium will be searched and loaded from the database as the new medium.')
+@click.option('--medium', type=str, default='default', help='Set the medium for the new model. If not set, will use the one from the template. If given the keyword "exchanges", will open all exchange reaction and use them as the medium.')
+@click.option('--namespace','--nsp',type=click.Choice(['BiGG']),default='BiGG',type='Namespace of the model.')
 @click.option('--memote', is_flag=True, default=False, help='Run Memote on the generated draft model.')
-def draft(template, bpbbh, dir, edit_names, pid, name, growth_threshold, medium, db_path, memote):
+def draft(template, bpbbh, dir, edit_names, pid, name, medium, nsp, memote):
     """Step 2 of the pipeline: Generate a draft model from a blastp best hits tsv file and a template model.
 
     TEMPLATE is the path (string) to the template model.\n
     BPBBH is the path (string) to the  BLASTp bidirectional best hits (step 1).
     """
-    specimen.core.generate_draft_model.run(template, bpbbh, dir, edit_names, pid, name, medium, db_path, memote)
+    specimen.core.generate_draft_model.run(template, bpbbh, dir, edit_names, 
+                                           pid, name, medium, nsp, memote)
 
 
 # refinement
@@ -168,14 +157,15 @@ def refinement():
 @click.option('--gene_list', '-g', type=str, required=True, help='Path to a csv file containing information on all the genes found in the annotated genome.')
 @click.option('--fasta', '-f', type=str, required=True, help="Path to the (protein) FASTA file containing the CDS sequences")
 @click.option('--db', '--database', type=str, required=True, help="string, path to the database used for running DIAMOND.")
-@click.option('--bigg_reac', type=str, required=True, help='Path to the BiGG reaction namespace file (rewritten version).')
-@click.option('--bigg_meta', type=str, required=True, help='string, path to the BiGG metabolite namespace file (rewritten version).')
+# MetaNetX links
 @click.option('--mnx_chem_prop', type=str, required=True, help='Path to the MetaNetX chem_prop namespace file.')
 @click.option('--mnx_chem_xref', type=str, required=True, help='Path to the MetaNetX chem_xref namespace file.')
 @click.option('--mnx_reac_prop', type=str, required=True, help='Path to the MetaNetX reac_prop namespace file.')
 @click.option('--mnx_reac_xref', type=str, required=True, help='Path to the MetaNetX reac_xref namespace file.')
+# NCBI mapping options
 @click.option('--ncbi_map', type=str, required=False, help='Path to the ncbi information mapping file. Optional, but recommended.')
 @click.option('--ncbi_dat', type=str, required=False, help='Path to the ncbi database information file. Optional, but recommended.')
+# DIAMOND and other params
 @click.option('--dir','-d', type=str, default='./refinement/', help='Path to the directory for the output (directories)')
 @click.option('--id', '-i', type=str, default='locus_tag', help='Name of the column of the csv file that contains the entries that were used as gene identifiers in the draft model.')
 @click.option('--sensitivity', '-s', type=click.Choice(['sensitive','more-sensitive','very-sensitive','ultra-sensitive']), default='sensitive', help='Sensitivity mode for DIAMOND blastp run. Default is sensitive.')
@@ -186,7 +176,6 @@ def refinement():
 @click.option('--include_rna', is_flag=True, default=False, help='Include reactions with RNA in their name when added (developer information: True == excluded).')
 @click.option('--memote', is_flag=True, default=False, help='Use memote on the extended model.')
 def extension(draft, gene_list, fasta, db, dir,
-    bigg_reac, bigg_meta,
     mnx_chem_prop, mnx_chem_xref, mnx_reac_prop, mnx_reac_xref,
     ncbi_map, ncbi_dat,
     id, sensitivity,
@@ -197,16 +186,14 @@ def extension(draft, gene_list, fasta, db, dir,
 
     The following options are required:
     draft, gene_list, fasta, db, dir,
-    bigg_reac, bigg_meta,
     mnx_chem_prop, mnx_chem_xref, mnx_reac_prop, mnx_reac_xref
     """
     specimen.core.refinement.extension.run(draft, gene_list, fasta, db, dir,
-        bigg_reac, bigg_meta,
         mnx_chem_prop, mnx_chem_xref, mnx_reac_prop, mnx_reac_xref,
         ncbi_map, ncbi_dat,
         id, sensitivity,
         coverage, pid, threads,
-        include_dna, include_rna,
+        not include_dna, not include_rna,
         memote)
 
 
@@ -224,12 +211,8 @@ def extension(draft, gene_list, fasta, db, dir,
 @click.option('--remove_dupl_reac', '--rdr', is_flag=True, default=False, help='Option for removing duplicate reaction from the model.')
 # perform gapfilling
 @click.option('--universal', '-u', required=False, type=str, help='Path to a universal model containing reactions used for gapfilling.')
-@click.option('--media_db', required=False, type=str, help='Path to a database csv file containing media.')
-@click.option('--load_media', required=False, multiple=True, help='Add a medium name to be loaded from media_db. Can be used multiple times.')
-@click.option('--external_media', required=False, multiple=True, help='Add a path to a medium file (containing one medium from the user). Can be used multiple times.')
-@click.option('--aerobic', required=False, multiple=True, help='Medium name to be loaded from media_db and changed to aerobic conditions. Can be used multiple times.')
-@click.option('--anaerobic', required=False, multiple=True, help='Medium name to be loaded from media_db and changed to anaerobic conditions. Can be used multiple times.')
-@click.option('--add_casamino', '--cas', required=False, multiple=True, help='Medium name to be loaded from media_db. Afterwards add the casamino acids to it. Can be used multiple times.')
+@click.option('--media-path', '--mp', required=False, type=str, default=None, help='Path to a media config to use for gapfilling.')
+@click.option('--namespace','--nsp', required=False, type=click.Choice(['BiGG']), help='Namespace to use for the model.')
 @click.option('--growth_threshold', '-gt', default=0.05, show_default=True, type=float, help='Threshold value for a model to be considered growing.')
 @click.option('--iterations', '-i', type=int, default=3, show_default=True, help='Number of iterations for the gapfilling. If 0 is passed, uses full set of reactions instead of heuristic.')
 @click.option('--chunk_size', type=int, default=10000, show_default=True, help='Number of reactions to be tested simultaniously if using the heuristic version of gapfilling. If this is 0, heuristic will not be applied.')
@@ -245,12 +228,8 @@ def cleanup(model,
     remove_dupl_reac,
     remove_dupl_meta,
     universal,
-    media_db,
-    load_media,
-    external_media,
-    aerobic,
-    change_to_anaerobic,
-    add_casamino,
+    mp,
+    nsp,
     growth_threshold,
     iterations,
     chunk_size,
@@ -276,14 +255,16 @@ def cleanup(model,
         remove_dupl_reac,
         remove_dupl_meta,
         universal,
-        media_db,
-        load_media,
-        external_media,
-        aerobic,
-        change_to_anaerobic,
-        add_casamino,
+        mp,
+        nsp,
         growth_threshold,
+        iterations,
+        chunk_size,
         memote)
+    
+###############################
+# unchanged
+###############################
 
 @refinement.command()
 @click.argument('model', type=str)
@@ -308,10 +289,17 @@ def annotation(model,dir,kegg_via_ec,kegg_via_rc,memote):
                                             memote=memote)
 
 
+###############################
+# below untested, but corrected
+###############################
+
 @refinement.command()
 @click.argument('model',type=str)
 @click.option('--genome', '-g', required=True, type=str, help='Path to the genome FASTA (e.g. .fna) file of your genome.')
 @click.option('--dir', '-d', default='./refinement/', type=str, help='Path to a directory for the output.')
+# additional arguments for EGC solving
+@click.option('--egc-solver','--egc', required=False, type=click.Choice([None,'greedy']), default=None, multiple=False, help='String sets the type of solver to use to solve EGCs. Otherwise just reports existing EGCs.')
+@click.option('--namespace','--nsp',default='BiGG', type=click.Choice(['BiGG']),help='Namespace of the model.')
 # additional arguments for MCC
 @click.option('--mcc', default='skip', type=click.Choice(['apply','extra','skip']), help='Option to perform MassChargeCuration on the model. Can be used directly on model or as extra information. Choices are "apply","extra" and "skip". Deafult is "skip".')
 # additional arguments for BOF
@@ -319,7 +307,7 @@ def annotation(model,dir,kegg_via_ec,kegg_via_rc,memote):
 @click.option('--ion_weight_frac', default=0.05, type=float, help='weight fraction for the coenzymes and ions. Default is 0.05 based on the default of BOFdat.')
 # additional arguments for memote
 @click.option('--memote', is_flag=True, default=False, help='Use memote on the extended model.')
-def smoothing(model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, memote):
+def smoothing(model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, egc, namespace, memote):
     """Refinement step 4: Smoothing
 
     Further refine the model by (optionally) using MCC,
@@ -328,7 +316,11 @@ def smoothing(model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, memote)
     MODEL is the path to the model that is to b refined.\n
     Further required is a genome FASTA file of the genome the model was build on.
     """
-    specimen.core.refinement.smoothing.run(model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, memote)
+    specimen.core.refinement.smoothing.run(genome, model, dir, mcc, 
+                                           egc,
+                                           namespace,
+                                           dna_weight_frac, ion_weight_frac, 
+                                           memote)
 
 
 #######################

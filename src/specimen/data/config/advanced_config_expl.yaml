@@ -20,14 +20,9 @@ data:
     # is used and uses this path to a directory as the parent folder for the
     # following paths (assumes all data paths are relative ones)
     data_direc: null
-    # media database:
-    # already available internally, can be optionally changed to user input
-    media: null
     # required
     diamond: __USER__
     # required but can be downloaded using setup
-    bigg_reac: BiGG-namespace/bigg_models_reactions_rewritten.tsv
-    bigg_meta: BiGG-namespace/bigg_models_metabolites_rewritten.tsv
     mnx_chem_prop: MetaNetX/chem_prop.tsv
     mnx_chem_xref: MetaNetX/chem_xref.tsv
     mnx_reac_prop: MetaNetX/reac_prop.tsv
@@ -55,11 +50,6 @@ parameters:
         input_name: null
         temp_header: null
         in_header: null
-        # which information to pick from NCBI, default has to be included
-        extra_info:
-            - locus_tag
-            - product
-            - protein_id
         # change the sensitivity of DIAMOND
         sensitivity: more-sensitive
 
@@ -91,13 +81,8 @@ parameters:
         remove_unused_meta: False
         remove_dupl_reac: True
         remove_dupl_meta: True
-        # Optional for gapfilling
-        load_media: null
-        external_media: null
-        change_to_aerobic: null
-        change_to_anaerobic: null
-        add_casamino: null
-        growth_threshold: 0.5
+        # Optional for gapfilling (input is a media config file, refineGEMs standart)
+        media_gap: null
 
     refinement_annotation:
         # for KEGG pathway annotation
@@ -107,31 +92,17 @@ parameters:
     refinement_smoothing:
         # apply, skip or extra: Usage of MassChargeCuration
         mcc: skip
+        # Option to include a solver for possible EGCs
+        egc: greedy
         # BOFdat weight fractions: depend on organism (current: Klebsiella )
         dna_weight_frac: 0.023
         ion_weight_frac: 0.05
 
-    validation:
-        # which tests to include for validation (or run all)
-        tests: null
-        run_all: True
-
     analysis:
         # How to compare to pan-core model (current option only id)
         pc_based_on: id
-        # simulate growth on different media
-        load_media:
-            - LB
-            - M9
-        change_to_aerobic: null
-        change_to_anaerobic:
-            - LB
-            - M9
-        add_casamino: null
-        external_media: null
-        # test for minimal medium (time-consuming!)
-        test_min_medium: False
-        growth_rate: 0.1
+        # simulate growth on different media (media config file (refineGEMs) required)
+        media_analysis: __USER__
         # test for amino acid auxotrophies
         test_aa_auxotrophies: True
         # perform pathway analysis with KEGG
@@ -146,4 +117,4 @@ performance:
     #     run x interations of gapfilling with n-size randomised chunks of reactions
     gapfilling:
         iterations: 3
-        chunk_size: 10000
+        chunk_size: 2000

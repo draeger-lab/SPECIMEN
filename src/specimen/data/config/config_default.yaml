@@ -7,6 +7,7 @@ subject:
 template:
     annotated_genome: __USER__
     model: __USER__
+    namespace: BiGG
 
 # information about the output
 out:
@@ -20,13 +21,9 @@ data:
     # is used and uses this path to a directory as the parent folder for the
     # following paths (assumes all data paths are relative ones)
     data_direc: null
-    # already available, can be optionally changed to user input
-    media: null
     # required
     diamond: __USER__
     # needed but potentially downloaded
-    bigg_reac: BiGG-namespace/bigg_models_reactions_rewritten.tsv
-    bigg_meta: BiGG-namespace/bigg_models_metabolites_rewritten.tsv
     mnx_chem_prop: MetaNetX/chem_prop.tsv
     mnx_chem_xref: MetaNetX/chem_xref.tsv
     mnx_reac_prop: MetaNetX/reac_prop.tsv
@@ -53,11 +50,6 @@ parameters:
         input_name: null
         temp_header: null
         in_header: null
-        # default essential
-        extra_info:
-            - locus_tag
-            - product
-            - protein_id
         # can be set by user if wanted, but not necessary
         sensitivity: more-sensitive
 
@@ -86,19 +78,7 @@ parameters:
         remove_dupl_reac: True
         remove_dupl_meta: True
         # current default means no gapfilling
-        ##################
-        # new
-        ##################
         media_gap: null
-        ##################
-        # old - delete
-        ##################
-        # load_media: null
-        # external_media: null
-        # change_to_aerobic: null
-        # change_to_anaerobic: null
-        # add_casamino: null
-        # growth_threshold: 0.5
 
     refinement_annotation:
         # for KEGG pathway annotation
@@ -108,22 +88,19 @@ parameters:
     refinement_smoothing:
         # useful
         mcc: skip
+        # ECG correction
+        egc: null
         # depend on organism (current: Klebsiella )
         dna_weight_frac: 0.023
         ion_weight_frac: 0.05
 
-    validation:
+    # validation:
         # default should suffice
-        tests: null
-        run_all: True
 
     analysis:
         # default is currently only option
         pc_based_on: id
         # can be default but useful to edit
-        ##################
-        # new 
-        ##################
         media_analysis: __USER__ # edit to fit a default media config file
         test_aa_auxotrophies: True
         # perform pathway analysis with KEGG
@@ -138,4 +115,4 @@ performance:
     #     run x interations of gapfilling with n-size randomised chunks of reactions
     gapfilling:
         iterations: 3
-        chunk_size: 10000
+        chunk_size: 2000

@@ -13,6 +13,9 @@ from pathlib import Path
 import requests
 from tqdm import tqdm
 import yaml
+from typing import Literal
+
+from refinegems.utility.set_up import download_config as rg_config
 
 ################################################################################
 # variables
@@ -20,9 +23,10 @@ import yaml
 
 # config keys
 # -----------
-CONFIG_PATH_OPTIONAL = ['media', 'ncbi_map', 'ncbi_dat','biocyc','universal','pan-core']
+CONFIG_PATH_OPTIONAL = ['media_gap', 'ncbi_map', 'ncbi_dat','biocyc','universal','pan-core']
 CONFIG_PATH_REQUIRED = ['annotated_genome','full_sequence','model','diamond',
-                        'mnx_chem_prop', 'mnx_chem_xref','mnx_reac_prop','mnx_reac_xref']
+                        'mnx_chem_prop', 'mnx_chem_xref','mnx_reac_prop','mnx_reac_xref',
+                        'media_analysis']
 
 
 # external databases
@@ -42,15 +46,14 @@ MNX_URL_DICT = {'chem_prop.tsv':MNX_CHEM_PROP_URL, 'chem_xref.tsv':MNX_CHEM_XREF
 # setup data (structure)
 # ----------------------
 # @TEST : deleted BiGG part, since its already covered with refinegems
-
-def download_mnx(dir='MetaNetX/', chunk_size=1024):
+def download_mnx(dir:str='MetaNetX/', chunk_size:int=1024):
     """Download the data needed from the MetaNetX database.
 
-    :param dir: Directory to write the diwnloaded files to.
-    :type dir: string, should end with '/'.
-    :param chunk_size: Size of the chunk of data that is loaded into memory during download.
-        Default is 1024.
-    :type chunk_size: int
+    Args:
+        - dir (str, optional): Directory to write the downloaded files to. 
+            Defaults to 'MetaNetX/'.
+        - chunk_size (int, optional): Size of the chunk of data that is loaded into memory during download. 
+            Defaults to 1024.
     """
 
     for mnx_name,mnx_url in MNX_URL_DICT.items():
@@ -63,15 +66,15 @@ def download_mnx(dir='MetaNetX/', chunk_size=1024):
                 bar.update(size)
 
 
-def build_data_directories(dir, chunk_size=2048):
+def build_data_directories(dir:str, chunk_size:int=2048):
     """Set up the directory structure for the data and download the files
     from MetaNetX.
 
-    :param dir: Parent folder to write the subfolder structure to.
-    :type dir: string
-    :param chunk_size: Size of the chunks of data while downloading.
-        Default is 2048. Only used for downloading the MetaNetX files.
-    :type chunk_size: int
+    Args:
+        - dir (str):  Parent folder to write the subfolder structure to.
+        - chunk_size (int, optional): Size of the chunks of data while downloading.
+            Only used for downloading the MetaNetX files.
+            Defaults to 2048.
     """
 
     # create the data directory structure
@@ -96,21 +99,22 @@ def build_data_directories(dir, chunk_size=2048):
 # handling config files
 # ---------------------
 
-def download_config(filename='./my_basic_config.yaml', type='basic'):
+def download_config(filename:str='my_basic_config.yaml', type:Literal['basic','advanced','defaults']='basic'):
     """Load a configuration file from the package and save a copy for the user to edit.
 
     Depending on the knowledge of the user, either a 'basic' or an 'advanced' type
     of configuration file can be downloaded.
 
-    :param filename: Filename/filepath to save the downloaded config file under.
-    :type filename: string
-    :param type: The type of file to download. Can either be 'basic' or 'advanced'.
-        Default is 'basic'.
-    :type type: string
+    Args:
+        - filename (str, optional): Filename/filepath to save the downloaded config file under. 
+            Defaults to 'my_basic_config.yaml'.
+        - type (Literal['basic','advanced','defaults'], optional): The type of file to download. 
+            Can be 'basic', 'advanced' or 'defaults'. 
+            Defaults to 'basic'.
 
-    :raises: :class:`ValueError`: 'Unknown type of config file detected'
+    Raises:
+        ValueError: Unknown type of config file detected.
     """
-
 
     # copy an examplary version of the config file for the user to edit it
     match type:
@@ -126,15 +130,31 @@ def download_config(filename='./my_basic_config.yaml', type='basic'):
             with open(config_file, "r") as cfg_file, open(filename, 'w') as cfg_out:
                 for line in cfg_file:
                     cfg_out.write(line)
+        # for developer: the config with all internal defaults
+        case 'defaults':
+            config_file = files('specimen.data.config').joinpath('config_default.yaml')
+            with open(config_file, "r") as cfg_file, open(filename, 'w') as cfg_out:
+                for line in cfg_file:
+                    cfg_out.write(line)
+        # media config from refinegems
+        case 'media':
+            rg_config(filename, type='media')
         # type not found
         case _:
             raise ValueError(F'Unknown type of config file detected: {type}')
 
 
-def dict_recursive_combine(dictA, dictB):
+def dict_recursive_combine(dictA:dict, dictB:dict) -> dict:
     """Helper-function to combine two configuration file.
 
+    Args:
+        - dictA (dict): Information from one config file in dict format.
+        - dictB (dict): Information from the other config file in dict format.
+
+    Returns:
+        dict: The combined information.
     """
+    
     if not isinstance(dictB,dict):
         return dictB
     for key in dictA.keys():
@@ -144,14 +164,18 @@ def dict_recursive_combine(dictA, dictB):
 
 
 # @TODO: extent - include more checks
-def dict_recursive_check(dictA, key=None):
+def dict_recursive_check(dictA:dict, key:str=None):
     """Function to check if a configuration is valid to run the pipeline.
 
-    :param dictA: Current dictionary or value to be validated.
-    :type dictA: dict or other
-    :param key: key of dictA, if it was an entry of a dictionary.
-        Default is None.
-    :type key: string
+    Args:
+        - dictA (dict): Current dictionary or value to be validated.
+        - key (str, optional): key of dictA, if it was an entry of a dictionary. 
+            Defaults to None.
+
+    Raises:
+        TypeError: Missing a required argument in the config file.
+        FileNotFoundError: Path does not exist: {dictA}
+        FileNotFoundError: Path does not exist: {dictA}
     """
 
     if not isinstance(dictA,dict):
@@ -180,19 +204,20 @@ def dict_recursive_check(dictA, key=None):
     return
 
 
-# @TODO need to fix this after fixing the config
-def validate_config(userc):
+# @TODO -> @TEST changes
+def validate_config(userc:str) -> dict:
     """Validate a user config file for use in the pipeline.
 
     Note: currently not everything is checked, mainly the needed files are.
 
-    :param userc: Path to the user configuration file.
-    :type userc: string
+    Args:
+        - userc (str): Path to the user configuration file.
 
-    :raise: :FileNotFoundError: Directory set for config:data:data:direc does not exist.
+    Raises:
+        FileNotFoundError: Directory set for config:data:data:direc does not exist.
 
-    :returns: The validated, read-in configuration file.
-    :rtype: dict, nested (read-in yaml file)
+    Returns:
+        dict: The validated, read-in configuration file, nested (read-in yaml file).
     """
 
     # validate a user config file by checking for missing input
