@@ -1,21 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Run the Pipeline &mdash; SPECIMEN 1.0.0 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=92fd9be5" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=8d563738"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -49,7 +51,6 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Run the Pipeline</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#quickstart">Quickstart</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#collecting-data">Collecting Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#example">Example</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="specimen.html">Contents of SPECIMEN</a></li>
@@ -82,9 +83,9 @@
            <div itemprop="articleBody">
              
   <section id="run-the-pipeline">
-<h1>Run the Pipeline<a class="headerlink" href="#run-the-pipeline" title="Permalink to this heading"></a></h1>
+<h1>Run the Pipeline<a class="headerlink" href="#run-the-pipeline" title="Link to this heading"></a></h1>
 <section id="quickstart">
-<h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this heading"></a></h2>
+<h2>Quickstart<a class="headerlink" href="#quickstart" title="Link to this heading"></a></h2>
 <p>The pipeline can either be run directly from the command line or its functions can be called from inside a Python script.
 The input in both cases is a configuration file that contains all information needed (data file paths and parameters) to run it.</p>
 <p>The configuration can be downloaded using the command line:</p>
@@ -117,7 +118,7 @@ To wrapper can be accessed using <code class="code docutils literal notranslate"
 </div>
 </section>
 <section id="collecting-data">
-<h2>Collecting Data<a class="headerlink" href="#collecting-data" title="Permalink to this heading"></a></h2>
+<h2>Collecting Data<a class="headerlink" href="#collecting-data" title="Link to this heading"></a></h2>
 <p>If you are just starting a new project and do not have all the data ready to go, you can use the setup function of
 <strong>SPECIMEN</strong> to help you collect the data you need.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">specimen</span><span class="o">.</span><span class="n">set_up</span><span class="o">.</span><span class="n">build_data_directories</span><span class="p">(</span><span class="s1">&#39;your_folder_name&#39;</span><span class="p">)</span>
@@ -194,8 +195,8 @@ The tags report/optional report whether this input is necessary to run the pipel
 <blockquote>
 <div><ul>
 <li><p>one way to builf a DIAMOND reference database is to download a set of reference sequences from the NCBI database, e.g. in the <strong>FAA</strong> format</p></li>
-<li><p>use the function <code class="code docutils literal notranslate"><span class="pre">specimen.util.util.create_DIAMOND_db_from_folder('/User/path/input/directory','/User/Path/for/output/',</span> <span class="pre">name</span> <span class="pre">=</span> <span class="pre">'database',</span> <span class="pre">extention</span> <span class="pre">=</span> <span class="pre">'faa')</span></code> to create a DIAMOND database</p></li>
-<li><p>to speed up the mapping, create an additional mapping file from the e.g. <strong>GBFF</strong> files from NCBI using <code class="code docutils literal notranslate"><span class="pre">specimen.util.util.create_NCBIinfo_mapping('/User/path/input/directory','/User/Path/for/output/',</span> <span class="pre">extention</span> <span class="pre">=</span> <span class="pre">'gbff')</span></code></p></li>
+<li><p>use the function <code class="code docutils literal notranslate"><span class="pre">specimen.util.util.create_DIAMOND_db_from_folder('/User/path/input/directory',</span> <span class="pre">'/User/Path/for/output/',</span> <span class="pre">name</span> <span class="pre">=</span> <span class="pre">'database',</span> <span class="pre">extention</span> <span class="pre">=</span> <span class="pre">'faa')</span></code> to create a DIAMOND database</p></li>
+<li><p>to speed up the mapping, create an additional mapping file from the e.g. <strong>GBFF</strong> files from NCBI using <code class="code docutils literal notranslate"><span class="pre">specimen.util.util.create_NCBIinfo_mapping('/User/path/input/directory',</span> <span class="pre">'/User/Path/for/output/',</span> <span class="pre">extention</span> <span class="pre">=</span> <span class="pre">'gbff')</span></code></p></li>
 <li><p>to ensure correct mapping to KEGG, an additional information file can be created by constructing a CSV file with the following columns: NCBI genome, organism, locus_tag (start) and KEGG.organism</p>
 <blockquote>
 <div><ul class="simple">
@@ -213,9 +214,6 @@ The tags report/optional report whether this input is necessary to run the pipel
 <p class="admonition-title">Note</p>
 <p>The setup can be done via the command line as well, refer to <code class="code docutils literal notranslate"><span class="pre">specimen</span> <span class="pre">setup</span> <span class="pre">--help</span></code>.</p>
 </div>
-</section>
-<section id="example">
-<h2>Example<a class="headerlink" href="#example" title="Permalink to this heading"></a></h2>
 </section>
 </section>
 

@@ -186,13 +186,14 @@ def wrapper_pipeline(config_file:str, parent_dir:str=""):
 
     Args:
         - config_file (str): config file containing the general information to run the pipeline.
-        The information for the subject and output place/name can be empty.
+            The information for the subject and output place/name can be empty.
         - parent_dir (str, optional): Path to a directory to search for subfolders containing the data. 
             Defaults to "".
 
     Raises:
-        ValueError: No or multiple annotated genome files found: {subfolder}
-        ValueError:  No or multiple full genome files found: {subfolder}
+        - ValueError: No or multiple annotated genome files found: {subfolder}
+        - ValueError:  No or multiple full genome files found: {subfolder}
+        
     """
 
     # load config

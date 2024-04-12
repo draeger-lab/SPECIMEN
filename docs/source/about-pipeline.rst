@@ -37,21 +37,3 @@ Many of the steps of the pipeline can be fine tuned and turned off/on. Check the
 
     All steps of the pipeline can be run separatly via the command line or the Python integration.
     All accessable function are listed in the Contents of **SPECIMEN** section.
-
-
-About the Media
----------------
-
-The tool provides a small database for media to test the growth on as well as the functions to create new ones either from scratch or from the available ones.
-Currently, the database includes the following media:
-
-- M9: minimal medium
-- M9_o2s: minimal medium, oxygen substituted with superoxide
-- LB: lysogeny broth
-- LB_o2s: lysogeny broth, oxygen substituted with superoxide
-- SNM3: synthetic nasal medium
-- SNM3_o2s: synthetic nasal medium, oxygen substituted with superoxide
-- VMH-EUavg: VMH gut medium, EU average diet
-- VMH-vegan: VMH gut medium, vegan diet
-- VMH-unhealthy: VMH gut medium, unhealthy diet
-- VMH-hiFloC: VMH gut medium, high fat low carb diet

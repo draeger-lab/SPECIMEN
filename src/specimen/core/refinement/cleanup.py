@@ -307,7 +307,7 @@ def run(model:str, dir:str,
         - model (str): The Path to an sbml model.
         - dir (str): Path to the directory of the output.
        
-         - biocyc_db (str, optional): Path to the BioCyc/MetaCyc reaction database file. 
+        - biocyc_db (str, optional): Path to the BioCyc/MetaCyc reaction database file. 
             Defaults to None, which leads to skipping the direction check.
         
         - check_dupl_reac (bool, optional): Option to check for duplicate reactions. 

@@ -133,7 +133,7 @@ def bdb(template, input, template_name, input_name, temp_header, in_header, dir,
 @click.option('--pid', type=float, default=80.0, show_default=True, help='Threshold value (percentage identity) for determining, if a gene is counted as present or absent')
 @click.option('--name', type=str, default=None, help='Name of the output model, will be taken from the file name if not specified.')
 @click.option('--medium', type=str, default='default', help='Set the medium for the new model. If not set, will use the one from the template. If given the keyword "exchanges", will open all exchange reaction and use them as the medium.')
-@click.option('--namespace','--nsp',type=click.Choice(['BiGG']),default='BiGG',type='Namespace of the model.')
+@click.option('--namespace','--nsp',type=click.Choice(['BiGG']),default='BiGG',help='Namespace of the model.')
 @click.option('--memote', is_flag=True, default=False, help='Run Memote on the generated draft model.')
 def draft(template, bpbbh, dir, edit_names, pid, name, medium, nsp, memote):
     """Step 2 of the pipeline: Generate a draft model from a blastp best hits tsv file and a template model.

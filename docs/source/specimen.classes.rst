@@ -4,14 +4,6 @@ specimen.classes package
 Submodules
 ----------
 
-specimen.classes.medium module
-------------------------------
-
-.. automodule:: specimen.classes.medium
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 specimen.classes.reports module
 -------------------------------
 

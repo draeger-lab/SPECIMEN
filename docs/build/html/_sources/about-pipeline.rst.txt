@@ -31,7 +31,12 @@ The pipeline consists of five steps:
     c. growth analysis, including *in silico* auxotrophy tests
     d. pan-core analysis, if pan-core model is available
 
-Many of the steps of the pipeline can be fine tuned and turned off/on. More about the option and input can be found ....
+Many of the steps of the pipeline can be fine tuned and turned off/on. Check the configuration file for a full list of all parameters.
+
+.. note::
+
+    All steps of the pipeline can be run separatly via the command line or the Python integration.
+    All accessable function are listed in the Contents of **SPECIMEN** section.
 
 
 About the Media
@@ -41,11 +46,11 @@ The tool provides a small database for media to test the growth on as well as th
 Currently, the database includes the following media:
 
 - M9: minimal medium
-- M9_o2s: minimal medium, oxygen substituted for superoxide
+- M9_o2s: minimal medium, oxygen substituted with superoxide
 - LB: lysogeny broth
-- LB_o2s: lysogeny broth, oxygen substituted for superoxide
+- LB_o2s: lysogeny broth, oxygen substituted with superoxide
 - SNM3: synthetic nasal medium
-- SNM3_o2s: synthetic nasal medium, oxygen substituted for superoxide
+- SNM3_o2s: synthetic nasal medium, oxygen substituted with superoxide
 - VMH-EUavg: VMH gut medium, EU average diet
 - VMH-vegan: VMH gut medium, vegan diet
 - VMH-unhealthy: VMH gut medium, unhealthy diet

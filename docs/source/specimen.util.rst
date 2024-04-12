@@ -4,22 +4,6 @@ specimen.util package
 Submodules
 ----------
 
-specimen.util.cobra\_models module
-----------------------------------
-
-.. automodule:: specimen.util.cobra_models
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-specimen.util.io module
------------------------
-
-.. automodule:: specimen.util.io
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 specimen.util.set\_up module
 ----------------------------
 

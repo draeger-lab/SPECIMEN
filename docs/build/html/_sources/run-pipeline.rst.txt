@@ -103,8 +103,8 @@ Further details for collecting the data:
 - RefSeqs
 
     - one way to builf a DIAMOND reference database is to download a set of reference sequences from the NCBI database, e.g. in the **FAA** format
-    - use the function :code:`specimen.util.util.create_DIAMOND_db_from_folder('/User/path/input/directory','/User/Path/for/output/', name = 'database', extention = 'faa')` to create a DIAMOND database
-    - to speed up the mapping, create an additional mapping file from the e.g. **GBFF** files from NCBI using :code:`specimen.util.util.create_NCBIinfo_mapping('/User/path/input/directory','/User/Path/for/output/', extention = 'gbff')`
+    - use the function :code:`specimen.util.util.create_DIAMOND_db_from_folder('/User/path/input/directory', '/User/Path/for/output/', name = 'database', extention = 'faa')` to create a DIAMOND database
+    - to speed up the mapping, create an additional mapping file from the e.g. **GBFF** files from NCBI using :code:`specimen.util.util.create_NCBIinfo_mapping('/User/path/input/directory', '/User/Path/for/output/', extention = 'gbff')`
     - to ensure correct mapping to KEGG, an additional information file can be created by constructing a CSV file with the following columns: NCBI genome, organism, locus_tag (start) and KEGG.organism
 
         - the information of the first three columns can be taken from the previous two steps while
@@ -114,6 +114,3 @@ Further details for collecting the data:
 
 .. note::
     The setup can be done via the command line as well, refer to :code:`specimen setup --help`.
-
-Example
------------

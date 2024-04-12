@@ -1,11 +1,12 @@
 Help
 ==================
 
+- github link, issues and HowTo files
 
-Current Limitations
---------------------
+Known Bugs and Problems
+-----------------------
 
 
 
 FAQs
-------------------
+----
