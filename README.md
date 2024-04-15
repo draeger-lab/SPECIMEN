@@ -1,4 +1,4 @@
-# SPECIMEN
+![Logo of SPECIMEN](docs/source/images/LogoSPECIMEN.png)
 
 SPECIMEN (strain-specific metabolic modelling) provides a pipeline for curating a strain-specific metabolic model from a high-quality template model with further functionalities build around this pipeline. 
 
