@@ -6,7 +6,8 @@
 Welcome to SPECIMEN!
 ====================================
 
-**SPECIMEN** is a Python package that provides functionalities for strain-specific curation of metabolic model using a high-quality template model.
+**SPECIMEN** is a Python package that provides functionalities for mostly automated 
+strain-specific curation of metabolic models using a high-quality template model.
 
 Overview
 ------------
@@ -16,11 +17,7 @@ The pipeline can be accessed from the command line or from inside a Python scrip
 
 .. image:: ./images/pipeline-overview.png
 
-Additionally, **SPECIMEN** allows the use of the functions / steps of the pipeline separatly and provides further functionalities for:
-
-- setting up and collecting some (but not all) of the data needed for the pipeline
-- building, manipulation and storing different media as well as a pre-build database
-
+Additionally, **SPECIMEN** allows the use of the functions / steps of the pipeline separatly.
 
 .. toctree::
    :maxdepth: 2

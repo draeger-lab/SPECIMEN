@@ -297,19 +297,16 @@ def run(model:str, dir:str,
     """Perform the second refinement step, cleanup, on a model.
 
     The second refinement step resolves the following issues:
-    - (optional) checking direction of reactions with BioCyc
-    - resolve BioCyc/MetaCyc annotation inconsistencies
-    - find and/or resolve duplicates (reactions and metabolites)
-    - gapfilling using cobra + universal model with reactions + a set of media 
-      (@TODO: under developement)
+    (1) (optional) checking direction of reactions with BioCyc
+    (2) resolve BioCyc/MetaCyc annotation inconsistencies
+    (3) find and/or resolve duplicates (reactions and metabolites)
+    (4) gapfilling using cobra + universal model with reactions + a set of media (@TODO: under developement)
 
     Args:
         - model (str): The Path to an sbml model.
         - dir (str): Path to the directory of the output.
-       
         - biocyc_db (str, optional): Path to the BioCyc/MetaCyc reaction database file. 
             Defaults to None, which leads to skipping the direction check.
-        
         - check_dupl_reac (bool, optional): Option to check for duplicate reactions. 
             Defaults to False.
         - check_dupl_meta (bool, optional): Option to check for duplicate metabolites. 
@@ -323,7 +320,6 @@ def run(model:str, dir:str,
         - remove_dupl_meta (bool, optional): Option to remove the duplicate metabolites. 
             True is only applied, if check_dupl_meta is also True.
             Defaults to False.
-
         - universal (str, optional): Path to a universal model for gapfilling. 
             Defaults to None, which skips the gapfilling.
         - media_path (str, optional): Path to a medium config file for gapfilling. 
@@ -339,7 +335,6 @@ def run(model:str, dir:str,
         - chunk_size (int, optional): Number of reactions to be used for gapfilling at the same time. 
             If None or 0 is given, use full set, not heuristic.
             Defaults to 10000.
-
         - memote (bool, optional): Option to run memote on the cleaned model. 
             Defaults to False.
 

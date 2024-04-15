@@ -60,30 +60,28 @@ If you are just starting a new project and do not have all the data ready to go,
 
 The function above creates the following directory structure for your project:
 
-+-------------------+--------------------+---------------------+
-| folder            | contains           | tags                |
-+===================+====================+=====================+
-| annotated_genomes | template + input   | manual, required    |
-|                   | annotated + full   |                     |
-|                   | genome files       |                     |
-+-------------------+--------------------+---------------------+
-| BiGG-namespace    | BiGG mappings      | automated, required |
-+-------------------+--------------------+---------------------+
-| BioCyc            | BioCyc smart table | manual, optional    |
-+-------------------+--------------------+---------------------+
-| medium            | external media     | manual, optional    |
-+-------------------+--------------------+---------------------+
-| MetaNetX          | MetaNetX mappings  | automated, required |
-+-------------------+--------------------+---------------------+
-| pan-core-models   | pan-core models    | manual, optional    |
-+-------------------+--------------------+---------------------+
-| RefSeqs           | DIAMOND database   | semi, required      |
-|                   | for BLAST          |                     |
-+-------------------+--------------------+---------------------+
-| template-models   | template models    | manual, required    |
-+-------------------+--------------------+---------------------+
-| universal-models  | universal models   | manual, optional    |
-+-------------------+--------------------+---------------------+
++--------------------+------------------------------+---------------------+
+| folder             | contains                     | tags                |
++====================+==============================+=====================+
+|| annotated_genomes || template + input            || manual, required   |
+||                   || annotated + full            ||                    |
+||                   || genome files                ||                    |
++--------------------+------------------------------+---------------------+
+| BioCyc             | BioCyc smart table           | manual, optional    |
++--------------------+------------------------------+---------------------+
+| medium             | media config, external media | manual, optional    |
++--------------------+------------------------------+---------------------+
+| MetaNetX           | MetaNetX mappings            | automated, required |
++--------------------+------------------------------+---------------------+
+| pan-core-models    | pan-core models              | manual, optional    |
++--------------------+------------------------------+---------------------+
+|| RefSeqs           || DIAMOND database            || semi, required     |
+||                   || for BLAST                   ||                    |
++--------------------+------------------------------+---------------------+
+| template-models    | template models              | manual, required    |
++--------------------+------------------------------+---------------------+
+| universal-models   | universal models             | manual, optional    |
++--------------------+------------------------------+---------------------+
 
 In the contains columns it is listed what is supposed to be inside that folder.
 The tags manual/semi/automated report how these are added to the folder (automated = by the setup function, manual = by the user).
@@ -111,6 +109,23 @@ Further details for collecting the data:
         - the last column the user needs to check, if the genomes have been entered into KEGG and have an organism identifier
         - this file is purely optional for running the pipeline but potentially leads to better results
 
+- medium:   
+
+    The media, either for analysis or gapfilling can be entered into the pipeline via a config file (each).
+    The config files are from the **refineGEMS** toolbox and access the in-build medium database of refinegems 
+    and additionally allow for manual adjustment / external input.
+
+    A examplary config file can be accessed using the following command:
+
+    .. code-block:: python
+
+        download_config(filename='my_media_config.yaml', type='media')
+
+    Or via the command line (additional name can be added using the flag :code:`-f <name>`):
+
+    .. code-block:: bash
+        
+        specimen setup config -t media
 
 .. note::
     The setup can be done via the command line as well, refer to :code:`specimen setup --help`.

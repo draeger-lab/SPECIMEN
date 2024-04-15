@@ -99,7 +99,7 @@ def build_data_directories(dir:str, chunk_size:int=2048):
 # handling config files
 # ---------------------
 
-def download_config(filename:str='my_basic_config.yaml', type:Literal['basic','advanced','defaults']='basic'):
+def download_config(filename:str='my_basic_config.yaml', type:Literal['basic','advanced','defaults','media']='basic'):
     """Load a configuration file from the package and save a copy for the user to edit.
 
     Depending on the knowledge of the user, either a 'basic' or an 'advanced' type
@@ -109,7 +109,7 @@ def download_config(filename:str='my_basic_config.yaml', type:Literal['basic','a
         - filename (str, optional): Filename/filepath to save the downloaded config file under. 
             Defaults to 'my_basic_config.yaml'.
         - type (Literal['basic','advanced','defaults'], optional): The type of file to download. 
-            Can be 'basic', 'advanced' or 'defaults'. 
+            Can be 'basic', 'advanced' or 'defaults' or 'media'. 
             Defaults to 'basic'.
 
     Raises:

@@ -8,12 +8,12 @@ __author__ = 'Carolin Brune'
 ################################################################################
 
 import contextlib
-from pathlib import Path
 import os.path
+import tempfile
 import warnings
 import yaml
-import tempfile
-import glob
+
+from pathlib import Path
 
 from . import core, util
 
@@ -191,9 +191,8 @@ def wrapper_pipeline(config_file:str, parent_dir:str=""):
             Defaults to "".
 
     Raises:
-        - ValueError: No or multiple annotated genome files found: {subfolder}
-        - ValueError:  No or multiple full genome files found: {subfolder}
-        
+        - ValueError: No or multiple annotated genome files found: subfolder
+        - ValueError:  No or multiple full genome files found: subfolder
     """
 
     # load config

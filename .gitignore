@@ -5,5 +5,3 @@ __pycache__
 build/*
 specimen.egg-info
 **/specimen.egg-info/* 
-
-docs/build/*

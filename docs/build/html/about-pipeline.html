@@ -49,7 +49,6 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">About the SPECIMEN</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#about-the-pipeline">About the Pipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#about-the-media">About the Media</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="run-pipeline.html">Run the Pipeline</a></li>
@@ -84,12 +83,14 @@
              
   <section id="about-the-specimen">
 <h1>About the SPECIMEN<a class="headerlink" href="#about-the-specimen" title="Link to this heading"></a></h1>
-<p><strong>SPECIMEN</strong> is a Python package for strain-specific metabolic modelling. Currently, its main features consist of:</p>
+<p><strong>SPECIMEN</strong> is a Python package for strain-specific metabolic modelling.
+Currently, its main features consist of:</p>
 <ul class="simple">
 <li><p>a pipeline for automated model curation based on a template and additional data</p></li>
-<li><p>a module for creating, storing and manipulating media to test a model growth on</p></li>
-<li><p>a set of additional functions for preparing and collecting data</p></li>
+<li><p>run parts of the pipeline separatly.</p></li>
+<li><p>run the pipeline on a folder of different input genomes using the same parameters.</p></li>
 </ul>
+<p>The functionalities of <strong>SPECIMEN</strong> are based on <strong>refineGEMS</strong> (link).</p>
 <section id="about-the-pipeline">
 <h2>About the Pipeline<a class="headerlink" href="#about-the-pipeline" title="Link to this heading"></a></h2>
 <p>The core of <strong>SPECIMEN</strong> is an automated pipeline, which curates a new model from an input genome, a high-quality template model and optional additional information.
@@ -102,7 +103,7 @@ The pipeline consists of five steps:</p>
 <div><ol class="loweralpha simple">
 <li><p>extension: map not-yet-added genes to reactions and add them to the model</p></li>
 <li><p>clean-up: improve quality by checking reaction direction, duplicates, gapfilling etc.</p></li>
-<li><p>annotation: extend model annotation using SBOannotator and KEGG pathway annotations</p></li>
+<li><p>annotation: extend model annotation using e.g. SBOannotator and KEGG pathway annotations</p></li>
 <li><p>smoothing: adjust FBA parameters using MCC, BOFdat etc.</p></li>
 </ol>
 </div></blockquote>
@@ -114,7 +115,7 @@ The pipeline consists of five steps:</p>
 <li><p>statistical analysis</p></li>
 <li><p>pathway analysis</p></li>
 <li><p>growth analysis, including <em>in silico</em> auxotrophy tests</p></li>
-<li><p>pan-core analysis, if pan-core model is available</p></li>
+<li><p>pan-core analysis, if a pan-core model is available</p></li>
 </ol>
 </div></blockquote>
 </li>
@@ -125,23 +126,6 @@ The pipeline consists of five steps:</p>
 <p>All steps of the pipeline can be run separatly via the command line or the Python integration.
 All accessable function are listed in the Contents of <strong>SPECIMEN</strong> section.</p>
 </div>
-</section>
-<section id="about-the-media">
-<h2>About the Media<a class="headerlink" href="#about-the-media" title="Link to this heading"></a></h2>
-<p>The tool provides a small database for media to test the growth on as well as the functions to create new ones either from scratch or from the available ones.
-Currently, the database includes the following media:</p>
-<ul class="simple">
-<li><p>M9: minimal medium</p></li>
-<li><p>M9_o2s: minimal medium, oxygen substituted with superoxide</p></li>
-<li><p>LB: lysogeny broth</p></li>
-<li><p>LB_o2s: lysogeny broth, oxygen substituted with superoxide</p></li>
-<li><p>SNM3: synthetic nasal medium</p></li>
-<li><p>SNM3_o2s: synthetic nasal medium, oxygen substituted with superoxide</p></li>
-<li><p>VMH-EUavg: VMH gut medium, EU average diet</p></li>
-<li><p>VMH-vegan: VMH gut medium, vegan diet</p></li>
-<li><p>VMH-unhealthy: VMH gut medium, unhealthy diet</p></li>
-<li><p>VMH-hiFloC: VMH gut medium, high fat low carb diet</p></li>
-</ul>
 </section>
 </section>
 
