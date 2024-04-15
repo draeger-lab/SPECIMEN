@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'SPECIMEN'
-copyright = '2023, Carolin Brune'
+copyright = '2024, Carolin Brune'
 author = 'Carolin Brune'
 release = '1.0.0'
 
@@ -28,10 +28,21 @@ extensions = [
               'sphinx.ext.duration',
               'sphinx_rtd_theme',
               'sphinx.ext.autodoc',
+              'sphinx.ext.autosectionlabel',
+              'sphinx.ext.mathjax',
+              'sphinx_copybutton',
+              'nbsphinx',
+              'IPython.sphinxext.ipython_console_highlighting',
+              'sphinxcontrib.bibtex'
               ]
 
 templates_path = ['_templates']
 exclude_patterns = []
+
+# For copy buttons in code blocks
+copybutton_selector =  "div.copyable pre"
+# For citations
+bibtex_bibfiles = ['library.bib']
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -39,3 +50,25 @@ exclude_patterns = []
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+
+# Change colours in theme for navigation
+html_css_files = ['custom_theme.css']
+
+# Adds logo to documentation page
+html_logo = 'images/LogoSPECIMEN.png'
+html_theme_options = {
+    'logo_only': True,
+    'display_version': False
+}
+
+#Adds logo as favicon to tab
+html_favicon = 'images/LogoSPECIMEN.png'
+
+# Changes code highlighting
+pygments_style = 'blinds-light'
+
+# Make figures numbered
+numfig = True
+
+# Explicitly assign the master document
+master_doc = 'index'
