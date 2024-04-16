@@ -39,6 +39,7 @@ def extract_cds(file: str, name: str, dir: str, collect_info: list, identifier: 
     
     extension = os.path.splitext(os.path.basename(file))[1]
 
+
     match extension:
 
         case '.gbff':
@@ -106,7 +107,8 @@ def extract_cds(file: str, name: str, dir: str, collect_info: list, identifier: 
             return fasta_name
 
         case _:
-            exit(F'Unkown file extension {extension} for file {file}.')
+            mes = F'Extract_cds: Unkown file extension {extension} for file {file}.'
+            raise ValueError(mes)
 
 
 def create_diamond_db(dir: str, name: str, path: str, threads: int):
@@ -124,12 +126,10 @@ def create_diamond_db(dir: str, name: str, path: str, threads: int):
         print(F'database for {name} already exists')
     else:
         # generate new database using diamond makedb
-        # @TODO: check if commands run under different OS
-        bl = "\\ "
         print(F'create DIAMOND database for {name} using:')
-        print(F'diamond makedb --in {path.replace(" ",bl)} -d {str(Path(dir,"db",name)).replace(" ",bl)} -p {int(threads)}')
+        print(F'diamond makedb --in {path} -d {str(Path(dir,"db",name))} -p {int(threads)}')
         start = time.time()
-        subprocess.run([F'diamond makedb --in {path.replace(" ",bl)} -d {str(Path(dir,"db",name)).replace(" ",bl)} -p {int(threads)}'], shell=True)
+        subprocess.run([F'diamond makedb --in {path} -d {str(Path(dir,"db",name))} -p {int(threads)}'], shell=True)
         end = time.time()
         print(F'\t time: {end - start}s')
 
@@ -153,11 +153,10 @@ def run_diamond_blastp(dir: str, db: str, query: str, fasta_path:str , sensitivi
         print(F'file or filename for {query} vs. {db} blastp already exists')
     else:
         # blast file
-        bl = "\\ "
         print(F'blast {query} against {db} using:')
-        print(F'diamond blastp -d {str(Path(dir,"db/",db+".dmnd")).replace(" ",bl)} -q {F"{fasta_path}".replace(" ",bl)} --{sensitivity} -p {int(threads)} -o {outname.replace(" ",bl)} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen ')
+        print(F'diamond blastp -d {str(Path(dir,"db/",db+".dmnd"))} -q {F"{fasta_path}"} --{sensitivity} -p {int(threads)} -o {outname} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen ')
         start = time.time()
-        subprocess.run([F'diamond blastp -d {str(Path(dir,"db",db+".dmnd")).replace(" ",bl)} -q {F"{fasta_path}".replace(" ",bl)} --{sensitivity} -p {int(threads)} -o {outname.replace(" ",bl)} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen '], shell=True)
+        subprocess.run([F'diamond blastp -d {str(Path(dir,"db",db+".dmnd"))} -q {F"{fasta_path}"} --{sensitivity} -p {int(threads)} -o {outname} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen '], shell=True)
         end = time.time()
         print(F'\ttime: {end - start}s')
 

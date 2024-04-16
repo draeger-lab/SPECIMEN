@@ -183,7 +183,7 @@ def rename_found_homologs(draft:cobra.Model, bbh:pd.DataFrame) -> cobra.Model:
 
     return draft
 
-
+# @TODO
 def check_unchanged(draft:cobra.Model, bbh:pd.DataFrame) -> cobra.Model:
     """Check the genes names (more correctly, the IDs) for still existing original col_names.
     Depending on the case, decide if to keep or remove them.
@@ -207,6 +207,11 @@ def check_unchanged(draft:cobra.Model, bbh:pd.DataFrame) -> cobra.Model:
     essential_counter = 0
     remove = False
 
+    # ..........................................................
+    # @TODO: 
+    # -- faster
+    # -- what about double etc. deletions or combined deletions?
+    # ..........................................................
     for g in not_renamed:
         with draft as model:
             g.knock_out()
@@ -227,7 +232,7 @@ def check_unchanged(draft:cobra.Model, bbh:pd.DataFrame) -> cobra.Model:
     print(F'\tremoved {to_delete} non-essential genes')
     print(F'\tkept {essential_counter} essential genes')
     print('\t...................................................................')
-
+    
     return draft
 
 
@@ -283,7 +288,7 @@ def gen_draft_model(model:cobra.Model, bbh:pd.DataFrame,
     draft = check_unchanged(draft, bbh)
 
     # rename compartments to the standart
-    draft = resolve_compartment_names(draft)
+    resolve_compartment_names(draft)
 
     # for each object, save a note that it was added during draft construction
     for r in draft.reactions:
