@@ -46,11 +46,14 @@ def check_direction(model:cobra.Model,data_file:str) -> cobra.Model:
     @NOTE: checks only creations that do not contain the notes['creation'] == 'via template'
 
     Args:
-        - model (cobra.Model): The GEM containing the reactions to be check for direction.
-        - data_file (str): Path to the MetabCyc (BioCyc) smart table.
+        - model (cobra.Model): 
+            The GEM containing the reactions to be check for direction.
+        - data_file (str): 
+            Path to the MetabCyc (BioCyc) smart table.
 
     Returns:
-        cobra.Model: The updated model.
+        cobra.Model: 
+            The updated model.
     """
 
     # create MetaCyc table
@@ -133,17 +136,21 @@ def single_cobra_gapfill(model:cobra.Model,
     medium.
 
     Args:
-        - model (cobra.Model): The model to perform gapfilling on.
-        - universal (cobra.Model):  A model with reactions to be potentially used for the gapfilling.
-        - medium (Medium): A medium the model should grow on.
+        - model (cobra.Model): 
+            The model to perform gapfilling on.
+        - universal (cobra.Model):  
+            A model with reactions to be potentially used for the gapfilling.
+        - medium (Medium): 
+            A medium the model should grow on.
         - namespace (Literal['BiGG'], optional): Namespace to use for the model. 
             Defaults to 'BiGG'.
         - growth_threshold (float, optional):  Minimal rate for the model to be considered growing.
             Defaults to 0.05.
 
     Returns:
-        Union[list[str],True]: List of reactions to be added to the model to allow growth
-        or True, if the model already grows.
+        Union[list[str],True]: 
+            List of reactions to be added to the model to allow growth
+            or True, if the model already grows.
     """
     
     # perform the gapfilling
@@ -170,31 +177,39 @@ def cobra_gapfill_wrapper(model:cobra.Model, universal:cobra.Model,
                           medium:Medium, namespace:Literal['BiGG']='BiGG',
                           growth_threshold:float = 0.05,
                           iterations:int=3, chunk_size:int=10000) -> cobra.Model:
-    """Wrapper for single_cobra_gapfill().
+    """Wrapper for :py:func:`~specimen.core.refinement.cleanup.single_cobra_gapfill`.
 
     Either use the full set of reactions in universal model by setting iteration to
-    0 or None or use them in randomized chunks for faster runtime (especially useful
+    0 or None or use them in randomized chunks for faster runtime (useful
     on laptops). Note: when using the second option, be aware that this does not
     test all reaction combinations exhaustively (heuristic approach!!!).
 
     Args:
-        - model (cobra.Model): The model to perform gapfilling on.
-        - universal (cobra.Model):  A model with reactions to be potentially used for the gapfilling.
-        - medium (Medium): A medium the model should grow on.
-        - namespace (Literal['BiGG'], optional): Namespace to use for the model. 
+        - model (cobra.Model): 
+            he model to perform gapfilling on.
+        - universal (cobra.Model): 
+            A model with reactions to be potentially used for the gapfilling.
+        - medium (Medium): 
+            A medium the model should grow on.
+        - namespace (Literal['BiGG'], optional): 
+            Namespace to use for the model. 
             Options include 'BiGG'.
             Defaults to 'BiGG'.
-        - growth_threshold (float, optional): Growth threshold for the gapfilling. 
+        - growth_threshold (float, optional): 
+            Growth threshold for the gapfilling. 
             Defaults to 0.05.
-        - iterations (int, optional): Number of iterations for the heuristic version of the gapfilling.
+        - iterations (int, optional): 
+            Number of iterations for the heuristic version of the gapfilling.
             If 0 or None is given, uses full set of reactions.
             Defaults to 3. 
-        - chunk_size (int, optional): Number of reactions to be used for gapfilling at the same time. 
+        - chunk_size (int, optional): 
+            Number of reactions to be used for gapfilling at the same time. 
             If None or 0 is given, use full set, not heuristic.
             Defaults to 10000.
 
     Returns:
-        cobra.Model: The gapfilled model, if a solution was found.
+        cobra.Model: 
+            The gapfilled model, if a solution was found.
     """
 
     solution = []
@@ -252,22 +267,29 @@ def multiple_cobra_gapfill(model: cobra.Model, universal:cobra.Model,
                            media_list:list[Medium], 
                            namespace:Literal['BiGG']='BiGG', 
                            growth_threshold:float = 0.05, iterations:int=3, chunk_size:int=10000) -> cobra.Model:
-    """Perform single_cobra_gapfill() on a list of media.
+    """Perform :py:func:`~specimen.core.refinement.cleanup.single_cobra_gapfill` on a list of media.
 
     Args:
-        - model (cobra.Model): The model to be gapfilled.
-        - universal (cobra.Model): The model to use reactions for gapfilling from.
-        - media_list (list[Medium]): List ofmedia the model is supposed to grow on.
-        - growth_threshold (float, optional): Growth threshold for the gapfilling. 
+        - model (cobra.Model): 
+            The model to be gapfilled.
+        - universal (cobra.Model): 
+            The model to use reactions for gapfilling from.
+        - media_list (list[Medium]): 
+            List ofmedia the model is supposed to grow on.
+        - growth_threshold (float, optional): 
+            Growth threshold for the gapfilling. 
             Defaults to 0.05.
-        - iterations (int, optional): Number of iterations for the heuristic version of the gapfilling.
+        - iterations (int, optional): 
+            Number of iterations for the heuristic version of the gapfilling.
             If 0 or None is given, uses full set of reactions.
             Defaults to 3. 
-        - chunk_size (int, optional): Number of reactions to be used for gapfilling at the same time. 
+        - chunk_size (int, optional): 
+            Number of reactions to be used for gapfilling at the same time. 
             If None or 0 is given, use full set, not heuristic.
             Defaults to 10000.
     Returns:
-        cobra.Model: The gapfilled model, if a solution was found.
+        cobra.Model: 
+            The gapfilled model, if a solution was found.
     """
     
 
@@ -297,45 +319,61 @@ def run(model:str, dir:str,
     """Perform the second refinement step, cleanup, on a model.
 
     The second refinement step resolves the following issues:
+
     (1) (optional) checking direction of reactions with BioCyc
     (2) resolve BioCyc/MetaCyc annotation inconsistencies
     (3) find and/or resolve duplicates (reactions and metabolites)
     (4) gapfilling using cobra + universal model with reactions + a set of media (@TODO: under developement)
 
     Args:
-        - model (str): The Path to an sbml model.
-        - dir (str): Path to the directory of the output.
-        - biocyc_db (str, optional): Path to the BioCyc/MetaCyc reaction database file. 
+        - model (str): 
+            The Path to an sbml model.
+        - dir (str): 
+            Path to the directory of the output.
+        - biocyc_db (str, optional): 
+            Path to the BioCyc/MetaCyc reaction database file. 
             Defaults to None, which leads to skipping the direction check.
-        - check_dupl_reac (bool, optional): Option to check for duplicate reactions. 
+        - check_dupl_reac (bool, optional): 
+            Option to check for duplicate reactions. 
             Defaults to False.
-        - check_dupl_meta (bool, optional): Option to check for duplicate metabolites. 
+        - check_dupl_meta (bool, optional): 
+            Option to check for duplicate metabolites. 
             Defaults to 'default', which checks based on MetaNetX first.
             Further options include 'skip' and 'exhaustive' (check for all possibilities).
-        - remove_unused_meta (bool, optional): Option to remove unused metabolites from the model. 
+        - remove_unused_meta (bool, optional): 
+            Option to remove unused metabolites from the model. 
             Defaults to False.
-        - remove_dupl_reac (bool, optional): Option to remove the duplicate reactions. 
+        - remove_dupl_reac (bool, optional): 
+            Option to remove the duplicate reactions. 
             True is only applied, if check_dupl_reac is also True.
             Defaults to False.
-        - remove_dupl_meta (bool, optional): Option to remove the duplicate metabolites. 
+        - remove_dupl_meta (bool, optional): 
+            Option to remove the duplicate metabolites. 
             True is only applied, if check_dupl_meta is also True.
             Defaults to False.
-        - universal (str, optional): Path to a universal model for gapfilling. 
+        - universal (str, optional): 
+            Path to a universal model for gapfilling. 
             Defaults to None, which skips the gapfilling.
-        - media_path (str, optional): Path to a medium config file for gapfilling. 
+        - media_path (str, optional): 
+            Path to a medium config file for gapfilling. 
             Defaults to None.
-        - namespace (Literal['BiGG'], optional): Namespace to use for the model. 
+        - namespace (Literal['BiGG'], optional): 
+            Namespace to use for the model. 
             Options include 'BiGG'.
             Defaults to 'BiGG'.
-        - growth_threshold (float, optional): Growth threshold for the gapfilling. 
+        - growth_threshold (float, optional): 
+            Growth threshold for the gapfilling. 
             Defaults to 0.05.
-        - iterations (int, optional): Number of iterations for the heuristic version of the gapfilling.
+        - iterations (int, optional): 
+            Number of iterations for the heuristic version of the gapfilling.
             If 0 or None is given, uses full set of reactions.
             Defaults to 3. 
-        - chunk_size (int, optional): Number of reactions to be used for gapfilling at the same time. 
+        - chunk_size (int, optional): 
+            Number of reactions to be used for gapfilling at the same time. 
             If None or 0 is given, use full set, not heuristic.
             Defaults to 10000.
-        - memote (bool, optional): Option to run memote on the cleaned model. 
+        - memote (bool, optional): 
+            Option to run memote on the cleaned model. 
             Defaults to False.
 
     Raises:

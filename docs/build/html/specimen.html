@@ -8,7 +8,7 @@
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=559046d4" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-      <link rel="stylesheet" type="text/css" href="_static/custom_theme.css?v=0eca129c" />
+      <link rel="stylesheet" type="text/css" href="_static/custom_theme.css?v=ef5873f9" />
 
   
     <link rel="shortcut icon" href="_static/LogoSPECIMEN.png"/>
@@ -27,7 +27,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="specimen.classes package" href="specimen.classes.html" />
+    <link rel="next" title="specimen.classes package" href="modules/classes.html" />
     <link rel="prev" title="Run the Pipeline" href="run-pipeline.html" /> 
 </head>
 
@@ -54,26 +54,23 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="about-pipeline.html">About the SPECIMEN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="about-pipeline.html">About SPECIMEN</a></li>
 <li class="toctree-l1"><a class="reference internal" href="run-pipeline.html">Run the Pipeline</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Contents of SPECIMEN</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="specimen.classes.html">specimen.classes package</a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.core.html">specimen.core package</a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.util.html">specimen.util package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#specimen-subpackages">specimen subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/classes.html">specimen.classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/core.html">specimen.core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/util.html">specimen.util</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-specimen.cmd_access">specimen.cmd_access module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-specimen.workflow">specimen.workflow module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#specimen.workflow.run_complete"><code class="docutils literal notranslate"><span class="pre">run_complete()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#specimen.workflow.wrapper_pipeline"><code class="docutils literal notranslate"><span class="pre">wrapper_pipeline()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#specimen-submodules">specimen submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/cmd.html">specimen.cmd_access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/workflow.html">specimen.workflow</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#module-specimen">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="help.html">Help</a></li>
+<li class="toctree-l1"><a class="reference internal" href="help.html">Help &amp; FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dev-notes.html">Notes for Developers</a></li>
 </ul>
 
@@ -103,150 +100,73 @@
              
   <section id="contents-of-specimen">
 <h1>Contents of SPECIMEN<a class="headerlink" href="#contents-of-specimen" title="Link to this heading"></a></h1>
-<p>The <strong>SPECIMEN</strong> package contains a number of modules and subpackages, which are listed below.</p>
-<section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">SPECIMEN</span></code> package contains a number of modules and subpackages, which are listed below.</p>
+<p>To seach by name, use the <a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a>, for a list of the modules, see <a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a>.</p>
+<section id="specimen-subpackages">
+<h2>specimen subpackages<a class="headerlink" href="#specimen-subpackages" title="Link to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="specimen.classes.html">specimen.classes package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="specimen.classes.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="specimen.classes.html#module-specimen.classes.reports">specimen.classes.reports module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="specimen.classes.html#specimen.classes.reports.SpecimenModelInfoReport"><code class="docutils literal notranslate"><span class="pre">SpecimenModelInfoReport</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="specimen.classes.html#specimen.classes.reports.SpecimenModelInfoReport.format_table"><code class="docutils literal notranslate"><span class="pre">SpecimenModelInfoReport.format_table()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="specimen.classes.html#specimen.classes.reports.SpecimenModelInfoReport.save"><code class="docutils literal notranslate"><span class="pre">SpecimenModelInfoReport.save()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="specimen.classes.html#specimen.classes.reports.SpecimenModelInfoReport.visualise"><code class="docutils literal notranslate"><span class="pre">SpecimenModelInfoReport.visualise()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/classes.html">specimen.classes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/classes.html#module-specimen.classes.reports">specimen.classes.reports submodule</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/classes.html#specimen.classes.reports.SpecimenModelInfoReport"><code class="docutils literal notranslate"><span class="pre">SpecimenModelInfoReport</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="specimen.classes.html#module-specimen.classes">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/core.html">specimen.core</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/core.html#specimen-core-refinement-subpackage">specimen.core.refinement subpackage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/core.html#module-specimen.core.refinement.annotation">specimen.core.refinement.annotation submodule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/core.html#module-specimen.core.refinement.cleanup">specimen.core.refinement.cleanup submodule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/core.html#module-specimen.core.refinement.extension">specimen.core.refinement.extension submodule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/core.html#module-specimen.core.refinement.smoothing">specimen.core.refinement.smoothing submodule</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="specimen.core.html">specimen.core package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="specimen.core.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="specimen.core.refinement.html">specimen.core.refinement package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="specimen.core.refinement.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="specimen.core.refinement.html#module-specimen.core.refinement.annotation">specimen.core.refinement.annotation module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="specimen.core.refinement.html#module-specimen.core.refinement.cleanup">specimen.core.refinement.cleanup module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="specimen.core.refinement.html#module-specimen.core.refinement.extension">specimen.core.refinement.extension module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="specimen.core.refinement.html#module-specimen.core.refinement.smoothing">specimen.core.refinement.smoothing module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="specimen.core.refinement.html#module-specimen.core.refinement">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/core.html#specimen-core-submodules">specimen.core submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/core.html#module-specimen.core.analysis">specimen.core.analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/core.html#module-specimen.core.bidirectional_blast">specimen.core.bidirectional_blast</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/core.html#module-specimen.core.generate_draft_model">specimen.core.generate_draft_model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/core.html#module-specimen.core.validation">specimen.core.validation</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="specimen.core.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="specimen.core.html#module-specimen.core.analysis">specimen.core.analysis module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="specimen.core.html#specimen.core.analysis.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/util.html">specimen.util</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/util.html#specimen-util-submodules">specimen.util submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/util.html#module-specimen.util.set_up">specimen.util.set_up module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/util.html#specimen.util.set_up.build_data_directories"><code class="docutils literal notranslate"><span class="pre">build_data_directories()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/util.html#specimen.util.set_up.dict_recursive_check"><code class="docutils literal notranslate"><span class="pre">dict_recursive_check()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/util.html#specimen.util.set_up.dict_recursive_combine"><code class="docutils literal notranslate"><span class="pre">dict_recursive_combine()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/util.html#specimen.util.set_up.download_config"><code class="docutils literal notranslate"><span class="pre">download_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/util.html#specimen.util.set_up.download_mnx"><code class="docutils literal notranslate"><span class="pre">download_mnx()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/util.html#specimen.util.set_up.validate_config"><code class="docutils literal notranslate"><span class="pre">validate_config()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="specimen.core.html#module-specimen.core.bidirectional_blast">specimen.core.bidirectional_blast module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="specimen.core.html#specimen.core.bidirectional_blast.bdbp_diamond"><code class="docutils literal notranslate"><span class="pre">bdbp_diamond()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.core.html#specimen.core.bidirectional_blast.create_diamond_db"><code class="docutils literal notranslate"><span class="pre">create_diamond_db()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.core.html#specimen.core.bidirectional_blast.extract_bestbdbp_hits"><code class="docutils literal notranslate"><span class="pre">extract_bestbdbp_hits()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.core.html#specimen.core.bidirectional_blast.extract_cds"><code class="docutils literal notranslate"><span class="pre">extract_cds()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.core.html#specimen.core.bidirectional_blast.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.core.html#specimen.core.bidirectional_blast.run_diamond_blastp"><code class="docutils literal notranslate"><span class="pre">run_diamond_blastp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/util.html#module-specimen.util.util">specimen.util.util module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/util.html#specimen.util.util.create_DIAMOND_db_from_folder"><code class="docutils literal notranslate"><span class="pre">create_DIAMOND_db_from_folder()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/util.html#specimen.util.util.create_NCBIinfo_mapping"><code class="docutils literal notranslate"><span class="pre">create_NCBIinfo_mapping()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/util.html#specimen.util.util.get_info_GenBank_Record"><code class="docutils literal notranslate"><span class="pre">get_info_GenBank_Record()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="specimen.core.html#module-specimen.core.generate_draft_model">specimen.core.generate_draft_model module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="specimen.core.html#specimen.core.generate_draft_model.check_unchanged"><code class="docutils literal notranslate"><span class="pre">check_unchanged()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.core.html#specimen.core.generate_draft_model.edit_template_identifiers"><code class="docutils literal notranslate"><span class="pre">edit_template_identifiers()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.core.html#specimen.core.generate_draft_model.gen_draft_model"><code class="docutils literal notranslate"><span class="pre">gen_draft_model()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.core.html#specimen.core.generate_draft_model.pid_filter"><code class="docutils literal notranslate"><span class="pre">pid_filter()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.core.html#specimen.core.generate_draft_model.remove_absent_genes"><code class="docutils literal notranslate"><span class="pre">remove_absent_genes()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.core.html#specimen.core.generate_draft_model.rename_found_homologs"><code class="docutils literal notranslate"><span class="pre">rename_found_homologs()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.core.html#specimen.core.generate_draft_model.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="specimen.core.html#module-specimen.core.validation">specimen.core.validation module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="specimen.core.html#specimen.core.validation.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="specimen.core.html#module-specimen.core">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="specimen.util.html">specimen.util package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="specimen.util.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="specimen.util.html#module-specimen.util.set_up">specimen.util.set_up module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="specimen.util.html#specimen.util.set_up.build_data_directories"><code class="docutils literal notranslate"><span class="pre">build_data_directories()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.util.html#specimen.util.set_up.dict_recursive_check"><code class="docutils literal notranslate"><span class="pre">dict_recursive_check()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.util.html#specimen.util.set_up.dict_recursive_combine"><code class="docutils literal notranslate"><span class="pre">dict_recursive_combine()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.util.html#specimen.util.set_up.download_config"><code class="docutils literal notranslate"><span class="pre">download_config()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.util.html#specimen.util.set_up.download_mnx"><code class="docutils literal notranslate"><span class="pre">download_mnx()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.util.html#specimen.util.set_up.validate_config"><code class="docutils literal notranslate"><span class="pre">validate_config()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="specimen.util.html#module-specimen.util.util">specimen.util.util module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="specimen.util.html#specimen.util.util.create_DIAMOND_db_from_folder"><code class="docutils literal notranslate"><span class="pre">create_DIAMOND_db_from_folder()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.util.html#specimen.util.util.create_NCBIinfo_mapping"><code class="docutils literal notranslate"><span class="pre">create_NCBIinfo_mapping()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="specimen.util.html#specimen.util.util.get_info_GenBank_Record"><code class="docutils literal notranslate"><span class="pre">get_info_GenBank_Record()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="specimen.util.html#module-specimen.util">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </section>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
-</section>
-<section id="module-specimen.cmd_access">
-<span id="specimen-cmd-access-module"></span><h2>specimen.cmd_access module<a class="headerlink" href="#module-specimen.cmd_access" title="Link to this heading"></a></h2>
-<p>Entry points to the code from the command line.</p>
-</section>
-<section id="module-specimen.workflow">
-<span id="specimen-workflow-module"></span><h2>specimen.workflow module<a class="headerlink" href="#module-specimen.workflow" title="Link to this heading"></a></h2>
-<p>Steps of the workflow to create a GEM based on a template model.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="specimen.workflow.run_complete">
-<span class="sig-prename descclassname"><span class="pre">specimen.workflow.</span></span><span class="sig-name descname"><span class="pre">run_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'test_config.yaml'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.workflow.run_complete" title="Link to this definition"></a></dt>
-<dd><p>Run the complete workflow for creating a strain-specific model.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>config_file (str, optional): Path to the config file. </dt><dd><p>Defaults to ‘test_config.yaml’.</p>
-</dd>
-</dl>
+<section id="specimen-submodules">
+<h2>specimen submodules<a class="headerlink" href="#specimen-submodules" title="Link to this heading"></a></h2>
+<p>The direct submodules of <code class="docutils literal notranslate"><span class="pre">specimen</span></code> are mainly for accessing the tool.
+They consists of one module for the command line access and a second one for running
+the pipeline as a whole.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules/cmd.html">specimen.cmd_access</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/workflow.html">specimen.workflow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/workflow.html#specimen.workflow.run_complete"><code class="docutils literal notranslate"><span class="pre">run_complete()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/workflow.html#specimen.workflow.wrapper_pipeline"><code class="docutils literal notranslate"><span class="pre">wrapper_pipeline()</span></code></a></li>
+</ul>
 </li>
 </ul>
-</dd>
-<dt>Raises:</dt><dd><p>ValueError: Unkown file extension {extension} for file {config[“subject”][“annotated_genome”]}.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="specimen.workflow.wrapper_pipeline">
-<span class="sig-prename descclassname"><span class="pre">specimen.workflow.</span></span><span class="sig-name descname"><span class="pre">wrapper_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#specimen.workflow.wrapper_pipeline" title="Link to this definition"></a></dt>
-<dd><p>Run the pipeline multiple times on a folder containing subfolders with
-subject annotated genomes and full genome sequences using the same configuration.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>config_file (str): config file containing the general information to run the pipeline.</dt><dd><p>The information for the subject and output place/name can be empty.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>parent_dir (str, optional): Path to a directory to search for subfolders containing the data. </dt><dd><p>Defaults to “”.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-<dt>Raises:</dt><dd><ul class="simple">
-<li><p>ValueError: No or multiple annotated genome files found: subfolder</p></li>
-<li><p>ValueError:  No or multiple full genome files found: subfolder</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
-<section id="module-specimen">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-specimen" title="Link to this heading"></a></h2>
+</div>
 </section>
 </section>
 
@@ -255,7 +175,7 @@ subject annotated genomes and full genome sequences using the same configuration
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="run-pipeline.html" class="btn btn-neutral float-left" title="Run the Pipeline" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="specimen.classes.html" class="btn btn-neutral float-right" title="specimen.classes package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="modules/classes.html" class="btn btn-neutral float-right" title="specimen.classes package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

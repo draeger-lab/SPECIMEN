@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>specimen.util.util &mdash; SPECIMEN 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=559046d4" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom_theme.css?v=ef5873f9" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/LogoSPECIMEN.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=7859de39"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/LogoSPECIMEN.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about-pipeline.html">About SPECIMEN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../run-pipeline.html">Run the Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../specimen.html">Contents of SPECIMEN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../help.html">Help &amp; FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dev-notes.html">Notes for Developers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SPECIMEN</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">specimen.util.util</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for specimen.util.util</h1><div class="highlight"><pre>
+<span></span><span class="c1">################################################################################</span>
+<span class="c1"># requirements</span>
+<span class="c1">################################################################################</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">Bio</span> <span class="kn">import</span> <span class="n">SeqIO</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="c1"># further required programs:</span>
+<span class="c1">#        - DIAMOND, tested with version 0.9.14</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># variables</span>
+<span class="c1">################################################################################</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># functions</span>
+<span class="c1">################################################################################</span>
+
+<span class="c1"># create a DIAMOND reference database</span>
+<span class="c1"># -----------------------------------</span>
+
+<div class="viewcode-block" id="create_DIAMOND_db_from_folder">
+<a class="viewcode-back" href="../../../modules/util.html#specimen.util.util.create_DIAMOND_db_from_folder">[docs]</a>
+<span class="k">def</span> <span class="nf">create_DIAMOND_db_from_folder</span><span class="p">(</span><span class="nb">dir</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;database&#39;</span><span class="p">,</span>
+                                  <span class="n">extension</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;faa&#39;</span><span class="p">,</span> <span class="n">threads</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a DIAMOND database from a folder containing FASTA files.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        - dir (str): </span>
+<span class="sd">            Path to the directory to search for FASTA files for </span>
+<span class="sd">            the database (recursive file search).</span>
+<span class="sd">        - out (str): </span>
+<span class="sd">            Path of the directory of the output.</span>
+<span class="sd">        - name (str, optional): </span>
+<span class="sd">            Name of the created database. </span>
+<span class="sd">            Defaults to &#39;database&#39;.</span>
+<span class="sd">        - extension (str, optional): </span>
+<span class="sd">            File extension of the FASTA files </span>
+<span class="sd">            (to determine which files to search for). </span>
+<span class="sd">            Defaults to &#39;faa&#39;.</span>
+<span class="sd">        - threads (int, optional): </span>
+<span class="sd">            Number of threads to use for DIAMOND. </span>
+<span class="sd">            Defaults to 2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># get fasta file names</span>
+    <span class="n">fasta_files</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;*.</span><span class="si">{</span><span class="n">extension</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># -----------------------</span>
+    <span class="c1"># combine to 1 FASTA file</span>
+    <span class="c1"># -----------------------</span>
+
+    <span class="c1"># check if folder already has a combined FASTA</span>
+    <span class="n">outname_fasta</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="s1">&#39;combinded.faa&#39;</span><span class="p">)</span>
+    <span class="n">save</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">outname_fasta</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;A combined.faa files already exists in the given folder.&#39;</span><span class="p">)</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">while</span> <span class="n">answer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;overwrite&#39;</span><span class="p">,</span><span class="s1">&#39;use&#39;</span><span class="p">,</span><span class="s1">&#39;end&#39;</span><span class="p">):</span>
+            <span class="n">answer</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Do you want to [overwrite] or [use] the file or [end] the programm?: &#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">answer</span> <span class="o">==</span> <span class="s1">&#39;use&#39;</span><span class="p">:</span>
+                <span class="n">save</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="n">answer</span> <span class="o">==</span> <span class="s1">&#39;end&#39;</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">answer</span> <span class="o">==</span> <span class="s1">&#39;overwrite&#39;</span><span class="p">:</span>
+                <span class="n">save</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Enter [overwrite] or [use] or [end] (without brackets)&#39;</span><span class="p">)</span>
+
+
+    <span class="c1"># save all in new (combined) FASTA</span>
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outname_fasta</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fasta_files</span><span class="p">:</span>
+                <span class="n">SeqIO</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s1">&#39;fasta&#39;</span><span class="p">),</span> <span class="n">out</span><span class="p">,</span><span class="s1">&#39;fasta&#39;</span><span class="p">)</span>
+
+    <span class="c1"># -------------------------</span>
+    <span class="c1"># generate DIAMOND database</span>
+    <span class="c1"># -------------------------</span>
+
+    <span class="n">outname_dnmd</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">bl</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2"> &quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;running the following command:</span><span class="se">\n</span><span class="s1">diamond makedb --in </span><span class="si">{</span><span class="n">outname_fasta</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span><span class="n">bl</span><span class="p">)</span><span class="si">}</span><span class="s1"> -d </span><span class="si">{</span><span class="n">outname_dnmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span><span class="n">bl</span><span class="p">)</span><span class="si">}</span><span class="s1"> -p </span><span class="si">{</span><span class="n">threads</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="sa">F</span><span class="s1">&#39;diamond makedb --in </span><span class="si">{</span><span class="n">outname_fasta</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span><span class="n">bl</span><span class="p">)</span><span class="si">}</span><span class="s1"> -d </span><span class="si">{</span><span class="n">outname_dnmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span><span class="n">bl</span><span class="p">)</span><span class="si">}</span><span class="s1"> -p </span><span class="si">{</span><span class="n">threads</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">],</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;finished&#39;</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># create a NCBI mapping file for the database</span>
+<span class="c1"># -------------------------------------------</span>
+
+<div class="viewcode-block" id="get_info_GenBank_Record">
+<a class="viewcode-back" href="../../../modules/util.html#specimen.util.util.get_info_GenBank_Record">[docs]</a>
+<span class="k">def</span> <span class="nf">get_info_GenBank_Record</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieves a table containg information about the following qualifiers from a</span>
+<span class="sd">    Genbank file: [&#39;protein_id&#39;,&#39;locus_tag&#39;,&#39;db_xref&#39;,&#39;old_locus_tag&#39;,&#39;EC_number&#39;].</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        - file_path (str): </span>
+<span class="sd">            Path to the Genbank (.gbff) file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: </span>
+<span class="sd">            A table containing the information above.</span>
+<span class="sd">            Has the following  columns= [&#39;ncbi_accession_version&#39;, &#39;locus_tag_ref&#39;,&#39;old_locus_tag&#39;,&#39;GeneID&#39;,&#39;EC number&#39;].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">temp_table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ncbi_accession_version&#39;</span><span class="p">,</span> <span class="s1">&#39;locus_tag_ref&#39;</span><span class="p">,</span><span class="s1">&#39;old_locus_tag&#39;</span><span class="p">,</span><span class="s1">&#39;GeneID&#39;</span><span class="p">,</span><span class="s1">&#39;EC number&#39;</span><span class="p">])</span>
+    <span class="n">attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;protein_id&#39;</span><span class="p">,</span><span class="s1">&#39;locus_tag&#39;</span><span class="p">,</span><span class="s1">&#39;old_locus_tag&#39;</span><span class="p">,</span><span class="s1">&#39;db_xref&#39;</span><span class="p">,</span><span class="s1">&#39;EC_number&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span><span class="s2">&quot;genbank&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">record</span><span class="o">.</span><span class="n">features</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">record</span><span class="o">.</span><span class="n">features</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">feature</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;CDS&#39;</span><span class="p">:</span>
+                    <span class="n">temp_list</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">qualifiers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                            <span class="n">temp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="o">.</span><span class="n">qualifiers</span><span class="p">[</span><span class="n">a</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">temp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+                    <span class="n">temp_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">temp_table</span><span class="p">)]</span> <span class="o">=</span> <span class="n">temp_list</span>
+
+    <span class="c1"># reformat</span>
+    <span class="n">pat</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\D&#39;</span><span class="p">)</span>
+    <span class="n">temp_table</span><span class="p">[</span><span class="s1">&#39;GeneID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">pat</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">temp_table</span><span class="p">[</span><span class="s1">&#39;GeneID&#39;</span><span class="p">]]</span>
+
+    <span class="k">return</span> <span class="n">temp_table</span></div>
+
+
+
+<div class="viewcode-block" id="create_NCBIinfo_mapping">
+<a class="viewcode-back" href="../../../modules/util.html#specimen.util.util.create_NCBIinfo_mapping">[docs]</a>
+<span class="k">def</span> <span class="nf">create_NCBIinfo_mapping</span><span class="p">(</span><span class="nb">dir</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">extension</span><span class="p">:</span><span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;gbff&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;gbff&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a NCBI information mapping file from a folder containing e.g. gbff files.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        - dir (str): </span>
+<span class="sd">            Path to the directory for the recursive file search for the mapping.</span>
+<span class="sd">        - out (str): </span>
+<span class="sd">            Path of the directory for the output.</span>
+<span class="sd">        - extension (Literal[&#39;gbff&#39;], optional): </span>
+<span class="sd">            Name of the file extension to be searched.</span>
+<span class="sd">            Default is gbff, and currently it is advised to leave it at that.</span>
+<span class="sd">            Defaults to &#39;gbff&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># get gbff file names</span>
+    <span class="n">gbff_files</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;*.</span><span class="si">{</span><span class="n">extension</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">gbff_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;*.</span><span class="si">{</span><span class="n">extension</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)))</span>
+
+    <span class="c1"># -----------------------------------------------</span>
+    <span class="c1"># extract information and create the mapping file</span>
+    <span class="c1"># -----------------------------------------------</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_file</span><span class="p">:</span>
+
+        <span class="n">file_counter</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">for</span> <span class="n">gbff_name</span> <span class="ow">in</span> <span class="n">gbff_files</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;Parsing </span><span class="si">{</span><span class="n">file_counter</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">gbff_num</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">gbff_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="c1"># retrieve information</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">get_info_GenBank_Record</span><span class="p">(</span><span class="n">gbff_name</span><span class="p">)</span>
+            <span class="c1"># save</span>
+            <span class="n">info</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># go to next</span>
+            <span class="n">file_counter</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Carolin Brune.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

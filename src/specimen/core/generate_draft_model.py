@@ -34,11 +34,14 @@ def pid_filter(data: pd.DataFrame, pid: float) -> pd.DataFrame:
     """Filter the data based on PID threshold. Entries above the given value are kept.
 
     Args:
-        - data (pd.DataFrame): The data from bidirectional_blast.py containing at least a 'PID' column.
-        - pid (float): PID threshold value, given in percentage e.g. 80.0.
+        - data (pd.DataFrame): 
+            The data from bidirectional_blast.py containing at least a 'PID' column.
+        - pid (float): 
+            PID threshold value, given in percentage e.g. 80.0.
 
     Returns:
-        pd.DataFrame: The filtered data.
+        pd.DataFrame: 
+            The filtered data.
     """
 
     data['homolog_found'] = np.where(data['PID'] > pid, 1, 0)
@@ -53,12 +56,15 @@ def edit_template_identifiers(data:pd.DataFrame, edit:Literal['no','dot-to-under
     Requires further extention, if needed edits are not included.
 
     Args:
-        - data (pd.DataFrame): The data frame containing the bidirectional blastp best hits information.
-        - edit (Literal['no','dot-to-underscore']): Type of edit to perform.
+        - data (pd.DataFrame): 
+            The data frame containing the bidirectional blastp best hits information.
+        - edit (Literal['no','dot-to-underscore']): 
+            Type of edit to perform.
             Currently possible options: no, dot-to-underscore.
 
     Returns:
-        pd.DataFrame: The (un)edited DataFrame.
+        pd.DataFrame: 
+            The (un)edited DataFrame.
     """
     
 
@@ -83,12 +89,15 @@ def remove_absent_genes(model:cobra.Model, genes:list[str]) -> cobra.Model:
     Note: genes that are not found in the model are skipped.
 
     Args:
-        - model (cobra.Model): A template model to delete genes from. 
+        - model (cobra.Model): 
+            A template model to delete genes from. 
             A copy will be created before deleting.
-        - genes (list[str]): Gene identifiers of genes that should be deleted.
+        - genes (list[str]): 
+            Gene identifiers of genes that should be deleted.
 
     Returns:
-        cobra.Model: A new model with the given genes deleted, if found in the original model.
+        cobra.Model: 
+            A new model with the given genes deleted, if found in the original model.
     """
 
     print('\tremove absent (low PID) genes')
@@ -134,11 +143,14 @@ def rename_found_homologs(draft:cobra.Model, bbh:pd.DataFrame) -> cobra.Model:
     """Rename the genes in the model correnspondingly to the homologous ones found in the query.
 
     Args:
-        - draft (cobra.Model): The draft model with the to-be-renamed genes.
-        - bbh (pd.DataFrame): The table from the bidirectional_blast.py script containing the bidirectional blastp best hits information
+        - draft (cobra.Model): 
+            The draft model with the to-be-renamed genes.
+        - bbh (pd.DataFrame): 
+            The table from the bidirectional_blast.py script containing the bidirectional blastp best hits information
 
     Returns:
-        cobra.Model: The draft model with renamed genes.
+        cobra.Model: 
+            The draft model with renamed genes.
     """
 
     print('\trename found homologs')
@@ -189,11 +201,14 @@ def check_unchanged(draft:cobra.Model, bbh:pd.DataFrame) -> cobra.Model:
     Depending on the case, decide if to keep or remove them.
 
     Args:
-        - draft (cobra.Model): The draft model currently in the making.
-        - bbh (pd.DataFrame): The table from the bidirectional_blast.py script containing the bidirectional blastp best hits information.
+        - draft (cobra.Model): 
+            The draft model currently in the making.
+        - bbh (pd.DataFrame): 
+            The table from the bidirectional_blast.py script containing the bidirectional blastp best hits information.
 
     Returns:
-        cobra.Model: The model after the check and possible removal of genes.
+        cobra.Model: 
+            The model after the check and possible removal of genes.
     """
 
     print('\tcheck not renamed genes')
@@ -243,20 +258,28 @@ def gen_draft_model(model:cobra.Model, bbh:pd.DataFrame,
     and save it as a new model.
 
     Args:
-        - model (cobra.Model): The template model.
-        - bbh (pd.DataFrame): The bidirectional blastp best hits table.
-        - name (str): Name of the newly generated model.
-        - dir (str): Path to the directory to save the new model in.
-        - edit (Literal['no','dot-to-underscore'):  Type of edit to perform.
+        - model (cobra.Model): 
+            The template model.
+        - bbh (pd.DataFrame): 
+            The bidirectional blastp best hits table.
+        - name (str): 
+            Name of the newly generated model.
+        - dir (str): 
+            Path to the directory to save the new model in.
+        - edit (Literal['no','dot-to-underscore'):  
+            Type of edit to perform.
             Currently possible options: no, dot-to-underscore.
-        - medium (str, optional):  Name of the to be loaded from the refineGEMs database or 'default' = the one
+        - medium (str, optional):  
+            Name of the to be loaded from the refineGEMs database or 'default' = the one
             from the template model. If given the keyword 'exchanges', will use all exchange reactions in the model as a medium.
             Defaults to 'default'.
-        - namespace (Literal['BiGG'], optional): Namespace of the model. 
+        - namespace (Literal['BiGG'], optional): 
+            Namespace of the model. 
             Defaults to 'BiGG'.
 
     Returns:
-        cobra.Model: The generated draft model.
+        cobra.Model: 
+            The generated draft model.
     """
     
 
@@ -312,24 +335,33 @@ def run(template:str, bpbbh:str, dir:str,
     """Generate a draft model from a blastp best hits tsv file and a template model.
 
     Args:
-        - template (str): Path to the file containing the template model.
-        - bpbbh (str): Path to the blastp bidirectional best hits.
-        - dir (str): Path to output directory.
-        - edit_names (Literal['no','dot-to-underscore', optional):  Type of edit to perform.
+        - template (str): 
+            Path to the file containing the template model.
+        - bpbbh (str): 
+            Path to the blastp bidirectional best hits.
+        - dir (str): 
+            Path to output directory.
+        - edit_names (Literal['no','dot-to-underscore', optional):  
+            Type of edit to perform.
             Currently possible options: no, dot-to-underscore. 
             Defaults to 'no'.
-        - pid (float, optional): Threshold value for determining, if a gene is counted as present or absent. 
+        - pid (float, optional): 
+            Threshold value for determining, if a gene is counted as present or absent. 
             Given in percentage, e.g. 80.0 = 80%.
             Defaults to 80.0.
-        - name (Union[str,None], optional): Name of the output model. 
+        - name (Union[str,None], optional): 
+            Name of the output model. 
             If not given, takes name from filename. 
             Defaults to None.
-        - medium (str, optional):  Name of the to be loaded from the refineGEMs database or 'default' = the one
+        - medium (str, optional):  
+            Name of the to be loaded from the refineGEMs database or 'default' = the one
             from the template model. If given the keyword 'exchanges', will use all exchange reactions in the model as a medium.
             Defaults to 'default'.
-        - namespace (str, optional): Namespace of the model. 
+        - namespace (str, optional): 
+            Namespace of the model. 
             Defaults to 'BiGG'.
-        - memote (bool, optional): Option to run memote after creating the draft model. 
+        - memote (bool, optional): 
+            Option to run memote after creating the draft model. 
             Defaults to False.
 
     Raises:

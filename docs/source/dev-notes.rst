@@ -25,7 +25,7 @@ Integration almost done. Cleanup for first release of SPECIMEN pending
 
 **Further branches**
 
-CUrrently, there are no more branches.
+Currently, there are no more branches.
 
 Developer Information
 ---------------------

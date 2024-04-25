@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>specimen.util.set_up &mdash; SPECIMEN 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=559046d4" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom_theme.css?v=ef5873f9" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/LogoSPECIMEN.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=7859de39"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/LogoSPECIMEN.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about-pipeline.html">About SPECIMEN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../run-pipeline.html">Run the Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../specimen.html">Contents of SPECIMEN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../help.html">Help &amp; FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dev-notes.html">Notes for Developers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SPECIMEN</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">specimen.util.set_up</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for specimen.util.set_up</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Collection of functions for setting up the environment for the pipeline.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Carolin Brune&#39;</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># requirements</span>
+<span class="c1">################################################################################</span>
+
+<span class="kn">from</span> <span class="nn">importlib.resources</span> <span class="kn">import</span> <span class="n">files</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">from</span> <span class="nn">refinegems.utility.set_up</span> <span class="kn">import</span> <span class="n">download_config</span> <span class="k">as</span> <span class="n">rg_config</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># variables</span>
+<span class="c1">################################################################################</span>
+
+<span class="c1"># config keys</span>
+<span class="c1"># -----------</span>
+<span class="n">CONFIG_PATH_OPTIONAL</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;media_gap&#39;</span><span class="p">,</span> <span class="s1">&#39;ncbi_map&#39;</span><span class="p">,</span> <span class="s1">&#39;ncbi_dat&#39;</span><span class="p">,</span><span class="s1">&#39;biocyc&#39;</span><span class="p">,</span><span class="s1">&#39;universal&#39;</span><span class="p">,</span><span class="s1">&#39;pan-core&#39;</span><span class="p">]</span>
+<span class="n">CONFIG_PATH_REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;annotated_genome&#39;</span><span class="p">,</span><span class="s1">&#39;full_sequence&#39;</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;diamond&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;mnx_chem_prop&#39;</span><span class="p">,</span> <span class="s1">&#39;mnx_chem_xref&#39;</span><span class="p">,</span><span class="s1">&#39;mnx_reac_prop&#39;</span><span class="p">,</span><span class="s1">&#39;mnx_reac_xref&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;media_analysis&#39;</span><span class="p">]</span>
+
+
+<span class="c1"># external databases</span>
+<span class="c1"># ------------------</span>
+<span class="n">MNX_CHEM_XREF_URL</span> <span class="o">=</span> <span class="s1">&#39;https://www.metanetx.org/cgi-bin/mnxget/mnxref/chem_xref.tsv&#39;</span>
+<span class="n">MNX_CHEM_PROP_URL</span> <span class="o">=</span> <span class="s1">&#39;https://www.metanetx.org/cgi-bin/mnxget/mnxref/chem_prop.tsv&#39;</span>
+<span class="n">MNX_REAC_XREF_URL</span> <span class="o">=</span> <span class="s1">&#39;https://www.metanetx.org/cgi-bin/mnxget/mnxref/reac_xref.tsv&#39;</span>
+<span class="n">MNX_REAC_PROP_URL</span> <span class="o">=</span> <span class="s1">&#39;https://www.metanetx.org/cgi-bin/mnxget/mnxref/reac_prop.tsv&#39;</span>
+<span class="n">MNX_URL_DICT</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;chem_prop.tsv&#39;</span><span class="p">:</span><span class="n">MNX_CHEM_PROP_URL</span><span class="p">,</span> <span class="s1">&#39;chem_xref.tsv&#39;</span><span class="p">:</span><span class="n">MNX_CHEM_XREF_URL</span><span class="p">,</span>
+                <span class="s1">&#39;reac_prop.tsv&#39;</span><span class="p">:</span><span class="n">MNX_REAC_PROP_URL</span><span class="p">,</span> <span class="s1">&#39;reac_xref.tsv&#39;</span><span class="p">:</span><span class="n">MNX_REAC_XREF_URL</span><span class="p">}</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># functions</span>
+<span class="c1">################################################################################</span>
+
+<span class="c1"># ----------------------</span>
+<span class="c1"># setup data (structure)</span>
+<span class="c1"># ----------------------</span>
+<span class="c1"># @TEST : deleted BiGG part, since its already covered with refinegems</span>
+<div class="viewcode-block" id="download_mnx">
+<a class="viewcode-back" href="../../../modules/util.html#specimen.util.set_up.download_mnx">[docs]</a>
+<span class="k">def</span> <span class="nf">download_mnx</span><span class="p">(</span><span class="nb">dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;MetaNetX&#39;</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1024</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download the data needed from the MetaNetX database.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        - dir (str, optional): </span>
+<span class="sd">            Directory to write the downloaded files to. </span>
+<span class="sd">            Defaults to &#39;MetaNetX&#39;.</span>
+<span class="sd">        - chunk_size (int, optional): </span>
+<span class="sd">            Size of the chunk of data that is loaded into memory during download. </span>
+<span class="sd">            Defaults to 1024.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">mnx_name</span><span class="p">,</span><span class="n">mnx_url</span> <span class="ow">in</span> <span class="n">MNX_URL_DICT</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">mnx_url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;content-length&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="n">mnx_name</span><span class="p">),</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">,</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">desc</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="n">mnx_name</span><span class="p">),</span> <span class="n">total</span><span class="o">=</span><span class="n">total</span><span class="p">,</span>
+            <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;iB&#39;</span><span class="p">,</span> <span class="n">unit_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unit_divisor</span><span class="o">=</span><span class="mi">1024</span><span class="p">,)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="n">chunk_size</span><span class="p">):</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">size</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="build_data_directories">
+<a class="viewcode-back" href="../../../modules/util.html#specimen.util.set_up.build_data_directories">[docs]</a>
+<span class="k">def</span> <span class="nf">build_data_directories</span><span class="p">(</span><span class="nb">dir</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">2048</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set up the directory structure for the data and download the files</span>
+<span class="sd">    from MetaNetX.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        - dir (str):  </span>
+<span class="sd">            Parent folder to write the subfolder structure to.</span>
+<span class="sd">        - chunk_size (int, optional):</span>
+<span class="sd">            Size of the chunks of data while downloading.</span>
+<span class="sd">            Only used for downloading the MetaNetX files.</span>
+<span class="sd">            Defaults to 2048.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># create the data directory structure</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Creating directory structure...&#39;</span><span class="p">)</span>
+    <span class="n">DATA_DIRECTORIES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;annotated_genomes&#39;</span><span class="p">,</span> <span class="s1">&#39;BioCyc&#39;</span><span class="p">,</span> <span class="s1">&#39;RefSeqs&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;medium&#39;</span><span class="p">,</span> <span class="s1">&#39;MetaNetX&#39;</span><span class="p">,</span> <span class="s1">&#39;pan-core-models&#39;</span><span class="p">,</span> <span class="s1">&#39;template-models&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;universal-models&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">sub_dir</span> <span class="ow">in</span> <span class="n">DATA_DIRECTORIES</span><span class="p">:</span>
+        <span class="n">new_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="n">sub_dir</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">Path</span><span class="p">(</span><span class="n">new_dir</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;Creating new directory </span><span class="si">{</span><span class="n">new_dir</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;Directory </span><span class="si">{</span><span class="n">new_dir</span><span class="si">}</span><span class="s1"> already exists.&#39;</span><span class="p">)</span>
+
+    <span class="c1"># download data for those directories where this is possible</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Downloading MetaNetX...&#39;</span><span class="p">)</span>
+    <span class="n">download_mnx</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;MetaNetX&#39;</span><span class="p">),</span> <span class="n">chunk_size</span><span class="o">=</span><span class="n">chunk_size</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># ---------------------</span>
+<span class="c1"># handling config files</span>
+<span class="c1"># ---------------------</span>
+
+<div class="viewcode-block" id="download_config">
+<a class="viewcode-back" href="../../../modules/util.html#specimen.util.set_up.download_config">[docs]</a>
+<span class="k">def</span> <span class="nf">download_config</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;my_basic_config.yaml&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span><span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;basic&#39;</span><span class="p">,</span><span class="s1">&#39;advanced&#39;</span><span class="p">,</span><span class="s1">&#39;defaults&#39;</span><span class="p">,</span><span class="s1">&#39;media&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;basic&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load a configuration file from the package and save a copy for the user to edit.</span>
+
+<span class="sd">    Depending on the knowledge of the user, either a &#39;basic&#39; or an &#39;advanced&#39; type</span>
+<span class="sd">    of configuration file can be downloaded.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        - filename (str, optional): </span>
+<span class="sd">            Filename/filepath to save the downloaded config file under. </span>
+<span class="sd">            Defaults to &#39;my_basic_config.yaml&#39;.</span>
+<span class="sd">        - type (Literal[&#39;basic&#39;,&#39;advanced&#39;,&#39;defaults&#39;], optional): </span>
+<span class="sd">            The type of file to download. </span>
+<span class="sd">            Can be &#39;basic&#39;, &#39;advanced&#39; or &#39;defaults&#39; or &#39;media&#39;. </span>
+<span class="sd">            Defaults to &#39;basic&#39;.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: Unknown type of config file detected.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># copy an examplary version of the config file for the user to edit it</span>
+    <span class="k">match</span> <span class="nb">type</span><span class="p">:</span>
+        <span class="c1"># the &#39;beginner&#39; version</span>
+        <span class="k">case</span> <span class="s1">&#39;basic&#39;</span><span class="p">:</span>
+            <span class="n">config_file</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;specimen.data.config&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;basic_config_expl.yaml&#39;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfg_file</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfg_out</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">cfg_file</span><span class="p">:</span>
+                    <span class="n">cfg_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="c1"># for advanced users</span>
+        <span class="k">case</span> <span class="s1">&#39;advanced&#39;</span><span class="p">:</span>
+            <span class="n">config_file</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;specimen.data.config&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;advanced_config_expl.yaml&#39;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfg_file</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfg_out</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">cfg_file</span><span class="p">:</span>
+                    <span class="n">cfg_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="c1"># for developer: the config with all internal defaults</span>
+        <span class="k">case</span> <span class="s1">&#39;defaults&#39;</span><span class="p">:</span>
+            <span class="n">config_file</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;specimen.data.config&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;config_default.yaml&#39;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfg_file</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfg_out</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">cfg_file</span><span class="p">:</span>
+                    <span class="n">cfg_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="c1"># media config from refinegems</span>
+        <span class="k">case</span> <span class="s1">&#39;media&#39;</span><span class="p">:</span>
+            <span class="n">rg_config</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;media&#39;</span><span class="p">)</span>
+        <span class="c1"># type not found</span>
+        <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;Unknown type of config file detected: </span><span class="si">{</span><span class="nb">type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="dict_recursive_combine">
+<a class="viewcode-back" href="../../../modules/util.html#specimen.util.set_up.dict_recursive_combine">[docs]</a>
+<span class="k">def</span> <span class="nf">dict_recursive_combine</span><span class="p">(</span><span class="n">dictA</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">dictB</span><span class="p">:</span><span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper-function to combine two configuration file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        - dictA (dict): </span>
+<span class="sd">            Information from one config file in dict format.</span>
+<span class="sd">        - dictB (dict): </span>
+<span class="sd">            Information from the other config file in dict format.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: </span>
+<span class="sd">            The combined information.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dictB</span><span class="p">,</span><span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">dictB</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">dictA</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">dictB</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">dictA</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">dict_recursive_combine</span><span class="p">(</span><span class="n">dictA</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">dictB</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">dictA</span></div>
+
+
+
+<span class="c1"># @TODO: extent - include more checks</span>
+<div class="viewcode-block" id="dict_recursive_check">
+<a class="viewcode-back" href="../../../modules/util.html#specimen.util.set_up.dict_recursive_check">[docs]</a>
+<span class="k">def</span> <span class="nf">dict_recursive_check</span><span class="p">(</span><span class="n">dictA</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function to check if a configuration is valid to run the pipeline.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        - dictA (dict): </span>
+<span class="sd">            Current dictionary or value to be validated.</span>
+<span class="sd">        - key (str, optional): </span>
+<span class="sd">            key of dictA, if it was an entry of a dictionary. </span>
+<span class="sd">            Defaults to None.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        TypeError: Missing a required argument in the config file.</span>
+<span class="sd">        FileNotFoundError: Path does not exist: {dictA}</span>
+<span class="sd">        FileNotFoundError: Path does not exist: {dictA}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dictA</span><span class="p">,</span><span class="nb">dict</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">dictA</span> <span class="o">==</span> <span class="s1">&#39;__USER__&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;Missing a required argument in the config file: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">CONFIG_PATH_REQUIRED</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">dictA</span><span class="p">):</span>
+                <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;Path does not exist: </span><span class="si">{</span><span class="n">dictA</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">CONFIG_PATH_OPTIONAL</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dictA</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">dictA</span><span class="p">):</span>
+                <span class="k">return</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">dictA</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;Path does not exist: </span><span class="si">{</span><span class="n">dictA</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+            <span class="c1"># @TODO</span>
+            <span class="c1">#   extend function to cover more of the options</span>
+        <span class="k">return</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">dictA</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">dict_recursive_check</span><span class="p">(</span><span class="n">dictA</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">key</span><span class="p">)</span>
+    <span class="k">return</span></div>
+
+
+
+<span class="c1"># @TODO -&gt; @TEST changes</span>
+<div class="viewcode-block" id="validate_config">
+<a class="viewcode-back" href="../../../modules/util.html#specimen.util.set_up.validate_config">[docs]</a>
+<span class="k">def</span> <span class="nf">validate_config</span><span class="p">(</span><span class="n">userc</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate a user config file for use in the pipeline.</span>
+
+<span class="sd">    Note: currently not everything is checked, mainly the needed files are.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        - userc (str): </span>
+<span class="sd">            Path to the user configuration file.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        FileNotFoundError: Directory set for config:data:data:direc does not exist.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: </span>
+<span class="sd">            The validated, read-in configuration file, nested (read-in yaml file).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># validate a user config file by checking for missing input</span>
+    <span class="c1"># by combining it with a default config</span>
+
+    <span class="c1"># load both files</span>
+    <span class="n">defaultc_path</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;config&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;config_default.yaml&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">defaultc_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfg_def</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">userc</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfg_usr</span><span class="p">:</span>
+        <span class="n">config_d</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">cfg_def</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+        <span class="n">config_u</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">cfg_usr</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+
+    <span class="c1"># combine</span>
+    <span class="n">combined_config</span> <span class="o">=</span> <span class="n">dict_recursive_combine</span><span class="p">(</span><span class="n">config_d</span><span class="p">,</span> <span class="n">config_u</span><span class="p">)</span>
+
+    <span class="c1"># check for missing or problematic values</span>
+    <span class="k">if</span> <span class="n">combined_config</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;data_direc&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">combined_config</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;data_direc&#39;</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">combined_config</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">combined_config</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="ow">and</span> <span class="n">key</span> <span class="o">!=</span> <span class="s1">&#39;data_direc&#39;</span><span class="p">:</span>
+                    <span class="n">combined_config</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">combined_config</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;data_direc&#39;</span><span class="p">]</span>  <span class="o">+</span> <span class="n">combined_config</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">dict_recursive_check</span><span class="p">(</span><span class="n">combined_config</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s1">&#39;Directory set for config:data:data_direc does not exist.&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dict_recursive_check</span><span class="p">(</span><span class="n">combined_config</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">combined_config</span></div>
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Carolin Brune.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

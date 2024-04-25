@@ -33,15 +33,20 @@ def create_DIAMOND_db_from_folder(dir:str, out:str, name:str='database',
     """Build a DIAMOND database from a folder containing FASTA files.
 
     Args:
-        - dir (str): Path to the directory to search for FASTA files for 
+        - dir (str): 
+            Path to the directory to search for FASTA files for 
             the database (recursive file search).
-        - out (str): Path of the directory of the output.
-        - name (str, optional): Name of the created database. 
+        - out (str): 
+            Path of the directory of the output.
+        - name (str, optional): 
+            Name of the created database. 
             Defaults to 'database'.
-        - extension (str, optional): File extension of the FASTA files 
+        - extension (str, optional): 
+            File extension of the FASTA files 
             (to determine which files to search for). 
             Defaults to 'faa'.
-        - threads (int, optional): Number of threads to use for DIAMOND. 
+        - threads (int, optional): 
+            Number of threads to use for DIAMOND. 
             Defaults to 2.
     """
 
@@ -95,10 +100,12 @@ def get_info_GenBank_Record(file_path:str) -> pd.DataFrame:
     Genbank file: ['protein_id','locus_tag','db_xref','old_locus_tag','EC_number'].
 
     Args:
-        - file_path (str): Path to the Genbank (.gbff) file.
+        - file_path (str): 
+            Path to the Genbank (.gbff) file.
 
     Returns:
-        pd.DataFrame: A table containing the information above.
+        pd.DataFrame: 
+            A table containing the information above.
             Has the following  columns= ['ncbi_accession_version', 'locus_tag_ref','old_locus_tag','GeneID','EC number'].
     """
 
@@ -128,9 +135,12 @@ def create_NCBIinfo_mapping(dir:str, out:str, extension:Literal['gbff']='gbff'):
     """Create a NCBI information mapping file from a folder containing e.g. gbff files.
 
     Args:
-        - dir (str): Path to the directory for the recursive file search for the mapping.
-        - out (str): Path of the directory for the output.
-        - extension (Literal['gbff'], optional): Name of the file extension to be searched.
+        - dir (str): 
+            Path to the directory for the recursive file search for the mapping.
+        - out (str): 
+            Path of the directory for the output.
+        - extension (Literal['gbff'], optional): 
+            Name of the file extension to be searched.
             Default is gbff, and currently it is advised to leave it at that.
             Defaults to 'gbff'.
     """

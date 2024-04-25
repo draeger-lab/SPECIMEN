@@ -8,7 +8,7 @@
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=559046d4" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-      <link rel="stylesheet" type="text/css" href="_static/custom_theme.css?v=0eca129c" />
+      <link rel="stylesheet" type="text/css" href="_static/custom_theme.css?v=ef5873f9" />
 
   
     <link rel="shortcut icon" href="_static/LogoSPECIMEN.png"/>
@@ -27,7 +27,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="About the SPECIMEN" href="about-pipeline.html" />
+    <link rel="next" title="About SPECIMEN" href="about-pipeline.html" />
     <link rel="prev" title="Welcome to SPECIMEN!" href="index.html" /> 
 </head>
 
@@ -57,10 +57,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#installation-via-github">Installation via github</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="about-pipeline.html">About the SPECIMEN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="about-pipeline.html">About SPECIMEN</a></li>
 <li class="toctree-l1"><a class="reference internal" href="run-pipeline.html">Run the Pipeline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="specimen.html">Contents of SPECIMEN</a></li>
-<li class="toctree-l1"><a class="reference internal" href="help.html">Help</a></li>
+<li class="toctree-l1"><a class="reference internal" href="help.html">Help &amp; FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dev-notes.html">Notes for Developers</a></li>
 </ul>
 
@@ -92,7 +92,8 @@
 <h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
 <section id="installation-via-github">
 <h2>Installation via github<a class="headerlink" href="#installation-via-github" title="Link to this heading"></a></h2>
-<p>Download the <strong>SPECIMEN</strong> repository <a class="reference external" href="https://github.com/cb-Hades/klebsiella-pipeline/tree/main">here</a> and run the command <code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code> inside the top-level directory.</p>
+<p>Download the <code class="docutils literal notranslate"><span class="pre">SPECIMEN</span></code> repository <a class="reference external" href="https://github.com/cb-Hades/klebsiella-pipeline/tree/main">here</a>
+and run the command <code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code> inside the top-level directory.</p>
 <p>For all options to run error-free, the following tools need to be installed additionally:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/Biomathsys/MassChargeCuration/tree/main/MCC">MCC - MassChargeCuration</a></p></li>
@@ -100,10 +101,14 @@
 <li><p><a class="reference external" href="https://www.ncbi.nlm.nih.gov/books/NBK179288/">EntrezDirect</a>, if no NCBI mapping has been created beforehand</p></li>
 <li><p><a class="reference external" href="https://github.com/jclachance/BOFdat">BOFdat</a>, for running as expected, one needs to change <code class="code docutils literal notranslate"><span class="pre">solution.f</span></code> to <code class="code docutils literal notranslate"><span class="pre">solution.objective_value</span></code> in the <code class="code docutils literal notranslate"><span class="pre">coenzymes_and_ions.py</span></code> file of the tool’s files</p></li>
 </ul>
-<p>Afterwards, the <strong>SPECIMEN</strong> can either be accessed via the command line or via importing the package into a Python script.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>It is avised to install <strong>SPECIMEN</strong> inside a conda environment with a python version of 3.10 or higher.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The change in the files for BOFdat is neccessary, otherwise it will raise an error while running the connected functions.</p>
+</div>
+<p>Afterwards, the <code class="docutils literal notranslate"><span class="pre">SPECIMEN</span></code> can either be accessed via the command line or via importing the package into a Python script.</p>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>It is advised to install <code class="docutils literal notranslate"><span class="pre">SPECIMEN</span></code> inside a conda environment with a Python version of 3.10 or higher.</p>
 </div>
 </section>
 </section>
@@ -113,7 +118,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Welcome to SPECIMEN!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="about-pipeline.html" class="btn btn-neutral float-right" title="About the SPECIMEN" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="about-pipeline.html" class="btn btn-neutral float-right" title="About SPECIMEN" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

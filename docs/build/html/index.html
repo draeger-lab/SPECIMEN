@@ -8,7 +8,7 @@
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=559046d4" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-      <link rel="stylesheet" type="text/css" href="_static/custom_theme.css?v=0eca129c" />
+      <link rel="stylesheet" type="text/css" href="_static/custom_theme.css?v=ef5873f9" />
 
   
     <link rel="shortcut icon" href="_static/LogoSPECIMEN.png"/>
@@ -53,10 +53,10 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="about-pipeline.html">About the SPECIMEN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="about-pipeline.html">About SPECIMEN</a></li>
 <li class="toctree-l1"><a class="reference internal" href="run-pipeline.html">Run the Pipeline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="specimen.html">Contents of SPECIMEN</a></li>
-<li class="toctree-l1"><a class="reference internal" href="help.html">Help</a></li>
+<li class="toctree-l1"><a class="reference internal" href="help.html">Help &amp; FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dev-notes.html">Notes for Developers</a></li>
 </ul>
 
@@ -86,14 +86,14 @@
              
   <section id="welcome-to-specimen">
 <h1>Welcome to SPECIMEN!<a class="headerlink" href="#welcome-to-specimen" title="Link to this heading"></a></h1>
-<p><strong>SPECIMEN</strong> is a Python package that provides functionalities for mostly automated
+<p><code class="docutils literal notranslate"><span class="pre">SPECIMEN</span></code> is a Python package that provides functionalities for mostly automated
 strain-specific curation of metabolic models using a high-quality template model.</p>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
-<p>The main core of <strong>SPECIMEN</strong> is an automated pipeline that curates a new GEM based on a genome, a template model and some additional information.
+<p>At core of <code class="docutils literal notranslate"><span class="pre">SPECIMEN</span></code> is an automated pipeline that curates a new GEM based on a genome, a template model and some additional information.
 The pipeline can be accessed from the command line or from inside a Python script. An overview of the different steps of the pipeline can be seen below.</p>
 <img alt="_images/pipeline-overview.png" src="_images/pipeline-overview.png" />
-<p>Additionally, <strong>SPECIMEN</strong> allows the use of the functions / steps of the pipeline separatly.</p>
+<p>Additionally, <code class="docutils literal notranslate"><span class="pre">SPECIMEN</span></code> allows the use of the functions / steps of the pipeline separatly.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
@@ -101,8 +101,8 @@ The pipeline can be accessed from the command line or from inside a Python scrip
 <li class="toctree-l2"><a class="reference internal" href="installation.html#installation-via-github">Installation via github</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="about-pipeline.html">About the SPECIMEN</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="about-pipeline.html#about-the-pipeline">About the Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="about-pipeline.html">About SPECIMEN</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="about-pipeline.html#overview-of-the-pipeline">Overview of the Pipeline</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="run-pipeline.html">Run the Pipeline</a><ul>
@@ -111,15 +111,12 @@ The pipeline can be accessed from the command line or from inside a Python scrip
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="specimen.html">Contents of SPECIMEN</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="specimen.html#subpackages">Subpackages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="specimen.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="specimen.html#module-specimen.cmd_access">specimen.cmd_access module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="specimen.html#module-specimen.workflow">specimen.workflow module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="specimen.html#module-specimen">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specimen.html#specimen-subpackages">specimen subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specimen.html#specimen-submodules">specimen submodules</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="help.html">Help</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="help.html#known-bugs-and-problems">Known Bugs and Problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="help.html">Help &amp; FAQ</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="help.html#known-bugs-and-issues">Known Bugs and Issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="help.html#faqs">FAQs</a></li>
 </ul>
 </li>
@@ -132,14 +129,6 @@ The pipeline can be accessed from the command line or from inside a Python scrip
 </ul>
 </div>
 </section>
-</section>
-<section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
-</ul>
 </section>
 
 

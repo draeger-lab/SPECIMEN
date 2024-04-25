@@ -27,11 +27,15 @@ def run(dir:str, model_path:str, tests:None|Literal['cobra']=None, run_all:bool=
     """SPECIMEN Step 4: Validate the model.
 
     Args:
-        - dir (str): Path to the output directory.
-        - model_path (str): Path to the model to be validated
-        - tests (None | Literal['cobra'], optional): Tests to perform. 
+        - dir (str): 
+            Path to the output directory.
+        - model_path (str): 
+            Path to the model to be validated
+        - tests (None | Literal['cobra'], optional): 
+            Tests to perform. 
             Defaults to None.
-        - run_all (bool, optional): Run al available tests. If True, overwrites
+        - run_all (bool, optional): 
+            Run al available tests. If True, overwrites
             the previous parameter.
             Defaults to True.
     """

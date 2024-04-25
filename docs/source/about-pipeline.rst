@@ -1,41 +1,43 @@
-About the SPECIMEN
-==================
+About SPECIMEN
+==============
 
-**SPECIMEN** is a Python package for strain-specific metabolic modelling. 
+``SPECIMEN`` is a Python package for strain-specific metabolic modelling. 
 Currently, its main features consist of:
 
 - a pipeline for automated model curation based on a template and additional data
 - run parts of the pipeline separatly.
 - run the pipeline on a folder of different input genomes using the same parameters.
 
-The functionalities of **SPECIMEN** are based on **refineGEMS** (link).
+The ``SPECIMEN`` is based on the
+`refineGEMS <https://github.com/draeger-lab/refinegems>`__ :footcite:p:`bauerle2023genome` toolbox.
 
-About the Pipeline
-------------------
+Overview of the Pipeline
+------------------------
 
-The core of **SPECIMEN** is an automated pipeline, which curates a new model from an input genome, a high-quality template model and optional additional information.
-The pipeline consists of five steps:
+The core of ``SPECIMEN`` is an automated pipeline, which curates a new model from an input genome, 
+a high-quality template model and optional additional information.
 
-1. bidirectional BLAST: perform a bidirectional BLAST using DIAMOND on the input and template genome
-2. draft model generation: generate a draft model from the template model by removing or renaming genes and reactions based on the bidirectional BLAST results
-3. model refinement: further refine the model
+The pipeline consists of five main steps:
 
-    a. extension: map not-yet-added genes to reactions and add them to the model
-    b. clean-up: improve quality by checking reaction direction, duplicates, gapfilling etc.
-    c. annotation: extend model annotation using e.g. SBOannotator and KEGG pathway annotations
-    d. smoothing: adjust FBA parameters using MCC, BOFdat etc.
+.. toctree::
+    :maxdepth: 3
+    :numbered:
 
-4. validation: validate the model using COBRApy validation (COBRA and libsbml validation)
-5. analysis: analyse the curated model. Current options include:
+    Bidirectional BLAST <step-desc/bidirect_blast.rst>
+    Draft Model Generation <step-desc/gen_draft.rst>
+    Model Refinement <step-desc/refinement.rst>
+    Validation <step-desc/validation.rst>
+    Analysis <step-desc/analysis.rst>
 
-    a. statistical analysis
-    b. pathway analysis
-    c. growth analysis, including *in silico* auxotrophy tests
-    d. pan-core analysis, if a pan-core model is available
-
-Many of the steps of the pipeline can be fine tuned and turned off/on. Check the configuration file for a full list of all parameters.
+.. hint::
+    Many of the steps of the pipeline can be fine tuned and turned off/on. 
+    Check the configuration file for a full list of all parameters.
 
 .. note::
 
-    All steps of the pipeline can be run separatly via the command line or the Python integration.
-    All accessable function are listed in the Contents of **SPECIMEN** section.
+    All steps of the pipeline can be run separatly via the command line or 
+    the Python integration (see :ref:`Run the pipeline`).
+
+    All accessable function are listed in the :ref:`Contents of SPECIMEN` section.
+
+.. footbibliography::

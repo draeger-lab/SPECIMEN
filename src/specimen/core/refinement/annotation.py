@@ -34,11 +34,14 @@ def kegg_reaction_to_kegg_pathway(model:cobra.Model, viaEC:bool=False, viaRC:boo
     EC number and reactions class if the first search was unsuccesful.
 
     Args:
-        - model (cobra.Model): The model - loaded with COBRApy - to be annotated.
-        - viaEC (bool, optional): Option to search for KEGG pathway ID 
+        - model (cobra.Model): 
+            The model - loaded with COBRApy - to be annotated.
+        - viaEC (bool, optional): 
+            Option to search for KEGG pathway ID 
             using the EC number if previous searches were unsuccesful. 
             Defaults to False.
-        - viaRC (bool, optional): Option to search for KEGG pathway ID 
+        - viaRC (bool, optional): 
+            Option to search for KEGG pathway ID 
             using the reaction class if previous searches were unsuccesful. 
             Defaults to False.
     """
@@ -127,19 +130,25 @@ def run(model:str, dir:str, kegg_viaEC:bool=False,
     """Further annotate a given model.
 
     Currently can add annotations for:
+
     - SBO using SBOannotator
     - KEGG.reaction -> KEGG.pathway
 
     Args:
-        - model (str): Path to the model.
-        - dir (str): Path to the output directory.
-        - kegg_viaEC (bool, optional):  Option to search for KEGG pathway ID using the 
+        - model (str): 
+            Path to the model.
+        - dir (str): 
+            Path to the output directory.
+        - kegg_viaEC (bool, optional): 
+            Option to search for KEGG pathway ID using the 
             EC number if previous searches were unsuccesful. 
             Defaults to False.
-        - kegg_viaRC (bool, optional): Option to search for KEGG pathway ID using the 
+        - kegg_viaRC (bool, optional): 
+            Option to search for KEGG pathway ID using the 
             reaction class if previous searches were unsuccesful. 
             Defaults to False.
-        - memote (bool, optional): Optionally run memote after the annotation. 
+        - memote (bool, optional): 
+            Optionally run memote after the annotation. 
             Defaults to False.
     """
     

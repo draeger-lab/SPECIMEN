@@ -31,7 +31,8 @@ class SpecimenModelInfoReport(ModelInfoReport):
     Child-class of the refineGEMs class ModelInfoReport.
 
     Attributes:
-        model: The GEM loaded with COBRApy.
+        model: 
+            The GEM loaded with COBRApy.
     """
     
     def __init__(self, model) -> None:
@@ -60,7 +61,8 @@ class SpecimenModelInfoReport(ModelInfoReport):
         set by SPECIMEN.
 
         Returns:
-            pd.DataFrame: The information in table format.
+            pd.DataFrame: 
+                The information in table format.
         """
         table = super().format_table()
         table['#reaction origin'] = str(self.reac_origin_c).replace('{',r'').replace('}',r'').replace('\'',r'')
@@ -73,11 +75,13 @@ class SpecimenModelInfoReport(ModelInfoReport):
         """Extend the visualisation function to include a graph for the creation type.
 
         Args:
-            - color_palette (str, optional): Color palette to be used. 
+            - color_palette (str, optional): 
+                Color palette to be used. 
                 Defaults to 'YlGn'.
 
         Returns:
             tuple:
+            
                 (1) matplotlib.figure.Figure: The original report figure.
                 (2) matplotlib.figure.Figure: Report for the creation origin.
         """

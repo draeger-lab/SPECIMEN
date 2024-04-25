@@ -4,11 +4,11 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About the SPECIMEN &mdash; SPECIMEN 1.0.0 documentation</title>
+  <title>About SPECIMEN &mdash; SPECIMEN 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=559046d4" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-      <link rel="stylesheet" type="text/css" href="_static/custom_theme.css?v=0eca129c" />
+      <link rel="stylesheet" type="text/css" href="_static/custom_theme.css?v=ef5873f9" />
 
   
     <link rel="shortcut icon" href="_static/LogoSPECIMEN.png"/>
@@ -27,7 +27,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Run the Pipeline" href="run-pipeline.html" />
+    <link rel="next" title="1. Step 1: Bidirectional BLAST" href="step-desc/bidirect_blast.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
 </head>
 
@@ -54,13 +54,20 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">About the SPECIMEN</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#about-the-pipeline">About the Pipeline</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">About SPECIMEN</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview-of-the-pipeline">Overview of the Pipeline</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="step-desc/bidirect_blast.html">1. Bidirectional BLAST</a></li>
+<li class="toctree-l3"><a class="reference internal" href="step-desc/gen_draft.html">2. Draft Model Generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="step-desc/refinement.html">3. Model Refinement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="step-desc/validation.html">4. Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="step-desc/analysis.html">5. Analysis</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="run-pipeline.html">Run the Pipeline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="specimen.html">Contents of SPECIMEN</a></li>
-<li class="toctree-l1"><a class="reference internal" href="help.html">Help</a></li>
+<li class="toctree-l1"><a class="reference internal" href="help.html">Help &amp; FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dev-notes.html">Notes for Developers</a></li>
 </ul>
 
@@ -78,7 +85,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">About the SPECIMEN</li>
+      <li class="breadcrumb-item active">About SPECIMEN</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/about-pipeline.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -88,50 +95,55 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="about-the-specimen">
-<h1>About the SPECIMEN<a class="headerlink" href="#about-the-specimen" title="Link to this heading"></a></h1>
-<p><strong>SPECIMEN</strong> is a Python package for strain-specific metabolic modelling.
+  <section id="about-specimen">
+<h1>About SPECIMEN<a class="headerlink" href="#about-specimen" title="Link to this heading"></a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">SPECIMEN</span></code> is a Python package for strain-specific metabolic modelling.
 Currently, its main features consist of:</p>
 <ul class="simple">
 <li><p>a pipeline for automated model curation based on a template and additional data</p></li>
 <li><p>run parts of the pipeline separatly.</p></li>
 <li><p>run the pipeline on a folder of different input genomes using the same parameters.</p></li>
 </ul>
-<p>The functionalities of <strong>SPECIMEN</strong> are based on <strong>refineGEMS</strong> (link).</p>
-<section id="about-the-pipeline">
-<h2>About the Pipeline<a class="headerlink" href="#about-the-pipeline" title="Link to this heading"></a></h2>
-<p>The core of <strong>SPECIMEN</strong> is an automated pipeline, which curates a new model from an input genome, a high-quality template model and optional additional information.
-The pipeline consists of five steps:</p>
-<ol class="arabic">
-<li><p>bidirectional BLAST: perform a bidirectional BLAST using DIAMOND on the input and template genome</p></li>
-<li><p>draft model generation: generate a draft model from the template model by removing or renaming genes and reactions based on the bidirectional BLAST results</p></li>
-<li><p>model refinement: further refine the model</p>
-<blockquote>
-<div><ol class="loweralpha simple">
-<li><p>extension: map not-yet-added genes to reactions and add them to the model</p></li>
-<li><p>clean-up: improve quality by checking reaction direction, duplicates, gapfilling etc.</p></li>
-<li><p>annotation: extend model annotation using e.g. SBOannotator and KEGG pathway annotations</p></li>
-<li><p>smoothing: adjust FBA parameters using MCC, BOFdat etc.</p></li>
-</ol>
-</div></blockquote>
+<p>The <code class="docutils literal notranslate"><span class="pre">SPECIMEN</span></code> is based on the
+<a class="reference external" href="https://github.com/draeger-lab/refinegems">refineGEMS</a> <a class="footnote-reference brackets" href="#footcite-bauerle2023genome" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> toolbox.</p>
+<section id="overview-of-the-pipeline">
+<h2>Overview of the Pipeline<a class="headerlink" href="#overview-of-the-pipeline" title="Link to this heading"></a></h2>
+<p>The core of <code class="docutils literal notranslate"><span class="pre">SPECIMEN</span></code> is an automated pipeline, which curates a new model from an input genome,
+a high-quality template model and optional additional information.</p>
+<p>The pipeline consists of five main steps:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="step-desc/bidirect_blast.html">1. Bidirectional BLAST</a></li>
+<li class="toctree-l1"><a class="reference internal" href="step-desc/gen_draft.html">2. Draft Model Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="step-desc/refinement.html">3. Model Refinement</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="step-desc/refine-parts/extension.html">3.1. Extension</a></li>
+<li class="toctree-l2"><a class="reference internal" href="step-desc/refine-parts/cleanup.html">3.2. Clean-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="step-desc/refine-parts/annot.html">3.3. Annotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="step-desc/refine-parts/smooth.html">3.4. Smoothing</a></li>
+</ul>
 </li>
-<li><p>validation: validate the model using COBRApy validation (COBRA and libsbml validation)</p></li>
-<li><p>analysis: analyse the curated model. Current options include:</p>
-<blockquote>
-<div><ol class="loweralpha simple">
-<li><p>statistical analysis</p></li>
-<li><p>pathway analysis</p></li>
-<li><p>growth analysis, including <em>in silico</em> auxotrophy tests</p></li>
-<li><p>pan-core analysis, if a pan-core model is available</p></li>
-</ol>
-</div></blockquote>
-</li>
-</ol>
-<p>Many of the steps of the pipeline can be fine tuned and turned off/on. Check the configuration file for a full list of all parameters.</p>
+<li class="toctree-l1"><a class="reference internal" href="step-desc/validation.html">4. Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="step-desc/analysis.html">5. Analysis</a></li>
+</ul>
+</div>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>Many of the steps of the pipeline can be fine tuned and turned off/on.
+Check the configuration file for a full list of all parameters.</p>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>All steps of the pipeline can be run separatly via the command line or the Python integration.
-All accessable function are listed in the Contents of <strong>SPECIMEN</strong> section.</p>
+<p>All steps of the pipeline can be run separatly via the command line or
+the Python integration (see <a class="reference internal" href="run-pipeline.html#run-the-pipeline"><span class="std std-ref">Run the Pipeline</span></a>).</p>
+<p>All accessable function are listed in the <a class="reference internal" href="specimen.html#contents-of-specimen"><span class="std std-ref">Contents of SPECIMEN</span></a> section.</p>
+</div>
+<div class="docutils container" id="id2">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-bauerle2023genome" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Famke Bäuerle, Gwendolyn O Döbel, Laura Camus, Simon Heilbronner, and Andreas Dräger. Genome-scale metabolic models consistently predict in vitro characteristics of corynebacterium striatum. <em>Frontiers in Bioinformatics</em>, 2023.</p>
+</aside>
+</aside>
 </div>
 </section>
 </section>
@@ -141,7 +153,7 @@ All accessable function are listed in the Contents of <strong>SPECIMEN</strong> 
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="run-pipeline.html" class="btn btn-neutral float-right" title="Run the Pipeline" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="step-desc/bidirect_blast.html" class="btn btn-neutral float-right" title="1. Step 1: Bidirectional BLAST" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

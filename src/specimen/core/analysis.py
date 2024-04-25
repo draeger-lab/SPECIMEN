@@ -27,7 +27,6 @@ from ..classes.reports import SpecimenModelInfoReport
 
 # run this part
 # -------------
-# @NOTE: The below completely changes the parameters, change and check the other connection as needed (e.g. setup, workflow)
 
 def run(model_path:str, dir:str, 
         media_path:str=None, namespace:Literal['BiGG']='BiGG',
@@ -36,19 +35,27 @@ def run(model_path:str, dir:str,
     """SPECIMEN Step 5: Analyse the generated model.
 
     Args:
-        - model_path (str): Path to the model.
-        - dir (str): Path to the output directory.
-        - media_path (str, optional): Path to a media config file. 
+        - model_path (str): 
+            Path to the model.
+        - dir (str): 
+            Path to the output directory.
+        - media_path (str, optional): 
+            Path to a media config file. 
             Using this enables growth simulation.
             Defaults to None.
-        - namespace (Literal['BiGG'], optional): Namespace to work on. 
+        - namespace (Literal['BiGG'], optional): 
+            Namespace to work on. 
             Defaults to 'BiGG'.
-        - pc_model_path (str, optional): Path to a core-pan model. Defaults to None.
-        - pc_based_on (Literal['id'], optional): How to compare the model to the core-pan model. 
+        - pc_model_path (str, optional): 
+            Path to a core-pan model. Defaults to None.
+        - pc_based_on (Literal['id'], optional): 
+            How to compare the model to the core-pan model. 
             Defaults to 'id'.
-        - test_aa_auxotrophies (bool, optional): Option to enable the amino acid
+        - test_aa_auxotrophies (bool, optional): 
+            Option to enable the amino acid
             auxotrophy simulation. Defaults to True.
-        - pathway (bool, optional): Optional to enable KEGG pathway analysis. 
+        - pathway (bool, optional): 
+            Optional to enable KEGG pathway analysis. 
             Defaults to True.
     """
 

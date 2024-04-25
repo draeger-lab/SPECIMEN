@@ -43,16 +43,21 @@ from refinegems.classes import egcs
 ################################################################################
 
 def perform_mcc(model: cobra.Model, dir: str, apply:bool = True) -> cobra.Model:
-    """_summary_
+    """Run the MassChargeCuration toll on the model and optionally directly apply 
+    the solution.
 
     Args:
-        - model (cobra.Model): The model to use the tool on.
-        - dir (str): Path of the directory to save MCC output in.
-        - apply (bool, optional): If True, model is directly updated with the results. 
+        - model (cobra.Model): 
+            The model to use the tool on.
+        - dir (str): 
+            Path of the directory to save MCC output in.
+        - apply (bool, optional): 
+            If True, model is directly updated with the results. 
             Defaults to True.
 
     Returns:
-        cobra.Model: The model (updated or not)
+        cobra.Model: 
+            The model (updated or not)
     """
 
     # make temporary directory to save files for MCC in
@@ -80,14 +85,20 @@ def adjust_BOF(genome:str, model_file:str, model:cobra.Model, dna_weight_fractio
     DNA coefficients and step 2.
 
     Args:
-        - genome (str): Path to the genome (e.g. .fna) FASTA file.
-        - model_file (str): Path to the sbml (.xml) file of the model.
-        - model (cobra.Model): The genome-scale metabolic model (from the string above), loaded with COBRApy.
-        - dna_weight_fraction (float): DNA weight fraction for BOF step 1.
-        - weight_frac (float): Weight fraction for the second step of BOFdat (enzymes and ions)
+        - genome (str): 
+            Path to the genome (e.g. .fna) FASTA file.
+        - model_file (str): 
+            Path to the sbml (.xml) file of the model.
+        - model (cobra.Model): 
+            The genome-scale metabolic model (from the string above), loaded with COBRApy.
+        - dna_weight_fraction (float): 
+            DNA weight fraction for BOF step 1.
+        - weight_frac (float): 
+            Weight fraction for the second step of BOFdat (enzymes and ions)
 
     Returns:
-        str: The updated BOF reaction as a reaction string.
+        str: 
+            The updated BOF reaction as a reaction string.
     """
     
 
@@ -165,27 +176,37 @@ def run(genome:str,model:str,dir:str,mcc='skip',
     """Perform the fourth step of the refinement, smoothing, on a model.
 
     The fourth step of the refinment, smoothing, includes:
+
     - Mass-Charge curation
     - checking energy generating cycles
     - adjusting Biomass objective function parameters based on genome
 
     Args:
-        - genome (str): Path to the genome FASTA (e.g. .fna) file of your genome.
-        - model (str): Path to the model. Should be sbml-format.
-        - dir (str): Path of the output directory.
-        - mcc (str, optional): Option for the Mass-Charge curation.
+        - genome (str): 
+            Path to the genome FASTA (e.g. .fna) file of your genome.
+        - model (str): 
+            Path to the model. Should be sbml-format.
+        - dir (str): 
+            Path of the output directory.
+        - mcc (str, optional): 
+            Option for the Mass-Charge curation.
             Can be 'skip', 'apply' (directly use MCC on model) or 'extra' (only generate information). 
             Defaults to 'skip'.
-        - egc_solver (None | Literal['greedy'], optional): If given, uses the option to solve EGCs.
+        - egc_solver (None | Literal['greedy'], optional): 
+            If given, uses the option to solve EGCs.
             Current options include greedy (Greedy Solver).
             Defaults to 'greedy'.
-        - namespace (Literal['BiGG'], optional): Namespace to use for the model.
+        - namespace (Literal['BiGG'], optional): 
+            Namespace to use for the model.
             Defaults to 'BiGG'.
-        - dna_weight_frac (float, optional):  DNA weight fraction to use for BOFdat.
+        - dna_weight_frac (float, optional): 
+            DNA weight fraction to use for BOFdat.
             Default is 0.023 for Klebsiella pneumoniae based on Liao et al.
-        - ion_weight_frac (float, optional): Ion weight fraction to use for BOFdat.
+        - ion_weight_frac (float, optional): 
+            Ion weight fraction to use for BOFdat.
             Defaults to 0.05.
-        - memote (bool, optional): Option to run memote after the refinement.
+        - memote (bool, optional): 
+            Option to run memote after the refinement.
             Defaults to False.
     """
     

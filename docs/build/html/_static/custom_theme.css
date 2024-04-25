@@ -37,6 +37,11 @@ a.reference:visited {
 .wy-nav-content a.reference.internal {
     color: #85a457 !important;
 }
+/* In-line code*/
+code.literal {
+    color: #2261ff !important;
+    background-color: #fbfbfb !important;
+}
 /* Function definition headers colouring */
 .sig.sig-object.py {
     color: #85a457 !important;

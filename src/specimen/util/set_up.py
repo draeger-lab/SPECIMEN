@@ -46,13 +46,15 @@ MNX_URL_DICT = {'chem_prop.tsv':MNX_CHEM_PROP_URL, 'chem_xref.tsv':MNX_CHEM_XREF
 # setup data (structure)
 # ----------------------
 # @TEST : deleted BiGG part, since its already covered with refinegems
-def download_mnx(dir:str='MetaNetX/', chunk_size:int=1024):
+def download_mnx(dir:str='MetaNetX', chunk_size:int=1024):
     """Download the data needed from the MetaNetX database.
 
     Args:
-        - dir (str, optional): Directory to write the downloaded files to. 
-            Defaults to 'MetaNetX/'.
-        - chunk_size (int, optional): Size of the chunk of data that is loaded into memory during download. 
+        - dir (str, optional): 
+            Directory to write the downloaded files to. 
+            Defaults to 'MetaNetX'.
+        - chunk_size (int, optional): 
+            Size of the chunk of data that is loaded into memory during download. 
             Defaults to 1024.
     """
 
@@ -71,8 +73,10 @@ def build_data_directories(dir:str, chunk_size:int=2048):
     from MetaNetX.
 
     Args:
-        - dir (str):  Parent folder to write the subfolder structure to.
-        - chunk_size (int, optional): Size of the chunks of data while downloading.
+        - dir (str):  
+            Parent folder to write the subfolder structure to.
+        - chunk_size (int, optional):
+            Size of the chunks of data while downloading.
             Only used for downloading the MetaNetX files.
             Defaults to 2048.
     """
@@ -106,9 +110,11 @@ def download_config(filename:str='my_basic_config.yaml', type:Literal['basic','a
     of configuration file can be downloaded.
 
     Args:
-        - filename (str, optional): Filename/filepath to save the downloaded config file under. 
+        - filename (str, optional): 
+            Filename/filepath to save the downloaded config file under. 
             Defaults to 'my_basic_config.yaml'.
-        - type (Literal['basic','advanced','defaults'], optional): The type of file to download. 
+        - type (Literal['basic','advanced','defaults'], optional): 
+            The type of file to download. 
             Can be 'basic', 'advanced' or 'defaults' or 'media'. 
             Defaults to 'basic'.
 
@@ -148,11 +154,14 @@ def dict_recursive_combine(dictA:dict, dictB:dict) -> dict:
     """Helper-function to combine two configuration file.
 
     Args:
-        - dictA (dict): Information from one config file in dict format.
-        - dictB (dict): Information from the other config file in dict format.
+        - dictA (dict): 
+            Information from one config file in dict format.
+        - dictB (dict): 
+            Information from the other config file in dict format.
 
     Returns:
-        dict: The combined information.
+        dict: 
+            The combined information.
     """
     
     if not isinstance(dictB,dict):
@@ -168,8 +177,10 @@ def dict_recursive_check(dictA:dict, key:str=None):
     """Function to check if a configuration is valid to run the pipeline.
 
     Args:
-        - dictA (dict): Current dictionary or value to be validated.
-        - key (str, optional): key of dictA, if it was an entry of a dictionary. 
+        - dictA (dict): 
+            Current dictionary or value to be validated.
+        - key (str, optional): 
+            key of dictA, if it was an entry of a dictionary. 
             Defaults to None.
 
     Raises:
@@ -211,13 +222,15 @@ def validate_config(userc:str) -> dict:
     Note: currently not everything is checked, mainly the needed files are.
 
     Args:
-        - userc (str): Path to the user configuration file.
+        - userc (str): 
+            Path to the user configuration file.
 
     Raises:
         FileNotFoundError: Directory set for config:data:data:direc does not exist.
 
     Returns:
-        dict: The validated, read-in configuration file, nested (read-in yaml file).
+        dict: 
+            The validated, read-in configuration file, nested (read-in yaml file).
     """
 
     # validate a user config file by checking for missing input

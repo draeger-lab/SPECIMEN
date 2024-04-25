@@ -1,16 +1,26 @@
-Help
-==================
+Help & FAQ
+==========
 
 If you run into any problems reagrding **SPECIMEN** 
 or have wishes and ideas for features to be included, please write an issue on our
 `github page <https://github.com/draeger-lab/SPECIMEN>`__ or contact us directly.
 
-Known Bugs and Problems
+Known Bugs and Issues
 -----------------------
 
-...
+Pydantic
+^^^^^^^^
+
+Pydantic warning `underscore_attrs_are_private has been removed` has not - yet - caused any issues
+however, the core of the problems (= what causes the warning) has yet to be identifies. 
+
 
 FAQs
 ----
 
-...
+Which organisms work with ``SPECIMEN``?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``SPECIMEN`` was originally written for prokaryota, however adapting to work with 
+any kind of organism is a the final goal. Currently, the pipeline has yet to be tested
+organisms other than prokaryota. 
