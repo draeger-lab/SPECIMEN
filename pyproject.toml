@@ -9,6 +9,7 @@ authors = [
 ]
 description = ""
 readme = "README.md"
+version = "1.0.0"
 requires-python = ">=3.10"
 #keywords = []
 #license = {}
@@ -39,7 +40,6 @@ dependencies = [
 #    EntrezDirect
 #    DIAMOND
 #    BOFdat
-dynamic = ['version']
 
 [project.scripts]
 specimen = "specimen.cmd_access:cli"

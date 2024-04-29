@@ -6,6 +6,7 @@ __author__ = 'Carolin Brune'
 ################################################################################
 
 import cobra
+import importlib.metadata
 import numpy as np
 import os.path
 import pandas as pd
@@ -323,6 +324,9 @@ def gen_draft_model(model:cobra.Model, bbh:pd.DataFrame,
 
     # save draft model
     draft.id = name
+    draft.notes['Template model'] = draft.name
+    draft.notes['Description'] = f'This model was created with SPECIMEN version {importlib.metadata.version("specimen")}'
+    draft.name = f'Genome-scale metabolic model {name}'
     cobra.io.write_sbml_model(draft, Path(dir,name+'_draft.xml'))
 
     return draft
