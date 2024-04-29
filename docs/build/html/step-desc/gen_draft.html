@@ -98,8 +98,51 @@
              
   <section id="step-2-generate-a-draft-model">
 <h1><span class="section-number">2. </span>Step 2: Generate a Draft Model<a class="headerlink" href="#step-2-generate-a-draft-model" title="Link to this heading"></a></h1>
-<p>draft model generation: generate a draft model from the template model by removing or renaming genes and reactions based on the bidirectional BLAST results</p>
-<p>TODO</p>
+<p>Based on the results of step 1, step 2 of the pipelines generates a draft model based on the
+template model.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For the pipeline to work, the template model needs to be constructed from the genome that was
+blasted against in step 1.</p>
+</div>
+<p>A graphical representation of the steps can be found below:</p>
+<img alt="../_images/2_gendraft.png" src="../_images/2_gendraft.png" />
+<p>The draft model is constructed based on the idea of Norsigian <em>et al.</em><a class="footnote-reference brackets" href="#footcite-norsigian2020workflow" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> by:</p>
+<ul>
+<li><p>filtering the BLAST best directional hits by their percentage identity value (PID &gt; threshold = homolog)</p></li>
+<li><p>choosing a medium for the new model</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>use the one from the template</p></li>
+<li><p>set all exchanges to open (not advised)</p></li>
+<li><p>load one from the <code class="docutils literal notranslate"><span class="pre">refineGEMS</span></code> database</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>removing genes from the template that have no (found) homolog in the template genome.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>under the condition that the removed genes is not neccessary for the growth of the model</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>renaming the homologous genes to fit the names from the new genome</p></li>
+<li><p>checking unchanged genes</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>remove if not essential</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<div class="docutils container" id="id2">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-norsigian2020workflow" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Charles J Norsigian, Xin Fang, Yara Seif, Jonathan M Monk, and Bernhard O Palsson. A workflow for generating multi-strain genome-scale metabolic models of prokaryotes. <em>Nature protocols</em>, 15(1):1–14, 2020.</p>
+</aside>
+</aside>
+</div>
 </section>
 
 

@@ -55,7 +55,7 @@ def config(filename,type):
 # ------------------------------
 @setup.command()
 @click.option('--dir','-d', type=str, default='./data/', show_default=True, help='Name/path to the directory create subdirectories in.')
-@click.option('--chunk_size', '-s', type=int, default=2048, show_default=True, help=' Size of the chunks of data while downloading.')
+@click.option('--chunk-size', '-s', type=int, default=2048, show_default=True, help=' Size of the chunks of data while downloading.')
 def data_structure(dir, chunk_size):
     """Create a data directory and download basic databases.
 
@@ -87,7 +87,7 @@ def pipeline(config):
 # ------------------------------------------------------------------
 @run.command()
 @click.argument('config', type=str)
-@click.option('-d','--directory', default='./', type=str, help='Path to the (parent) directory that contains the folders if the subject input files.')
+@click.option('-d','--directory', default='', type=str, help='Path to the (parent) directory that contains the folders if the subject input files.')
 def wrapper(config,directory):
     """Run the complete pipeline multiple times based on a config file
     and a folder. The folder should contain subfolders with the subject files
@@ -103,10 +103,10 @@ def wrapper(config,directory):
 @run.command()
 @click.argument('template', type=str)
 @click.argument('input', type=str)
-@click.option('--template_name', type=str, help='Name of the annotated genome file used as a template.')
-@click.option('--input_name', type=str, help='Name of the annotated genome file used as a input.')
-@click.option('--temp_header', type=str, default='protein_id', help='Feature qualifier of the gbff of the template to use as header for the FASTA files')
-@click.option('--in_header', type=str, default='locus_tag', help='Feature qualifier of the gbff of the input to use as header for the FASTA files')
+@click.option('--template-name', type=str, help='Name of the annotated genome file used as a template.')
+@click.option('--input-name', type=str, help='Name of the annotated genome file used as a input.')
+@click.option('--temp-header', type=str, default='protein_id', help='Feature qualifier of the gbff of the template to use as header for the FASTA files')
+@click.option('--in-header', type=str, default='locus_tag', help='Feature qualifier of the gbff of the input to use as header for the FASTA files')
 @click.option('--dir', '-d', type=str, default='./01_bidirectional_blast/', help='Path to output directory. Will create a new one, if given path does not exist.')
 @click.option('--threads', '-t', type=int, default=2, help='Number of threads to be used.')
 @click.option('--sensitivity', '-s', type=click.Choice(['sensitive','more-sensitive','very-sensitive','ultra-sensitive']), default='sensitive', help='Sensitivity mode for DIAMOND blastp run. Can be sensitive, more-sensitive, very-sensitive or ultra-sensitive. Default is sensitive.')
@@ -129,7 +129,7 @@ def bdb(template, input, template_name, input_name, temp_header, in_header, dir,
 @click.argument('template', type=str)
 @click.argument('bpbbh', type=str)
 @click.option('--dir', type=str, default='./02_generate_draft_model', help='Path to the output directory.')
-@click.option('--edit_names', type=click.Choice(['no', 'dot-to-underscore']), default='no', show_default=True, help='Edit the identifier of the FASTA files to match the names in the model.')
+@click.option('--edit-names', type=click.Choice(['no', 'dot-to-underscore']), default='no', show_default=True, help='Edit the identifier of the FASTA files to match the names in the model.')
 @click.option('--pid', type=float, default=80.0, show_default=True, help='Threshold value (percentage identity) for determining, if a gene is counted as present or absent')
 @click.option('--name', type=str, default=None, help='Name of the output model, will be taken from the file name if not specified.')
 @click.option('--medium', type=str, default='default', help='Set the medium for the new model. If not set, will use the one from the template. If given the keyword "exchanges", will open all exchange reaction and use them as the medium.')
@@ -154,17 +154,17 @@ def refinement():
 
 @refinement.command()
 @click.option('--draft', type=str, required=True, help='Path to the draft model.')
-@click.option('--gene_list', '-g', type=str, required=True, help='Path to a csv file containing information on all the genes found in the annotated genome.')
+@click.option('--gene-list', '-g', type=str, required=True, help='Path to a csv file containing information on all the genes found in the annotated genome.')
 @click.option('--fasta', '-f', type=str, required=True, help="Path to the (protein) FASTA file containing the CDS sequences")
 @click.option('--db', '--database', type=str, required=True, help="string, path to the database used for running DIAMOND.")
 # MetaNetX links
-@click.option('--mnx_chem_prop', type=str, required=True, help='Path to the MetaNetX chem_prop namespace file.')
-@click.option('--mnx_chem_xref', type=str, required=True, help='Path to the MetaNetX chem_xref namespace file.')
-@click.option('--mnx_reac_prop', type=str, required=True, help='Path to the MetaNetX reac_prop namespace file.')
-@click.option('--mnx_reac_xref', type=str, required=True, help='Path to the MetaNetX reac_xref namespace file.')
+@click.option('--mnx-chem-prop', type=str, required=True, help='Path to the MetaNetX chem_prop namespace file.')
+@click.option('--mnx-chem-xref', type=str, required=True, help='Path to the MetaNetX chem_xref namespace file.')
+@click.option('--mnx-reac-prop', type=str, required=True, help='Path to the MetaNetX reac_prop namespace file.')
+@click.option('--mnx-reac-xref', type=str, required=True, help='Path to the MetaNetX reac_xref namespace file.')
 # NCBI mapping options
-@click.option('--ncbi_map', type=str, required=False, help='Path to the ncbi information mapping file. Optional, but recommended.')
-@click.option('--ncbi_dat', type=str, required=False, help='Path to the ncbi database information file. Optional, but recommended.')
+@click.option('--ncbi-map', type=str, required=False, help='Path to the ncbi information mapping file. Optional, but recommended.')
+@click.option('--ncbi-dat', type=str, required=False, help='Path to the ncbi database information file. Optional, but recommended.')
 # DIAMOND and other params
 @click.option('--dir','-d', type=str, default='./refinement/', help='Path to the directory for the output (directories)')
 @click.option('--id', '-i', type=str, default='locus_tag', help='Name of the column of the csv file that contains the entries that were used as gene identifiers in the draft model.')
@@ -172,8 +172,8 @@ def refinement():
 @click.option('--coverage', '-c', type=float, default=80.0, help="Threshold value for the query coverage for DIAMOND. Default is 80.0.")
 @click.option('--pid', type=float, default=95.0, help='PID (percentage identity value) to filter the blast hist by. Default is 90.0, only hits equal or above the given value are kept.')
 @click.option('--threads', '-t', type=int, default=2, help='Number of threads to be used.')
-@click.option('--include_dna', is_flag=True, default=False, help='Include reactions with DNA in their name when added (developer information: True == excluded).')
-@click.option('--include_rna', is_flag=True, default=False, help='Include reactions with RNA in their name when added (developer information: True == excluded).')
+@click.option('--include-dna', is_flag=True, default=False, help='Include reactions with DNA in their name when added (developer information: True == excluded).')
+@click.option('--include-rna', is_flag=True, default=False, help='Include reactions with RNA in their name when added (developer information: True == excluded).')
 @click.option('--memote', is_flag=True, default=False, help='Use memote on the extended model.')
 def extension(draft, gene_list, fasta, db, dir,
     mnx_chem_prop, mnx_chem_xref, mnx_reac_prop, mnx_reac_xref,
@@ -269,8 +269,8 @@ def cleanup(model,
 @refinement.command()
 @click.argument('model', type=str)
 @click.option('--dir','-d', type=str, default='./refinement/', help='Path to the directory for the output (directories)')
-@click.option('--kegg-via-ec', '--via-ec','--rc', is_flag=True, default=False, help='Try to map EC numbers to KEGG pathway, if KEGG reaction cannot be mapped directly.')
-@click.option('--kegg-via-rc', '--via-ec','--ec', is_flag=True, default=False, help='Try to map KEGG reaction class to KEGG pathway, if KEGG reaction cannot be mapped directly.')
+@click.option('--kegg-via-ec', '--via-ec','--ec', is_flag=True, default=False, help='Try to map EC numbers to KEGG pathway, if KEGG reaction cannot be mapped directly.')
+@click.option('--kegg-via-rc', '--via-rc','--rc', is_flag=True, default=False, help='Try to map KEGG reaction class to KEGG pathway, if KEGG reaction cannot be mapped directly.')
 @click.option('--memote', is_flag=True, default=False, help='Use memote on the extended model.')
 def annotation(model,dir,kegg_via_ec,kegg_via_rc,memote):
     """Refinement step 3: Annotation
@@ -332,7 +332,7 @@ def smoothing(model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, egc, na
 @run.command()
 @click.argument('model',type=str)
 @click.option('--dir', '-d', default='./validation/', type=str, help='Path to a directory for the output.')
-@click.option('--run_test', '-t', multiple=True, default=['all'], help='define, which tests should be run. Current possibilities are "all" and "cobra"')
+@click.option('--run-test', '-t', multiple=True, default=['all'], help='define, which tests should be run. Current possibilities are "all" and "cobra"')
 def validation(model,dir,run_test):
     """Step 4 of the pipeline: Validate the model.
 
@@ -357,7 +357,7 @@ def validation(model,dir,run_test):
 # growth analysis
 @click.option('--namespace','-n',required=False, type=click.Choice(['BiGG']), multiple=False, default='BiGG', help='Namespace used by the given model.')
 @click.option('--media-path','--mp',required=False, type=str, default=None, help='Path to a media config file. Enables growth analysis if given.')
-@click.option('--test_aa_auxotrophies', '--taa', is_flag=True, default=False, help='Option to test media/model for auxotrophies.')
+@click.option('--test-aa-auxotrophies', '--taa', is_flag=True, default=False, help='Option to test media/model for auxotrophies.')
 @click.option('--pathway', '--pathway-analysis', is_flag=True, default=False, help='Option to perform a pathway analysis using KEGG pathway identifiers.')
 def analysis(model,
         dir,

@@ -9,3 +9,8 @@ Currently implemented are the following validators (more will be added in future
 
 - SBML and COBRApy validation based on the ``cobra.io.validate_sbml_model`` function.
 
+Which validators are run can be changed via parameters or in the configuration file.
+
+A geaphical representation of the part of this step can be found below.
+
+.. image:: ../images/modules/4_validation.png

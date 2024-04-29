@@ -11,3 +11,6 @@ Currently implemented are the following validators (more will be added in future
 
 Which validators are run can be changed via parameters or in the configuration file.
 
+A geaphical representation of the part of this step can be found below.
+
+.. image:: ../images/modules/4_validation.png

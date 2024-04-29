@@ -24,3 +24,9 @@ Which organisms work with ``SPECIMEN``?
 ``SPECIMEN`` was originally written for prokaryota, however adapting to work with 
 any kind of organism is a the final goal. Currently, the pipeline has yet to be tested
 organisms other than prokaryota. 
+
+Which namespaces can I use?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+While we are working towards namespace indepancy of this pipeline, currently,
+it is advised to stick to the BiGG namespace.

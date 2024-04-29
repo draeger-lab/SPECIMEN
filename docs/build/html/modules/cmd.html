@@ -59,7 +59,12 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../specimen.html">Contents of SPECIMEN</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../specimen.html#specimen-subpackages">specimen subpackages</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../specimen.html#specimen-submodules">specimen submodules</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">specimen.cmd_access</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">specimen.cmd_access</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#general-options">General Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#specimen-setup">specimen setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#specimen-run">specimen run</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="workflow.html">specimen.workflow</a></li>
 </ul>
 </li>
@@ -97,6 +102,192 @@
   <section id="module-specimen.cmd_access">
 <span id="the-specimen-cmd-access-submodule"></span><h1>The specimen.cmd_access submodule<a class="headerlink" href="#module-specimen.cmd_access" title="Link to this heading"></a></h1>
 <p>Entry points to the code from the command line.</p>
+<p>After a successfull installation, <code class="docutils literal notranslate"><span class="pre">SPECIMEN</span></code> can be accessed via the command line
+from inside the Python environment it was installed in using:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>specimen<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>
+</pre></div>
+</div>
+<p>The following commands are available:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">run</span></code> : Run the whole pipeline or a specific step.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">setup</span></code> : Setup structure, data and more.</p></li>
+</ul>
+<section id="general-options">
+<h2>General Options<a class="headerlink" href="#general-options" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--help</span></code>: Call the help page of the command.</p></li>
+</ul>
+</section>
+<section id="specimen-setup">
+<h2>specimen setup<a class="headerlink" href="#specimen-setup" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>specimen<span class="w"> </span>setup<span class="w"> </span>config
+</pre></div>
+</div>
+<p>Download a configuration file, either for the pipeline or for media.</p>
+<p>Options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--filename/-f</span></code>: Name/Path to save the config under.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--type/-t</span></code>: Type of config to download. Can be media or basic/advanced for the pipeline config.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>specimen<span class="w"> </span>data<span class="w"> </span>structure
+</pre></div>
+</div>
+<p>Setup a directory with the basic structure for the data needed for the pipeline.</p>
+<p>Options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--dir/-d</span></code>: Name/Path of the directory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--chunk-size/-s</span></code>: Parameter for doenloading files from the web.</p></li>
+</ul>
+</section>
+<section id="specimen-run">
+<h2>specimen run<a class="headerlink" href="#specimen-run" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>specimen<span class="w"> </span>run<span class="w"> </span>pipeline<span class="w"> </span><span class="o">[</span>CONFIG<span class="o">]</span>
+</pre></div>
+</div>
+<p>Run the complete pipeline with a configuration file as input.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>specimen<span class="w"> </span>run<span class="w"> </span>wrapper<span class="w"> </span><span class="o">[</span>CONFIG<span class="o">]</span>
+</pre></div>
+</div>
+<p>Run the pipeline using a config on a directory containing multiple input genomes.</p>
+<p>Options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--dir/-d</span></code>: Name/Path of the directory that contains the input.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>specimen<span class="w"> </span>run<span class="w"> </span>bdb<span class="w"> </span><span class="o">[</span>TEMPLATE<span class="o">]</span><span class="w"> </span><span class="o">[</span>INPUT<span class="o">]</span>
+</pre></div>
+</div>
+<p>Run step 1: bidirectional BLAST of the pipeline. Requires the input and template genome as input.</p>
+<p>Options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--template-name</span></code> : Name of the annotated genome of the template, if it should not be extracted from the filename.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--input-name</span></code> : Name of the annotated genome of the input, if it should not be extracted from the filename.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--temp-header</span></code>: Feature qualifier of the gbff of the template to use as header for the FASTA files. Defaults to <code class="docutils literal notranslate"><span class="pre">protein_id</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--in-header</span></code>: Feature qualifier of the gbff of the input to use as header for the FASTA files. Defaults to <code class="docutils literal notranslate"><span class="pre">locus_tag</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--dir/-d</span></code>: Name/Path of the directory to save the output to.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--threads/-t</span></code>: Number of threads to use for DIAMOND.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--sensitivity/-s</span></code>: Sensitvity mode to use for DIAMOND.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>specimen<span class="w"> </span>run<span class="w"> </span>draft<span class="w"> </span><span class="o">[</span>TEMPLATE<span class="o">]</span><span class="w"> </span><span class="o">[</span>BPBBH<span class="o">]</span>
+</pre></div>
+</div>
+<p>Run step 2: generate draft model of the pipeline. Requires the results of the bidirectional BLAST
+and the template model as input.</p>
+<p>Options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--dir/-d</span></code>: Name/Path of the directory to save the output to.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--edit-names</span></code>: Choose an option to change the IDs inside the bpbbh-file to fit the model, if neccessary.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--pid</span></code>: Threshold value for the PID. Default to 80.0 (80 percent)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--name</span></code>: Name of the output model.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--medium</span></code>: Medium for the new model. Can be a name of a medium in the refineGEMS database, they keyword <em>default</em>, which uses the medium from the template or the keyword <em>exchanges</em>, which constructs a medium from all available exchange reactions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">namespace</span></code>: Namespace to use for the model.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--memote</span></code>: Run Memote after contructing the draft model.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>specimen<span class="w"> </span>run<span class="w"> </span>validation<span class="w"> </span><span class="o">[</span>MODEL<span class="o">]</span>
+</pre></div>
+</div>
+<p>Run step 4: validation on a model.</p>
+<p>Options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--dir/-d</span></code>: Name/Path of the directory to save the output to.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--run-test/-t</span></code>: Specify validation tests to be run (multiple can be set). If the keyword <em>all</em> is given, runs all available tests.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>specimen<span class="w"> </span>run<span class="w"> </span>analysis<span class="w"> </span><span class="o">[</span>MODEL<span class="o">]</span>
+</pre></div>
+</div>
+<p>Run step 5: analysis on a model.</p>
+<p>Options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--dir</span></code>: Path to a directory for the output.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--pan-core-comparison/--pcc</span></code>: Option on which feature the comparison of pan-core model and model should should be based on. Default is “id”.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--pan-core-model/--pcm</span></code>: Path to a pan-core model.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--namespace/-n</span></code>: Namespace used by the given model. Defaults to BiGG.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--media-path/--mp</span></code>: Path to a media config file. Enables growth analysis if given.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--test-aa-auxotrophies/--taa</span></code>: Option to test media/model for auxotrophies.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--pathway/--pathway-analysis</span></code>: Option to perform a pathway analysis using KEGG pathway identifiers.</p></li>
+</ul>
+<section id="specimen-run-refinement">
+<h3>specimen run refinement<a class="headerlink" href="#specimen-run-refinement" title="Link to this heading"></a></h3>
+<p>Run the different parts of the step 3: refinement of the pipeline.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>specimen<span class="w"> </span>run<span class="w"> </span>refinement<span class="w"> </span>extension
+</pre></div>
+</div>
+<p>Run the first part, extension.</p>
+<p>Required options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--draft</span></code>: Path to the draft model.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--gene-list/-g</span></code>: Path to a csv file containing information on all the genes found in the annotated genome.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--fasta/-f</span></code>: Path to the (protein) FASTA file containing the CDS sequences</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--db/--database</span></code>: Path to the database used for running DIAMOND.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--mnx-chem-prop</span></code>: Path to the MetaNetX chem_prop namespace file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--mnx-chem-xref</span></code>: Path to the MetaNetX chem_xref namespace file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--mnx-reac-prop</span></code>: Path to the MetaNetX reac_prop namespace file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--mnx-reac-xref</span></code>: Path to the MetaNetX reac_xref namespace file.</p></li>
+</ul>
+<p>Further options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--ncbi_map</span></code>: Path to the ncbi information mapping file. Optional, but recommended.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--ncbi_dat</span></code>: Path to the ncbi database information file. Optional, but recommended.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--dir/-d</span></code>: Path to the directory for the output (directories)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--id/-i</span></code>: Name of the column of the csv file that contains the entries that were used as gene identifiers in the draft model.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--sensitivity/-s</span></code>: Sensitivity mode for DIAMOND blastp run. Default is sensitive.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--coverage/-c</span></code>: Threshold value for the query coverage for DIAMOND. Default is 80.0.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--pid</span></code>: PID (percentage identity value) to filter the blast hist by. Default is 90.0, only hits equal or above the given value are kept.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--threads/-t</span></code>: Number of threads to be used.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--include_dna</span></code>: Include reactions with DNA in their name when added (developer information: True == excluded).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--include_rna</span></code>: Include reactions with RNA in their name when added (developer information: True == excluded).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--memote</span></code>: Use memote on the extended model.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>specimen<span class="w"> </span>run<span class="w"> </span>refinement<span class="w"> </span>cleanup<span class="w"> </span><span class="o">[</span>MODEL<span class="o">]</span>
+</pre></div>
+</div>
+<p>Based on a draft model, run the second part of refinement, cleanup.</p>
+<p>Options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--dir/-d</span></code>: Path to the directory for the output (directories)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--biocyc_db</span></code>: Path to the BioCyc (MetaCyc) database information file (for reactions). Optional, but recommended. Necessary for checking directionality</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--check_dupl_reac/--cdr</span></code>: ‘Check for duplicate reactions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--check_dupl_meta/--cdm</span></code>: default=’default``: Check for duplicate metabolites. Can “default” (starting point MetaNetX), exhaustive (iterate over all annotations as starting points) or “skip”.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--objective_function</span></code>: ‘–of``: Name, ID of the objective function of the model. Default is “Growth”.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--remove_dupl_meta/--rdm</span></code>: ‘Option for removing/replacing duplicate metabolites.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--remove_unused_meta/--rum</span></code>: ‘Option for removing unused metabolites from the model. Only used when cdm is not skipped.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--remove_dupl_reac/--rdr</span></code>: ‘Option for removing duplicate reaction from the model.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--universal/-u</span></code>: Path to a universal model containing reactions used for gapfilling.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--media-path/--mp</span></code>: Path to a media config to use for gapfilling.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--namespace/--nsp</span></code>: Namespace to use for the model.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--growth_threshold/-gt</span></code>: Threshold value for a model to be considered growing.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--iterations/-i</span></code>: Number of iterations for the gapfilling. If 0 is passed, uses full set of reactions instead of heuristic.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--chunk_size</span></code>: Number of reactions to be tested simultaniously if using the heuristic version of gapfilling. If this is 0, heuristic will not be applied.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>specimen<span class="w"> </span>run<span class="w"> </span>refinement<span class="w"> </span>annotation<span class="w"> </span><span class="o">[</span>MODEL<span class="o">]</span>
+</pre></div>
+</div>
+<p>Run the thrid part of the refinement, annotation, on a given model.</p>
+<p>Options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--dir</span></code>: Path to a directory for the output.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--kegg-via-ec/--via-ec</span></code>: Try to map EC numbers to KEGG pathway, if KEGG reaction cannot be mapped directly.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--kegg-via-rc/--via-rc</span></code>: Try to map RC numbers to KEGG pathway, if KEGG reaction cannot be mapped directly.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--memote</span></code>: Use memote on the extended model.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>specimen<span class="w"> </span>run<span class="w"> </span>refinement<span class="w"> </span>smoothing<span class="w"> </span><span class="o">[</span>MODEL<span class="o">]</span>
+</pre></div>
+</div>
+<p>Required Options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--genome/-g</span></code>: Path to the genome FASTA (e.g. .fna) file of your genome.</p></li>
+</ul>
+<p>Further Options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--dir/-d</span></code>: Path to a directory for the output.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--egc-solver/--egc</span></code>: String sets the type of solver to use to solve EGCs. Otherwise just reports existing EGCs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--namespace/--nsp</span></code>: Namespace of the model.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--mcc</span></code>: Option to perform MassChargeCuration on the model. Can be used directly on model or as extra information. Choices are “apply”,”extra” and “skip”. Deafult is “skip”.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--dna_weight_frac</span></code>: DNA macromolecular weight fraction for your organism. Default is 0.023 for Klebsiella based on Liao et al.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--ion_weight_frac</span></code>: weight fraction for the coenzymes and ions. Default is 0.05 based on the default of BOFdat.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--memote</span></code>: Use memote on the extended model.</p></li>
+</ul>
+</section>
+</section>
 </section>
 
 

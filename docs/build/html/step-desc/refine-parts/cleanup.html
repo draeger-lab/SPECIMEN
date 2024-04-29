@@ -105,7 +105,21 @@
              
   <section id="step-3-part-2-cleaning-the-model">
 <h1><span class="section-number">3.2. </span>Step 3, Part 2: Cleaning the Model<a class="headerlink" href="#step-3-part-2-cleaning-the-model" title="Link to this heading"></a></h1>
-<p>TODO</p>
+<p>The third part of the refinement aims to clean the model regarding its entities, including</p>
+<ul class="simple">
+<li><p>checking the directionality of reactions using BioCyc</p></li>
+<li><p>complete BioCyc/MetaCyc, if only is present</p></li>
+<li><p>find and resolve duplicate metabolites and reactions</p></li>
+<li><p>delete unused metabolites</p></li>
+<li><p>perform gapfilling</p></li>
+</ul>
+<p>Except for the <em>complete Bio/MetaCyc annotations</em> all steps are optional.</p>
+<img alt="../../_images/3_2_cleanup.png" src="../../_images/3_2_cleanup.png" />
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The gapfilling is currently only available in it COBRApy variant.</p>
+<p>This part of the pipeline is still a working process, stay tuned for future updates.</p>
+</div>
 </section>
 
 

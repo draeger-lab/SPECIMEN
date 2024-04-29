@@ -18,7 +18,6 @@ classifiers = [
     "Operating System :: Unix" # make it OS independant  - main problem currently are the paths
 ]
 dependencies = [
-    # refinegems >= 2.0.0,
     'biopython',
     'click',
     'cobra',
@@ -28,7 +27,7 @@ dependencies = [
     'memote',
     'numpy',
     'pandas',
-    'refinegems',
+    'refinegems >= 2.0',
     'requests',
     'SBOannotator',
     'seaborn',
