@@ -7,39 +7,49 @@ name = 'specimen'
 authors = [
   { name="Carolin Brune"},
 ]
-description = ""
+description = "SPECIMEN: A package for strain-specific metabolic modelling."
 readme = "README.md"
 version = "1.0.0"
 requires-python = ">=3.10"
-#keywords = []
-#license = {}
+license = {text = "GPL-3.0"}
+keywords = ['Systems Biology', 'GEM', 'Metabolic Modelling', 'Python Package', 'Pipeline']
+
 classifiers = [
-    "Programming Language :: Python :: 3.10",
     'Operating System :: MacOS',
-    "Operating System :: Unix" # make it OS independant  - main problem currently are the paths
+    "Operating System :: Unix", # @TODO make it OS independant  - testing remains
+    # 'Operating System :: OS Independent'
+    'Programming Language :: Python',
+    # Topic :: Software Development :: Libraries :: Python Modules
+    'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)'
 ]
+
 dependencies = [
     'biopython',
+    'bofdat', # but does not work like this!!!
     'click',
     'cobra',
-    'python-libsbml',
-    # MCC@git+https://github.com/Biomathsys/MassChargeCuration
     'matplotlib',
+    'MCC@git+https://github.com/Biomathsys/MassChargeCuration', # @TODO test if it works
     'memote',
     'numpy',
     'pandas',
+    'python-libsbml',
+    'pyyaml',
     'refinegems >= 2.0',
     'requests',
     'SBOannotator',
     'seaborn',
     'tqdm',
-    'pyyaml',
     'z3-solver'
 ]
 # additional missing tools:
 #    EntrezDirect
 #    DIAMOND
-#    BOFdat
+
+# @TODO:
+[project.urls]
+homepage = 'https://github.com/draeger-lab/SPECIMEN'
+# documentation = 
 
 [project.scripts]
 specimen = "specimen.cmd_access:cli"
