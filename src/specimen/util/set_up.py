@@ -78,7 +78,8 @@ def download_mnx(dir:str='MetaNetX', chunk_size:int=1024):
 def build_data_directories(pipeline: Literal['hqtb','high-quality template based', 
                                          'cmpb', 'carveme modelpolisher based'], 
                            dir:str, chunk_size:int=2048):
-    """_summary_
+    """Set up the necessary directory structure and download files if possible
+    for the given pipeline.
 
     Args:
         - pipeline (Literal['hqtb','high'): 
@@ -122,7 +123,7 @@ def build_data_directories(pipeline: Literal['hqtb','high-quality template based
 # handling config files
 # ---------------------
 
-def download_config(filename:str='my_basic_config.yaml', type:Literal['hqtb basic','hqtb advanced','hqtb defaults','media','cmpb']='hqtb basic'):
+def download_config(filename:str='my_basic_config.yaml', type:Literal['hqtb-basic','hqtb-advanced','hqtb-defaults','media','cmpb']='hqtb basic'):
     """Load a configuration file from the package and save 
     a copy for the user to edit.
 
@@ -131,16 +132,16 @@ def download_config(filename:str='my_basic_config.yaml', type:Literal['hqtb basi
 
     For the htqb / high-quality template based pipeline:
 
-        Depending on the knowledge of the user, either a 'hqtb basic' or an 'hqtb advanced' type
-        of configuration file can be downloaded (or 'hqrb defaults' for developers).
+        Depending on the knowledge of the user, either a 'hqtb-basic' or an 'hqtb-advanced' type
+        of configuration file can be downloaded (or 'hqtb-defaults' for developers).
 
     Args:
         - filename (str, optional): 
             Filename/filepath to save the downloaded config file under. 
             Defaults to 'my_basic_config.yaml'.
-        - type (Literal['basic','advanced','defaults'], optional): 
+        - type (Literal['htqb-basic','htqb-advanced','htqb-defaults','media','cmpb'], optional): 
             The type of file to download. 
-            Can be 'hqtb basic', 'hqtb advanced' or 'hqtb defaults' or 'media' or 'cmpb'. 
+            Can be 'hqtb-basic', 'hqtb-advanced' or 'hqtb-defaults' or 'media' or 'cmpb'. 
             Defaults to 'hqtb basic'.
 
     Raises:
@@ -150,19 +151,19 @@ def download_config(filename:str='my_basic_config.yaml', type:Literal['hqtb basi
     # copy an examplary version of the config file for the user to edit it
     match type:
         # the 'beginner' version
-        case 'hqtb basic':
+        case 'hqtb-basic':
             config_file = files('specimen.data.config').joinpath('htqb_basic_config_expl.yaml')
             with open(config_file, "r") as cfg_file, open(filename, 'w') as cfg_out:
                 for line in cfg_file:
                     cfg_out.write(line)
         # for advanced users
-        case 'hqtb advanced':
+        case 'hqtb-advanced':
             config_file = files('specimen.data.config').joinpath('htqb_advanced_config_expl.yaml')
             with open(config_file, "r") as cfg_file, open(filename, 'w') as cfg_out:
                 for line in cfg_file:
                     cfg_out.write(line)
         # for developer: the config with all internal defaults
-        case 'hqtb defaults':
+        case 'hqtb-defaults':
             config_file = files('specimen.data.config').joinpath('htqb_config_default.yaml')
             with open(config_file, "r") as cfg_file, open(filename, 'w') as cfg_out:
                 for line in cfg_file:

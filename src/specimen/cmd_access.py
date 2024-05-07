@@ -395,3 +395,13 @@ def analysis(model,
 @cli.group()
 def cmpb():
     """Pipeline for GEM curation based on CarveMe model and ModelPolisher."""
+
+@cmpb.command()
+@click.argument('config',type=click.Path(exists=True))
+def run(config):
+    """Run the pipeline for GEM curation based on a CarveMe model using a config file.
+
+    CONFIG is the path to the config file.
+    """
+    
+    specimen.cmpb.run(config)
