@@ -3,7 +3,9 @@
 Extents the model by mapping missing genes to reactions via NCBI, KEGG,
 MetaNetX and BiGG.
 """
+
 __author__ = 'Carolin Brune'
+
 ################################################################################
 # requirements
 ################################################################################

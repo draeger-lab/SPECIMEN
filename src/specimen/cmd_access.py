@@ -41,12 +41,12 @@ def setup():
 # -----------------
 @setup.command()
 @click.option('--filename', '-f', default='config.yaml', type=str, show_default=True, help='Name (path) to the save the config file under.')
-@click.option('--type', '-t', default='basic', type=click.Choice(['basic', 'advanced','defaults','media']), help='Type of config file to download. Either a more detailed one for advanced usage or a basic one for beginners with less options.')
+@click.option('--type', '-t', default='htqb-basic', type=click.Choice(['htqb-basic', 'htqb-advanced','htqb-defaults','media','cmpb']), help='Type of config file to download. Either a more detailed one for advanced usage or a basic one for beginners with less options.')
 def config(filename,type):
     """Download a configuration file (.yaml).
 
-    Download a configuration file to edit for running the complete
-    workflow.
+    Download a configuration file to edit for running a complete
+    workflow or setting the definitions for a set of media.
     """
     specimen.util.set_up.download_config(filename, type)
 
@@ -54,28 +54,32 @@ def config(filename,type):
 # setup data directory structure
 # ------------------------------
 @setup.command()
+@click.argument('pipeline', type=click.Choice(['hqtb','high-quality template based', 
+                                               'cmpb', 'carveme modelpolisher based']))
 @click.option('--dir','-d', type=str, default='./data/', show_default=True, help='Name/path to the directory create subdirectories in.')
 @click.option('--chunk-size', '-s', type=int, default=2048, show_default=True, help=' Size of the chunks of data while downloading.')
-def data_structure(dir, chunk_size):
+def data_structure(pipeline, dir, chunk_size):
     """Create a data directory and download basic databases.
 
     Creates the 'ideal' data directory structure and directly downloads
     the MetaNetX and BiGG data files.
+
+    PIPELINE is the type of pipeline for which the data structure should be build.
     """
     specimen.util.set_up.build_data_directories(dir, chunk_size)
 
-# ---------------
-# run the program
-# ---------------
+#################
+# hqtb pipeline #
+#################
 @cli.group()
-def run():
-    """Run the complete pipeline or different parts separatly."""
+def hqtb():
+    """Pipeline for GEM curation based on a high-quality template."""
 
 # run complete pipeline from config
 # ---------------------------------
-@run.command()
+@hqtb.command()
 @click.argument('config', type=str)
-def pipeline(config):
+def run_pipeline(config):
     """Run the complete pipeline based on a config file.
 
     CONFIG is the path to the configuration file to read the parameters from.
@@ -85,10 +89,10 @@ def pipeline(config):
 
 # run complete pipeline from config and folder (run multiple  times)
 # ------------------------------------------------------------------
-@run.command()
+@hqtb.command()
 @click.argument('config', type=str)
 @click.option('-d','--directory', default='', type=str, help='Path to the (parent) directory that contains the folders if the subject input files.')
-def wrapper(config,directory):
+def run_wrapper(config,directory):
     """Run the complete pipeline multiple times based on a config file
     and a folder. The folder should contain subfolders with the subject files
     (annotated and full genome).
@@ -100,7 +104,7 @@ def wrapper(config,directory):
 
 # run bidirectional blast
 # -----------------------
-@run.command()
+@hqtb.command()
 @click.argument('template', type=str)
 @click.argument('input', type=str)
 @click.option('--template-name', type=str, help='Name of the annotated genome file used as a template.')
@@ -125,7 +129,7 @@ def bdb(template, input, template_name, input_name, temp_header, in_header, dir,
 
 # generafte draft
 # ---------------
-@run.command()
+@hqtb.command()
 @click.argument('template', type=str)
 @click.argument('bpbbh', type=str)
 @click.option('--dir', type=str, default='./02_generate_draft_model', help='Path to the output directory.')
@@ -147,7 +151,7 @@ def draft(template, bpbbh, dir, edit_names, pid, name, medium, nsp, memote):
 
 # refinement
 # ----------
-@run.group()
+@hqtb.group()
 def refinement():
     """Step 3 of the workflow: Refinement of the model
     """
@@ -329,7 +333,7 @@ def smoothing(model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, egc, na
 
 # validation
 # ----------
-@run.command()
+@hqtb.command()
 @click.argument('model',type=str)
 @click.option('--dir', '-d', default='./validation/', type=str, help='Path to a directory for the output.')
 @click.option('--run-test', '-t', multiple=True, default=['all'], help='define, which tests should be run. Current possibilities are "all" and "cobra"')
@@ -347,7 +351,7 @@ def validation(model,dir,run_test):
 
 # analysis
 # --------
-@run.command()
+@hqtb.command()
 # in / out
 @click.argument('model', type=str)
 @click.option('--dir', default='./analysis/', type=str, help='Path to a directory for the output.')
@@ -382,3 +386,12 @@ def analysis(model,
                                pc_based_on=pcc, 
                                test_aa_auxotrophies=test_aa_auxotrophies, 
                                pathway=pathway)
+
+
+#################
+# cmpb pipeline #
+#################
+
+@cli.group()
+def cmpb():
+    """Pipeline for GEM curation based on CarveMe model and ModelPolisher."""

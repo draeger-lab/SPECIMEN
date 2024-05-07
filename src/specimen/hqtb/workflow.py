@@ -1,4 +1,4 @@
-"""Steps of the workflow to create a GEM based on a template model.
+"""Funktions to run the workflow to create a GEM based on a high-quality template model.
 """
 
 __author__ = 'Carolin Brune'
@@ -15,7 +15,8 @@ import yaml
 
 from pathlib import Path
 
-from . import core, util
+from . import core
+from .. import util
 
 # further required programs:
 #        - DIAMOND, tested with version 0.9.14 (sensitivity options fail), >2.0.4 (everything works)
@@ -32,7 +33,8 @@ def run_complete(config_file:str = 'test_config.yaml'):
     """Run the complete workflow for creating a strain-specific model.
 
     Args:
-        - config_file (str, optional): Path to the config file. 
+        - config_file (str, optional): 
+            Path to the config file. 
             Defaults to 'test_config.yaml'.
 
     Raises:
@@ -40,7 +42,7 @@ def run_complete(config_file:str = 'test_config.yaml'):
     """
 
     # read in the configuration file
-    config = util.set_up.validate_config(config_file)
+    config = util.set_up.validate_hqtb_config(config_file)
 
     # step 0: generate output folder(s) (+ for log files)
     # current variables:
@@ -185,14 +187,17 @@ def wrapper_pipeline(config_file:str, parent_dir:str=""):
     subject annotated genomes and full genome sequences using the same configuration.
 
     Args:
-        - config_file (str): config file containing the general information to run the pipeline.
+        - config_file (str): 
+            config file containing the general information to run the pipeline.
             The information for the subject and output place/name can be empty.
-        - parent_dir (str, optional): Path to a directory to search for subfolders containing the data. 
+        - parent_dir (str, optional): 
+            Path to a directory to search for subfolders containing the data. 
             Defaults to "".
 
     Raises:
-        - ValueError: No or multiple annotated genome files found: subfolder
-        - ValueError:  No or multiple full genome files found: subfolder
+        ValueError: No or multiple annotated genome files found: subfolder
+
+        ValueError:  No or multiple full genome files found: subfolder
     """
 
     # load config

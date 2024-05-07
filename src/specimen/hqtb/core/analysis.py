@@ -19,7 +19,7 @@ from refinegems.analysis.core_pan import compare_to_core_pan
 from refinegems.curation.pathways import kegg_pathway_analysis
 from refinegems.curation.biomass import test_biomass_presence
 
-from ..classes.reports import SpecimenModelInfoReport
+from ...classes.reports import SpecimenModelInfoReport
 
 ################################################################################
 # functions

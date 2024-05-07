@@ -29,13 +29,13 @@ dependencies = [
     'click',
     'cobra',
     'matplotlib',
-    'MCC@git+https://github.com/Biomathsys/MassChargeCuration', # @TODO test if it works
+    #'MCC@git+https://github.com/Biomathsys/MassChargeCuration', # @TODO test if it works
     'memote',
     'numpy',
     'pandas',
     'python-libsbml',
     'pyyaml',
-    'refinegems >= 2.0',
+    # 'refinegems >= 2.0',
     'requests',
     'SBOannotator',
     'seaborn',
