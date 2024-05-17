@@ -28,7 +28,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="The specimen.cmd_access submodule" href="cmd.html" />
-    <link rel="prev" title="specimen.core package" href="core.html" /> 
+    <link rel="prev" title="specimen.hqtb.core package" href="core.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -54,12 +54,12 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../about-pipeline.html">About SPECIMEN</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../run-pipeline.html">Run the Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview-pipes.html">Overview of the Pipelines</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../specimen.html">Contents of SPECIMEN</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../specimen.html#specimen-subpackages">specimen subpackages</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="classes.html">specimen.classes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="core.html">specimen.core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cmpb.html">specimen.cmpb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hqtb.html">specimen.hqtb</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">specimen.util</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#specimen-util-submodules">specimen.util submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-specimen.util.set_up">specimen.util.set_up module</a></li>
@@ -107,89 +107,48 @@
 </section>
 <section id="module-specimen.util.set_up">
 <span id="specimen-util-set-up-module"></span><h2>specimen.util.set_up module<a class="headerlink" href="#module-specimen.util.set_up" title="Link to this heading"></a></h2>
-<p>Collection of functions for setting up the environment for the pipeline.</p>
+<p>Collection of functions for setting up the environment for the pipelines.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="specimen.util.set_up.build_data_directories">
-<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">build_data_directories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2048</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/specimen/util/set_up.html#build_data_directories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.util.set_up.build_data_directories" title="Link to this definition"></a></dt>
-<dd><p>Set up the directory structure for the data and download the files
-from MetaNetX.</p>
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">build_data_directories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'hqtb'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'high-quality</span> <span class="pre">template</span> <span class="pre">based'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'cmpb'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'carveme</span> <span class="pre">modelpolisher</span> <span class="pre">based'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2048</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/specimen/util/set_up.html#build_data_directories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.util.set_up.build_data_directories" title="Link to this definition"></a></dt>
+<dd><p>Set up the necessary directory structure and download files if possible
+for the given pipeline.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><ul class="simple">
 <li><dl class="simple">
-<dt>dir (str):  </dt><dd><p>Parent folder to write the subfolder structure to.</p>
+<dt>pipeline (Literal[‘hqtb’,’high’): </dt><dd><p>For which pipeline the structure should be.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>chunk_size (int, optional):</dt><dd><p>Size of the chunks of data while downloading.
-Only used for downloading the MetaNetX files.
-Defaults to 2048.</p>
+<dt>dir (str): </dt><dd><p>Parent directory/ Path to write the structure to.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>chunk_size (int, optional): </dt><dd><p>Chunk size for the download. Defaults to 2048.</p>
 </dd>
 </dl>
 </li>
 </ul>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="specimen.util.set_up.dict_recursive_check">
-<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">dict_recursive_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dictA</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/specimen/util/set_up.html#dict_recursive_check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.util.set_up.dict_recursive_check" title="Link to this definition"></a></dt>
-<dd><p>Function to check if a configuration is valid to run the pipeline.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>dictA (dict): </dt><dd><p>Current dictionary or value to be validated.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>key (str, optional): </dt><dd><p>key of dictA, if it was an entry of a dictionary. 
-Defaults to None.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-<dt>Raises:</dt><dd><p>TypeError: Missing a required argument in the config file.
-FileNotFoundError: Path does not exist: {dictA}
-FileNotFoundError: Path does not exist: {dictA}</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="specimen.util.set_up.dict_recursive_combine">
-<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">dict_recursive_combine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dictA</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dictB</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/specimen/util/set_up.html#dict_recursive_combine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.util.set_up.dict_recursive_combine" title="Link to this definition"></a></dt>
-<dd><p>Helper-function to combine two configuration file.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>dictA (dict): </dt><dd><p>Information from one config file in dict format.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>dictB (dict): </dt><dd><p>Information from the other config file in dict format.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-<dt>Returns:</dt><dd><dl class="simple">
-<dt>dict: </dt><dd><p>The combined information.</p>
-</dd>
-</dl>
+<dt>Raises:</dt><dd><p>ValueError: Unknown input for parameter pipeline</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="specimen.util.set_up.download_config">
-<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">download_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'my_basic_config.yaml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'basic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'advanced'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'defaults'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'media'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'basic'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/specimen/util/set_up.html#download_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.util.set_up.download_config" title="Link to this definition"></a></dt>
-<dd><p>Load a configuration file from the package and save a copy for the user to edit.</p>
-<p>Depending on the knowledge of the user, either a ‘basic’ or an ‘advanced’ type
-of configuration file can be downloaded.</p>
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">download_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'my_basic_config.yaml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'hqtb-basic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'hqtb-advanced'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'hqtb-defaults'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'media'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'cmpb'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hqtb</span> <span class="pre">basic'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/specimen/util/set_up.html#download_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.util.set_up.download_config" title="Link to this definition"></a></dt>
+<dd><p>Load a configuration file from the package and save 
+a copy for the user to edit.</p>
+<p>The media config and the config for the cmpb / CarveMe + Modelpolisher based pipeline
+can be downloaded using ‘media’ and ‘cmpb’ respectively</p>
+<p>For the htqb / high-quality template based pipeline:</p>
+<blockquote>
+<div><p>Depending on the knowledge of the user, either a ‘hqtb-basic’ or an ‘hqtb-advanced’ type
+of configuration file can be downloaded (or ‘hqtb-defaults’ for developers).</p>
+</div></blockquote>
 <dl class="simple">
 <dt>Args:</dt><dd><ul class="simple">
 <li><dl class="simple">
@@ -199,9 +158,9 @@ Defaults to ‘my_basic_config.yaml’.</p>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>type (Literal[‘basic’,’advanced’,’defaults’], optional): </dt><dd><p>The type of file to download. 
-Can be ‘basic’, ‘advanced’ or ‘defaults’ or ‘media’. 
-Defaults to ‘basic’.</p>
+<dt>type (Literal[‘htqb-basic’,’htqb-advanced’,’htqb-defaults’,’media’,’cmpb’], optional): </dt><dd><p>The type of file to download. 
+Can be ‘hqtb-basic’, ‘hqtb-advanced’ or ‘hqtb-defaults’ or ‘media’ or ‘cmpb’. 
+Defaults to ‘hqtb basic’.</p>
 </dd>
 </dl>
 </li>
@@ -236,9 +195,31 @@ Defaults to 1024.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="specimen.util.set_up.validate_config">
-<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">validate_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">userc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/specimen/util/set_up.html#validate_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.util.set_up.validate_config" title="Link to this definition"></a></dt>
-<dd><p>Validate a user config file for use in the pipeline.</p>
+<dt class="sig sig-object py" id="specimen.util.set_up.save_cmpb_user_input">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">save_cmpb_user_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configpath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict[slice(&lt;class</span> <span class="pre">'str'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'str'&gt;,</span> <span class="pre">None)]</span></span></span><a class="reference internal" href="../_modules/specimen/util/set_up.html#save_cmpb_user_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.util.set_up.save_cmpb_user_input" title="Link to this definition"></a></dt>
+<dd><p>This aims to collect user input from the command line to create a cmpb config file, 
+will also save the user input to a config if no config was given</p>
+<dl class="simple">
+<dt>Args:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>configpath (str): </dt><dd><p>Path to config file if present</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>dict: </dt><dd><p>Either loaded config file or created from user input</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="specimen.util.set_up.validate_hqtb_config">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">validate_hqtb_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">userc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/specimen/util/set_up.html#validate_hqtb_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.util.set_up.validate_hqtb_config" title="Link to this definition"></a></dt>
+<dd><p>Validate a user hqtb config file for use in the pipeline.</p>
 <p>Note: currently not everything is checked, mainly the needed files are.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><ul class="simple">
@@ -361,7 +342,7 @@ Has the following  columns= [‘ncbi_accession_version’, ‘locus_tag_ref’,�
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="core.html" class="btn btn-neutral float-left" title="specimen.core package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="core.html" class="btn btn-neutral float-left" title="specimen.hqtb.core package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="cmd.html" class="btn btn-neutral float-right" title="The specimen.cmd_access submodule" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

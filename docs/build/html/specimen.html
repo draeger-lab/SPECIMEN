@@ -28,7 +28,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="specimen.classes package" href="modules/classes.html" />
-    <link rel="prev" title="Run the Pipeline" href="run-pipeline.html" /> 
+    <link rel="prev" title="Run the HTQB Pipeline" href="hqtb/run-pipeline.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -54,18 +54,17 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="about-pipeline.html">About SPECIMEN</a></li>
-<li class="toctree-l1"><a class="reference internal" href="run-pipeline.html">Run the Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview-pipes.html">Overview of the Pipelines</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Contents of SPECIMEN</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#specimen-subpackages">specimen subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="modules/classes.html">specimen.classes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/core.html">specimen.core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cmpb.html">specimen.cmpb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/hqtb.html">specimen.hqtb</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/util.html">specimen.util</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#specimen-submodules">specimen submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="modules/cmd.html">specimen.cmd_access</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/workflow.html">specimen.workflow</a></li>
 </ul>
 </li>
 </ul>
@@ -113,19 +112,20 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="modules/core.html">specimen.core</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="modules/core.html#specimen-core-refinement-subpackage">specimen.core.refinement subpackage</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="modules/core.html#module-specimen.core.refinement.annotation">specimen.core.refinement.annotation submodule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/core.html#module-specimen.core.refinement.cleanup">specimen.core.refinement.cleanup submodule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/core.html#module-specimen.core.refinement.extension">specimen.core.refinement.extension submodule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/core.html#module-specimen.core.refinement.smoothing">specimen.core.refinement.smoothing submodule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/cmpb.html">specimen.cmpb</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/cmpb.html#specimen-cmpb-submodules">specimen.cmpb submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/cmpb.html#module-specimen.cmpb.workflow">specimen.cmpb.workflow</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="modules/core.html#specimen-core-submodules">specimen.core submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="modules/core.html#module-specimen.core.analysis">specimen.core.analysis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/core.html#module-specimen.core.bidirectional_blast">specimen.core.bidirectional_blast</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/core.html#module-specimen.core.generate_draft_model">specimen.core.generate_draft_model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/core.html#module-specimen.core.validation">specimen.core.validation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/hqtb.html">specimen.hqtb</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/hqtb.html#specimen-hqtb-subpackages">specimen.hqtb subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/core.html">specimen.hqtb.core package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/hqtb.html#specimen-hqtb-submodules">specimen.hqtb submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/hqtb.html#module-specimen.hqtb.workflow">specimen.hqtb.workflow</a></li>
 </ul>
 </li>
 </ul>
@@ -134,11 +134,10 @@
 <li class="toctree-l2"><a class="reference internal" href="modules/util.html#specimen-util-submodules">specimen.util submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules/util.html#module-specimen.util.set_up">specimen.util.set_up module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="modules/util.html#specimen.util.set_up.build_data_directories"><code class="docutils literal notranslate"><span class="pre">build_data_directories()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/util.html#specimen.util.set_up.dict_recursive_check"><code class="docutils literal notranslate"><span class="pre">dict_recursive_check()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/util.html#specimen.util.set_up.dict_recursive_combine"><code class="docutils literal notranslate"><span class="pre">dict_recursive_combine()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/util.html#specimen.util.set_up.download_config"><code class="docutils literal notranslate"><span class="pre">download_config()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/util.html#specimen.util.set_up.download_mnx"><code class="docutils literal notranslate"><span class="pre">download_mnx()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/util.html#specimen.util.set_up.validate_config"><code class="docutils literal notranslate"><span class="pre">validate_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/util.html#specimen.util.set_up.save_cmpb_user_input"><code class="docutils literal notranslate"><span class="pre">save_cmpb_user_input()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/util.html#specimen.util.set_up.validate_hqtb_config"><code class="docutils literal notranslate"><span class="pre">validate_hqtb_config()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="modules/util.html#module-specimen.util.util">specimen.util.util module</a><ul>
@@ -154,20 +153,14 @@
 </section>
 <section id="specimen-submodules">
 <h2>specimen submodules<a class="headerlink" href="#specimen-submodules" title="Link to this heading"></a></h2>
-<p>The direct submodules of <code class="docutils literal notranslate"><span class="pre">specimen</span></code> are mainly for accessing the tool.
-They consists of one module for the command line access and a second one for running
-the pipeline as a whole.</p>
+<p>The direct submodules of <code class="docutils literal notranslate"><span class="pre">SPECIMEN</span></code> are mainly for accessing the tool.
+They consists of one module for the command line access.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="modules/cmd.html">specimen.cmd_access</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="modules/cmd.html#general-options">General Options</a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules/cmd.html#specimen-setup">specimen setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules/cmd.html#specimen-run">specimen run</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="modules/workflow.html">specimen.workflow</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="modules/workflow.html#specimen.workflow.run_complete"><code class="docutils literal notranslate"><span class="pre">run_complete()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/workflow.html#specimen.workflow.wrapper_pipeline"><code class="docutils literal notranslate"><span class="pre">wrapper_pipeline()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -179,7 +172,7 @@ the pipeline as a whole.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="run-pipeline.html" class="btn btn-neutral float-left" title="Run the Pipeline" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hqtb/run-pipeline.html" class="btn btn-neutral float-left" title="Run the HTQB Pipeline" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="modules/classes.html" class="btn btn-neutral float-right" title="specimen.classes package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

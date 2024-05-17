@@ -53,8 +53,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="about-pipeline.html">About SPECIMEN</a></li>
-<li class="toctree-l1"><a class="reference internal" href="run-pipeline.html">Run the Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview-pipes.html">Overview of the Pipelines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="specimen.html">Contents of SPECIMEN</a></li>
 <li class="toctree-l1"><a class="reference internal" href="help.html">Help &amp; FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dev-notes.html">Notes for Developers</a></li>
@@ -86,14 +85,15 @@
              
   <section id="welcome-to-specimen">
 <h1>Welcome to SPECIMEN!<a class="headerlink" href="#welcome-to-specimen" title="Link to this heading"></a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">SPECIMEN</span></code> is a Python package that provides functionalities for mostly automated
-strain-specific curation of metabolic models using a high-quality template model.</p>
-<section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
-<p>At core of <code class="docutils literal notranslate"><span class="pre">SPECIMEN</span></code> is an automated pipeline that curates a new GEM based on a genome, a template model and some additional information.
-The pipeline can be accessed from the command line or from inside a Python script. An overview of the different steps of the pipeline can be seen below.</p>
-<img alt="_images/pipeline-overview.png" src="_images/pipeline-overview.png" />
-<p>Additionally, <code class="docutils literal notranslate"><span class="pre">SPECIMEN</span></code> allows the use of the functions / steps of the pipeline separatly.</p>
+<p><code class="docutils literal notranslate"><span class="pre">SPECIMEN</span></code> is a Python package that contains a growing collection of workflows for the
+automated curation of high-quality, ideally strain-specific, genome-scale metabolic models (GEMs).</p>
+<p>These workflows are mainly based on the <a class="reference external" href="https://github.com/draeger-lab/refinegems">refineGEMS</a> <a class="footnote-reference brackets" href="#footcite-bauerle2023genome" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> toolbox.</p>
+<p>Additionally, <code class="docutils literal notranslate"><span class="pre">SPECIMEN</span></code> allows the use of most of the functions and
+steps of the different pipelines separatly.</p>
+<p>TODO:</p>
+<ul class="simple">
+<li><p>something more about pipelines and so on….</p></li>
+</ul>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
@@ -101,13 +101,9 @@ The pipeline can be accessed from the command line or from inside a Python scrip
 <li class="toctree-l2"><a class="reference internal" href="installation.html#installation-via-github">Installation via github</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="about-pipeline.html">About SPECIMEN</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="about-pipeline.html#overview-of-the-pipeline">Overview of the Pipeline</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="run-pipeline.html">Run the Pipeline</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="run-pipeline.html#quickstart">Quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="run-pipeline.html#collecting-data">Collecting Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview-pipes.html">Overview of the Pipelines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview-pipes.html#carveme-modelpolisher-based-cmpb-pipeline">CarveMe + ModelPolisher based (CMPB) pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview-pipes.html#high-quality-template-based-hqtb-pipeline">High-quality template based (HQTB) pipeline</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="specimen.html">Contents of SPECIMEN</a><ul>
@@ -128,7 +124,6 @@ The pipeline can be accessed from the command line or from inside a Python scrip
 </li>
 </ul>
 </div>
-</section>
 </section>
 
 

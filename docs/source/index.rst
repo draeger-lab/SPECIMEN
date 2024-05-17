@@ -2,28 +2,27 @@
    sphinx-quickstart on Sun Aug  6 09:58:51 2023.
 
 Welcome to SPECIMEN!
-====================================
+====================
 
-``SPECIMEN`` is a Python package that provides functionalities for mostly automated 
-strain-specific curation of metabolic models using a high-quality template model.
+``SPECIMEN`` is a Python package that contains a growing collection of workflows for the 
+automated curation of high-quality, ideally strain-specific, genome-scale metabolic models (GEMs).
 
-Overview
-------------
+These workflows are mainly based on the `refineGEMS <https://github.com/draeger-lab/refinegems>`__ :footcite:p:`bauerle2023genome` toolbox.
 
-At core of ``SPECIMEN`` is an automated pipeline that curates a new GEM based on a genome, a template model and some additional information.
-The pipeline can be accessed from the command line or from inside a Python script. An overview of the different steps of the pipeline can be seen below.
+Additionally, ``SPECIMEN`` allows the use of most of the functions and 
+steps of the different pipelines separatly.
 
-.. image:: ./images/pipeline-overview.png
+TODO:
 
-Additionally, ``SPECIMEN`` allows the use of the functions / steps of the pipeline separatly.
+- something more about pipelines and so on....
+
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
    installation
-   about-pipeline
-   run-pipeline
+   overview-pipes 
    specimen
    help
    dev-notes
