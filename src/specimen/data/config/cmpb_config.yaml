@@ -16,11 +16,11 @@ Settings for scripts that investigate the model: >
 # Set to TRUE if you want pngs that aid in model investigation, will be saved to a folder called 'visualization'
 visualize: TRUE
 
-# Set the basis medium to simulate growth from
-growth_basis: 'minimal_uptake' # 'default_uptake' or 'minimal_uptake'
+# Set the path to a medium config for growth simulation 
+mediapath: 'media_config.yaml'
 
-# Set to TRUE if you want to simulate anaerobic growth
-anaerobic_growth: FALSE
+# Namespace to use for the model
+namespace: 'BiGG'
 
 # Settings if you want to compare multiple models
 multiple: FALSE
@@ -29,18 +29,6 @@ multiple_paths: # enter as many paths as you need below
   - ''
   - ''
 single: TRUE # set to False if you only want to work with the multiple models
-
-# media to simulate growth from, just comment the media you do not want with a #
-media: 
-  - 'LB'
-  - 'RPMI'
-  - 'M9'
-  - 'SNM3'
-  - 'CGXII'
-  - 'CasA'
-  - 'Blood'
-  - 'dGMM'
-  - 'MP-AU'
 
 # Determine whether the biomass function should be checked & normalised
 biomass: TRUE

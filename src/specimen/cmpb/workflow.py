@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-__author__ = "Tobias Fehrenbach, Famke Baeuerle and Gwendolyn O. Döbel"
+__author__ = "Tobias Fehrenbach, Famke Baeuerle, Gwendolyn O. Döbel and Carolin Brune"
 
 ################################################################################
 # requirements
@@ -14,6 +14,7 @@ import refinegems as rg
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import date
+from pathlib import Path
 
 from ..util.set_up import save_cmpb_user_input
 
@@ -33,14 +34,14 @@ def run(configpath=None):
     
     config = save_cmpb_user_input(configpath)
     today = date.today().strftime("%Y%m%d")
-    log_file = f'{config["out_path"]}rg_{str(today)}.log'
+    log_file = Path(config["out_path"],f'rg_{str(today)}.log')
     
     # check if the output directory is already present, if not create it
     if not os.path.isdir(config['out_path']):
         logging.info('Given out_path is not yet a directory, creating ' + config['out_path'])
         os.makedirs(config['out_path'])
     if config['visualize']:
-        dir = os.path.join(config['out_path'] + 'visualization/')
+        dir = Path(config['out_path'],'visualization')
         if not os.path.isdir(dir): 
             os.makedirs(dir) 
     
@@ -64,13 +65,14 @@ def run(configpath=None):
     if config['multiple']:
         logging.info('Growth simulation for multiple models: ')
         models_cobra = rg.utility.io.load_model(config['multiple_paths'], 'cobra')
-        # .....................................
-        # @TODO: 
-        growth_all = rg.comparison.simulate_all(models_cobra, config['media'], config['growth_basis'], config['anaerobic_growth'])
-        growth_prefix = 'anaerobic_growth_' if config['anaerobic_growth'] else 'growth_'
-        growth_all.to_csv(config['out_path'] + growth_prefix + str(today) + '_' + config['growth_basis'] + '.csv', index=False)
-        logging.info('Multiple model growth simulation results are saved to ' +  growth_prefix + str(today) + '_' + config['growth_basis'] + '.csv')
-        # .....................................
+        growth_all = rg.analysis.growth.growth_analysis(model_cobra,
+                    config['mediapath'],
+                    namespace = config['namespace'],
+                    retrieve='report')
+        growth_all.save(Path(config['out_path']))
+        logging.info('Multiple model growth simulation results are saved to ' +  str(Path(config['out_path'], 'GrowthSimReport')))
+
+        ###########
 
         # visualizations
         # .....................................
