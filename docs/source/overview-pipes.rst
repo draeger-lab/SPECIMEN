@@ -36,3 +36,4 @@ a similar organism to the one the new model should be curated for.
 
     About HQTB <hqtb/about-pipeline>
     Run HQTB <hqtb/run-pipeline>
+    HQTB Configuration <hqtb/hqtb-config>

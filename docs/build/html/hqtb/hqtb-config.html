@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HQTB Configuration File &mdash; SPECIMEN 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=559046d4" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom_theme.css?v=ef5873f9" />
+
+  
+    <link rel="shortcut icon" href="../_static/LogoSPECIMEN.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=8d563738"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=7859de39"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Contents of SPECIMEN" href="../specimen.html" />
+    <link rel="prev" title="Run the HTQB Pipeline" href="run-pipeline.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/LogoSPECIMEN.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../overview-pipes.html">Overview of the Pipelines</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../overview-pipes.html#carveme-modelpolisher-based-cmpb-pipeline">CarveMe + ModelPolisher based (CMPB) pipeline</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../overview-pipes.html#high-quality-template-based-hqtb-pipeline">High-quality template based (HQTB) pipeline</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="about-pipeline.html">About HQTB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="run-pipeline.html">Run HQTB</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">HQTB Configuration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../specimen.html">Contents of SPECIMEN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../help.html">Help &amp; FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev-notes.html">Notes for Developers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SPECIMEN</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../overview-pipes.html">Overview of the Pipelines</a></li>
+      <li class="breadcrumb-item active">HQTB Configuration File</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/hqtb/hqtb-config.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="hqtb-configuration-file">
+<h1>HQTB Configuration File<a class="headerlink" href="#hqtb-configuration-file" title="Link to this heading"></a></h1>
+<p>Below, the configuration file with the underlying default, is listed.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># information about the genome to be used to generate the new model</span>
+<span class="nt">subject</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">annotated_genome</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">__USER__</span>
+<span class="w">    </span><span class="nt">full_sequence</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">__USER__</span>
+
+<span class="c1"># information about the template model/genome</span>
+<span class="nt">template</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">annotated_genome</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">__USER__</span>
+<span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">__USER__</span>
+<span class="w">    </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">BiGG</span>
+
+<span class="c1"># information about the output</span>
+<span class="nt">out</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./specimen_run/</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">specimen_model</span>
+<span class="w">    </span><span class="nt">memote</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+
+<span class="c1"># data(bases) required to run the program</span>
+<span class="nt">data</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># if this parameter is set, assumes that the directory structure from setup</span>
+<span class="w">    </span><span class="c1"># is used and uses this path to a directory as the parent folder for the</span>
+<span class="w">    </span><span class="c1"># following paths (assumes all data paths are relative ones)</span>
+<span class="w">    </span><span class="nt">data_direc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="c1"># required</span>
+<span class="w">    </span><span class="nt">diamond</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">__USER__</span>
+<span class="w">    </span><span class="c1"># needed but potentially downloaded</span>
+<span class="w">    </span><span class="nt">mnx_chem_prop</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MetaNetX/chem_prop.tsv</span>
+<span class="w">    </span><span class="nt">mnx_chem_xref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MetaNetX/chem_xref.tsv</span>
+<span class="w">    </span><span class="nt">mnx_reac_prop</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MetaNetX/reac_prop.tsv</span>
+<span class="w">    </span><span class="nt">mnx_reac_xref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MetaNetX/reac_xref.tsv</span>
+<span class="w">    </span><span class="c1"># optional, but good and manual</span>
+<span class="w">    </span><span class="nt">ncbi_map</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">ncbi_dat</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="c1"># optional for directionality control</span>
+<span class="w">    </span><span class="nt">biocyc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="c1"># optional:</span>
+<span class="w">    </span><span class="c1">#   the pan-core model is used for analysis and if no universal model</span>
+<span class="w">    </span><span class="c1">#   is given, also for gapfilling</span>
+<span class="w">    </span><span class="c1">#   if the pan-core model is too small for useful gapfilling, use an</span>
+<span class="w">    </span><span class="c1">#   additional universal model for gapfilling</span>
+<span class="w">    </span><span class="c1">#   if none if given gapfilling (and core-pan analysis) is skipped</span>
+<span class="w">    </span><span class="nt">universal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">pan-core</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+
+<span class="c1"># paramters for the single steps of the pipeline</span>
+<span class="nt">parameters</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">bidirectional_blast</span><span class="p">:</span>
+<span class="w">        </span><span class="c1"># default should suffice except special cases</span>
+<span class="w">        </span><span class="nt">template_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">        </span><span class="nt">input_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">        </span><span class="nt">temp_header</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">        </span><span class="nt">in_header</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">        </span><span class="c1"># can be set by user if wanted, but not necessary</span>
+<span class="w">        </span><span class="nt">sensitivity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">more-sensitive</span>
+
+<span class="w">    </span><span class="nt">generate_draft_model</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">edit_names</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">no</span>
+<span class="w">        </span><span class="nt">pid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80.0</span>
+<span class="w">        </span><span class="nt">medium</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default</span>
+
+<span class="w">    </span><span class="nt">refinement_extension</span><span class="p">:</span>
+<span class="w">        </span><span class="c1"># default (usually) fine</span>
+<span class="w">        </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">locus_tag</span>
+<span class="w">        </span><span class="c1"># default fine</span>
+<span class="w">        </span><span class="nt">sensitivity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">more-sensitive</span>
+<span class="w">        </span><span class="c1"># default alright but good to edit for trying different options</span>
+<span class="w">        </span><span class="nt">coverage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">95.0</span>
+<span class="w">        </span><span class="nt">pid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">90.0</span>
+<span class="w">        </span><span class="c1"># default almost needed, except for special cases</span>
+<span class="w">        </span><span class="nt">exclude_dna</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">        </span><span class="nt">exclude_rna</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+
+<span class="w">    </span><span class="nt">refinement_cleanup</span><span class="p">:</span>
+<span class="w">        </span><span class="c1"># default as standart</span>
+<span class="w">        </span><span class="nt">check_dupl_reac</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">        </span><span class="nt">check_dupl_meta</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default</span>
+<span class="w">        </span><span class="nt">remove_unused_meta</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="w">        </span><span class="nt">remove_dupl_reac</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">        </span><span class="nt">remove_dupl_meta</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">        </span><span class="c1"># current default means no gapfilling</span>
+<span class="w">        </span><span class="nt">media_gap</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+
+<span class="w">    </span><span class="nt">refinement_annotation</span><span class="p">:</span>
+<span class="w">        </span><span class="c1"># for KEGG pathway annotation</span>
+<span class="w">        </span><span class="nt">viaEC</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="w">        </span><span class="nt">viaRC</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+
+<span class="w">    </span><span class="nt">refinement_smoothing</span><span class="p">:</span>
+<span class="w">        </span><span class="c1"># useful</span>
+<span class="w">        </span><span class="nt">mcc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">skip</span>
+<span class="w">        </span><span class="c1"># ECG correction</span>
+<span class="w">        </span><span class="nt">egc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">        </span><span class="c1"># depend on organism (current: Klebsiella )</span>
+<span class="w">        </span><span class="nt">dna_weight_frac</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.023</span>
+<span class="w">        </span><span class="nt">ion_weight_frac</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.05</span>
+
+<span class="w">    </span><span class="c1"># validation:</span>
+<span class="w">        </span><span class="c1"># default should suffice</span>
+
+<span class="w">    </span><span class="nt">analysis</span><span class="p">:</span>
+<span class="w">        </span><span class="c1"># default is currently only option</span>
+<span class="w">        </span><span class="nt">pc_based_on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">id</span>
+<span class="w">        </span><span class="c1"># can be default but useful to edit</span>
+<span class="w">        </span><span class="nt">media_analysis</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">__USER__</span><span class="w"> </span><span class="c1"># edit to fit a default media config file</span>
+<span class="w">        </span><span class="nt">test_aa_auxotrophies</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">        </span><span class="c1"># perform pathway analysis with KEGG</span>
+<span class="w">        </span><span class="nt">pathway</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+
+<span class="c1"># options for performance</span>
+<span class="nt">performance</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">threads</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">    </span><span class="c1"># for the gapfilling, if iterations and chunk_size are set (not null)</span>
+<span class="w">    </span><span class="c1"># use a heuristic for faster performance:</span>
+<span class="w">    </span><span class="c1">#     instead of using all reactions that can be added at once,</span>
+<span class="w">    </span><span class="c1">#     run x interations of gapfilling with n-size randomised chunks of reactions</span>
+<span class="w">    </span><span class="nt">gapfilling</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">iterations</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">        </span><span class="nt">chunk_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="run-pipeline.html" class="btn btn-neutral float-left" title="Run the HTQB Pipeline" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../specimen.html" class="btn btn-neutral float-right" title="Contents of SPECIMEN" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Carolin Brune.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

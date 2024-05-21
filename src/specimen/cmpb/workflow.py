@@ -7,7 +7,6 @@ __author__ = "Tobias Fehrenbach, Famke Baeuerle, Gwendolyn O. Döbel and Carolin
 ################################################################################
 
 import os
-import click
 import cobra
 import logging
 import refinegems as rg
@@ -16,18 +15,84 @@ import matplotlib.pyplot as plt
 from datetime import date
 from pathlib import Path
 
+from refinegems.curation.pathways import kegg_pathway_analysis
+from refinegems.classes.reports import ModelInfoReport
+
 from ..util.set_up import save_cmpb_user_input
 
 ################################################################################
 # functions
 ################################################################################
 
+def run():
+
+    # global options
+    # run memote after every step
+    # calculate model stats after each step
+    # use temp folder or report all model/in-between steps
+
+    # CarveMe
+    # -------
+    # @TODO
+    # in a future update
+
+    # CarveMe correction
+    # ------------------
+    # check, if input is a CarveMe model
+    # rg.polish
+    # rg correct charges
+
+    # growth test
+
+    # gapfilling
+    # ----------
+    # options: automatic/manual extension/manual input
+
+    # ModelPolisher
+    # -------------
+
+    # Annotations
+    # -----------
+    # KEGGPathwayGroups, optional
+    # SBOannotator
+
+    # growth test
+
+    # model cleanup
+    # -------------
+    # duplicates
+    # BOFdat?
+    # mcc 
+
+    # analysis
+    # --------
+    dir
+    model
+    
+    # stats
+    stats_report = ModelInfoReport(model)
+    stats_report.save(Path(dir,'stats')) # adjust Path, just a placeholder really
+    
+    # kegg pathway
+    pathway_report = kegg_pathway_analysis(model)
+    pathway_report.save(Path(dir,'kegg_pathway')) # adjust Path, just a placeholder really
+    
+    # sbo terms
+    # memote
+    # growth
+    # auxotrophies
+
+    pass
+
+###########
+# old stuff
+###########
 # @TODO:
 # despite some changes, this is still mainly the old version, 
 # which WILL NOT work properly with the new refinegems update - yet
 # address TODOs before release!!!!!
 
-def run(configpath=None):
+def run_old(configpath=None):
     """main function to run the program"""
     print("RefineGEMs provides functions to curate and investigate genome-scale metabolic models!")
     print("Author:", __author__)
