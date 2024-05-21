@@ -1,7 +1,7 @@
 Run the HTQB Pipeline
 =====================
 
-This page explains how to run the complete HTQB (high.quality template based) pipeline 
+This page explains how to run the complete HTQB (high-quality template based) pipeline 
 and how to collected the neccessary data.
 
 For more information about the steps of the pipeline, 

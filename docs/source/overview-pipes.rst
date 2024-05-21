@@ -3,8 +3,8 @@ Overview of the Pipelines
 
 The following pipelines are currently available:
 
-- CarveMe + ModelPolisher based - CMPB
-- High-quality template based - HQTB
+- ``CMPB``: CarveMe + ModelPolisher based 
+- ``HQTB``: High-quality template based 
 
 More information about these differnt types of pipelines can be found below.
 
@@ -22,11 +22,17 @@ TODO
 High-quality template based (HQTB) pipeline
 -------------------------------------------
 
-The HQTB pipeline .... TODO
+The HQTB pipeline curates a new model from an annotated genome based on a high-quality template model 
+(plus corresponding annotated genome) and additional database information. 
+
+This pipeline aims to profit from already performed (manual) curation of the already existing model, 
+to carry this knowledge into the new model. The closer the template is to the original, the more knowledge 
+can potential be carried over. Therefore, this pipeline is more useful, if the user already has a model of
+a similar organism to the one the new model should be curated for.
 
 .. toctree::
     :maxdepth: 2
-    :caption: Contents 
+    :caption: Further Information 
 
     About HQTB <hqtb/about-pipeline>
     Run HQTB <hqtb/run-pipeline>

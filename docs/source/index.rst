@@ -12,14 +12,20 @@ These workflows are mainly based on the `refineGEMS <https://github.com/draeger-
 Additionally, ``SPECIMEN`` allows the use of most of the functions and 
 steps of the different pipelines separatly.
 
-TODO:
+Available Pipelines
+-------------------
 
-- something more about pipelines and so on....
+Currently, ``SPECIMEN`` includes the following pipelines:
+
+- | ``CMPB`` - CarveMe + ModelPolisher based: 
+  | This pipeline curated the model based on a CarveMe draft model and additional input.
+- | ``HQTB`` - high-quality template based:
+  | Curates a model based on the annotated genome, a high-quality template model and additional database information.
 
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Content
 
    installation
    overview-pipes 
