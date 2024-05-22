@@ -15,8 +15,19 @@ import matplotlib.pyplot as plt
 from datetime import date
 from pathlib import Path
 
+import warnings
+import yaml
+
 from refinegems.curation.pathways import kegg_pathway_analysis
 from refinegems.classes.reports import ModelInfoReport
+from refinegems.curation.biomass import test_biomass_presence
+from refinegems.analysis import growth
+from refinegems.utility.connections import run_memote, perform_mcc, adjust_BOF
+from refinegems.curation.curate import resolve_duplicates
+from refinegems.curation.pathways import kegg_pathways
+
+# from SBOannotator import *
+from SBOannotator import sbo_annotator
 
 from ..util.set_up import save_cmpb_user_input
 
@@ -24,65 +35,195 @@ from ..util.set_up import save_cmpb_user_input
 # functions
 ################################################################################
 
-def run():
+def run(configpath:str):
 
+    # setup phase
+    #############
+
+    # load config
+    # -----------
+    if not configpath:
+        config = save_cmpb_user_input(Path(dir, 'config_user.yaml')) 
+    else:
+        with open(configpath, "r") as cfg:
+            config = yaml.load(cfg, Loader=yaml.loader.FullLoader)
+    
+    # create log
+    # ----------
+    today = date.today().strftime("%Y%m%d")
+    log_file = Path(config["out_path"],f'rg_{str(today)}.log')
+
+    # ....................................................
+    # @TODO / @IDEAS
     # global options
     # run memote after every step
     # calculate model stats after each step
     # use temp folder or report all model/in-between steps
+    # what to write in the log file
+    # ....................................................
 
     # CarveMe
-    # -------
+    #########
     # @TODO
-    # in a future update
+    # will come in a future update
+    if not config['input']['modelpath']:
+        # run CarveMe
+        raise ValueError('Currently, CarveMe has not been included in the pipeline. Please use it separatly.mThis wfunction will be provided in a future update.')
 
     # CarveMe correction
-    # ------------------
+    ####################
+    libmodel
+    
+
     # check, if input is a CarveMe model
     # rg.polish
+    #      polish(model: libModel, email: str, id_db: str, refseq_gff: str, 
+    #      protein_fasta: str, lab_strain: bool, kegg_organism_id: str, path: str)
     # rg correct charges
+    # 
 
     # growth test
+    # -----------
+    model
+    media_path
+    namespace
+    # try to set objective to growth
+    growth_func_list = test_biomass_presence(model)
+    if growth_func_list:
+        # independently of how many growth functions are found, the first one will be used
+        model.objective = growth_func_list[0]
+        # simulate growth on different media
+        growth_report = growth.growth_analysis(model, media_path, 
+                                               namespace=namespace, retrieve='report')
+        growth_report.save(Path(dir,'growth')) # @TODO adjust Path, just a placeholder really
+
+    else:
+        warnings.warn('No growth/biomass function detected, growth simulation before gapfilling will be skipped.')
+
 
     # gapfilling
-    # ----------
+    ############
     # options: automatic/manual extension/manual input
 
     # ModelPolisher
-    # -------------
+    ###############
 
     # Annotations
-    # -----------
+    #############
+    model
+    media_path
+    namespace
+
     # KEGGPathwayGroups, optional
+    # -----------------
+    modelpath
+    new_libmodel, missing_list = kegg_pathways(modelpath)
+
     # SBOannotator
+    # ------------
+    # @TODO 
+    #  theoretically:msoething along the way:
+    libsbml_doc = readSBML(model)
+    libsbml_model = libsbml_doc.getModel()
+    sbo_annotator(libsbml_doc, libsbml_model, 'constraint-based', True, 'create_dbs', 
+                  Path(dir,'step3-annotation',libsbml_model.getId()+'_SBOannotated.xml'))
+
 
     # growth test
+    # -----------
+    # try to set objective to growth
+    growth_func_list = test_biomass_presence(model)
+    if growth_func_list:
+        # independently of how many growth functions are found, the first one will be used
+        model.objective = growth_func_list[0]
+        # simulate growth on different media
+        growth_report = growth.growth_analysis(model, media_path, 
+                                               namespace=namespace, retrieve='report')
+        growth_report.save(Path(dir,'growth')) # @TODO adjust Path, just a placeholder really
+
+    else:
+        warnings.warn('No growth/biomass function detected, growth simulation after annotation will be skipped.')
+
 
     # model cleanup
-    # -------------
+    ###############
+    model
+
     # duplicates
-    # BOFdat?
-    # mcc 
+    # ----------
+    # @TODO which params to set and which to set as optional input?
+    resolve_duplicates(model, check_reac:bool=True, 
+                       check_meta:Literal['default','exhaustive','skip']='default', 
+                       replace_dupl_meta:bool=True, remove_unused_meta:bool=False, 
+                       remove_dupl_reac:bool=True)
+
+
+    # BOF
+    # ---
+    # @TODO
+    # BOFdat - optional
+
+    # check and normalise
+    
+    # MCC
+    # ---
+    # @TODO 
+    model = perform_mcc(model, Path(dir,'mcc'),apply=True) # @TODO Path is just a placeholder
 
     # analysis
-    # --------
+    ##########
+    # @TODO 
+    #   set / get params from config or upstream pipeline
     dir
     model
-    
+    namespace
+    media_path
+
     # stats
+    # -----
     stats_report = ModelInfoReport(model)
-    stats_report.save(Path(dir,'stats')) # adjust Path, just a placeholder really
+    stats_report.save(Path(dir,'stats')) # @TODO adjust Path, just a placeholder really
     
     # kegg pathway
+    # ------------
     pathway_report = kegg_pathway_analysis(model)
-    pathway_report.save(Path(dir,'kegg_pathway')) # adjust Path, just a placeholder really
+    pathway_report.save(Path(dir,'kegg_pathway')) # @TODO adjust Path, just a placeholder really
     
-    # sbo terms
-    # memote
-    # growth
-    # auxotrophies
+    # sbo term
+    # --------
+    # @TODO
+    # plot_rea_sbo_single(model: libModel) -> fig?
 
-    pass
+    # memote
+    # ------
+    run_memote(model, 'html', save_res=Path(dir,'final_memote.html'))
+
+    # growth
+    # ------
+    # try to set objective to growth
+    growth_func_list = test_biomass_presence(model)
+    if growth_func_list:
+        # independently of how many growth functions are found, the first one will be used
+        model.objective = growth_func_list[0]
+        # simulate growth on different media
+        growth_report = growth.growth_analysis(model, media_path, 
+                                               namespace=namespace, retrieve='report')
+        growth_report.save(Path(dir,'growth')) # @TODO adjust Path, just a placeholder really
+
+    else:
+        warnings.warn('No growth/biomass function detected, final growth simulation will be skipped.')
+
+    # auxotrophies
+    # ------------
+    media_list = growth.read_media_config(media_path)
+    auxo_report = growth.test_auxotrophies(model, media_list[0], media_list[1], namespace)
+    auxo_report.save(Path(dir,'auxotrophies')) # @TODO adjust Path, just a placeholder really
+
+
+
+
+
+
 
 ###########
 # old stuff

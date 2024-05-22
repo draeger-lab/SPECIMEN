@@ -21,7 +21,7 @@ from typing import Literal,Union
 from refinegems.utility.io import load_model
 from refinegems.classes.medium import medium_to_model, Medium
 from refinegems.analysis.growth import read_media_config
-from refinegems.analysis.investigate import run_memote
+from refinegems.utility.connections import run_memote
 from refinegems.curation.curate import resolve_duplicates, complete_BioMetaCyc
 
 ################################################################################

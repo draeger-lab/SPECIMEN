@@ -20,7 +20,7 @@ from refinegems.classes.medium import load_medium_from_db, medium_to_model
 from refinegems.utility.io import load_model
 from refinegems.utility.entities import resolve_compartment_names
 from refinegems.curation.biomass import test_biomass_presence
-from refinegems.analysis.investigate import run_memote
+from refinegems.utility.connections import run_memote
 
 from refinegems.analysis.growth import MIN_GROWTH_THRESHOLD
 

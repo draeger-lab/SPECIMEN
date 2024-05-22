@@ -1,40 +1,58 @@
-Description: > 
-  This file can be adapted to choose what refineGEMs should do.
-  Note: For windows use \ instead of / for the paths
+# Configuration file for the SPECIMEN CMPB pipeline
+# parameters with the value __USER__ are required to be specified by the user
+
+# meta info:
+#    model:     __USER__
+#    organism:  __USER__
+#    date:      __USER__
+#    author:    __USER__
+
+# input for the pipeline
+# ----------------------
+input:
+  modelpath: NULL            # optional, path to a model. 
+                             # If not given, runs CarveMe
+  annotated_genome: __USER__ # required, path to the annotated genome file
+  namespace: BiGG            # namespace to use for the model
+  mediapath: __USER__        # path to a media config to tests growth with
+
+# general options
+# ---------------
+general:
+  dir: SPECIMEN-CMPB         # Path/Name of a directory to save output to
+  memote_always_on: False    # run memote after every step
+  stats_always_on: False     # calculate the model statistics after every step
+
+# part-specific options
+# ---------------------
+
+# add KEGG pathways as groups
+kegg_pathway_groups: True 
+
+# resolve duplicates
+duplicates:
+  # three possible option for the resolvement of duplicates for the following model entities:
+  # - check:  check for duplicates and simply report them
+  # - remove: check for and remove duplicates from the model (if possible)
+  # - skip:   skip the resolvement 
+  reactions: remove
+  metabolites: remove
+  # additional remove unused metabolites (reduces possible knowledge base)
+  remove_unused_metabs: False
+
+# BOFdat / Biomass objective function
+BOF:
+  run_bofdat: 
+  # @TODO
+
+# gapfilling
+gapfilling:
+  # @TODO
 
 
-General Setting: >
-  Path to GEM to be investigated
-
-model: 'data/e_coli_core.xml' 
-# Set the out path for all analysis files
-out_path: ''
-
-Settings for scripts that investigate the model: >
-  These are only necessary if none of the scripts to manipulate the model are used.
-
-# Set to TRUE if you want pngs that aid in model investigation, will be saved to a folder called 'visualization'
-visualize: TRUE
-
-# Set the path to a medium config for growth simulation 
-mediapath: 'media_config.yaml'
-
-# Namespace to use for the model
-namespace: 'BiGG'
-
-# Settings if you want to compare multiple models
-multiple: FALSE
-multiple_paths: # enter as many paths as you need below
-  - 'data/e_coli_core.xml'
-  - ''
-  - ''
-single: TRUE # set to False if you only want to work with the multiple models
-
-# Determine whether the biomass function should be checked & normalised
-biomass: TRUE
-
-# determine whether the memote score should be calculated, default: FALSE
-memote: FALSE
+##################
+# old struff below
+##################
 
 # compare metabolites to the ModelSEED database
 modelseed: FALSE # set to False if not needed
@@ -48,8 +66,6 @@ entrez_email: '' # necessary to access NCBI API
 organismid: 'cstr'  # Needs to be specified for db_to_compare='KEGG' for the gap_analysis, Can be provided for polish
 gff_file: 'data/cstr.gff'  # Path to RefSeq GFF file: Required for db_to_compare='KEGG', Can be provided for polish
 
-### Addition of KEGG Pathways as Groups ###
-keggpathways: FALSE
 
 ### SBO-Term Annotation ###
 sboterms: FALSE

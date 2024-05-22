@@ -18,7 +18,7 @@ import urllib.error
 
 # refinegems
 from refinegems.utility.io import load_model, kegg_reaction_parser
-from refinegems.analysis.investigate import run_memote
+from refinegems.utility.connections import run_memote
 
 # from SBOannotator import *
 from SBOannotator import sbo_annotator

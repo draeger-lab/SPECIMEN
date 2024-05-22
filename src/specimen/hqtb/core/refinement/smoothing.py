@@ -13,26 +13,12 @@ from pathlib import Path
 from typing import Literal
 import warnings
 
-from BOFdat import step1
-from BOFdat import step2
-from BOFdat.util import update
-from BOFdat.util.update import determine_coefficients
-from MCC import MassChargeCuration
-
 import cobra
 from cobra import Reaction
 
 from refinegems.curation.biomass import test_biomass_presence, check_normalise_biomass
-from refinegems.analysis.investigate import run_memote
 from refinegems.classes import egcs
-
-# further required programs:
-#        - BOFdat
-#        - MassChargeCuration
-
-# note:
-#    for BOFdat to run correctly, you need to change 'solution.f' to 'solution.objective_value'
-#    in the coenzymes_and_ions.py file of BOFdat
+from refinegems.utility.connections import adjust_BOF, perform_mcc, run_memote
 
 ################################################################################
 # variables
@@ -41,132 +27,6 @@ from refinegems.classes import egcs
 ################################################################################
 # functions
 ################################################################################
-
-def perform_mcc(model: cobra.Model, dir: str, apply:bool = True) -> cobra.Model:
-    """Run the MassChargeCuration toll on the model and optionally directly apply 
-    the solution.
-
-    Args:
-        - model (cobra.Model): 
-            The model to use the tool on.
-        - dir (str): 
-            Path of the directory to save MCC output in.
-        - apply (bool, optional): 
-            If True, model is directly updated with the results. 
-            Defaults to True.
-
-    Returns:
-        cobra.Model: 
-            The model (updated or not)
-    """
-
-    # make temporary directory to save files for MCC in
-    with tempfile.TemporaryDirectory() as temp:
-
-        # use MCC
-        if apply:
-            # update model
-            balancer = MassChargeCuration(model, update_ids = False, data_path=temp)
-        else:
-            # do not change original model
-            model_copy = model.copy()
-            balancer = MassChargeCuration(model_copy, update_ids = False, data_path=temp)
-
-    # save reports
-    balancer.generate_reaction_report(Path(dir,model.id+'_mcc_reactions'))
-    balancer.generate_metabolite_report(Path(dir,model.id+'_mcc_metabolites'))
-    balancer.generate_visual_report(Path(dir,model.id+'_mcc_visual'))
-
-    return model
-
-
-def adjust_BOF(genome:str, model_file:str, model:cobra.Model, dna_weight_fraction:float, weight_frac:float) -> str:
-    """Adjust the model's BOF using BOFdat. Currently implemented are step 1
-    DNA coefficients and step 2.
-
-    Args:
-        - genome (str): 
-            Path to the genome (e.g. .fna) FASTA file.
-        - model_file (str): 
-            Path to the sbml (.xml) file of the model.
-        - model (cobra.Model): 
-            The genome-scale metabolic model (from the string above), loaded with COBRApy.
-        - dna_weight_fraction (float): 
-            DNA weight fraction for BOF step 1.
-        - weight_frac (float): 
-            Weight fraction for the second step of BOFdat (enzymes and ions)
-
-    Returns:
-        str: 
-            The updated BOF reaction as a reaction string.
-    """
-    
-
-    # BOFdat step 1:
-    # --------------
-    # dna coefficients
-    dna_coefficients = step1.generate_dna_coefficients(genome,model_file,DNA_WEIGHT_FRACTION=dna_weight_fraction)
-    bd_step1 = {}
-    for m in dna_coefficients:
-        bd_step1[m.id] = dna_coefficients[m]
-
-    # ...........................
-    # @TODO
-    #    if time permits or needed, options for more coefficients can be added
-    # ...........................
-
-    # BOFdat step 2:
-    # --------------
-    # find inorganic ions
-    selected_metabolites = step2.find_coenzymes_and_ions(model_file)
-    # determine coefficients
-    bd_step2 = determine_coefficients(selected_metabolites,model,weight_frac)
-    bd_step2.update(bd_step1)
-
-    # update BOF
-    # ----------
-    #  retrieve previously used BOF
-    growth_func_list = test_biomass_presence(model)
-    if len(growth_func_list) == 1: 
-        objective_list = model.reactions.get_by_id(growth_func_list[0]).reaction.split(' ')
-    elif len(growth_func_list) > 1:
-        mes = f'Multiple BOFs found. Using {growth_func_list[0]} for BOF adjustment.'
-        warnings.warn(mes,category=UserWarning)
-        objective_list = model.reactions.get_by_id(growth_func_list[0]).reaction.split(' ')
-    # else not needed, as if there is no BOF, a new one will be created
-
-    # ...............................................................
-    objective_reactant = {}
-    objective_product = {}
-    product = False
-    # get reactants, product and factors from equation
-    for s in objective_list:
-        if s == '+':
-            continue
-        elif '>' in s:
-            product = True
-        elif '.' in s:
-            factor = s
-        else:
-            if product:
-                objective_product[s] = factor
-            else:
-                objective_reactant[s] = factor
-
-    # update BOF information with data from BOFdat
-    for m in bd_step2:
-        if bd_step2[m] < 0:
-            objective_reactant[m] = bd_step2[m]*(-1)
-        else:
-            objective_product[m] = bd_step2[m]
-
-    # create new objective function
-    new_objective = ' + '.join('{} {}'.format(value, key) for key, value in objective_reactant.items())
-    new_objective += ' --> '
-    new_objective += ' + '.join('{} {}'.format(value, key) for key, value in objective_product.items())
-
-    return new_objective
-
 
 def run(genome:str,model:str,dir:str,mcc='skip',
         egc_solver:None|Literal['greedy']=None,
