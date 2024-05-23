@@ -19,7 +19,7 @@
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="../_static/documentation_options.js?v=8d563738"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
         <script src="../_static/copybutton.js?v=7859de39"></script>
@@ -58,7 +58,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../specimen.html">Contents of SPECIMEN</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../specimen.html#specimen-subpackages">specimen subpackages</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">specimen.classes</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#module-specimen.classes.reports">specimen.classes.reports submodule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#specimen-classes-reports-submodule">specimen.classes.reports submodule</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="cmpb.html">specimen.cmpb</a></li>
@@ -100,86 +100,8 @@
              
   <section id="specimen-classes-package">
 <h1>specimen.classes package<a class="headerlink" href="#specimen-classes-package" title="Link to this heading"></a></h1>
-<section id="module-specimen.classes.reports">
-<span id="specimen-classes-reports-submodule"></span><h2>specimen.classes.reports submodule<a class="headerlink" href="#module-specimen.classes.reports" title="Link to this heading"></a></h2>
-<p>Classes to generate, handle, manipulate and save reports.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="specimen.classes.reports.SpecimenModelInfoReport">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">specimen.classes.reports.</span></span><span class="sig-name descname"><span class="pre">SpecimenModelInfoReport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/specimen/classes/reports.html#SpecimenModelInfoReport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.classes.reports.SpecimenModelInfoReport" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelInfoReport</span></code></p>
-<p>A SPECIMEN-specific report for a given model.</p>
-<p>Child-class of the refineGEMs class ModelInfoReport.</p>
-<dl class="simple">
-<dt>Attributes:</dt><dd><dl class="simple">
-<dt>model: </dt><dd><p>The GEM loaded with COBRApy.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="specimen.classes.reports.SpecimenModelInfoReport.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/specimen/classes/reports.html#SpecimenModelInfoReport.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.classes.reports.SpecimenModelInfoReport.__init__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="specimen.classes.reports.SpecimenModelInfoReport.__module__">
-<span class="sig-name descname"><span class="pre">__module__</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'specimen.classes.reports'</span></em><a class="headerlink" href="#specimen.classes.reports.SpecimenModelInfoReport.__module__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="specimen.classes.reports.SpecimenModelInfoReport.format_table">
-<span class="sig-name descname"><span class="pre">format_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/specimen/classes/reports.html#SpecimenModelInfoReport.format_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.classes.reports.SpecimenModelInfoReport.format_table" title="Link to this definition"></a></dt>
-<dd><p>Extent the functin format_table to include the reaction origin as 
-set by SPECIMEN.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><dl class="simple">
-<dt>pd.DataFrame: </dt><dd><p>The information in table format.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="specimen.classes.reports.SpecimenModelInfoReport.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_palette</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'YlGn'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/specimen/classes/reports.html#SpecimenModelInfoReport.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.classes.reports.SpecimenModelInfoReport.save" title="Link to this definition"></a></dt>
-<dd><p>Save the report and the</p>
-<dl class="simple">
-<dt>Args:</dt><dd><ul class="simple">
-<li><p>dir (str): _description_</p></li>
-<li><p>color_palette (str, optional): _description_. Defaults to ‘YlGn’.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="specimen.classes.reports.SpecimenModelInfoReport.visualise">
-<span class="sig-name descname"><span class="pre">visualise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_palette</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'YlGn'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/specimen/classes/reports.html#SpecimenModelInfoReport.visualise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.classes.reports.SpecimenModelInfoReport.visualise" title="Link to this definition"></a></dt>
-<dd><p>Extend the visualisation function to include a graph for the creation type.</p>
-<dl>
-<dt>Args:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>color_palette (str, optional): </dt><dd><p>Color palette to be used. 
-Defaults to ‘YlGn’.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-<dt>Returns:</dt><dd><p>tuple:</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li><p>matplotlib.figure.Figure: The original report figure.</p></li>
-<li><p>matplotlib.figure.Figure: Report for the creation origin.</p></li>
-</ol>
-</div></blockquote>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<section id="specimen-classes-reports-submodule">
+<h2>specimen.classes.reports submodule<a class="headerlink" href="#specimen-classes-reports-submodule" title="Link to this heading"></a></h2>
 </section>
 </section>
 
