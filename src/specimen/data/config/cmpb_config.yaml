@@ -13,21 +13,36 @@ input:
   modelpath: NULL            # optional, path to a model. 
                              # If not given, runs CarveMe
   annotated_genome: __USER__ # required, path to the annotated genome file
-  namespace: BiGG            # namespace to use for the model
   mediapath: __USER__        # path to a media config to tests growth with
 
 # general options
 # ---------------
 general:
-  dir: SPECIMEN-CMPB         # Path/Name of a directory to save output to
+  dir: './'                  # Path/Name of a directory to save output to
+  namespace: BiGG            # namespace to use for the model
+  save_all_models: True      # save all models (models for each step)
   memote_always_on: False    # run memote after every step
   stats_always_on: False     # calculate the model statistics after every step
 
 # part-specific options
 # ---------------------
 
-# add KEGG pathways as groups
-kegg_pathway_groups: True 
+# polish a CarveMe model
+#    only neccessary, if the mode will or has been build with CarveMe
+#    will only be used, if model is indeed a CarveMe model
+cm-polish:
+  email: USER              # User Mail to use for Entrez 
+  refseq_gff: USER 
+  protein_fasta: USER      # optional, except for is_lab_strain: True
+  is_lab_strain: False     # whether the users strain originates from a lab 
+  kegg_organism_id: USER   # KEGG ID of the organism 
+
+# gapfilling, optional
+gapfilling:
+  # @TODO
+
+# add KEGG pathways as groups, optional
+kegg_pathway_groups: True  # decide, whether to run this or not
 
 # resolve duplicates
 duplicates:
@@ -45,9 +60,6 @@ BOF:
   run_bofdat: 
   # @TODO
 
-# gapfilling
-gapfilling:
-  # @TODO
 
 
 ##################

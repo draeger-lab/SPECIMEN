@@ -97,26 +97,12 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
-<span class="kn">from</span> <span class="nn">BOFdat</span> <span class="kn">import</span> <span class="n">step1</span>
-<span class="kn">from</span> <span class="nn">BOFdat</span> <span class="kn">import</span> <span class="n">step2</span>
-<span class="kn">from</span> <span class="nn">BOFdat.util</span> <span class="kn">import</span> <span class="n">update</span>
-<span class="kn">from</span> <span class="nn">BOFdat.util.update</span> <span class="kn">import</span> <span class="n">determine_coefficients</span>
-<span class="kn">from</span> <span class="nn">MCC</span> <span class="kn">import</span> <span class="n">MassChargeCuration</span>
-
 <span class="kn">import</span> <span class="nn">cobra</span>
 <span class="kn">from</span> <span class="nn">cobra</span> <span class="kn">import</span> <span class="n">Reaction</span>
 
 <span class="kn">from</span> <span class="nn">refinegems.curation.biomass</span> <span class="kn">import</span> <span class="n">test_biomass_presence</span><span class="p">,</span> <span class="n">check_normalise_biomass</span>
-<span class="kn">from</span> <span class="nn">refinegems.analysis.investigate</span> <span class="kn">import</span> <span class="n">run_memote</span>
 <span class="kn">from</span> <span class="nn">refinegems.classes</span> <span class="kn">import</span> <span class="n">egcs</span>
-
-<span class="c1"># further required programs:</span>
-<span class="c1">#        - BOFdat</span>
-<span class="c1">#        - MassChargeCuration</span>
-
-<span class="c1"># note:</span>
-<span class="c1">#    for BOFdat to run correctly, you need to change &#39;solution.f&#39; to &#39;solution.objective_value&#39;</span>
-<span class="c1">#    in the coenzymes_and_ions.py file of BOFdat</span>
+<span class="kn">from</span> <span class="nn">refinegems.utility.connections</span> <span class="kn">import</span> <span class="n">adjust_BOF</span><span class="p">,</span> <span class="n">perform_mcc</span><span class="p">,</span> <span class="n">run_memote</span>
 
 <span class="c1">################################################################################</span>
 <span class="c1"># variables</span>
@@ -125,138 +111,6 @@
 <span class="c1">################################################################################</span>
 <span class="c1"># functions</span>
 <span class="c1">################################################################################</span>
-
-<div class="viewcode-block" id="perform_mcc">
-<a class="viewcode-back" href="../../../../../modules/core.html#specimen.hqtb.core.refinement.smoothing.perform_mcc">[docs]</a>
-<span class="k">def</span> <span class="nf">perform_mcc</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">cobra</span><span class="o">.</span><span class="n">Model</span><span class="p">,</span> <span class="nb">dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">apply</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cobra</span><span class="o">.</span><span class="n">Model</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the MassChargeCuration toll on the model and optionally directly apply </span>
-<span class="sd">    the solution.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        - model (cobra.Model): </span>
-<span class="sd">            The model to use the tool on.</span>
-<span class="sd">        - dir (str): </span>
-<span class="sd">            Path of the directory to save MCC output in.</span>
-<span class="sd">        - apply (bool, optional): </span>
-<span class="sd">            If True, model is directly updated with the results. </span>
-<span class="sd">            Defaults to True.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        cobra.Model: </span>
-<span class="sd">            The model (updated or not)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># make temporary directory to save files for MCC in</span>
-    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp</span><span class="p">:</span>
-
-        <span class="c1"># use MCC</span>
-        <span class="k">if</span> <span class="n">apply</span><span class="p">:</span>
-            <span class="c1"># update model</span>
-            <span class="n">balancer</span> <span class="o">=</span> <span class="n">MassChargeCuration</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">update_ids</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">data_path</span><span class="o">=</span><span class="n">temp</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># do not change original model</span>
-            <span class="n">model_copy</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">balancer</span> <span class="o">=</span> <span class="n">MassChargeCuration</span><span class="p">(</span><span class="n">model_copy</span><span class="p">,</span> <span class="n">update_ids</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">data_path</span><span class="o">=</span><span class="n">temp</span><span class="p">)</span>
-
-    <span class="c1"># save reports</span>
-    <span class="n">balancer</span><span class="o">.</span><span class="n">generate_reaction_report</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="n">model</span><span class="o">.</span><span class="n">id</span><span class="o">+</span><span class="s1">&#39;_mcc_reactions&#39;</span><span class="p">))</span>
-    <span class="n">balancer</span><span class="o">.</span><span class="n">generate_metabolite_report</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="n">model</span><span class="o">.</span><span class="n">id</span><span class="o">+</span><span class="s1">&#39;_mcc_metabolites&#39;</span><span class="p">))</span>
-    <span class="n">balancer</span><span class="o">.</span><span class="n">generate_visual_report</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="n">model</span><span class="o">.</span><span class="n">id</span><span class="o">+</span><span class="s1">&#39;_mcc_visual&#39;</span><span class="p">))</span>
-
-    <span class="k">return</span> <span class="n">model</span></div>
-
-
-
-<div class="viewcode-block" id="adjust_BOF">
-<a class="viewcode-back" href="../../../../../modules/core.html#specimen.hqtb.core.refinement.smoothing.adjust_BOF">[docs]</a>
-<span class="k">def</span> <span class="nf">adjust_BOF</span><span class="p">(</span><span class="n">genome</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">model_file</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span><span class="n">cobra</span><span class="o">.</span><span class="n">Model</span><span class="p">,</span> <span class="n">dna_weight_fraction</span><span class="p">:</span><span class="nb">float</span><span class="p">,</span> <span class="n">weight_frac</span><span class="p">:</span><span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adjust the model&#39;s BOF using BOFdat. Currently implemented are step 1</span>
-<span class="sd">    DNA coefficients and step 2.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        - genome (str): </span>
-<span class="sd">            Path to the genome (e.g. .fna) FASTA file.</span>
-<span class="sd">        - model_file (str): </span>
-<span class="sd">            Path to the sbml (.xml) file of the model.</span>
-<span class="sd">        - model (cobra.Model): </span>
-<span class="sd">            The genome-scale metabolic model (from the string above), loaded with COBRApy.</span>
-<span class="sd">        - dna_weight_fraction (float): </span>
-<span class="sd">            DNA weight fraction for BOF step 1.</span>
-<span class="sd">        - weight_frac (float): </span>
-<span class="sd">            Weight fraction for the second step of BOFdat (enzymes and ions)</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        str: </span>
-<span class="sd">            The updated BOF reaction as a reaction string.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    
-
-    <span class="c1"># BOFdat step 1:</span>
-    <span class="c1"># --------------</span>
-    <span class="c1"># dna coefficients</span>
-    <span class="n">dna_coefficients</span> <span class="o">=</span> <span class="n">step1</span><span class="o">.</span><span class="n">generate_dna_coefficients</span><span class="p">(</span><span class="n">genome</span><span class="p">,</span><span class="n">model_file</span><span class="p">,</span><span class="n">DNA_WEIGHT_FRACTION</span><span class="o">=</span><span class="n">dna_weight_fraction</span><span class="p">)</span>
-    <span class="n">bd_step1</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">dna_coefficients</span><span class="p">:</span>
-        <span class="n">bd_step1</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">dna_coefficients</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
-
-    <span class="c1"># ...........................</span>
-    <span class="c1"># @TODO</span>
-    <span class="c1">#    if time permits or needed, options for more coefficients can be added</span>
-    <span class="c1"># ...........................</span>
-
-    <span class="c1"># BOFdat step 2:</span>
-    <span class="c1"># --------------</span>
-    <span class="c1"># find inorganic ions</span>
-    <span class="n">selected_metabolites</span> <span class="o">=</span> <span class="n">step2</span><span class="o">.</span><span class="n">find_coenzymes_and_ions</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
-    <span class="c1"># determine coefficients</span>
-    <span class="n">bd_step2</span> <span class="o">=</span> <span class="n">determine_coefficients</span><span class="p">(</span><span class="n">selected_metabolites</span><span class="p">,</span><span class="n">model</span><span class="p">,</span><span class="n">weight_frac</span><span class="p">)</span>
-    <span class="n">bd_step2</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">bd_step1</span><span class="p">)</span>
-
-    <span class="c1"># update BOF</span>
-    <span class="c1"># ----------</span>
-    <span class="c1">#  retrieve previously used BOF</span>
-    <span class="n">growth_func_list</span> <span class="o">=</span> <span class="n">test_biomass_presence</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">growth_func_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> 
-        <span class="n">objective_list</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">reactions</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="n">growth_func_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">reaction</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">growth_func_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">mes</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Multiple BOFs found. Using </span><span class="si">{</span><span class="n">growth_func_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1"> for BOF adjustment.&#39;</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">mes</span><span class="p">,</span><span class="n">category</span><span class="o">=</span><span class="ne">UserWarning</span><span class="p">)</span>
-        <span class="n">objective_list</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">reactions</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="n">growth_func_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">reaction</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
-    <span class="c1"># else not needed, as if there is no BOF, a new one will be created</span>
-
-    <span class="c1"># ...............................................................</span>
-    <span class="n">objective_reactant</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">objective_product</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">product</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="c1"># get reactants, product and factors from equation</span>
-    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">objective_list</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="s1">&#39;+&#39;</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="k">elif</span> <span class="s1">&#39;&gt;&#39;</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-            <span class="n">product</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">elif</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-            <span class="n">factor</span> <span class="o">=</span> <span class="n">s</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">product</span><span class="p">:</span>
-                <span class="n">objective_product</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">factor</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">objective_reactant</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">factor</span>
-
-    <span class="c1"># update BOF information with data from BOFdat</span>
-    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">bd_step2</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">bd_step2</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">objective_reactant</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">bd_step2</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">objective_product</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">bd_step2</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
-
-    <span class="c1"># create new objective function</span>
-    <span class="n">new_objective</span> <span class="o">=</span> <span class="s1">&#39; + &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">objective_reactant</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-    <span class="n">new_objective</span> <span class="o">+=</span> <span class="s1">&#39; --&gt; &#39;</span>
-    <span class="n">new_objective</span> <span class="o">+=</span> <span class="s1">&#39; + &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">objective_product</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-
-    <span class="k">return</span> <span class="n">new_objective</span></div>
-
-
 
 <div class="viewcode-block" id="run">
 <a class="viewcode-back" href="../../../../../modules/core.html#specimen.hqtb.core.refinement.smoothing.run">[docs]</a>

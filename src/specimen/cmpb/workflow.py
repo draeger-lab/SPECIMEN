@@ -9,14 +9,14 @@ __author__ = "Tobias Fehrenbach, Famke Baeuerle, Gwendolyn O. Döbel and Carolin
 import os
 import cobra
 import logging
-import refinegems as rg
 import pandas as pd
-import matplotlib.pyplot as plt
 from datetime import date
 from pathlib import Path
 
 import warnings
 import yaml
+
+from libsbml import readSBML
 
 from refinegems.curation.pathways import kegg_pathway_analysis
 from refinegems.classes.reports import ModelInfoReport
@@ -25,6 +25,9 @@ from refinegems.analysis import growth
 from refinegems.utility.connections import run_memote, perform_mcc, adjust_BOF
 from refinegems.curation.curate import resolve_duplicates
 from refinegems.curation.pathways import kegg_pathways
+from refinegems.utility.io import load_model, write_model_to_file
+from refinegems.curation.polish import polish
+from refinegems.curation.charges import correct_charges_modelseed
 
 # from SBOannotator import *
 from SBOannotator import sbo_annotator
@@ -35,24 +38,6 @@ from ..util.set_up import save_cmpb_user_input
 # functions
 ################################################################################
 
-def run(configpath:str):
-
-    # setup phase
-    #############
-
-    # load config
-    # -----------
-    if not configpath:
-        config = save_cmpb_user_input(Path(dir, 'config_user.yaml')) 
-    else:
-        with open(configpath, "r") as cfg:
-            config = yaml.load(cfg, Loader=yaml.loader.FullLoader)
-    
-    # create log
-    # ----------
-    today = date.today().strftime("%Y%m%d")
-    log_file = Path(config["out_path"],f'rg_{str(today)}.log')
-
     # ....................................................
     # @TODO / @IDEAS
     # global options
@@ -62,6 +47,70 @@ def run(configpath:str):
     # what to write in the log file
     # ....................................................
 
+# dev notes
+#   in the run function: current_model means the cobrapy model, 
+#   while current_libmodel means the libsbml model
+
+def run(configpath:str):
+
+    def between_growth_test(model, cfg, step):
+        # try to set objective to growth
+        growth_func_list = test_biomass_presence(model)
+        if growth_func_list:
+            # independently of how many growth functions are found, the first one will be used
+            model.objective = growth_func_list[0]
+            # simulate growth on different media
+            growth_report = growth.growth_analysis(model, cfg['input']['mediapath'], 
+                                                namespace=cfg['general']['namespace'], 
+                                                retrieve='report')
+            growth_report.save(Path(cfg['general']["dir"], 'cmpb_out', 'misc', 'growth', step)) 
+        else:
+            mes = f'No growth/biomass function detected, growth simulation for step {step} will be skipped.'
+            warnings.warn(mes)
+
+    def between_analysis(model, cfg, step):
+        # optional analysis
+        if cfg['general']['memote_always_on']:
+            run_memote(model, 'html', 
+                    return_res=False, 
+                    save_res=Path(cfg['general']["dir"], 'cmpb_out', 'misc','memote',f'{step}_.html'), 
+                    verbose=False)
+        if cfg['general']['stats_always_on']:
+            report = ModelInfoReport(model)
+            report.save(Path(cfg['general']["dir"],'cmpb_out', 'misc', 'stats',f'{step}_.html')) 
+
+
+    # setup phase
+    #############
+
+    # load config
+    # -----------
+    if not configpath:
+        config = save_cmpb_user_input(Path('cmpb_out', 'logs', 'config_user.yaml')) 
+    else:
+        with open(configpath, "r") as cfg:
+            config = yaml.load(cfg, Loader=yaml.loader.FullLoader)
+
+    if not config['general']['save_all_models']:
+        only_modelpath = Path(dir,'cmpb_out','model.xml')
+
+    # create directory structure
+    # --------------------------
+
+    dir = config['general']['dir']
+    Path(dir,"cmpb_out").mkdir(parents=True, exist_ok=False)                   # cmpb_out
+    Path(dir,"cmpb_out",'models').mkdir(parents=True, exist_ok=False)          #   |- models
+    Path(dir,"cmpb_out",'logs').mkdir(parents=True, exist_ok=False)            #   |- logs
+    Path(dir,"cmpb_out",'misc').mkdir(parents=True, exist_ok=False)            #   |- misc
+    Path(dir,"cmpb_out",'misc', 'memote').mkdir(parents=True, exist_ok=False)  #      |- memote
+    Path(dir,"cmpb_out",'misc', 'growth').mkdir(parents=True, exist_ok=False)  #      |- growth
+    Path(dir,"cmpb_out",'misc', 'stats').mkdir(parents=True, exist_ok=False)   #      |- stats
+    
+    # create log
+    # ----------
+    today = date.today().strftime("%Y%m%d")
+    log_file = Path(dir, 'cmpb_out', 'logs', f'specimen_cmpb_{str(today)}.log')
+
     # CarveMe
     #########
     # @TODO
@@ -69,145 +118,212 @@ def run(configpath:str):
     if not config['input']['modelpath']:
         # run CarveMe
         raise ValueError('Currently, CarveMe has not been included in the pipeline. Please use it separatly.mThis wfunction will be provided in a future update.')
+    else:
+        current_modelpath = config['input']['modelpath']
+
+    # optional analysis
+    current_model = load_model(current_modelpath,'cobra')
+    between_analysis(current_model, config, step='after_draft')
 
     # CarveMe correction
     ####################
-    libmodel
-    
 
+    current_libmodel = load_model(current_modelpath,'libsbml')
     # check, if input is a CarveMe model
-    # rg.polish
-    #      polish(model: libModel, email: str, id_db: str, refseq_gff: str, 
-    #      protein_fasta: str, lab_strain: bool, kegg_organism_id: str, path: str)
-    # rg correct charges
-    # 
+    if 'CarveMe' in current_libmodel.getNotesString():
+        Path(dir,"cmpb_out",'misc', 'wrong_annotations').mkdir(parents=True, exist_ok=False)
+        current_libmodel = polish(current_libmodel, 
+                                  email = config['cm-polish']['email'], 
+                                  id_db = config['general']['namespace'], 
+                                  refseq_gff = config['cm-polish']['refseq_gff'], 
+                                  protein_fasta = config['cm-polish']['protein_fasta'], 
+                                  lab_strain = config['cm-polish']['is_lab_strain'], 
+                                  kegg_organism_id = config['cm-polish']['kegg_organism_id'], 
+                                  path = Path(dir,'cmpb_out','misc','wrong_annotations')) 
+        # rg correct charges
+        current_libmodel, mult_charges_dict = correct_charges_modelseed(current_libmodel)
+        mult_charges_tab = pd.DataFrame.from_dict(mult_charges_dict, orient='index')
+        mult_charges_tab.to_csv(Path(dir,'cmpb_out','misc','reac_with_mult_charges.tsv'), sep='\t')
+        
+        # save model
+        if config['general']['save_all_models']:
+            write_model_to_file(Path(dir,'cmpb_out','models','after_CarveMe_correction.xml'))
+            current_modelpath = Path(dir,'cmpb_out','models','after_CarveMe_correction.xml')
+        else:
+            write_model_to_file(only_modelpath)
+            current_modelpath = only_modelpath
+
 
     # growth test
     # -----------
-    model
-    media_path
-    namespace
-    # try to set objective to growth
-    growth_func_list = test_biomass_presence(model)
-    if growth_func_list:
-        # independently of how many growth functions are found, the first one will be used
-        model.objective = growth_func_list[0]
-        # simulate growth on different media
-        growth_report = growth.growth_analysis(model, media_path, 
-                                               namespace=namespace, retrieve='report')
-        growth_report.save(Path(dir,'growth')) # @TODO adjust Path, just a placeholder really
-
-    else:
-        warnings.warn('No growth/biomass function detected, growth simulation before gapfilling will be skipped.')
+    current_model = load_model(current_modelpath,'cobra')
+    between_growth_test(current_model,config,step='after_CarveMe_correction')
+    between_analysis(current_model,config,step='after_CarveMe_correction')
 
 
     # gapfilling
     ############
+    # @TODO
     # options: automatic/manual extension/manual input
 
     # ModelPolisher
     ###############
+    # @TODO
 
     # Annotations
     #############
-    model
-    media_path
-    namespace
 
-    # KEGGPathwayGroups, optional
+    # KEGGPathwayGroups
     # -----------------
-    modelpath
-    new_libmodel, missing_list = kegg_pathways(modelpath)
+    if config['kegg_pathway_groups']:
+        current_libmodel, missing_list = kegg_pathways(current_modelpath)
+        with open(Path(dir, 'cmpb', 'misc', 'reac_wo_kegg_pathway_groups.txt'), 'w') as outfile:
+            for line in missing_list:
+                outfile.write(f'{line}\n')
+        # save model
+        if config['general']['save_all_models']:
+            write_model_to_file(Path(dir,'cmpb_out','models','added_KeggPathwayGroups.xml'))
+            current_modelpath = Path(dir,'cmpb_out','models','added_KeggPathwayGroups.xml')
+        else:
+            write_model_to_file(current_modelpath)
 
     # SBOannotator
     # ------------
     # @TODO 
-    #  theoretically:msoething along the way:
-    libsbml_doc = readSBML(model)
+    #  theoretically: something along the way:
+    libsbml_doc = readSBML(current_modelpath)
     libsbml_model = libsbml_doc.getModel()
-    sbo_annotator(libsbml_doc, libsbml_model, 'constraint-based', True, 'create_dbs', 
-                  Path(dir,'step3-annotation',libsbml_model.getId()+'_SBOannotated.xml'))
-
-
-    # growth test
-    # -----------
-    # try to set objective to growth
-    growth_func_list = test_biomass_presence(model)
-    if growth_func_list:
-        # independently of how many growth functions are found, the first one will be used
-        model.objective = growth_func_list[0]
-        # simulate growth on different media
-        growth_report = growth.growth_analysis(model, media_path, 
-                                               namespace=namespace, retrieve='report')
-        growth_report.save(Path(dir,'growth')) # @TODO adjust Path, just a placeholder really
-
+    if config['general']['save_all_models']:
+        sbo_annotator(libsbml_doc, libsbml_model, 'constraint-based', True, 'create_dbs', 
+                      Path(dir,'cmpb','models', 'SBOannotated.xml'))
     else:
-        warnings.warn('No growth/biomass function detected, growth simulation after annotation will be skipped.')
+        sbo_annotator(libsbml_doc, libsbml_model, 'constraint-based', True, 'create_dbs', 
+                      Path(current_modelpath))
 
+    between_analysis(current_model,config,step='after_annotation')
+    
 
     # model cleanup
     ###############
-    model
+    current_model = load_model(current_modelpath)
 
     # duplicates
     # ----------
-    # @TODO which params to set and which to set as optional input?
-    resolve_duplicates(model, check_reac:bool=True, 
-                       check_meta:Literal['default','exhaustive','skip']='default', 
-                       replace_dupl_meta:bool=True, remove_unused_meta:bool=False, 
-                       remove_dupl_reac:bool=True)
+    match config['duplicates']['reactions']:
+        case 'remove':
+            check_dupl_reac = True
+            remove_dupl_reac = True
+        case 'check':
+            check_dupl_reac = True
+            remove_dupl_reac = False
+        case 'skip':
+            check_dupl_reac = False
+            remove_dupl_reac = False
+        case _:
+            mes = 'Unknown input for duplicates - reactions: will be skipped'
+            warnings.warn(mes)
+            check_dupl_reac = False
+            remove_dupl_reac = False
+        
+    match config['duplicates']['metabolites']:
+        case 'remove':
+            check_dupl_meta = 'default'
+            remove_dupl_meta = True
+        case 'check':
+            check_dupl_meta = 'default'
+            remove_dupl_meta = False
+        case 'skip':
+            check_dupl_meta = 'skip'
+            remove_dupl_meta = False
+        case _:
+            mes = 'Unknown input for duplicates - metabolites: will be skipped'
+            warnings.warn(mes)
+            check_dupl_meta = 'skip'
+            remove_dupl_meta = False
 
+    current_model = resolve_duplicates(current_model, check_reac=check_dupl_reac, 
+                       check_meta=check_dupl_meta, 
+                       replace_dupl_meta=remove_dupl_meta, 
+                       remove_unused_meta=config['duplicates']['remove_unused_metabs'], 
+                       remove_dupl_reac=remove_dupl_reac)
+
+    between_growth_test(current_model,config,step='after_duplicate_removal')
+    between_analysis(current_model,config,step='after_duplicate_removal')
+
+    # save model
+    if config['general']['save_all_models']:
+        write_model_to_file(Path(dir,'cmpb_out','models','after_duplicate_removal.xml'))
+        current_modelpath = Path(dir,'cmpb_out','models','after_duplicate_removal.xml')
+    else:
+        write_model_to_file(only_modelpath)
+        current_modelpath = only_modelpath
 
     # BOF
     # ---
     # @TODO
     # BOFdat - optional
-
+    if config['BOF']['run_bofdat']:
+        new_bof = adjust_BOF(config['BOF']['bofdat_params']['full_genome_sequence'], 
+                            current_modelpath,
+                            current_model, 
+                            dna_weight_fraction = config['BOF']['bofdat_params']['dna_weight_fraction'], 
+                            weight_frac = config['BOF']['bofdat_params']['weight_fraction']) 
+        # @TODO 
+        # save ?
     # check and normalise
+    elif config['BOF']['normalise']:
+        pass
+        #@TODO
     
     # MCC
     # ---
     # @TODO 
-    model = perform_mcc(model, Path(dir,'mcc'),apply=True) # @TODO Path is just a placeholder
+    current_model = perform_mcc(current_model, Path(dir,'cmpb','misc','mcc'),apply=True)
+
+    # save the final model
+    if config['general']['save_all_models']:
+        write_model_to_file(Path(dir,'cmpb_out','models','final_model.xml'))
+        current_modelpath = Path(dir,'cmpb_out','models','final_model.xml')
+    else:
+        write_model_to_file(only_modelpath)
+        current_modelpath = only_modelpath
 
     # analysis
     ##########
     # @TODO 
-    #   set / get params from config or upstream pipeline
-    dir
-    model
-    namespace
-    media_path
+    current_model = load_model(current_modelpath,'cobra')
+    current_libmodel = load_model(current_modelpath,'libsbml')
 
     # stats
     # -----
-    stats_report = ModelInfoReport(model)
+    stats_report = ModelInfoReport(current_model)
     stats_report.save(Path(dir,'stats')) # @TODO adjust Path, just a placeholder really
     
     # kegg pathway
     # ------------
-    pathway_report = kegg_pathway_analysis(model)
+    pathway_report = kegg_pathway_analysis(current_model)
     pathway_report.save(Path(dir,'kegg_pathway')) # @TODO adjust Path, just a placeholder really
     
     # sbo term
     # --------
     # @TODO
-    # plot_rea_sbo_single(model: libModel) -> fig?
+    fig = plot_rea_sbo_single(current_libmodel)
 
     # memote
     # ------
-    run_memote(model, 'html', save_res=Path(dir,'final_memote.html'))
+    run_memote(current_model, 'html', save_res=Path(dir,'memote','final_memote.html'))
 
     # growth
     # ------
     # try to set objective to growth
-    growth_func_list = test_biomass_presence(model)
+    growth_func_list = test_biomass_presence(current_model)
     if growth_func_list:
         # independently of how many growth functions are found, the first one will be used
-        model.objective = growth_func_list[0]
+        current_model.objective = growth_func_list[0]
         # simulate growth on different media
-        growth_report = growth.growth_analysis(model, media_path, 
-                                               namespace=namespace, retrieve='report')
+        growth_report = growth.growth_analysis(current_model, config['input']['mediapath'], 
+                                               namespace=config['general']['namespace'], 
+                                               retrieve='report')
         growth_report.save(Path(dir,'growth')) # @TODO adjust Path, just a placeholder really
 
     else:
@@ -215,10 +331,11 @@ def run(configpath:str):
 
     # auxotrophies
     # ------------
-    media_list = growth.read_media_config(media_path)
-    auxo_report = growth.test_auxotrophies(model, media_list[0], media_list[1], namespace)
+    media_list = growth.read_media_config(config['input']['mediapath'])
+    auxo_report = growth.test_auxotrophies(current_model, media_list[0], media_list[1], config['general']['namespace'])
     auxo_report.save(Path(dir,'auxotrophies')) # @TODO adjust Path, just a placeholder really
 
+    
 
 
 
@@ -456,10 +573,6 @@ def run_old(configpath=None):
 
 ####### IDEAS below ####
 
-# run pipeline + carveme 
-def run_on_genome():
-    pass
-
-# run only the polishing and co steps on an already build CarveMe model
-def run_on_model():
+# run for multiple models
+def wrapper():
     pass
