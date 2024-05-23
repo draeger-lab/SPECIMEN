@@ -1,11 +1,14 @@
 # Configuration file for the SPECIMEN CMPB pipeline
-# parameters with the value __USER__ are required to be specified by the user
+
+# Explaination for default parameters:
+#    with the value __USER__ are required to be specified by the user
+#    with the value USER are required only under specific cases
 
 # meta info:
-#    model:     __USER__
-#    organism:  __USER__
-#    date:      __USER__
-#    author:    __USER__
+#    model:     USER
+#    organism:  USER
+#    date:      USER
+#    author:    USER
 
 # input for the pipeline
 # ----------------------
@@ -19,11 +22,16 @@ input:
 # ---------------
 general:
   dir: './'                  # Path/Name of a directory to save output to
-  namespace: BiGG            # namespace to use for the model
+  namespace: BiGG            # Namespace to use for the model
+                             # Possible identifiers, currently: BiGG
   save_all_models: True      # save all models (models for each step)
   memote_always_on: False    # run memote after every step
   stats_always_on: False     # calculate the model statistics after every step
-
+  refseq_gff: USER           # Path to RefSeq GFF file: Required for gap analysis with 'KEGG'. 
+                             # Can be optionally provided for cm-polish.
+  kegg_organism_id: USER     # KEGG ID of the organism: Required for gap analysis with KEGG.
+                             # Can be optionally provided for cm-polish.
+  
 # part-specific options
 # ---------------------
 
@@ -32,14 +40,28 @@ general:
 #    will only be used, if model is indeed a CarveMe model
 cm-polish:
   email: USER              # User Mail to use for Entrez 
-  refseq_gff: USER 
-  protein_fasta: USER      # optional, except for is_lab_strain: True
+  protein_fasta: USER      # optional, except for is_lab_strain: True. 
+                           # The path to the protein FASTA used to create the CarveMe model.
   is_lab_strain: False     # whether the users strain originates from a lab 
-  kegg_organism_id: USER   # KEGG ID of the organism 
+                           # Needs to be set to ensure that protein IDs get the 'bqbiol:isHomologTo' qualifier
+                           # & to set the locus_tag to the ones obtained by the annotation
 
 # gapfilling, optional
 gapfilling:
-  # @TODO
+  ### Automatic gap filling ###
+  # All parameters are required for all db_to_compare choices except biocyc_files which is not required for 'KEGG'
+  gap_analysis_params:
+    db_to_compare: USER  # One of the choices KEGG|BioCyc|KEGG+BioCyc 
+    biocyc_files: 
+      - USER # Path to TXT file containing a SmartTable from BioCyc with the columns 'Accession-2' 'Reaction of gene'
+      - USER  # Path to TXT file containing a SmartTable with all reaction relevant information (*)
+      - USER  # Path to TXT file containing a SmartTable with all metabolite relevant information (+)
+      - USER  # Path to protein FASTA file used as input for CarveMe (Required to get the protein IDs from the locus tags)
+  # (*) 'Reaction' 'Reactants of reaction' 'Products of reaction' 'EC-Number' 'KEGG Reaction' 'MetaNetX' 'Reaction-Direction' 'Spontaneous?'
+  # (+) 'Compound' 'Object ID' 'Chemical Formula' 'InChI-Key' 'ChEBI'
+  gap_analysis_file: NULL # Path to Excel file with which gaps in model should be filled
+  # Either obtained by running gapfill_analysis/Created by hand with the same structure as the result file from gapfill_analysis
+  # Example Excel file to fill in by hand: data/modelName_gapfill_analysis_date_example.xlsx
 
 # add KEGG pathways as groups, optional
 kegg_pathway_groups: True  # decide, whether to run this or not
@@ -64,68 +86,7 @@ BOF:
     full_genome_sequence: USER  # whole genome sequence
     dna_weight_fraction: USER   # DNA weight fraction for the organism
     weight_fraction: USER       # Ezyme/ion weight fractions for the organism
-
-
   # if BOFdat is not run, the biomass objective function
   # can still - optionally - normalised
   normalise: True 
   # @TODO
-
-
-
-##################
-# old struff below
-##################
-
-# compare metabolites to the ModelSEED database
-modelseed: FALSE # set to False if not needed
-
-
-Settings for scripts that manipulate the model: >
-  They are all split into the ON / OFF switch (TRUE / FALSE) and additional settings like a path to where the new model should be saved.
-
-model_out: '' # path and filename to where to save the modified model
-entrez_email: '' # necessary to access NCBI API
-organismid: 'cstr'  # Needs to be specified for db_to_compare='KEGG' for the gap_analysis, Can be provided for polish
-gff_file: 'data/cstr.gff'  # Path to RefSeq GFF file: Required for db_to_compare='KEGG', Can be provided for polish
-
-
-### SBO-Term Annotation ###
-sboterms: FALSE
-
-### Model polishing ### The database of the model identifiers needs to be specified with 'id_db'
-polish: FALSE
-id_db: 'BIGG' # Required!
-# Possible identifiers, currently: BiGG & VMH
-# For other IDs the `polish` function in `polish.py` might need adjustment
-lab_strain: FALSE # Needs to be set to ensure that protein IDs get the 'bqbiol:isHomologTo' qualifier
-                  # & to set the locus_tag to the ones obtained by the annotation
-protein_fasta: '' # Path to used CarveMe input file, if exists; Needs to be set for lab_strain: True
-
-### Charge correction ###
-charge_corr: FALSE
-
-### Manual Curation ###
-man_cur: FALSE
-man_cur_type: 'gapfill' # either 'gapfill' or 'metabs'
-man_cur_table: 'data/manual_curation.xlsx'
-
-### Automatic gap filling ###
-# All parameters are required for all db_to_compare choices except:
-# - organismid which is only required for db_to_compare: 'KEGG'/'KEGG+BioCyc'
-# - and biocyc_files which is not required for 'KEGG'
-gap_analysis: FALSE
-gap_analysis_params:
-  db_to_compare: 'KEGG'  # One of the choices KEGG|BioCyc|KEGG+BioCyc 
-  biocyc_files: 
-    - 'Path0'  # Path to TXT file containing a SmartTable from BioCyc with the columns 'Accession-2' 'Reaction of gene' (-)
-    - 'Path1'  # Path to TXT file containing a SmartTable with all reaction relevant information (*)
-    - 'Path2'  # Path to TXT file containing a SmartTable with all metabolite relevant information (+)
-    - 'Path3'  # Path to protein FASTA file used as input for CarveMe (Needed to get the protein IDs from the locus tags)
-# (-) If the organism is not in BioCyc retrieve a table mapping all reactions in BioCyc to the corresponding sequence
-# (*) 'Reaction' 'Reactants of reaction' 'Products of reaction' 'EC-Number' 'KEGG Reaction' 'MetaNetX' 'Reaction-Direction' 'Spontaneous?'
-# (+) 'Compound' 'Object ID' 'Chemical Formula' 'InChI-Key' 'ChEBI'
-gapfill_model: FALSE
-gap_analysis_file: 'Path to Excel file with which gaps in model should be filled'
-# Either obtained by running gapfill_analysis/Created by hand with the same structure as the result file from gapfill_analysis
-# Example Excel file to fill in by hand: data/modelName_gapfill_analysis_date_example.xlsx
