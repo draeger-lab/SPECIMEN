@@ -57,7 +57,18 @@ duplicates:
 
 # BOFdat / Biomass objective function
 BOF:
-  run_bofdat: 
+  run_bofdat: False
+  # if BOFdat should be run, 
+  # fill out the params below
+  bofdat_params:
+    full_genome_sequence: USER  # whole genome sequence
+    dna_weight_fraction: USER   # DNA weight fraction for the organism
+    weight_fraction: USER       # Ezyme/ion weight fractions for the organism
+
+
+  # if BOFdat is not run, the biomass objective function
+  # can still - optionally - normalised
+  normalise: True 
   # @TODO
 
 
