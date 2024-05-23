@@ -18,7 +18,7 @@ Available Pipelines
 Currently, ``SPECIMEN`` includes the following pipelines:
 
 - | ``CMPB`` - CarveMe + ModelPolisher based: 
-  | This pipeline curated the model based on a CarveMe draft model and additional input.
+  | This pipeline curates the model based on a CarveMe draft model and additional input.
 - | ``HQTB`` - high-quality template based:
   | Curates a model based on the annotated genome, a high-quality template model and additional database information.
 
@@ -33,3 +33,4 @@ Currently, ``SPECIMEN`` includes the following pipelines:
    help
    dev-notes
 
+.. footbibliography::
