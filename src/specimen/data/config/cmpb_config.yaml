@@ -50,7 +50,7 @@ cm-polish:
 gapfilling:
   ### Automatic gap filling ###
   # All parameters are required for all db_to_compare choices except biocyc_files which is not required for 'KEGG'
-  gap_analysis_params:
+  gap_fill_params:
     db_to_compare: USER  # One of the choices KEGG|BioCyc|KEGG+BioCyc 
     biocyc_files: 
       - USER # Path to TXT file containing a SmartTable from BioCyc with the columns 'Accession-2' 'Reaction of gene'
@@ -59,8 +59,8 @@ gapfilling:
       - USER  # Path to protein FASTA file used as input for CarveMe (Required to get the protein IDs from the locus tags)
   # (*) 'Reaction' 'Reactants of reaction' 'Products of reaction' 'EC-Number' 'KEGG Reaction' 'MetaNetX' 'Reaction-Direction' 'Spontaneous?'
   # (+) 'Compound' 'Object ID' 'Chemical Formula' 'InChI-Key' 'ChEBI'
-  gap_analysis_file: NULL # Path to Excel file with which gaps in model should be filled
-  # Either obtained by running gapfill_analysis/Created by hand with the same structure as the result file from gapfill_analysis
+  gap_fill_file: NULL # Path to Excel file with which gaps in model should be filled
+  # Either obtained by running gapfilling/Created by hand with the same structure as the result file from gapfilling
   # Example Excel file to fill in by hand: data/modelName_gapfill_analysis_date_example.xlsx
 
 # add KEGG pathways as groups, optional

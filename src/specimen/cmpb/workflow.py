@@ -17,17 +17,17 @@ import yaml
 from cobra import Reaction
 from libsbml import readSBML
 
-from refinegems.curation.pathways import kegg_pathway_analysis
+from refinegems.analysis import growth
+from refinegems.analysis.investigate import plot_rea_sbo_single
 from refinegems.classes.reports import ModelInfoReport
 from refinegems.curation.biomass import test_biomass_presence, check_normalise_biomass
-from refinegems.analysis import growth
-from refinegems.utility.connections import run_memote, perform_mcc, adjust_BOF
-from refinegems.curation.curate import resolve_duplicates
-from refinegems.curation.pathways import kegg_pathways
-from refinegems.utility.io import load_model, write_model_to_file
-from refinegems.curation.polish import polish
 from refinegems.curation.charges import correct_charges_modelseed
-from refinegems.analysis.investigate import plot_rea_sbo_single
+from refinegems.curation.curate import resolve_duplicates
+from refinegems.curation.gapfill import gapfill_model, gapfill
+from refinegems.curation.pathways import kegg_pathways, kegg_pathway_analysis
+from refinegems.curation.polish import polish
+from refinegems.utility.connections import run_memote, perform_mcc, adjust_BOF
+from refinegems.utility.io import load_model, write_model_to_file
 
 # from SBOannotator import *
 from SBOannotator import sbo_annotator
@@ -50,6 +50,9 @@ from ..util.set_up import save_cmpb_user_input
 # dev notes
 #   in the run function: current_model means the cobrapy model, 
 #   while current_libmodel means the libsbml model
+
+# @TODO / @IDEAS Add option to have specific colour list per model for plots
+# @TODO Maybe get models at first and then add model IDs to every save filename?
 
 def run(configpath:str):
 
@@ -92,7 +95,7 @@ def run(configpath:str):
             config = yaml.load(cfg, Loader=yaml.loader.FullLoader)
 
     if not config['general']['save_all_models']:
-        only_modelpath = Path(dir,'cmpb_out','model.xml')
+        only_modelpath = Path(dir,'cmpb_out','model.xml') # @TODO Use model ID here...
 
     # create directory structure
     # --------------------------
@@ -119,7 +122,7 @@ def run(configpath:str):
     # will come in a future update
     if not config['input']['modelpath']:
         # run CarveMe
-        raise ValueError('Currently, CarveMe has not been included in the pipeline. Please use it separatly.mThis wfunction will be provided in a future update.')
+        raise ValueError('Currently, CarveMe has not been included in the pipeline. Please use it separatly. This function will be provided in a future update.')
     else:
         current_modelpath = config['input']['modelpath']
 
@@ -149,10 +152,10 @@ def run(configpath:str):
         
         # save model
         if config['general']['save_all_models']:
-            write_model_to_file(Path(dir,'cmpb_out','models','after_CarveMe_correction.xml'))
-            current_modelpath = Path(dir,'cmpb_out','models','after_CarveMe_correction.xml')
+            write_model_to_file(current_libmodel, Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_CarveMe_correction.xml'))
+            current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_CarveMe_correction.xml')
         else:
-            write_model_to_file(only_modelpath)
+            write_model_to_file(current_libmodel, only_modelpath)
             current_modelpath = only_modelpath
 
 
@@ -165,8 +168,63 @@ def run(configpath:str):
 
     # gapfilling
     ############
-    # @TODO
     # options: automatic/manual extension/manual input
+    if config['gapfilling']['gap_fill_params']: 
+        
+        filename = Path(dir, 'cmpb', 'misc',f'{current_libmodel.getId()}_gap_analysis_{str(today)}')
+        
+        match config['gapfilling']['gap_fill_params']['db_to_compare']:
+            
+            case 'KEGG':
+                gap_analysis_result, current_libmodel = gapfill(
+                    current_libmodel, 'KEGG', config['general']['refseq_gff'], 
+                    config['general']['kegg_organism_id'], None, 
+                    filename
+                    )
+            case 'BioCyc':
+                gap_analysis_result, current_libmodel = gapfill(
+                    current_libmodel, 'BioCyc', None, None, config['gapfilling']['gap_fill_params']['biocyc_files'], 
+                    filename
+                    )
+            case 'KEGG+BioCyc':
+                gap_analysis_result, current_libmodel = gapfill(
+                    current_libmodel, 'KEGG+BioCyc', config['general']['refseq_gff'],
+                    config['general']['kegg_organism_id'], config['gapfilling']['gap_fill_params']['biocyc_files'], 
+                    filename
+                    )
+            case _:
+                logging.warning(
+                    f'''
+                    \'{config["gapfilling"]["gap_fill_params"]["db_to_compare"]}\' is no valid input for the gap analysis.
+                    Please specify for the parameter \'db_to_compare\' one of the following options: 
+                    KEGG | BioCyc | KEGG+BioCyc
+                    '''
+                    )
+                
+        logging.info(f'Gap analysis for {current_libmodel.getId()} with {config['gapfilling']['gap_fill_params']['db_to_compare']} was performed.')
+        logging.info(f'Complete Excel table is in file: {filename}.xlsx.')
+
+        # save model
+        if config['general']['save_all_models']:
+            write_model_to_file(current_libmodel, Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_autofilled_gaps.xml'))
+            current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_autofilled_gaps.xml')
+        else:
+            write_model_to_file(current_libmodel, current_modelpath)
+            
+        logging.info(f'Gaps were filled automatically in {current_libmodel.getId()}.')
+                
+    if config['gapfilling']['gap_fill_file']: 
+        current_libmodel = gapfill_model(current_libmodel, config['gapfilling']['gap_fill_file'])
+
+        # save model
+        if config['general']['save_all_models']:
+            write_model_to_file(current_libmodel, Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_manually_filled_gaps.xml'))
+            current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_manually_filled_gaps.xml')
+        else:
+            write_model_to_file(current_libmodel, current_modelpath)
+            
+        logging.info(f'Gaps were filled based on a  manually curated file in {current_libmodel.getId()}.')
+        
 
     # ModelPolisher
     ###############
@@ -184,10 +242,10 @@ def run(configpath:str):
                 outfile.write(f'{line}\n')
         # save model
         if config['general']['save_all_models']:
-            write_model_to_file(Path(dir,'cmpb_out','models','added_KeggPathwayGroups.xml'))
-            current_modelpath = Path(dir,'cmpb_out','models','added_KeggPathwayGroups.xml')
+            write_model_to_file(current_libmodel, Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_added_KeggPathwayGroups.xml'))
+            current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_added_KeggPathwayGroups.xml')
         else:
-            write_model_to_file(current_modelpath)
+            write_model_to_file(current_libmodel, current_modelpath)
 
     # SBOannotator
     # ------------
@@ -254,10 +312,10 @@ def run(configpath:str):
 
     # save model
     if config['general']['save_all_models']:
-        write_model_to_file(Path(dir,'cmpb_out','models','after_duplicate_removal.xml'))
-        current_modelpath = Path(dir,'cmpb_out','models','after_duplicate_removal.xml')
+        write_model_to_file(current_model, Path(dir,'cmpb_out','models',f'{current_model.getId()}_after_duplicate_removal.xml'))
+        current_modelpath = Path(dir,'cmpb_out','models',f'{current_model.getId()}_after_duplicate_removal.xml')
     else:
-        write_model_to_file(only_modelpath)
+        write_model_to_file(current_model, only_modelpath)
         current_modelpath = only_modelpath
 
     # BOF
@@ -291,10 +349,10 @@ def run(configpath:str):
     # save 
     # save model
     if config['general']['save_all_models']:
-        write_model_to_file(Path(dir,'cmpb_out','models','after_BOF.xml'))
-        current_modelpath = Path(dir,'cmpb_out','models','after_BOF.xml')
+        write_model_to_file(current_model, Path(dir,'cmpb_out','models',f'{current_model.getId()}_after_BOF.xml'))
+        current_modelpath = Path(dir,'cmpb_out','models',f'{current_model.getId()}_after_BOF.xml')
     else:
-        write_model_to_file(current_modelpath)
+        write_model_to_file(current_model, current_modelpath)
     
     # MCC
     # ---
@@ -302,10 +360,10 @@ def run(configpath:str):
 
     # save the final model
     if config['general']['save_all_models']:
-        write_model_to_file(Path(dir,'cmpb_out','models','final_model.xml'))
-        current_modelpath = Path(dir,'cmpb_out','models','final_model.xml')
+        write_model_to_file(current_model, Path(dir,'cmpb_out','models',f'{current_model.getId()}_final_model.xml'))
+        current_modelpath = Path(dir,'cmpb_out','models',f'{current_model.getId()}_final_model.xml')
     else:
-        write_model_to_file(only_modelpath)
+        write_model_to_file(current_model, only_modelpath)
         current_modelpath = only_modelpath
 
     # analysis
