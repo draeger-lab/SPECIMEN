@@ -22,11 +22,14 @@ input:
 # ---------------
 general:
   dir: './'                  # Path/Name of a directory to save output to
+  colours: 'YlGn'            # set the colour scheme for the plots
+                             # should be a valid matplotlib continuous color palette
   namespace: BiGG            # Namespace to use for the model
                              # Possible identifiers, currently: BiGG
   save_all_models: True      # save all models (models for each step)
   memote_always_on: False    # run memote after every step
   stats_always_on: False     # calculate the model statistics after every step
+  # below are options used by multiple steps
   refseq_gff: USER           # Path to RefSeq GFF file: Required for gap analysis with 'KEGG'. 
                              # Can be optionally provided for cm-polish.
   kegg_organism_id: USER     # KEGG ID of the organism: Required for gap analysis with KEGG.

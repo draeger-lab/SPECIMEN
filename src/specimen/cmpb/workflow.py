@@ -40,9 +40,6 @@ from ..util.set_up import save_cmpb_user_input
 
     # ....................................................
     # @TODO / @IDEAS
-    # global options
-    # run memote after every step
-    # calculate model stats after each step
     # use temp folder or report all model/in-between steps
     # what to write in the log file
     # ....................................................
@@ -50,9 +47,6 @@ from ..util.set_up import save_cmpb_user_input
 # dev notes
 #   in the run function: current_model means the cobrapy model, 
 #   while current_libmodel means the libsbml model
-
-# @TODO / @IDEAS Add option to have specific colour list per model for plots
-# @TODO Maybe get models at first and then add model IDs to every save filename?
 
 def run(configpath:str):
 
@@ -66,7 +60,8 @@ def run(configpath:str):
             growth_report = growth.growth_analysis(model, cfg['input']['mediapath'], 
                                                 namespace=cfg['general']['namespace'], 
                                                 retrieve='report')
-            growth_report.save(Path(cfg['general']["dir"], 'cmpb_out', 'misc', 'growth', step)) 
+            growth_report.save(Path(cfg['general']["dir"], 'cmpb_out', 'misc', 'growth', step),
+                               color_palette=config['general']['colours']) 
         else:
             mes = f'No growth/biomass function detected, growth simulation for step {step} will be skipped.'
             warnings.warn(mes)
@@ -80,7 +75,8 @@ def run(configpath:str):
                     verbose=False)
         if cfg['general']['stats_always_on']:
             report = ModelInfoReport(model)
-            report.save(Path(cfg['general']["dir"],'cmpb_out', 'misc', 'stats',f'{step}_.html')) 
+            report.save(Path(cfg['general']["dir"],'cmpb_out', 'misc', 'stats',f'{step}_.html'),
+                        color_palette=config['general']['colours']) 
 
 
     # setup phase
@@ -374,12 +370,14 @@ def run(configpath:str):
     # stats
     # -----
     stats_report = ModelInfoReport(current_model)
-    stats_report.save(Path(dir,'cmpb_out', 'misc','stats')) 
+    stats_report.save(Path(dir,'cmpb_out', 'misc','stats'),
+                      color_palette=config['general']['colours']) 
     
     # kegg pathway
     # ------------
     pathway_report = kegg_pathway_analysis(current_model)
-    pathway_report.save(Path(dir,'cmpb_out','misc','kegg_pathway')) 
+    pathway_report.save(Path(dir,'cmpb_out','misc','kegg_pathway'), 
+                        colors=config['general']['colours']) 
     
     # sbo term
     # --------
@@ -398,10 +396,15 @@ def run(configpath:str):
     # ------------
     media_list = growth.read_media_config(config['input']['mediapath'])
     auxo_report = growth.test_auxotrophies(current_model, media_list[0], media_list[1], config['general']['namespace'])
-    auxo_report.save(Path(dir,'cmpb_out','misc','auxotrophies')) 
+    auxo_report.save(Path(dir,'cmpb_out','misc','auxotrophies'),
+                     color_palette=config['general']['colours']) 
 
 
 ####### IDEAS below ####
+
+# @TODO / @IDEAS Add option to have specific colour list per model for plots
+    # for the comparison when runnin this on multiple models
+# @TODO Maybe get models at first and then add model IDs to every save filename?
 
 # run for multiple models
 def wrapper():
