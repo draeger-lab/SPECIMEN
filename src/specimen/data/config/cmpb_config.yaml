@@ -86,7 +86,5 @@ BOF:
     full_genome_sequence: USER  # whole genome sequence
     dna_weight_fraction: USER   # DNA weight fraction for the organism
     weight_fraction: USER       # Ezyme/ion weight fractions for the organism
-  # if BOFdat is not run, the biomass objective function
-  # can still - optionally - normalised
-  normalise: True 
-  # @TODO
+
+

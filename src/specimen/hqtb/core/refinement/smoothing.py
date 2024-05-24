@@ -163,7 +163,7 @@ def run(genome:str,model:str,dir:str,mcc='skip',
             bof_reac = Reaction('Biomass_BOFdat')
             bof_reac.name = 'Biomass objective function created by BOFdat'
             model.add_reactions([bof_reac])
-            model.reactions.get_by_id(pos_bofs[0]).reaction = adjust_BOF(genome, temp_model.name, model, dna_weight_frac, ion_weight_frac)
+            model.reactions.get_by_id(bof_reac).reaction = adjust_BOF(genome, temp_model.name, model, dna_weight_frac, ion_weight_frac)
        
             # optimise BOF(s)
             model = check_normalise_biomass(model)

@@ -6,8 +6,6 @@ __author__ = "Tobias Fehrenbach, Famke Baeuerle, Gwendolyn O. Döbel and Carolin
 # requirements
 ################################################################################
 
-import os
-import cobra
 import logging
 import pandas as pd
 from datetime import date
@@ -16,11 +14,12 @@ from pathlib import Path
 import warnings
 import yaml
 
+from cobra import Reaction
 from libsbml import readSBML
 
 from refinegems.curation.pathways import kegg_pathway_analysis
 from refinegems.classes.reports import ModelInfoReport
-from refinegems.curation.biomass import test_biomass_presence
+from refinegems.curation.biomass import test_biomass_presence, check_normalise_biomass
 from refinegems.analysis import growth
 from refinegems.utility.connections import run_memote, perform_mcc, adjust_BOF
 from refinegems.curation.curate import resolve_duplicates
@@ -263,20 +262,39 @@ def run(configpath:str):
 
     # BOF
     # ---
-    # @TODO
     # BOFdat - optional
+    current_model = load_model(current_modelpath,'cobra')
     if config['BOF']['run_bofdat']:
-        new_bof = adjust_BOF(config['BOF']['bofdat_params']['full_genome_sequence'], 
-                            current_modelpath,
-                            current_model, 
-                            dna_weight_fraction = config['BOF']['bofdat_params']['dna_weight_fraction'], 
-                            weight_frac = config['BOF']['bofdat_params']['weight_fraction']) 
-        # @TODO 
-        # save ?
-    # check and normalise
-    elif config['BOF']['normalise']:
-        pass
-        #@TODO
+        check_bof = test_biomass_presence(current_model)
+        if check_bof:
+            current_model.reactions.get_by_id(check_bof[0]).reaction = adjust_BOF(config['BOF']['bofdat_params']['full_genome_sequence'], 
+                                current_modelpath,
+                                current_model, 
+                                dna_weight_fraction = config['BOF']['bofdat_params']['dna_weight_fraction'], 
+                                weight_frac = config['BOF']['bofdat_params']['weight_fraction']) 
+            current_model = check_normalise_biomass(current_model)
+        else: 
+            bof_reac = Reaction('Biomass_BOFdat')
+            bof_reac.name = 'Biomass objective function created by BOFdat'
+            current_model.add_reactions([bof_reac])
+            current_model.reactions.get_by_id(bof_reac).reaction = adjust_BOF(config['BOF']['bofdat_params']['full_genome_sequence'], 
+                                current_modelpath,
+                                current_model, 
+                                dna_weight_fraction = config['BOF']['bofdat_params']['dna_weight_fraction'], 
+                                weight_frac = config['BOF']['bofdat_params']['weight_fraction'])
+            current_model = check_normalise_biomass(current_model)
+
+    # check and normalise 
+    else:
+        current_model = check_normalise_biomass(current_model)
+
+    # save 
+    # save model
+    if config['general']['save_all_models']:
+        write_model_to_file(Path(dir,'cmpb_out','models','after_BOF.xml'))
+        current_modelpath = Path(dir,'cmpb_out','models','after_BOF.xml')
+    else:
+        write_model_to_file(current_modelpath)
     
     # MCC
     # ---
