@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>specimen.hqtb.core.generate_draft_model &mdash; SPECIMEN 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=559046d4" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom_theme.css?v=ef5873f9" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/LogoSPECIMEN.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=8d563738"></script>
+        <script src="../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../../_static/copybutton.js?v=7859de39"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html">
+            
+              <img src="../../../../_static/LogoSPECIMEN.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../overview-pipes.html">Overview of the Pipelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../specimen.html">Contents of SPECIMEN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../help.html">Help &amp; FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../dev-notes.html">Notes for Developers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SPECIMEN</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">specimen.hqtb.core.generate_draft_model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for specimen.hqtb.core.generate_draft_model</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Generate a draft model from a template.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Carolin Brune&#39;</span>
+<span class="c1">################################################################################</span>
+<span class="c1"># requirements</span>
+<span class="c1">################################################################################</span>
+
+<span class="kn">import</span> <span class="nn">cobra</span>
+<span class="kn">import</span> <span class="nn">importlib.metadata</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span><span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">refinegems.classes.medium</span> <span class="kn">import</span> <span class="n">load_medium_from_db</span><span class="p">,</span> <span class="n">medium_to_model</span>
+<span class="kn">from</span> <span class="nn">refinegems.utility.io</span> <span class="kn">import</span> <span class="n">load_model</span>
+<span class="kn">from</span> <span class="nn">refinegems.utility.entities</span> <span class="kn">import</span> <span class="n">resolve_compartment_names</span>
+<span class="kn">from</span> <span class="nn">refinegems.curation.biomass</span> <span class="kn">import</span> <span class="n">test_biomass_presence</span>
+<span class="kn">from</span> <span class="nn">refinegems.utility.connections</span> <span class="kn">import</span> <span class="n">run_memote</span>
+
+<span class="kn">from</span> <span class="nn">refinegems.analysis.growth</span> <span class="kn">import</span> <span class="n">MIN_GROWTH_THRESHOLD</span>
+
+<span class="c1"># further required programs:</span>
+<span class="c1">#        - MEMOTE, tested with version 0.13.0</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># functions</span>
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="pid_filter">
+<a class="viewcode-back" href="../../../../modules/core.html#specimen.hqtb.core.generate_draft_model.pid_filter">[docs]</a>
+<span class="k">def</span> <span class="nf">pid_filter</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pid</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter the data based on PID threshold. Entries above the given value are kept.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        - data (pd.DataFrame): </span>
+<span class="sd">            The data from bidirectional_blast.py containing at least a &#39;PID&#39; column.</span>
+<span class="sd">        - pid (float): </span>
+<span class="sd">            PID threshold value, given in percentage e.g. 80.0.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: </span>
+<span class="sd">            The filtered data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;homolog_found&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;PID&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">pid</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;homolog_found&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="se">\t</span><span class="si">{</span><span class="n">counts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1"> set as 1 (= homologs), </span><span class="si">{</span><span class="n">counts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1"> set as 0 &#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<span class="c1"># @TODO</span>
+<div class="viewcode-block" id="edit_template_identifiers">
+<a class="viewcode-back" href="../../../../modules/core.html#specimen.hqtb.core.generate_draft_model.edit_template_identifiers">[docs]</a>
+<span class="k">def</span> <span class="nf">edit_template_identifiers</span><span class="p">(</span><span class="n">data</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">edit</span><span class="p">:</span><span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;no&#39;</span><span class="p">,</span><span class="s1">&#39;dot-to-underscore&#39;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Edit the subject IDs to fit the gene IDs of the template model.</span>
+<span class="sd">    Requires further extention, if needed edits are not included.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        - data (pd.DataFrame): </span>
+<span class="sd">            The data frame containing the bidirectional blastp best hits information.</span>
+<span class="sd">        - edit (Literal[&#39;no&#39;,&#39;dot-to-underscore&#39;]): </span>
+<span class="sd">            Type of edit to perform.</span>
+<span class="sd">            Currently possible options: no, dot-to-underscore.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: </span>
+<span class="sd">            The (un)edited DataFrame.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+
+    <span class="k">match</span> <span class="n">edit</span><span class="p">:</span>
+        <span class="k">case</span> <span class="s1">&#39;no&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">data</span>
+        <span class="k">case</span> <span class="s1">&#39;dot-to-underscore&#39;</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;subject_ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span><span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;subject_ID&#39;</span><span class="p">]]</span>
+            <span class="k">return</span> <span class="n">data</span>
+        <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+            <span class="n">mes</span> <span class="o">=</span> <span class="s1">&#39;Unknown option for parameter edit. Nothing will be edited.&#39;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">mes</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">data</span></div>
+
+        <span class="c1"># ...........</span>
+        <span class="c1"># @TODO</span>
+        <span class="c1"># extendable</span>
+        <span class="c1"># ...........</span>
+
+
+<div class="viewcode-block" id="remove_absent_genes">
+<a class="viewcode-back" href="../../../../modules/core.html#specimen.hqtb.core.generate_draft_model.remove_absent_genes">[docs]</a>
+<span class="k">def</span> <span class="nf">remove_absent_genes</span><span class="p">(</span><span class="n">model</span><span class="p">:</span><span class="n">cobra</span><span class="o">.</span><span class="n">Model</span><span class="p">,</span> <span class="n">genes</span><span class="p">:</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">cobra</span><span class="o">.</span><span class="n">Model</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove a list of genes from a given model.</span>
+<span class="sd">    Note: genes that are not found in the model are skipped.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        - model (cobra.Model): </span>
+<span class="sd">            A template model to delete genes from. </span>
+<span class="sd">            A copy will be created before deleting.</span>
+<span class="sd">        - genes (list[str]): </span>
+<span class="sd">            Gene identifiers of genes that should be deleted.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        cobra.Model: </span>
+<span class="sd">            A new model with the given genes deleted, if found in the original model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">remove absent (low PID) genes&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">...................................................................&#39;</span><span class="p">)</span>
+
+    <span class="n">genes_to_delete</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">essential</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">not_found</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">remove</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">modelCopy</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">genes</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">test</span> <span class="o">=</span> <span class="n">modelCopy</span><span class="o">.</span><span class="n">genes</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+            <span class="c1"># check, if gene is essential</span>
+            <span class="k">with</span> <span class="n">modelCopy</span> <span class="k">as</span> <span class="n">variant</span><span class="p">:</span>
+                <span class="n">test</span><span class="o">.</span><span class="n">knock_out</span><span class="p">()</span>
+                <span class="n">variant</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
+                <span class="c1"># set gene for deletion if model still works without it</span>
+                <span class="k">if</span> <span class="n">variant</span><span class="o">.</span><span class="n">objective</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;</span> <span class="n">MIN_GROWTH_THRESHOLD</span><span class="p">:</span>
+                    <span class="n">remove</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">genes_to_delete</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="c1"># keep gene, if model stops growing</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">essential</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">continue</span>
+            <span class="c1"># remove gene</span>
+            <span class="k">if</span> <span class="n">remove</span><span class="p">:</span>
+                <span class="n">cobra</span><span class="o">.</span><span class="n">manipulation</span><span class="o">.</span><span class="n">delete</span><span class="o">.</span><span class="n">remove_genes</span><span class="p">(</span><span class="n">modelCopy</span><span class="p">,</span> <span class="p">[</span><span class="n">g</span><span class="p">],</span> <span class="n">remove_reactions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">remove</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">not_found</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">number of deleted genes: </span><span class="si">{</span><span class="n">genes_to_delete</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">number of essential genes (not deleted): </span><span class="si">{</span><span class="n">essential</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">number of genes not found in the model: </span><span class="si">{</span><span class="n">not_found</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">...................................................................&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">modelCopy</span></div>
+
+
+
+<div class="viewcode-block" id="rename_found_homologs">
+<a class="viewcode-back" href="../../../../modules/core.html#specimen.hqtb.core.generate_draft_model.rename_found_homologs">[docs]</a>
+<span class="k">def</span> <span class="nf">rename_found_homologs</span><span class="p">(</span><span class="n">draft</span><span class="p">:</span><span class="n">cobra</span><span class="o">.</span><span class="n">Model</span><span class="p">,</span> <span class="n">bbh</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cobra</span><span class="o">.</span><span class="n">Model</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rename the genes in the model correnspondingly to the homologous ones found in the query.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        - draft (cobra.Model): </span>
+<span class="sd">            The draft model with the to-be-renamed genes.</span>
+<span class="sd">        - bbh (pd.DataFrame): </span>
+<span class="sd">            The table from the bidirectional_blast.py script containing the bidirectional blastp best hits information</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        cobra.Model: </span>
+<span class="sd">            The draft model with renamed genes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">rename found homologs&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">...................................................................&#39;</span><span class="p">)</span>
+    <span class="c1"># extract found homologs</span>
+    <span class="n">present_s</span> <span class="o">=</span> <span class="n">bbh</span><span class="p">[</span><span class="n">bbh</span><span class="p">[</span><span class="s1">&#39;homolog_found&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">][</span><span class="s1">&#39;subject_ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">present_q</span> <span class="o">=</span> <span class="n">bbh</span><span class="p">[</span><span class="n">bbh</span><span class="p">[</span><span class="s1">&#39;homolog_found&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">][</span><span class="s1">&#39;query_ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">total number of found homologs: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">present_q</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># map the new names to the model, if the original gene is found</span>
+    <span class="n">name_mapping</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">present_s</span><span class="p">,</span> <span class="n">present_q</span><span class="p">))</span>
+    <span class="n">cobra</span><span class="o">.</span><span class="n">manipulation</span><span class="o">.</span><span class="n">modify</span><span class="o">.</span><span class="n">rename_genes</span><span class="p">(</span><span class="n">draft</span><span class="p">,</span> <span class="n">name_mapping</span><span class="p">)</span>
+    <span class="n">renamed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">present_q</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">draft</span><span class="o">.</span><span class="n">genes</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">number of homologs found and renamed in model: </span><span class="si">{</span><span class="n">renamed</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># identify skipped genes of the query</span>
+    <span class="n">skipped_genes</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">present_q</span> <span class="k">if</span> <span class="n">_</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name_mapping</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+    <span class="n">remap_skipped</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">skp</span> <span class="ow">in</span> <span class="n">skipped_genes</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">name_mapping</span><span class="p">[</span><span class="n">bbh</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">bbh</span><span class="p">[</span><span class="s1">&#39;query_ID&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">skp</span><span class="p">,</span> <span class="s1">&#39;subject_ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">remap_skipped</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">remap_skipped</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">skp</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">remap_skipped</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">skp</span><span class="p">]</span>
+
+    <span class="c1"># create new genes entry from the old ones for additional homologous genes</span>
+    <span class="n">skp_counter</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">remap_skipped</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="n">_</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">draft</span><span class="o">.</span><span class="n">genes</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">ident</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+                <span class="n">skp_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="c1"># add the gene as an alternative in the gene reaction rules of the model</span>
+                <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">draft</span><span class="o">.</span><span class="n">genes</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">reactions</span><span class="p">:</span>
+                    <span class="n">r</span><span class="o">.</span><span class="n">gene_reaction_rule</span> <span class="o">+=</span> <span class="sa">F</span><span class="s1">&#39; or </span><span class="si">{</span><span class="n">ident</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="c1"># copy the annotations of the homologous one for better model quality</span>
+                <span class="n">draft</span><span class="o">.</span><span class="n">genes</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="n">ident</span><span class="p">)</span><span class="o">.</span><span class="n">annotation</span> <span class="o">=</span> <span class="n">draft</span><span class="o">.</span><span class="n">genes</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">annotation</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">number of additional homologs found and added to model: </span><span class="si">{</span><span class="n">skp_counter</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">...................................................................&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">draft</span></div>
+
+
+<span class="c1"># @TODO</span>
+<div class="viewcode-block" id="check_unchanged">
+<a class="viewcode-back" href="../../../../modules/core.html#specimen.hqtb.core.generate_draft_model.check_unchanged">[docs]</a>
+<span class="k">def</span> <span class="nf">check_unchanged</span><span class="p">(</span><span class="n">draft</span><span class="p">:</span><span class="n">cobra</span><span class="o">.</span><span class="n">Model</span><span class="p">,</span> <span class="n">bbh</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cobra</span><span class="o">.</span><span class="n">Model</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check the genes names (more correctly, the IDs) for still existing original col_names.</span>
+<span class="sd">    Depending on the case, decide if to keep or remove them.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        - draft (cobra.Model): </span>
+<span class="sd">            The draft model currently in the making.</span>
+<span class="sd">        - bbh (pd.DataFrame): </span>
+<span class="sd">            The table from the bidirectional_blast.py script containing the bidirectional blastp best hits information.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        cobra.Model: </span>
+<span class="sd">            The model after the check and possible removal of genes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">check not renamed genes&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">...................................................................&#39;</span><span class="p">)</span>
+
+    <span class="n">query_ids</span> <span class="o">=</span> <span class="n">bbh</span><span class="p">[</span><span class="s1">&#39;query_ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">not_renamed</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">draft</span><span class="o">.</span><span class="n">genes</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">query_ids</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">number of not renamed genes: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">not_renamed</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">to_delete</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">essential_counter</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">remove</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># ..........................................................</span>
+    <span class="c1"># @TODO: </span>
+    <span class="c1"># -- faster</span>
+    <span class="c1"># -- what about double etc. deletions or combined deletions?</span>
+    <span class="c1"># ..........................................................</span>
+    <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">not_renamed</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">draft</span> <span class="k">as</span> <span class="n">model</span><span class="p">:</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">knock_out</span><span class="p">()</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">objective_value</span> <span class="o">&gt;</span> <span class="n">MIN_GROWTH_THRESHOLD</span><span class="p">:</span>
+                <span class="c1"># set for deletion</span>
+                <span class="n">remove</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">to_delete</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># keep</span>
+                <span class="n">essential_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># delete gene</span>
+        <span class="k">if</span> <span class="n">remove</span><span class="p">:</span>
+            <span class="n">cobra</span><span class="o">.</span><span class="n">manipulation</span><span class="o">.</span><span class="n">delete</span><span class="o">.</span><span class="n">remove_genes</span><span class="p">(</span><span class="n">draft</span><span class="p">,</span> <span class="p">[</span><span class="n">g</span><span class="p">],</span> <span class="n">remove_reactions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">remove</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">removed </span><span class="si">{</span><span class="n">to_delete</span><span class="si">}</span><span class="s1"> non-essential genes&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">kept </span><span class="si">{</span><span class="n">essential_counter</span><span class="si">}</span><span class="s1"> essential genes&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">...................................................................&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">draft</span></div>
+
+
+
+<div class="viewcode-block" id="gen_draft_model">
+<a class="viewcode-back" href="../../../../modules/core.html#specimen.hqtb.core.generate_draft_model.gen_draft_model">[docs]</a>
+<span class="k">def</span> <span class="nf">gen_draft_model</span><span class="p">(</span><span class="n">model</span><span class="p">:</span><span class="n">cobra</span><span class="o">.</span><span class="n">Model</span><span class="p">,</span> <span class="n">bbh</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
+                    <span class="n">name</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dir</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">edit</span><span class="p">:</span><span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;no&#39;</span><span class="p">,</span><span class="s1">&#39;dot-to-underscore&#39;</span><span class="p">],</span> 
+                    <span class="n">medium</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span><span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;BiGG&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;BiGG&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cobra</span><span class="o">.</span><span class="n">Model</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a draft model from a template model and the results of a bidirectional blastp (blast best hits) table</span>
+<span class="sd">    and save it as a new model.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        - model (cobra.Model): </span>
+<span class="sd">            The template model.</span>
+<span class="sd">        - bbh (pd.DataFrame): </span>
+<span class="sd">            The bidirectional blastp best hits table.</span>
+<span class="sd">        - name (str): </span>
+<span class="sd">            Name of the newly generated model.</span>
+<span class="sd">        - dir (str): </span>
+<span class="sd">            Path to the directory to save the new model in.</span>
+<span class="sd">        - edit (Literal[&#39;no&#39;,&#39;dot-to-underscore&#39;):  </span>
+<span class="sd">            Type of edit to perform.</span>
+<span class="sd">            Currently possible options: no, dot-to-underscore.</span>
+<span class="sd">        - medium (str, optional):  </span>
+<span class="sd">            Name of the to be loaded from the refineGEMs database or &#39;default&#39; = the one</span>
+<span class="sd">            from the template model. If given the keyword &#39;exchanges&#39;, will use all exchange reactions in the model as a medium.</span>
+<span class="sd">            Defaults to &#39;default&#39;.</span>
+<span class="sd">        - namespace (Literal[&#39;BiGG&#39;], optional): </span>
+<span class="sd">            Namespace of the model. </span>
+<span class="sd">            Defaults to &#39;BiGG&#39;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        cobra.Model: </span>
+<span class="sd">            The generated draft model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+
+    <span class="k">match</span> <span class="n">medium</span><span class="p">:</span>
+        <span class="c1"># use the medium from the template</span>
+        <span class="k">case</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="c1"># set all exchanges open + as medium</span>
+        <span class="k">case</span> <span class="s1">&#39;exchanges&#39;</span><span class="p">:</span>
+            <span class="c1"># @NOTE: gapfilling using cobra becomes not feasible using this option</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">medium</span> <span class="o">=</span> <span class="p">{</span><span class="n">_</span><span class="o">.</span><span class="n">id</span><span class="p">:</span><span class="mf">1000.0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">exchanges</span><span class="p">}</span>
+        <span class="c1"># use a medium from the refinegems database</span>
+        <span class="k">case</span> <span class="nb">str</span><span class="p">():</span>
+            <span class="n">new_m</span> <span class="o">=</span> <span class="n">load_medium_from_db</span><span class="p">(</span><span class="n">medium</span><span class="p">)</span>
+            <span class="n">medium_to_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">new_m</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">double_o2</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Unknown or incomplete input for setting the medium. Using the one from the template.&#39;</span><span class="p">)</span>
+
+    <span class="c1"># delete absent genes, including associated reactions</span>
+    <span class="n">bbh</span> <span class="o">=</span> <span class="n">edit_template_identifiers</span><span class="p">(</span><span class="n">bbh</span><span class="p">,</span> <span class="n">edit</span><span class="p">)</span>
+    <span class="n">absent</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">bbh</span><span class="p">[</span><span class="n">bbh</span><span class="p">[</span><span class="s1">&#39;homolog_found&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">][</span><span class="s1">&#39;subject_ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+
+    <span class="n">draft</span> <span class="o">=</span> <span class="n">remove_absent_genes</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">absent</span><span class="p">)</span>
+
+    <span class="c1"># rename genes as per the naming of the new model (if possible)</span>
+    <span class="n">draft</span> <span class="o">=</span> <span class="n">rename_found_homologs</span><span class="p">(</span><span class="n">draft</span><span class="p">,</span> <span class="n">bbh</span><span class="p">)</span>
+
+    <span class="c1"># check genes, that have not gotten a new ID assigned</span>
+    <span class="n">draft</span> <span class="o">=</span> <span class="n">check_unchanged</span><span class="p">(</span><span class="n">draft</span><span class="p">,</span> <span class="n">bbh</span><span class="p">)</span>
+
+    <span class="c1"># rename compartments to the standart</span>
+    <span class="n">resolve_compartment_names</span><span class="p">(</span><span class="n">draft</span><span class="p">)</span>
+
+    <span class="c1"># for each object, save a note that it was added during draft construction</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">draft</span><span class="o">.</span><span class="n">reactions</span><span class="p">:</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">notes</span><span class="p">[</span><span class="s1">&#39;creation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;via template&#39;</span>
+    <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">draft</span><span class="o">.</span><span class="n">genes</span><span class="p">:</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">notes</span><span class="p">[</span><span class="s1">&#39;creation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;via template&#39;</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">draft</span><span class="o">.</span><span class="n">metabolites</span><span class="p">:</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">notes</span><span class="p">[</span><span class="s1">&#39;creation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;via template&#39;</span>
+
+    <span class="c1"># save draft model</span>
+    <span class="n">draft</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">draft</span><span class="o">.</span><span class="n">notes</span><span class="p">[</span><span class="s1">&#39;Template model&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">draft</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">draft</span><span class="o">.</span><span class="n">notes</span><span class="p">[</span><span class="s1">&#39;Description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;This model was created with SPECIMEN version </span><span class="si">{</span><span class="n">importlib</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="s2">&quot;specimen&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">draft</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Genome-scale metabolic model </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">cobra</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">write_sbml_model</span><span class="p">(</span><span class="n">draft</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;_draft.xml&#39;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">draft</span></div>
+
+
+
+<div class="viewcode-block" id="run">
+<a class="viewcode-back" href="../../../../modules/core.html#specimen.hqtb.core.generate_draft_model.run">[docs]</a>
+<span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">template</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">bpbbh</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dir</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> 
+        <span class="n">edit_names</span><span class="p">:</span><span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;no&#39;</span><span class="p">,</span><span class="s1">&#39;dot-to-underscore&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;no&#39;</span><span class="p">,</span> 
+        <span class="n">pid</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="mf">80.0</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span><span class="kc">None</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+        <span class="n">medium</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">namespace</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;BiGG&#39;</span><span class="p">,</span> <span class="n">memote</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a draft model from a blastp best hits tsv file and a template model.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        - template (str): </span>
+<span class="sd">            Path to the file containing the template model.</span>
+<span class="sd">        - bpbbh (str): </span>
+<span class="sd">            Path to the blastp bidirectional best hits.</span>
+<span class="sd">        - dir (str): </span>
+<span class="sd">            Path to output directory.</span>
+<span class="sd">        - edit_names (Literal[&#39;no&#39;,&#39;dot-to-underscore&#39;, optional):  </span>
+<span class="sd">            Type of edit to perform.</span>
+<span class="sd">            Currently possible options: no, dot-to-underscore. </span>
+<span class="sd">            Defaults to &#39;no&#39;.</span>
+<span class="sd">        - pid (float, optional): </span>
+<span class="sd">            Threshold value for determining, if a gene is counted as present or absent. </span>
+<span class="sd">            Given in percentage, e.g. 80.0 = 80%.</span>
+<span class="sd">            Defaults to 80.0.</span>
+<span class="sd">        - name (Union[str,None], optional): </span>
+<span class="sd">            Name of the output model. </span>
+<span class="sd">            If not given, takes name from filename. </span>
+<span class="sd">            Defaults to None.</span>
+<span class="sd">        - medium (str, optional):  </span>
+<span class="sd">            Name of the to be loaded from the refineGEMs database or &#39;default&#39; = the one</span>
+<span class="sd">            from the template model. If given the keyword &#39;exchanges&#39;, will use all exchange reactions in the model as a medium.</span>
+<span class="sd">            Defaults to &#39;default&#39;.</span>
+<span class="sd">        - namespace (str, optional): </span>
+<span class="sd">            Namespace of the model. </span>
+<span class="sd">            Defaults to &#39;BiGG&#39;.</span>
+<span class="sd">        - memote (bool, optional): </span>
+<span class="sd">            Option to run memote after creating the draft model. </span>
+<span class="sd">            Defaults to False.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: &#39;Edit_names value {edit_names} not in list of allowed values: no, dot-to-underscore&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">total_time_s</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+    <span class="c1"># -----------</span>
+    <span class="c1"># check input</span>
+    <span class="c1"># -----------</span>
+
+    <span class="k">if</span> <span class="n">edit_names</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;no&#39;</span><span class="p">,</span><span class="s1">&#39;dot-to-underscore&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;Edit_names value </span><span class="si">{</span><span class="n">edit_names</span><span class="si">}</span><span class="s1"> not in list of allowed values: no, dot-to-underscore&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">bpbbh</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)[:</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="c1"># -------------</span>
+    <span class="c1"># start program</span>
+    <span class="c1"># -------------</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">generate draft model</span><span class="se">\n</span><span class="s1">################################################################################</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;Creating new directory </span><span class="si">{</span><span class="nb">dir</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Given directory already exists.&#39;</span><span class="p">)</span>
+
+    <span class="n">bbh_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">bpbbh</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">template_model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">template</span><span class="p">,</span><span class="s1">&#39;cobra&#39;</span><span class="p">)</span>
+    <span class="c1"># if possible, set growth function as model objective</span>
+    <span class="n">growth_objfunc</span> <span class="o">=</span> <span class="n">test_biomass_presence</span><span class="p">(</span><span class="n">template_model</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">growth_objfunc</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">template_model</span><span class="o">.</span><span class="n">objective</span> <span class="o">=</span> <span class="n">growth_objfunc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">growth_objfunc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">mes</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Multiple BOF detected. Chosing the following: </span><span class="si">{</span><span class="n">growth_objfunc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">mes</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">UserWarning</span><span class="p">)</span>
+        <span class="n">template_model</span><span class="o">.</span><span class="n">objective</span> <span class="o">=</span> <span class="n">growth_objfunc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mes</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;No BOF detected. Can lead to problems downstream the SPECIMEN pipeline.&#39;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">mes</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">UserWarning</span><span class="p">)</span>
+
+    <span class="c1"># -----------------------------</span>
+    <span class="c1"># determine presence or absence</span>
+    <span class="c1"># -----------------------------</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"># ------------------</span><span class="se">\n</span><span class="s1"># filter by PID</span><span class="se">\n</span><span class="s1"># ------------------&#39;</span><span class="p">)</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">pid_filter</span><span class="p">(</span><span class="n">bbh_data</span><span class="p">,</span> <span class="n">pid</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">total time: </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">}</span><span class="s1">s&#39;</span><span class="p">)</span>
+
+    <span class="c1"># --------------------</span>
+    <span class="c1"># generate draft model</span>
+    <span class="c1"># --------------------</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"># --------------------</span><span class="se">\n</span><span class="s1"># generate draft model</span><span class="se">\n</span><span class="s1"># --------------------&#39;</span><span class="p">)</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">draft</span> <span class="o">=</span> <span class="n">gen_draft_model</span><span class="p">(</span><span class="n">template_model</span><span class="p">,</span> <span class="n">bbh_data</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">dir</span><span class="p">,</span> <span class="n">edit_names</span><span class="p">,</span> <span class="n">medium</span><span class="o">=</span><span class="n">medium</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="n">namespace</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">total time: </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">}</span><span class="s1">s&#39;</span><span class="p">)</span>
+
+    <span class="c1"># -------------------</span>
+    <span class="c1"># analyse with MEMOTE</span>
+    <span class="c1"># -------------------</span>
+
+    <span class="k">if</span> <span class="n">memote</span><span class="p">:</span>
+        <span class="n">memote_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;step1-extension&#39;</span><span class="p">,</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;.html&#39;</span><span class="p">)</span>
+        <span class="n">run_memote</span><span class="p">(</span><span class="n">draft</span><span class="p">,</span> <span class="s1">&#39;html&#39;</span><span class="p">,</span> <span class="n">return_res</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save_res</span><span class="o">=</span><span class="n">memote_path</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">total_time_e</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;total runtime: </span><span class="si">{</span><span class="n">total_time_e</span><span class="o">-</span><span class="n">total_time_s</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Carolin Brune.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

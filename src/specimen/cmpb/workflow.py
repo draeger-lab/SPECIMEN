@@ -92,6 +92,7 @@ def run(configpath:str):
 
     if not config['general']['save_all_models']:
         only_modelpath = Path(dir,'cmpb_out','model.xml') # @TODO Use model ID here...
+                                                          # model might not exist here ...
 
     # create directory structure
     # --------------------------
@@ -197,7 +198,7 @@ def run(configpath:str):
                     '''
                     )
                 
-        logging.info(f'Gap analysis for {current_libmodel.getId()} with {config['gapfilling']['gap_fill_params']['db_to_compare']} was performed.')
+        logging.info(f'Gap analysis for {current_libmodel.getId()} with {config["gapfilling"]["gap_fill_params"]["db_to_compare"]} was performed.')
         logging.info(f'Complete Excel table is in file: {filename}.xlsx.')
 
         # save model
@@ -225,6 +226,7 @@ def run(configpath:str):
     # ModelPolisher
     ###############
     # @TODO
+    # future update
 
     # Annotations
     #############

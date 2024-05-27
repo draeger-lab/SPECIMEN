@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>specimen.cmpb.workflow &mdash; SPECIMEN 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=559046d4" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom_theme.css?v=ef5873f9" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/LogoSPECIMEN.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=7859de39"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/LogoSPECIMEN.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview-pipes.html">Overview of the Pipelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../specimen.html">Contents of SPECIMEN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../help.html">Help &amp; FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dev-notes.html">Notes for Developers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SPECIMEN</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">specimen.cmpb.workflow</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for specimen.cmpb.workflow</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Tobias Fehrenbach, Famke Baeuerle, Gwendolyn O. Döbel and Carolin Brune&quot;</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># requirements</span>
+<span class="c1">################################################################################</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">from</span> <span class="nn">cobra</span> <span class="kn">import</span> <span class="n">Reaction</span>
+<span class="kn">from</span> <span class="nn">libsbml</span> <span class="kn">import</span> <span class="n">readSBML</span>
+
+<span class="kn">from</span> <span class="nn">refinegems.analysis</span> <span class="kn">import</span> <span class="n">growth</span>
+<span class="kn">from</span> <span class="nn">refinegems.analysis.investigate</span> <span class="kn">import</span> <span class="n">plot_rea_sbo_single</span>
+<span class="kn">from</span> <span class="nn">refinegems.classes.reports</span> <span class="kn">import</span> <span class="n">ModelInfoReport</span>
+<span class="kn">from</span> <span class="nn">refinegems.curation.biomass</span> <span class="kn">import</span> <span class="n">test_biomass_presence</span><span class="p">,</span> <span class="n">check_normalise_biomass</span>
+<span class="kn">from</span> <span class="nn">refinegems.curation.charges</span> <span class="kn">import</span> <span class="n">correct_charges_modelseed</span>
+<span class="kn">from</span> <span class="nn">refinegems.curation.curate</span> <span class="kn">import</span> <span class="n">resolve_duplicates</span>
+<span class="kn">from</span> <span class="nn">refinegems.curation.gapfill</span> <span class="kn">import</span> <span class="n">gapfill_model</span><span class="p">,</span> <span class="n">gapfill</span>
+<span class="kn">from</span> <span class="nn">refinegems.curation.pathways</span> <span class="kn">import</span> <span class="n">kegg_pathways</span><span class="p">,</span> <span class="n">kegg_pathway_analysis</span>
+<span class="kn">from</span> <span class="nn">refinegems.curation.polish</span> <span class="kn">import</span> <span class="n">polish</span>
+<span class="kn">from</span> <span class="nn">refinegems.utility.connections</span> <span class="kn">import</span> <span class="n">run_memote</span><span class="p">,</span> <span class="n">perform_mcc</span><span class="p">,</span> <span class="n">adjust_BOF</span>
+<span class="kn">from</span> <span class="nn">refinegems.utility.io</span> <span class="kn">import</span> <span class="n">load_model</span><span class="p">,</span> <span class="n">write_model_to_file</span>
+
+<span class="c1"># from SBOannotator import *</span>
+<span class="kn">from</span> <span class="nn">SBOannotator</span> <span class="kn">import</span> <span class="n">sbo_annotator</span>
+
+<span class="kn">from</span> <span class="nn">..util.set_up</span> <span class="kn">import</span> <span class="n">save_cmpb_user_input</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># functions</span>
+<span class="c1">################################################################################</span>
+
+    <span class="c1"># ....................................................</span>
+    <span class="c1"># @TODO / @IDEAS</span>
+    <span class="c1"># use temp folder or report all model/in-between steps</span>
+    <span class="c1"># what to write in the log file</span>
+    <span class="c1"># ....................................................</span>
+
+<span class="c1"># dev notes</span>
+<span class="c1">#   in the run function: current_model means the cobrapy model, </span>
+<span class="c1">#   while current_libmodel means the libsbml model</span>
+
+<div class="viewcode-block" id="run">
+<a class="viewcode-back" href="../../../modules/cmpb.html#specimen.cmpb.workflow.run">[docs]</a>
+<span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">configpath</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">between_growth_test</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+        <span class="c1"># try to set objective to growth</span>
+        <span class="n">growth_func_list</span> <span class="o">=</span> <span class="n">test_biomass_presence</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">growth_func_list</span><span class="p">:</span>
+            <span class="c1"># independently of how many growth functions are found, the first one will be used</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">objective</span> <span class="o">=</span> <span class="n">growth_func_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># simulate growth on different media</span>
+            <span class="n">growth_report</span> <span class="o">=</span> <span class="n">growth</span><span class="o">.</span><span class="n">growth_analysis</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">][</span><span class="s1">&#39;mediapath&#39;</span><span class="p">],</span> 
+                                                <span class="n">namespace</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;namespace&#39;</span><span class="p">],</span> 
+                                                <span class="n">retrieve</span><span class="o">=</span><span class="s1">&#39;report&#39;</span><span class="p">)</span>
+            <span class="n">growth_report</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s2">&quot;dir&quot;</span><span class="p">],</span> <span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span> <span class="s1">&#39;misc&#39;</span><span class="p">,</span> <span class="s1">&#39;growth&#39;</span><span class="p">,</span> <span class="n">step</span><span class="p">),</span>
+                               <span class="n">color_palette</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;colours&#39;</span><span class="p">])</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mes</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;No growth/biomass function detected, growth simulation for step </span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s1"> will be skipped.&#39;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">mes</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">between_analysis</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+        <span class="c1"># optional analysis</span>
+        <span class="k">if</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;memote_always_on&#39;</span><span class="p">]:</span>
+            <span class="n">run_memote</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;html&#39;</span><span class="p">,</span> 
+                    <span class="n">return_res</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+                    <span class="n">save_res</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s2">&quot;dir&quot;</span><span class="p">],</span> <span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span> <span class="s1">&#39;misc&#39;</span><span class="p">,</span><span class="s1">&#39;memote&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s1">_.html&#39;</span><span class="p">),</span> 
+                    <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;stats_always_on&#39;</span><span class="p">]:</span>
+            <span class="n">report</span> <span class="o">=</span> <span class="n">ModelInfoReport</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s2">&quot;dir&quot;</span><span class="p">],</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span> <span class="s1">&#39;misc&#39;</span><span class="p">,</span> <span class="s1">&#39;stats&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s1">_.html&#39;</span><span class="p">),</span>
+                        <span class="n">color_palette</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;colours&#39;</span><span class="p">])</span> 
+
+
+    <span class="c1"># setup phase</span>
+    <span class="c1">#############</span>
+
+    <span class="c1"># load config</span>
+    <span class="c1"># -----------</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">configpath</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">save_cmpb_user_input</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span> <span class="s1">&#39;logs&#39;</span><span class="p">,</span> <span class="s1">&#39;config_user.yaml&#39;</span><span class="p">))</span> 
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">configpath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfg</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;save_all_models&#39;</span><span class="p">]:</span>
+        <span class="n">only_modelpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;model.xml&#39;</span><span class="p">)</span> <span class="c1"># @TODO Use model ID here...</span>
+                                                          <span class="c1"># model might not exist here ...</span>
+
+    <span class="c1"># create directory structure</span>
+    <span class="c1"># --------------------------</span>
+
+    <span class="nb">dir</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;dir&#39;</span><span class="p">]</span>
+    <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s2">&quot;cmpb_out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>                          <span class="c1"># cmpb_out</span>
+    <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s2">&quot;cmpb_out&quot;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>                 <span class="c1">#   |- models</span>
+    <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s2">&quot;cmpb_out&quot;</span><span class="p">,</span><span class="s1">&#39;logs&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>                   <span class="c1">#   |- logs</span>
+    <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s2">&quot;cmpb_out&quot;</span><span class="p">,</span><span class="s1">&#39;misc&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>                   <span class="c1">#   |- misc</span>
+    <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s2">&quot;cmpb_out&quot;</span><span class="p">,</span><span class="s1">&#39;misc&#39;</span><span class="p">,</span> <span class="s1">&#39;memote&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>         <span class="c1">#      |- memote</span>
+    <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s2">&quot;cmpb_out&quot;</span><span class="p">,</span><span class="s1">&#39;misc&#39;</span><span class="p">,</span> <span class="s1">&#39;growth&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>         <span class="c1">#      |- growth</span>
+    <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s2">&quot;cmpb_out&quot;</span><span class="p">,</span><span class="s1">&#39;misc&#39;</span><span class="p">,</span> <span class="s1">&#39;stats&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>          <span class="c1">#      |- stats</span>
+    <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s2">&quot;cmpb_out&quot;</span><span class="p">,</span><span class="s1">&#39;misc&#39;</span><span class="p">,</span> <span class="s1">&#39;kegg_pathway&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>   <span class="c1">#      |- kegg_pathways</span>
+    <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s2">&quot;cmpb_out&quot;</span><span class="p">,</span><span class="s1">&#39;misc&#39;</span><span class="p">,</span> <span class="s1">&#39;auxotrophy&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>     <span class="c1">#      |- auxothrophy</span>
+
+    <span class="c1"># create log</span>
+    <span class="c1"># ----------</span>
+    <span class="n">today</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">log_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span> <span class="s1">&#39;logs&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;specimen_cmpb_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">today</span><span class="p">)</span><span class="si">}</span><span class="s1">.log&#39;</span><span class="p">)</span>
+
+    <span class="c1"># CarveMe</span>
+    <span class="c1">#########</span>
+    <span class="c1"># @TODO</span>
+    <span class="c1"># will come in a future update</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">][</span><span class="s1">&#39;modelpath&#39;</span><span class="p">]:</span>
+        <span class="c1"># run CarveMe</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Currently, CarveMe has not been included in the pipeline. Please use it separatly. This function will be provided in a future update.&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">current_modelpath</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">][</span><span class="s1">&#39;modelpath&#39;</span><span class="p">]</span>
+
+    <span class="c1"># optional analysis</span>
+    <span class="n">current_model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">current_modelpath</span><span class="p">,</span><span class="s1">&#39;cobra&#39;</span><span class="p">)</span>
+    <span class="n">between_analysis</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s1">&#39;after_draft&#39;</span><span class="p">)</span>
+
+    <span class="c1"># CarveMe correction</span>
+    <span class="c1">####################</span>
+
+    <span class="n">current_libmodel</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">current_modelpath</span><span class="p">,</span><span class="s1">&#39;libsbml&#39;</span><span class="p">)</span>
+    <span class="c1"># check, if input is a CarveMe model</span>
+    <span class="k">if</span> <span class="s1">&#39;CarveMe&#39;</span> <span class="ow">in</span> <span class="n">current_libmodel</span><span class="o">.</span><span class="n">getNotesString</span><span class="p">():</span>
+        <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s2">&quot;cmpb_out&quot;</span><span class="p">,</span><span class="s1">&#39;misc&#39;</span><span class="p">,</span> <span class="s1">&#39;wrong_annotations&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">current_libmodel</span> <span class="o">=</span> <span class="n">polish</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">,</span> 
+                                  <span class="n">email</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;cm-polish&#39;</span><span class="p">][</span><span class="s1">&#39;email&#39;</span><span class="p">],</span> 
+                                  <span class="n">id_db</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;namespace&#39;</span><span class="p">],</span> 
+                                  <span class="n">refseq_gff</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;cm-polish&#39;</span><span class="p">][</span><span class="s1">&#39;refseq_gff&#39;</span><span class="p">],</span> 
+                                  <span class="n">protein_fasta</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;cm-polish&#39;</span><span class="p">][</span><span class="s1">&#39;protein_fasta&#39;</span><span class="p">],</span> 
+                                  <span class="n">lab_strain</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;cm-polish&#39;</span><span class="p">][</span><span class="s1">&#39;is_lab_strain&#39;</span><span class="p">],</span> 
+                                  <span class="n">kegg_organism_id</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;cm-polish&#39;</span><span class="p">][</span><span class="s1">&#39;kegg_organism_id&#39;</span><span class="p">],</span> 
+                                  <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;misc&#39;</span><span class="p">,</span><span class="s1">&#39;wrong_annotations&#39;</span><span class="p">))</span> 
+        <span class="c1"># rg correct charges</span>
+        <span class="n">current_libmodel</span><span class="p">,</span> <span class="n">mult_charges_dict</span> <span class="o">=</span> <span class="n">correct_charges_modelseed</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">)</span>
+        <span class="n">mult_charges_tab</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">mult_charges_dict</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span>
+        <span class="n">mult_charges_tab</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;misc&#39;</span><span class="p">,</span><span class="s1">&#39;reac_with_mult_charges.tsv&#39;</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># save model</span>
+        <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;save_all_models&#39;</span><span class="p">]:</span>
+            <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_after_CarveMe_correction.xml&#39;</span><span class="p">))</span>
+            <span class="n">current_modelpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_after_CarveMe_correction.xml&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">,</span> <span class="n">only_modelpath</span><span class="p">)</span>
+            <span class="n">current_modelpath</span> <span class="o">=</span> <span class="n">only_modelpath</span>
+
+
+    <span class="c1"># growth test</span>
+    <span class="c1"># -----------</span>
+    <span class="n">current_model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">current_modelpath</span><span class="p">,</span><span class="s1">&#39;cobra&#39;</span><span class="p">)</span>
+    <span class="n">between_growth_test</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;after_CarveMe_correction&#39;</span><span class="p">)</span>
+    <span class="n">between_analysis</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;after_CarveMe_correction&#39;</span><span class="p">)</span>
+
+
+    <span class="c1"># gapfilling</span>
+    <span class="c1">############</span>
+    <span class="c1"># options: automatic/manual extension/manual input</span>
+    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;gapfilling&#39;</span><span class="p">][</span><span class="s1">&#39;gap_fill_params&#39;</span><span class="p">]:</span> 
+        
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="s1">&#39;cmpb&#39;</span><span class="p">,</span> <span class="s1">&#39;misc&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_gap_analysis_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">today</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="k">match</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;gapfilling&#39;</span><span class="p">][</span><span class="s1">&#39;gap_fill_params&#39;</span><span class="p">][</span><span class="s1">&#39;db_to_compare&#39;</span><span class="p">]:</span>
+            
+            <span class="k">case</span> <span class="s1">&#39;KEGG&#39;</span><span class="p">:</span>
+                <span class="n">gap_analysis_result</span><span class="p">,</span> <span class="n">current_libmodel</span> <span class="o">=</span> <span class="n">gapfill</span><span class="p">(</span>
+                    <span class="n">current_libmodel</span><span class="p">,</span> <span class="s1">&#39;KEGG&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;refseq_gff&#39;</span><span class="p">],</span> 
+                    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;kegg_organism_id&#39;</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> 
+                    <span class="n">filename</span>
+                    <span class="p">)</span>
+            <span class="k">case</span> <span class="s1">&#39;BioCyc&#39;</span><span class="p">:</span>
+                <span class="n">gap_analysis_result</span><span class="p">,</span> <span class="n">current_libmodel</span> <span class="o">=</span> <span class="n">gapfill</span><span class="p">(</span>
+                    <span class="n">current_libmodel</span><span class="p">,</span> <span class="s1">&#39;BioCyc&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;gapfilling&#39;</span><span class="p">][</span><span class="s1">&#39;gap_fill_params&#39;</span><span class="p">][</span><span class="s1">&#39;biocyc_files&#39;</span><span class="p">],</span> 
+                    <span class="n">filename</span>
+                    <span class="p">)</span>
+            <span class="k">case</span> <span class="s1">&#39;KEGG+BioCyc&#39;</span><span class="p">:</span>
+                <span class="n">gap_analysis_result</span><span class="p">,</span> <span class="n">current_libmodel</span> <span class="o">=</span> <span class="n">gapfill</span><span class="p">(</span>
+                    <span class="n">current_libmodel</span><span class="p">,</span> <span class="s1">&#39;KEGG+BioCyc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;refseq_gff&#39;</span><span class="p">],</span>
+                    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;kegg_organism_id&#39;</span><span class="p">],</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;gapfilling&#39;</span><span class="p">][</span><span class="s1">&#39;gap_fill_params&#39;</span><span class="p">][</span><span class="s1">&#39;biocyc_files&#39;</span><span class="p">],</span> 
+                    <span class="n">filename</span>
+                    <span class="p">)</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">                    </span><span class="se">\&#39;</span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gapfilling&quot;</span><span class="p">][</span><span class="s2">&quot;gap_fill_params&quot;</span><span class="p">][</span><span class="s2">&quot;db_to_compare&quot;</span><span class="p">]</span><span class="si">}</span><span class="se">\&#39;</span><span class="s1"> is no valid input for the gap analysis.</span>
+<span class="s1">                    Please specify for the parameter </span><span class="se">\&#39;</span><span class="s1">db_to_compare</span><span class="se">\&#39;</span><span class="s1"> one of the following options: </span>
+<span class="s1">                    KEGG | BioCyc | KEGG+BioCyc</span>
+<span class="s1">                    &#39;&#39;&#39;</span>
+                    <span class="p">)</span>
+                
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Gap analysis for </span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1"> with </span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gapfilling&quot;</span><span class="p">][</span><span class="s2">&quot;gap_fill_params&quot;</span><span class="p">][</span><span class="s2">&quot;db_to_compare&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> was performed.&#39;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Complete Excel table is in file: </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">.xlsx.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># save model</span>
+        <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;save_all_models&#39;</span><span class="p">]:</span>
+            <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_autofilled_gaps.xml&#39;</span><span class="p">))</span>
+            <span class="n">current_modelpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_autofilled_gaps.xml&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">,</span> <span class="n">current_modelpath</span><span class="p">)</span>
+            
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Gaps were filled automatically in </span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+                
+    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;gapfilling&#39;</span><span class="p">][</span><span class="s1">&#39;gap_fill_file&#39;</span><span class="p">]:</span> 
+        <span class="n">current_libmodel</span> <span class="o">=</span> <span class="n">gapfill_model</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;gapfilling&#39;</span><span class="p">][</span><span class="s1">&#39;gap_fill_file&#39;</span><span class="p">])</span>
+
+        <span class="c1"># save model</span>
+        <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;save_all_models&#39;</span><span class="p">]:</span>
+            <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_manually_filled_gaps.xml&#39;</span><span class="p">))</span>
+            <span class="n">current_modelpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_manually_filled_gaps.xml&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">,</span> <span class="n">current_modelpath</span><span class="p">)</span>
+            
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Gaps were filled based on a  manually curated file in </span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+        
+
+    <span class="c1"># ModelPolisher</span>
+    <span class="c1">###############</span>
+    <span class="c1"># @TODO</span>
+    <span class="c1"># future update</span>
+
+    <span class="c1"># Annotations</span>
+    <span class="c1">#############</span>
+
+    <span class="c1"># KEGGPathwayGroups</span>
+    <span class="c1"># -----------------</span>
+    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;kegg_pathway_groups&#39;</span><span class="p">]:</span>
+        <span class="n">current_libmodel</span><span class="p">,</span> <span class="n">missing_list</span> <span class="o">=</span> <span class="n">kegg_pathways</span><span class="p">(</span><span class="n">current_modelpath</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="s1">&#39;cmpb&#39;</span><span class="p">,</span> <span class="s1">&#39;misc&#39;</span><span class="p">,</span> <span class="s1">&#39;reac_wo_kegg_pathway_groups.txt&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">missing_list</span><span class="p">:</span>
+                <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1"># save model</span>
+        <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;save_all_models&#39;</span><span class="p">]:</span>
+            <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_added_KeggPathwayGroups.xml&#39;</span><span class="p">))</span>
+            <span class="n">current_modelpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_added_KeggPathwayGroups.xml&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">,</span> <span class="n">current_modelpath</span><span class="p">)</span>
+
+    <span class="c1"># SBOannotator</span>
+    <span class="c1"># ------------</span>
+    <span class="c1"># @TODO </span>
+    <span class="c1">#  theoretically: something along the way:</span>
+    <span class="n">libsbml_doc</span> <span class="o">=</span> <span class="n">readSBML</span><span class="p">(</span><span class="n">current_modelpath</span><span class="p">)</span>
+    <span class="n">libsbml_model</span> <span class="o">=</span> <span class="n">libsbml_doc</span><span class="o">.</span><span class="n">getModel</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;save_all_models&#39;</span><span class="p">]:</span>
+        <span class="n">sbo_annotator</span><span class="p">(</span><span class="n">libsbml_doc</span><span class="p">,</span> <span class="n">libsbml_model</span><span class="p">,</span> <span class="s1">&#39;constraint-based&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;create_dbs&#39;</span><span class="p">,</span> 
+                      <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span> <span class="s1">&#39;SBOannotated.xml&#39;</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sbo_annotator</span><span class="p">(</span><span class="n">libsbml_doc</span><span class="p">,</span> <span class="n">libsbml_model</span><span class="p">,</span> <span class="s1">&#39;constraint-based&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;create_dbs&#39;</span><span class="p">,</span> 
+                      <span class="n">Path</span><span class="p">(</span><span class="n">current_modelpath</span><span class="p">))</span>
+
+    <span class="n">between_analysis</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;after_annotation&#39;</span><span class="p">)</span>
+    
+
+    <span class="c1"># model cleanup</span>
+    <span class="c1">###############</span>
+    <span class="n">current_model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">current_modelpath</span><span class="p">)</span>
+
+    <span class="c1"># duplicates</span>
+    <span class="c1"># ----------</span>
+    <span class="k">match</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;duplicates&#39;</span><span class="p">][</span><span class="s1">&#39;reactions&#39;</span><span class="p">]:</span>
+        <span class="k">case</span> <span class="s1">&#39;remove&#39;</span><span class="p">:</span>
+            <span class="n">check_dupl_reac</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">remove_dupl_reac</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">case</span> <span class="s1">&#39;check&#39;</span><span class="p">:</span>
+            <span class="n">check_dupl_reac</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">remove_dupl_reac</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">case</span> <span class="s1">&#39;skip&#39;</span><span class="p">:</span>
+            <span class="n">check_dupl_reac</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">remove_dupl_reac</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+            <span class="n">mes</span> <span class="o">=</span> <span class="s1">&#39;Unknown input for duplicates - reactions: will be skipped&#39;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">mes</span><span class="p">)</span>
+            <span class="n">check_dupl_reac</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">remove_dupl_reac</span> <span class="o">=</span> <span class="kc">False</span>
+        
+    <span class="k">match</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;duplicates&#39;</span><span class="p">][</span><span class="s1">&#39;metabolites&#39;</span><span class="p">]:</span>
+        <span class="k">case</span> <span class="s1">&#39;remove&#39;</span><span class="p">:</span>
+            <span class="n">check_dupl_meta</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+            <span class="n">remove_dupl_meta</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">case</span> <span class="s1">&#39;check&#39;</span><span class="p">:</span>
+            <span class="n">check_dupl_meta</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+            <span class="n">remove_dupl_meta</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">case</span> <span class="s1">&#39;skip&#39;</span><span class="p">:</span>
+            <span class="n">check_dupl_meta</span> <span class="o">=</span> <span class="s1">&#39;skip&#39;</span>
+            <span class="n">remove_dupl_meta</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+            <span class="n">mes</span> <span class="o">=</span> <span class="s1">&#39;Unknown input for duplicates - metabolites: will be skipped&#39;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">mes</span><span class="p">)</span>
+            <span class="n">check_dupl_meta</span> <span class="o">=</span> <span class="s1">&#39;skip&#39;</span>
+            <span class="n">remove_dupl_meta</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">current_model</span> <span class="o">=</span> <span class="n">resolve_duplicates</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span> <span class="n">check_reac</span><span class="o">=</span><span class="n">check_dupl_reac</span><span class="p">,</span> 
+                       <span class="n">check_meta</span><span class="o">=</span><span class="n">check_dupl_meta</span><span class="p">,</span> 
+                       <span class="n">replace_dupl_meta</span><span class="o">=</span><span class="n">remove_dupl_meta</span><span class="p">,</span> 
+                       <span class="n">remove_unused_meta</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;duplicates&#39;</span><span class="p">][</span><span class="s1">&#39;remove_unused_metabs&#39;</span><span class="p">],</span> 
+                       <span class="n">remove_dupl_reac</span><span class="o">=</span><span class="n">remove_dupl_reac</span><span class="p">)</span>
+
+    <span class="n">between_growth_test</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;after_duplicate_removal&#39;</span><span class="p">)</span>
+    <span class="n">between_analysis</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;after_duplicate_removal&#39;</span><span class="p">)</span>
+
+    <span class="c1"># save model</span>
+    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;save_all_models&#39;</span><span class="p">]:</span>
+        <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_model</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_after_duplicate_removal.xml&#39;</span><span class="p">))</span>
+        <span class="n">current_modelpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_model</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_after_duplicate_removal.xml&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span> <span class="n">only_modelpath</span><span class="p">)</span>
+        <span class="n">current_modelpath</span> <span class="o">=</span> <span class="n">only_modelpath</span>
+
+    <span class="c1"># BOF</span>
+    <span class="c1"># ---</span>
+    <span class="c1"># BOFdat - optional</span>
+    <span class="n">current_model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">current_modelpath</span><span class="p">,</span><span class="s1">&#39;cobra&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;BOF&#39;</span><span class="p">][</span><span class="s1">&#39;run_bofdat&#39;</span><span class="p">]:</span>
+        <span class="n">check_bof</span> <span class="o">=</span> <span class="n">test_biomass_presence</span><span class="p">(</span><span class="n">current_model</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">check_bof</span><span class="p">:</span>
+            <span class="n">current_model</span><span class="o">.</span><span class="n">reactions</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="n">check_bof</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">reaction</span> <span class="o">=</span> <span class="n">adjust_BOF</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;BOF&#39;</span><span class="p">][</span><span class="s1">&#39;bofdat_params&#39;</span><span class="p">][</span><span class="s1">&#39;full_genome_sequence&#39;</span><span class="p">],</span> 
+                                <span class="n">current_modelpath</span><span class="p">,</span>
+                                <span class="n">current_model</span><span class="p">,</span> 
+                                <span class="n">dna_weight_fraction</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;BOF&#39;</span><span class="p">][</span><span class="s1">&#39;bofdat_params&#39;</span><span class="p">][</span><span class="s1">&#39;dna_weight_fraction&#39;</span><span class="p">],</span> 
+                                <span class="n">weight_frac</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;BOF&#39;</span><span class="p">][</span><span class="s1">&#39;bofdat_params&#39;</span><span class="p">][</span><span class="s1">&#39;weight_fraction&#39;</span><span class="p">])</span> 
+            <span class="n">current_model</span> <span class="o">=</span> <span class="n">check_normalise_biomass</span><span class="p">(</span><span class="n">current_model</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> 
+            <span class="n">bof_reac</span> <span class="o">=</span> <span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;Biomass_BOFdat&#39;</span><span class="p">)</span>
+            <span class="n">bof_reac</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Biomass objective function created by BOFdat&#39;</span>
+            <span class="n">current_model</span><span class="o">.</span><span class="n">add_reactions</span><span class="p">([</span><span class="n">bof_reac</span><span class="p">])</span>
+            <span class="n">current_model</span><span class="o">.</span><span class="n">reactions</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="n">bof_reac</span><span class="p">)</span><span class="o">.</span><span class="n">reaction</span> <span class="o">=</span> <span class="n">adjust_BOF</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;BOF&#39;</span><span class="p">][</span><span class="s1">&#39;bofdat_params&#39;</span><span class="p">][</span><span class="s1">&#39;full_genome_sequence&#39;</span><span class="p">],</span> 
+                                <span class="n">current_modelpath</span><span class="p">,</span>
+                                <span class="n">current_model</span><span class="p">,</span> 
+                                <span class="n">dna_weight_fraction</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;BOF&#39;</span><span class="p">][</span><span class="s1">&#39;bofdat_params&#39;</span><span class="p">][</span><span class="s1">&#39;dna_weight_fraction&#39;</span><span class="p">],</span> 
+                                <span class="n">weight_frac</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;BOF&#39;</span><span class="p">][</span><span class="s1">&#39;bofdat_params&#39;</span><span class="p">][</span><span class="s1">&#39;weight_fraction&#39;</span><span class="p">])</span>
+            <span class="n">current_model</span> <span class="o">=</span> <span class="n">check_normalise_biomass</span><span class="p">(</span><span class="n">current_model</span><span class="p">)</span>
+
+    <span class="c1"># check and normalise </span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">current_model</span> <span class="o">=</span> <span class="n">check_normalise_biomass</span><span class="p">(</span><span class="n">current_model</span><span class="p">)</span>
+
+    <span class="c1"># save </span>
+    <span class="c1"># save model</span>
+    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;save_all_models&#39;</span><span class="p">]:</span>
+        <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_model</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_after_BOF.xml&#39;</span><span class="p">))</span>
+        <span class="n">current_modelpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_model</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_after_BOF.xml&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span> <span class="n">current_modelpath</span><span class="p">)</span>
+    
+    <span class="c1"># MCC</span>
+    <span class="c1"># ---</span>
+    <span class="n">current_model</span> <span class="o">=</span> <span class="n">perform_mcc</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb&#39;</span><span class="p">,</span><span class="s1">&#39;misc&#39;</span><span class="p">,</span><span class="s1">&#39;mcc&#39;</span><span class="p">),</span><span class="n">apply</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># save the final model</span>
+    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;save_all_models&#39;</span><span class="p">]:</span>
+        <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_model</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_final_model.xml&#39;</span><span class="p">))</span>
+        <span class="n">current_modelpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_model</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_final_model.xml&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span> <span class="n">only_modelpath</span><span class="p">)</span>
+        <span class="n">current_modelpath</span> <span class="o">=</span> <span class="n">only_modelpath</span>
+
+    <span class="c1"># analysis</span>
+    <span class="c1">##########</span>
+    <span class="n">current_model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">current_modelpath</span><span class="p">,</span><span class="s1">&#39;cobra&#39;</span><span class="p">)</span>
+    <span class="n">current_libmodel</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">current_modelpath</span><span class="p">,</span><span class="s1">&#39;libsbml&#39;</span><span class="p">)</span>
+
+    <span class="c1"># stats</span>
+    <span class="c1"># -----</span>
+    <span class="n">stats_report</span> <span class="o">=</span> <span class="n">ModelInfoReport</span><span class="p">(</span><span class="n">current_model</span><span class="p">)</span>
+    <span class="n">stats_report</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span> <span class="s1">&#39;misc&#39;</span><span class="p">,</span><span class="s1">&#39;stats&#39;</span><span class="p">),</span>
+                      <span class="n">color_palette</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;colours&#39;</span><span class="p">])</span> 
+    
+    <span class="c1"># kegg pathway</span>
+    <span class="c1"># ------------</span>
+    <span class="n">pathway_report</span> <span class="o">=</span> <span class="n">kegg_pathway_analysis</span><span class="p">(</span><span class="n">current_model</span><span class="p">)</span>
+    <span class="n">pathway_report</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;misc&#39;</span><span class="p">,</span><span class="s1">&#39;kegg_pathway&#39;</span><span class="p">),</span> 
+                        <span class="n">colors</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;colours&#39;</span><span class="p">])</span> 
+    
+    <span class="c1"># sbo term</span>
+    <span class="c1"># --------</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_rea_sbo_single</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;misc&#39;</span><span class="p">,</span><span class="s1">&#39;sbo_gene.png&#39;</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+
+    <span class="c1"># memote</span>
+    <span class="c1"># ------</span>
+    <span class="n">run_memote</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span> <span class="s1">&#39;html&#39;</span><span class="p">,</span> <span class="n">save_res</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;misc&#39;</span><span class="p">,</span><span class="s1">&#39;memote&#39;</span><span class="p">,</span><span class="s1">&#39;final_memote.html&#39;</span><span class="p">))</span>
+
+    <span class="c1"># growth</span>
+    <span class="c1"># ------</span>
+    <span class="n">between_growth_test</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;final&#39;</span><span class="p">)</span>
+
+    <span class="c1"># auxotrophies</span>
+    <span class="c1"># ------------</span>
+    <span class="n">media_list</span> <span class="o">=</span> <span class="n">growth</span><span class="o">.</span><span class="n">read_media_config</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">][</span><span class="s1">&#39;mediapath&#39;</span><span class="p">])</span>
+    <span class="n">auxo_report</span> <span class="o">=</span> <span class="n">growth</span><span class="o">.</span><span class="n">test_auxotrophies</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span> <span class="n">media_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">media_list</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;namespace&#39;</span><span class="p">])</span>
+    <span class="n">auxo_report</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;misc&#39;</span><span class="p">,</span><span class="s1">&#39;auxotrophies&#39;</span><span class="p">),</span>
+                     <span class="n">color_palette</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;colours&#39;</span><span class="p">])</span> </div>
+
+
+
+<span class="c1">####### IDEAS below ####</span>
+
+<span class="c1"># @TODO / @IDEAS Add option to have specific colour list per model for plots</span>
+    <span class="c1"># for the comparison when runnin this on multiple models</span>
+<span class="c1"># @TODO Maybe get models at first and then add model IDs to every save filename?</span>
+
+<span class="c1"># run for multiple models</span>
+<div class="viewcode-block" id="wrapper">
+<a class="viewcode-back" href="../../../modules/cmpb.html#specimen.cmpb.workflow.wrapper">[docs]</a>
+<span class="k">def</span> <span class="nf">wrapper</span><span class="p">():</span>
+    <span class="k">pass</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Carolin Brune.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
