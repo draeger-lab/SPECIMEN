@@ -10,11 +10,12 @@ import logging
 import pandas as pd
 from datetime import date
 from pathlib import Path
+from typing import Union
 
 import warnings
 import yaml
 
-from cobra import Reaction
+from cobra import Reaction,Model
 from libsbml import readSBML
 
 from refinegems.analysis import growth
@@ -48,9 +49,28 @@ from ..util.set_up import save_cmpb_user_input
 #   in the run function: current_model means the cobrapy model, 
 #   while current_libmodel means the libsbml model
 
-def run(configpath:str):
+def run(configpath:Union[str,None]=None):
+    """Run the CarveMe
 
-    def between_growth_test(model, cfg, step):
+    Args:
+        - configpath (Union[str,None]): 
+            The Path to a configuration file. If none given, prompts the user to enter the needed 
+            information step by step.
+            Defaults to None.
+    """
+
+    def between_growth_test(model: Model, cfg:dict, step:str):
+        """Helper function for :py:func:`~specimen.cmpb.workflow.run`. 
+        Run a growth test on a model with the options set in the config file.
+
+        Args:
+            - model (Model): 
+                The cobra.Model for testing the growth.
+            - cfg (dict): 
+                The loaded configuration file.
+            - step (str): 
+                Descriptive string for the current step of the pipeline (important for saving the output).
+        """
         # try to set objective to growth
         growth_func_list = test_biomass_presence(model)
         if growth_func_list:
@@ -66,7 +86,18 @@ def run(configpath:str):
             mes = f'No growth/biomass function detected, growth simulation for step {step} will be skipped.'
             warnings.warn(mes)
 
-    def between_analysis(model, cfg, step):
+    def between_analysis(model: Model, cfg:dict, step:str):
+        """Helper function for :py:func:`~specimen.cmpb.workflow.run`. 
+        Run a memote and/or stats test on a model with the options set in the config file.
+
+        Args:
+            - model (Model): 
+                The cobra.Model for testing.
+            - cfg (dict): 
+                The loaded configuration file.
+            - step (str): 
+                Descriptive string for the current step of the pipeline (important for saving the output).
+        """
         # optional analysis
         if cfg['general']['memote_always_on']:
             run_memote(model, 'html', 

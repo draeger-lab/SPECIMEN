@@ -41,7 +41,7 @@ dependencies = [
     'seaborn',
     'tqdm',
     'z3-solver',
-    'multiprocess~>=0.70.16'
+    'multiprocess>=0.70.16'
 ]
 # additional missing tools:
 #    EntrezDirect

@@ -16,7 +16,7 @@ from datetime import date
 from importlib.resources import files
 from pathlib import Path
 from tqdm import tqdm
-from typing import Literal
+from typing import Literal,Union
 
 from refinegems.utility.set_up import download_config as rg_config
 from refinegems.utility.io import load_a_table_from_database
@@ -302,7 +302,7 @@ def validate_hqtb_config(userc:str) -> dict:
 
 # @TODO
 #    is it still correct after all the changes???
-def save_cmpb_user_input(configpath: str) -> dict[str: str]:
+def old_save_cmpb_user_input(configpath: str) -> dict[str: str]:
     """This aims to collect user input from the command line to create a cmpb config file, 
     will also save the user input to a config if no config was given
 
@@ -482,3 +482,132 @@ def save_cmpb_user_input(configpath: str) -> dict[str: str]:
         print('Your input was saved as yaml to '+ user_input['out_path'] + 'user_input_' + str(today) + '.yaml')
         return user_input
 
+
+def save_cmpb_user_input(configpath: Union[str,None]=None) -> dict[str: str]:
+        
+        print('No config or no valid config given, you will be asked for input')
+        user_input = {}
+
+        config_file = files('specimen.data.config').joinpath('cmpb_config.yaml')
+        with open(config_file, "r") as cfg:
+            config = yaml.load(cfg, Loader=yaml.loader.FullLoader)
+
+        # if model, get path
+        has_model = click.prompt('Do you already have a draft model e.g. created with CarveMe? (y/n)')
+        while(True):
+            match has_model:
+                case 'y':
+                    modelpath = click.prompt('Enter the path to your model')
+                    config['input']['modelpath'] = modelpath
+                    break
+                case 'n':
+                    break
+                case _:
+                    has_model = click.prompt('')
+
+        # required input
+        # --------------
+        print('------------')
+        print('The following information is REQUIRED for the pipeline')
+        print('------------')
+        config['input']['annotated_genome'] = click.prompt('Enter the path to your annotated genome file')
+        config['input']['mediapath'] = click.prompt('Enter the path to a media configuration file for growth simulation')
+
+        # general options
+        # ---------------
+        print('------------')
+        print('General options')
+        print('------------')
+
+        # output directory
+        config['general']['dir'] = click.prompt('Enter your desired output directory path')
+        
+        # colour 
+        set_col = click.prompt('Do you want to use the default colour map YlGn for the visualisation? (y/n)')
+        while(True):
+            match set_col:
+                case 'n':
+                    colours = click.prompt('Enter your choosen colour scheme')
+                    config['general']['colours'] = colours
+                    break
+                case 'y':
+                    break
+                case _:
+                    set_col = click.prompt('')
+
+        # save all models or not
+        save_models = click.prompt('Do you want to save the model separatly after each step? (y/n)')
+        while(True):
+            match save_models:
+                case 'y':
+                    config['general']['save_all_models'] = True
+                    break
+                case 'n':
+                    config['general']['save_all_models'] = False
+                    break
+                case _:
+                    save_models = click.prompt('')
+
+        # run memote always y/n
+        run_memote = click.prompt('Do you want run memote after each step? (y/n)')
+        while(True):
+            match run_memote:
+                case 'y':
+                    config['general']['memote_always_on'] = True
+                    break
+                case 'n':
+                    config['general']['memote_always_on'] = False
+                    break
+                case _:
+                    run_memote = click.prompt('')
+        
+        # run stats always y/n
+        models_stats = click.prompt('Do you want run memote after each step? (y/n)')
+        while(True):
+            match models_stats:
+                case 'y':
+                    config['general']['stats_always_on'] = True
+                    break
+                case 'n':
+                    config['general']['stats_always_on'] = False
+                    break
+                case _:
+                    models_stats = click.prompt('')
+
+        # some additional, sometimes required, sometimes optional files
+        refseq = click.prompt('If you want to run a gap analysis with KEGG or have a CarveMe model, please enter the path to your refseq gff file')
+        config['general']['refseq_organism_id'] = refseq
+
+        kegg_org_id = click.prompt('If you want to run a gap analysis with KEGG or have a CarveMe model, please enter the path to your refseq gff file')
+        config['general']['refseq_organism_id'] = kegg_org_id
+
+        # part-specific 
+        # -------------
+        print('------------')
+        print('Part-specific options')
+        print('------------')
+
+        # model polish
+
+        # gapfilling
+        # RECYCLE OLD FUNCTION
+
+        # kegg pathways as groups
+        kegg_pw_groups = click.prompt('Do you want to add KEGG pathways as groups to the model? (y/n)')
+        config['kegg_pathway_groups'] = kegg_pw_groups
+
+        # resolve duplicates
+
+        # BOF
+
+        
+                
+        
+
+        
+
+
+
+        
+
+        

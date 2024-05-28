@@ -19,6 +19,7 @@ release = '1.0.0'
 #
 import os
 import sys
+from pathlib import Path
 sys.path.insert(0, os.path.abspath('../../src/'))
 
 # -- General configuration ---------------------------------------------------
@@ -56,14 +57,14 @@ html_static_path = ['_static']
 html_css_files = ['custom_theme.css']
 
 # Adds logo to documentation page
-html_logo = 'images/LogoSPECIMEN.png'
+html_logo = str(Path('images','LogoSPECIMEN.png'))
 html_theme_options = {
     'logo_only': True,
     'display_version': False
 }
 
 #Adds logo as favicon to tab
-html_favicon = 'images/LogoSPECIMEN.png'
+html_favicon = str(Path('images','LogoSPECIMEN.png'))
 
 # Changes code highlighting
 pygments_style = 'blinds-light'
