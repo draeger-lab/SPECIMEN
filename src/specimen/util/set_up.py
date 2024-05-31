@@ -483,131 +483,185 @@ def old_save_cmpb_user_input(configpath: str) -> dict[str: str]:
         return user_input
 
 
-def save_cmpb_user_input(configpath: Union[str,None]=None) -> dict[str: str]:
-        
-        print('No config or no valid config given, you will be asked for input')
-        user_input = {}
+def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
+    """Guide the user step by step throuh the creation of the configuration for a cmpb pipeline run
+    (via commandline).
 
-        config_file = files('specimen.data.config').joinpath('cmpb_config.yaml')
-        with open(config_file, "r") as cfg:
-            config = yaml.load(cfg, Loader=yaml.loader.FullLoader)
+    Args:
+        - configpath (Union[str,None], optional): 
+            Path to a file to save the config under. Defaults to None.
 
-        # if model, get path
-        has_model = click.prompt('Do you already have a draft model e.g. created with CarveMe? (y/n)')
-        while(True):
-            match has_model:
-                case 'y':
-                    modelpath = click.prompt('Enter the path to your model')
-                    config['input']['modelpath'] = modelpath
-                    break
-                case 'n':
-                    break
-                case _:
-                    has_model = click.prompt('')
-
-        # required input
-        # --------------
-        print('------------')
-        print('The following information is REQUIRED for the pipeline')
-        print('------------')
-        config['input']['annotated_genome'] = click.prompt('Enter the path to your annotated genome file')
-        config['input']['mediapath'] = click.prompt('Enter the path to a media configuration file for growth simulation')
-
-        # general options
-        # ---------------
-        print('------------')
-        print('General options')
-        print('------------')
-
-        # output directory
-        config['general']['dir'] = click.prompt('Enter your desired output directory path')
-        
-        # colour 
-        set_col = click.prompt('Do you want to use the default colour map YlGn for the visualisation? (y/n)')
-        while(True):
-            match set_col:
-                case 'n':
-                    colours = click.prompt('Enter your choosen colour scheme')
-                    config['general']['colours'] = colours
-                    break
-                case 'y':
-                    break
-                case _:
-                    set_col = click.prompt('')
-
-        # save all models or not
-        save_models = click.prompt('Do you want to save the model separatly after each step? (y/n)')
-        while(True):
-            match save_models:
-                case 'y':
-                    config['general']['save_all_models'] = True
-                    break
-                case 'n':
-                    config['general']['save_all_models'] = False
-                    break
-                case _:
-                    save_models = click.prompt('')
-
-        # run memote always y/n
-        run_memote = click.prompt('Do you want run memote after each step? (y/n)')
-        while(True):
-            match run_memote:
-                case 'y':
-                    config['general']['memote_always_on'] = True
-                    break
-                case 'n':
-                    config['general']['memote_always_on'] = False
-                    break
-                case _:
-                    run_memote = click.prompt('')
-        
-        # run stats always y/n
-        models_stats = click.prompt('Do you want run memote after each step? (y/n)')
-        while(True):
-            match models_stats:
-                case 'y':
-                    config['general']['stats_always_on'] = True
-                    break
-                case 'n':
-                    config['general']['stats_always_on'] = False
-                    break
-                case _:
-                    models_stats = click.prompt('')
-
-        # some additional, sometimes required, sometimes optional files
-        refseq = click.prompt('If you want to run a gap analysis with KEGG or have a CarveMe model, please enter the path to your refseq gff file')
-        config['general']['refseq_organism_id'] = refseq
-
-        kegg_org_id = click.prompt('If you want to run a gap analysis with KEGG or have a CarveMe model, please enter the path to your refseq gff file')
-        config['general']['refseq_organism_id'] = kegg_org_id
-
-        # part-specific 
-        # -------------
-        print('------------')
-        print('Part-specific options')
-        print('------------')
-
-        # model polish
-
-        # gapfilling
-        # RECYCLE OLD FUNCTION
-
-        # kegg pathways as groups
-        kegg_pw_groups = click.prompt('Do you want to add KEGG pathways as groups to the model? (y/n)')
-        config['kegg_pathway_groups'] = kegg_pw_groups
-
-        # resolve duplicates
-
-        # BOF
+    Returns:
+        dict: 
+            The configuration in dictionary format.
+    """
 
         
-                
-        
+    print('No config or no valid config given, you will be asked for input')
 
-        
+    config_file = files('specimen.data.config').joinpath('cmpb_config.yaml')
+    with open(config_file, "r") as cfg:
+        config = yaml.load(cfg, Loader=yaml.loader.FullLoader)
+
+    # if model, get path
+    has_model = click.prompt('Do you already have a draft model e.g. created with CarveMe?', type=click.Choice(['y','n']), show_choices=True)
+    match has_model:
+        case 'y':
+            modelpath = click.prompt('Enter the path to your model', type=click.Path(exists=True))
+            config['input']['modelpath'] = modelpath
+        case 'n':
+            pass
+     
+    # required input
+    # --------------
+    print('------------')
+    print('The following information is REQUIRED for the pipeline')
+    print('------------')
+    config['input']['annotated_genome'] = click.prompt('Enter the path to your annotated genome file', type=click.Path(exists=True))
+    config['input']['mediapath'] = click.prompt('Enter the path to a media configuration file for growth simulation', type=click.Path(exists=True))
+
+    # general options
+    # ---------------
+    print('------------')
+    print('General options')
+    print('------------')
+
+    # output directory
+    config['general']['dir'] = click.prompt('Enter your desired output directory path', type=click.Path())
+    
+    # colour 
+    set_col = click.prompt('Do you want to use the default colour map YlGn for the visualisation?', type=click.Choice(['y','n']), show_choices=True)
+    match set_col:
+        case 'n':
+            colours = click.prompt('Enter your choosen colour scheme', type=str)
+            config['general']['colours'] = colours
+        case 'y':
+            pass
+
+    # save all models or not
+    save_models = click.prompt('Do you want to save the model separatly after each step?', type=click.Choice(['y','n']), show_choices=True)
+    match save_models:
+        case 'y':
+            config['general']['save_all_models'] = True
+        case 'n':
+            config['general']['save_all_models'] = False
+
+    # run memote always y/n
+    run_memote = click.prompt('Do you want run memote after each step?', type=click.Choice(['y','n']), show_choices=True)
+    match run_memote:
+        case 'y':
+            config['general']['memote_always_on'] = True
+        case 'n':
+            config['general']['memote_always_on'] = False
+    
+    # run stats always y/n
+    models_stats = click.prompt('Do you want run memote after each step?', type=click.Choice(['y','n']), show_choices=True)
+    match models_stats:
+        case 'y':
+            config['general']['stats_always_on'] = True
+        case 'n':
+            config['general']['stats_always_on'] = False
+
+    # some additional, sometimes required, sometimes optional files
+    refseq = click.prompt('If you want to run a gap analysis with KEGG or have a CarveMe model, please enter the path to your refseq gff file', type=click.Path(exists=True))
+    config['general']['refseq_organism_id'] = refseq
+
+    kegg_org_id = click.prompt('If you want to run a gap analysis with KEGG or have a CarveMe model, please enter the path to your refseq gff file', type=click.Path(exists=True))
+    config['general']['refseq_organism_id'] = kegg_org_id
+
+    # part-specific 
+    # -------------
+    print('------------')
+    print('Part-specific options')
+    print('------------')
+
+    # model polish
+    carveme = click.prompt('Is your draft model CarveMe-based or will CarveMe be run?', type=click.Choice(['y','n']), show_choices=True)
+    if carveme == 'y':
+        email = click.prompt('Enter an email address for the connection to NCBI Entrez', type=str)
+        config['cm-polish']['email'] = email
+        labs = click.prompt('Do you have a lab strain?', type=click.Choice(['y','n']), show_choices=True)
+        labs = True if labs == 'y' else False
+        config['cm-polish']['is_lab_strain'] = labs
+        if labs:
+            prot_fa = click.prompt('Please enter the path to your protein fasta file', type=click.Path(exists=True))
+            config['cm-polish']['protein_fasta'] = prot_fa
+        else:
+            check_prot_fa = click.prompt('Do you want to/can provide the protein fasta?', type=click.Choice(['y','n']), show_choices=True)
+            if check_prot_fa == 'y':
+                prot_fa = click.prompt('Please enter the path to your protein fasta file', type=click.Path(exists=True))
+                config['cm-polish']['protein_fasta'] = prot_fa
+            else:
+                config['cm-polish']['protein_fasta'] = None
+    
+
+    # gapfilling
+    gap_analysis = click.prompt('Do you want to run a gap analysis?', type=click.Choice(['y','n']), show_choices=True) 
+
+    if gap_analysis == 'y':
+        db_to_compare = click.prompt('Available database information for the gapfilling', type=click.Choice(['KEGG','BioCyc','KEGG+BioCyc']), show_choices=True) 
+        config['gapfilling']['gap_fill_params']['db_to_compare'] = db_to_compare
+      
+        if 'KEGG' in db_to_compare:
+            pass
+        if 'BioCyc' in db_to_compare:
+            Path0 = click.prompt('Enter the path to your BioCyc TXT file containing a SmartTable with the columns \'Accession-2\' and \'Reaction of gene\'', type=click.Path(exists=True))
+            Path1 = click.prompt('Enter the path to your BioCyc TXT file containing a SmartTable with all reaction relevant information', type=click.Path(exists=True))
+            Path2 = click.prompt('Enter the path to your Biocyc TXT file containing a SmartTable with all metabolite relevant information', type=click.Path(exists=True))
+            Path3 = click.prompt('Enter path to protein FASTA file used as input for CarveMe', type=click.Path(exists=True))
+            config['gapfilling']['gap_fill_params']['biocyc_files'] = [Path0, Path1, Path2, Path3]
+
+
+    # kegg pathways as groups
+    kegg_pw_groups = click.prompt('Do you want to add KEGG pathways as groups to the model?', type=click.Choice(['y','n']), show_choices=True)
+    config['kegg_pathway_groups'] = kegg_pw_groups
+
+    # resolve duplicates
+
+    reac_dups = click.prompt('Do you want to check for and/or remove duplicate reactions?', type=click.Choice(['skip','check','remove']), show_choices=True)
+    config['duplicates']['reactions'] = reac_dups
+    meta_dups = click.prompt('Do you want to check for and/or remove duplicate metabolites?', type=click.Choice(['skip','check','remove']), show_choices=True)
+    config['duplicates']['metabolites'] = meta_dups
+    unused_meta = click.prompt('Do you want to remove unused metabolites?', type=click.Choice(['y','n']), show_choices=True)
+    match unused_meta:
+        case 'y':
+            config['duplicates']['remove_unused_metabs'] = True
+        case 'n':
+            config['duplicates']['remove_unused_metabs'] = False
+
+    # BOF
+    do_bofdat = click.prompt('Do you want do run BOFdat?', type=click.Choice(['y','n']), show_choices=True)
+    match do_bofdat:
+        case 'y':
+            config['BOF']['run_bofdat'] = True
+            full_genome_path = click.prompt('Please enter the path to the full genome sequence', type=click.Path(exists=True))
+            config['BOF']['full_genome_sequence'] = full_genome_path
+            dna_wf = click.prompt('Enter the DNA weight fraction of your organism', type=float)
+            config['BOF']['dna_weight_fraction'] = dna_wf
+            wf = click.prompt('Enter the wight fraction of your organsim (enzyme/ion)', type=float)
+            config['BOF']['weight_fraction'] = wf
+        case 'n':
+            config['BOF']['run_bofdat'] = False
+
+
+    # save config
+    if configpath:
+        pass
+    else:
+        configpath = Path(config['general']['dir'],'config.yaml')
+
+    with open(configpath,'w') as outf:
+        yaml.dump(config,outf,default_flow_style=False)
+
+    return config
+    
+            
+    
+
+    
 
 
 
-        
+    
 
-        
+    
