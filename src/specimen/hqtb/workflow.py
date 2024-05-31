@@ -42,7 +42,7 @@ def run_complete(config_file:str = 'test_config.yaml'):
     """
 
     # read in the configuration file
-    config = util.set_up.validate_hqtb_config(config_file)
+    config = util.set_up.validate_config(config_file)
 
     # step 0: generate output folder(s) (+ for log files)
     # current variables:

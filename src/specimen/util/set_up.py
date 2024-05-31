@@ -10,6 +10,7 @@ __author__ = 'Carolin Brune'
 import click
 import os
 import requests
+import warnings
 import yaml
 
 from datetime import date
@@ -19,8 +20,6 @@ from tqdm import tqdm
 from typing import Literal,Union
 
 from refinegems.utility.set_up import download_config as rg_config
-from refinegems.utility.io import load_a_table_from_database
-from refinegems.utility.databases import initialise_database
 
 ################################################################################
 # variables
@@ -32,6 +31,10 @@ HQTB_CONFIG_PATH_OPTIONAL = ['media_gap', 'ncbi_map', 'ncbi_dat','biocyc','unive
 HQTB_CONFIG_PATH_REQUIRED = ['annotated_genome','full_sequence','model','diamond',
                              'mnx_chem_prop', 'mnx_chem_xref','mnx_reac_prop','mnx_reac_xref',
                              'media_analysis']
+CMPB_CONFIG_PATHS = ['annotated_genome','mediapath','modelpath','dir','refseq_gff','protein_fasta',
+                     'biocyc_files','full_genome_sequence']
+PIPELINE_PATHS = {'hqtb':HQTB_CONFIG_PATH_OPTIONAL+HQTB_CONFIG_PATH_REQUIRED,
+                  'cmpb':CMPB_CONFIG_PATHS}
 
 
 # external databases
@@ -186,7 +189,7 @@ def download_config(filename:str='my_basic_config.yaml', type:Literal['hqtb-basi
 # ----
 
 # @TODO -> @TEST changes
-def validate_hqtb_config(userc:str) -> dict:
+def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
     """Validate a user hqtb config file for use in the pipeline.
 
     Note: currently not everything is checked, mainly the needed files are.
@@ -225,8 +228,10 @@ def validate_hqtb_config(userc:str) -> dict:
 
 
     # @TODO: extent - include more checks
-    def dict_recursive_check(dictA:dict, key:str=None):
-        """Helper-function for :py:func:`~specimen.util.set_up.validate_hqtb_config` 
+    # @TEST: does the current version work correctly? (or even work at all) 
+    def dict_recursive_check(dictA:dict, key:str=None, 
+                             pipeline:Literal['hqtb','cmpb']='hqtb'):
+        """Helper-function for :py:func:`~specimen.util.set_up.validate_config` 
         to check if a configuration is valid to run the hight-quality template based pipeline.
 
         Args:
@@ -245,20 +250,30 @@ def validate_hqtb_config(userc:str) -> dict:
         """
 
         if not isinstance(dictA,dict):
+
+            # definitly missing, but required input
             if dictA == '__USER__':
                 raise TypeError(F'Missing a required argument in the config file: {key}')
-            elif key in HQTB_CONFIG_PATH_REQUIRED:
-                if os.path.isfile(dictA):
+            
+            # optional/requires stuff 
+            elif dictA == 'USER':
+                # @TODO 
+                mes = 'Keyword USER detected in config. Either due to skipped options or missing required information.'
+                warnings.warn(mes)
+
+            # check paths
+            elif key in PIPELINE_PATHS[pipeline] and dictA:
+                if isinstance(dictA,str) and os.path.isfile(dictA):
                     return
+                elif isinstance(dictA,list):
+                    for f in dictA:
+                        if os.path.isfile(f):
+                            pass
+                        else:
+                            raise FileNotFoundError(F'Path does not exist: {f}')
                 else:
                     raise FileNotFoundError(F'Path does not exist: {dictA}')
-            elif key in HQTB_CONFIG_PATH_OPTIONAL:
-                if dictA and os.path.isfile(dictA):
-                    return
-                elif not dictA:
-                    return
-                else:
-                    raise FileNotFoundError(F'Path does not exist: {dictA}')
+    
             else:
                 pass
                 # @TODO
@@ -266,7 +281,7 @@ def validate_hqtb_config(userc:str) -> dict:
             return
         else:
             for key in dictA.keys():
-                dict_recursive_check(dictA[key], key)
+                dict_recursive_check(dictA[key], key, pipeline)
         return
 
 
@@ -274,7 +289,14 @@ def validate_hqtb_config(userc:str) -> dict:
     # by combining it with a default config
 
     # load both files
-    defaultc_path = files('specimen.data.config').joinpath('htqb_config_default.yaml')
+    match pipeline:
+        case 'hqtb':
+            defaultc_path = files('specimen.data.config').joinpath('htqb_config_default.yaml')
+        case 'cmpb':
+            defaultc_path = files('specimen.data.config').joinpath('cmpb_config.yaml')
+        case _:
+            raise ValueError(f'Unknown input for pipeline: {pipeline}')
+    
     with open(defaultc_path, "r") as cfg_def, open(userc, 'r') as cfg_usr:
         config_d = yaml.load(cfg_def, Loader=yaml.loader.FullLoader)
         config_u = yaml.load(cfg_usr, Loader=yaml.loader.FullLoader)
@@ -283,16 +305,18 @@ def validate_hqtb_config(userc:str) -> dict:
     combined_config = dict_recursive_combine(config_d, config_u)
 
     # check for missing or problematic values
-    if combined_config['data']['data_direc']:
+    # special case for HQTB pipeline with relative paths
+    if 'data' in combined_config.keys() and 'data_direc' in combined_config['data'].keys() and combined_config['data']['data_direc']:
         if os.path.isdir(combined_config['data']['data_direc']):
             for key in combined_config['data']:
                 if combined_config['data'][key] and key != 'data_direc':
                     combined_config['data'][key] = combined_config['data']['data_direc']  + combined_config['data'][key]
-            dict_recursive_check(combined_config, key=None)
+            dict_recursive_check(combined_config, key=None, pipeline=pipeline)
         else:
             raise FileNotFoundError('Directory set for config:data:data_direc does not exist.')
+    # normal recursion for validation
     else:
-        dict_recursive_check(combined_config, key=None)
+        dict_recursive_check(combined_config, key=None, pipeline=pipeline)
 
     return combined_config
 
@@ -300,189 +324,7 @@ def validate_hqtb_config(userc:str) -> dict:
 # cmpb
 # ----
 
-# @TODO
-#    is it still correct after all the changes???
-def old_save_cmpb_user_input(configpath: str) -> dict[str: str]:
-    """This aims to collect user input from the command line to create a cmpb config file, 
-    will also save the user input to a config if no config was given
-
-    Args:
-        - configpath (str): 
-            Path to config file if present
-        
-    Returns:
-        dict: 
-            Either loaded config file or created from user input
-    """
-    if os.path.isfile(configpath):
-        with open(configpath) as f:
-            config = yaml.safe_load(f)
-        print(config)
-        return config
-    else:
-        print('No config or no valid config given, you will be asked for input')
-        user_input = {}
-        
-        update_db = click.confirm('Do you want to update the database?')
-        user_input['db_update'] = update_db
-        
-        if update_db:
-            initialise_database()
-
-        out_path = click.confirm('Do you want to keep the output path "../rg_out/"?', default=True)
-        if not out_path:
-            user_input['out_path'] = click.prompt('Enter your desired output path')
-        else:
-            user_input['out_path'] = '../rg_out/'
-        
-        user_input['visualize'] = click.confirm('Do you want to generate visualizations of your model(s)?')
-            
-        growth_basis = click.prompt('Enter the base uptakes for growth simulation (d for default_uptake, m for minimal_uptake)')
-        if growth_basis == 'd':
-            user_input['growth_basis'] = 'default_uptake'
-        if growth_basis == 'm':
-            user_input['growth_basis'] = 'minimal_uptake'
-            
-        user_input['anaerobic_growth'] = click.confirm('Do you want to simulate anaerobic growth?')
-        
-        multiple = click.confirm('Do you want to simulate and compare multiple models?')
-        user_input['multiple'] = multiple
-        if multiple:
-            list_of_models = []
-            while True:
-                file_path = click.prompt('Enter file path to model (or "stop" to stop)')
-                if file_path.lower() == 'stop':
-                    break
-                elif os.path.isfile(file_path):
-                    list_of_models.append(file_path)
-                    print('Added file:', file_path)
-                else:
-                    print('File does not exist. Please enter a valid file path.')
-            print('The following models will be compared:')
-            print(list_of_models)
-            user_input['multiple_paths'] = list_of_models
-        possible_media = load_a_table_from_database('medium', False)['name'].to_list()
-        possible_media_str = '|'.join(possible_media)
-        list_of_media = []
-        while True:
-            medium = click.prompt(f'Enter medium to simulate growth on ({possible_media_str}) (or "stop" to stop)')
-            if medium.lower() == 'stop':
-                break
-            elif medium in possible_media:
-                if medium not in list_of_media:
-                    list_of_media.append(medium)
-                else:
-                    print(medium + ' is already in the list.')
-            else:
-                print('Please choose a medium from the given list.')
-        user_input['media'] = list_of_media
-        
-        single = click.confirm('Do you want to investigate or curate a single model?')
-        user_input['single'] = single
-        if single:
-            not_valid = True
-            while not_valid:
-                model = click.prompt('Path to your model file.')
-                if os.path.isfile(model):
-                    user_input['model'] = model
-                    not_valid = False
-                else:
-                    print('File does not exist. Please enter a valid file path')
-            user_input['memote'] = click.confirm('Do you want to run MEMOTE (takes some time)?')    
-            user_input['modelseed'] = click.confirm('Do you want to compare your model entities to the ModelSEED database?')
-        
-            gap_analysis = click.confirm('Do you want to run a gap analysis?') 
-            user_input['gap_analysis'] = gap_analysis
-            if gap_analysis:
-                gap_analysis_params = {}
-                db_to_compare = click.prompt('One of the choices KEGG|BioCyc|KEGG+BioCyc') #|GFF
-                gap_analysis_params['db_to_compare'] = db_to_compare
-                if db_to_compare == 'KEGG' or db_to_compare == 'KEGG+BioCyc':
-                    user_input['organismid'] = click.prompt('Enter the KEGG Organism code')
-                    user_input['gff_file'] = click.prompt('Enter the path to your organisms RefSeq GFF file')
-                if db_to_compare == 'BioCyc' or db_to_compare == 'KEGG+BioCyc':
-                    Path0 = click.prompt('Enter the path to your BioCyc TXT file containing a SmartTable with the columns \'Accession-2\' and \'Reaction of gene\'')
-                    Path1 = click.prompt('Enter the path to your BioCyc TXT file containing a SmartTable with all reaction relevant information')
-                    Path2 = click.prompt('Enter the path to your Biocyc TXT file containing a SmartTable with all metabolite relevant information')
-                    Path3 = click.prompt('Enter path to protein FASTA file used as input for CarveMe')
-                    gap_analysis_params['biocyc_files'] = [Path0, Path1, Path2, Path3]
-                user_input['gap_analysis_params'] = gap_analysis_params
-                
-            mod = click.confirm('Do you want to use functions to modify your model?')
-            if mod:
-                
-                new_path = click.confirm('Do you want to save your modified model to ' + user_input['out_path'] + '<model.id>_modified_<today>.xml?')
-                if new_path:
-                    user_input['model_out'] = 'stdout'
-                else:
-                    user_input['model_out'] = click.prompt('Enter path and filename to where to save the modified model')
-                
-                gapfill_model = click.confirm('Do you want to fill gaps in your model?')
-                user_input['gapfill_model'] = gapfill_model
-                
-                if gapfill_model:
-                    if not gap_analysis:
-                        user_input['gap_analysis_file'] = click.prompt('Enter path to Excel file with which gaps should be filled')
-                
-                user_input['keggpathways'] = click.confirm('Do you want to add KEGG Pathways?')
-                    
-                user_input['sboterms'] = click.confirm('Do you want to update the SBO Terms?')
-                
-                user_input['charge_corr'] = click.confirm('Do you want to add charges to uncharged metabolites?')
-                    
-                man_cur = click.confirm('Do you want to modify your model with the manual curations table?')
-                user_input['man_cur'] = man_cur
-
-                if man_cur:
-                    entrez_email = click.prompt('Email to access NCBI Entrez')
-                    user_input['entrez_email'] = entrez_email
-                    man_cur_type = click.prompt('Enter type of curation (gapfill|metabs)')
-                    user_input['man_cur_type'] = man_cur_type
-                    man_cur_table = click.prompt('Enter the path to the manual curations table')
-                    user_input['man_cur_table'] = man_cur_table
-
-                polish = click.confirm('Do you want to polish the model?')
-                user_input['polish'] = polish
-
-                if polish:
-                    entrez_email = click.prompt('Email to access NCBI Entrez')
-                    user_input['entrez_email'] = entrez_email
-                    id_db = click.prompt('What database is your model based on? BIGG|VMH')
-                    user_input['id_db'] = id_db
-                    gff_file = click.prompt('If possible, provide the path to the RefSeq GFF file of your organism')
-                    user_input['gff_file'] = gff_file if gff_file != 'None' else None
-                    protein_fasta = click.prompt('If possible, provide the path to the Protein FASTA file used for CarveMe')
-                    user_input['protein_fasta'] = protein_fasta if protein_fasta != 'None' else None
-                    lab_strain = not click.confirm('Does your modeled organism have a database entry?', default=True)
-                    user_input['lab_strain'] = lab_strain
-                    organismid = click.prompt('If possible, provide the KEGG organism code of your organism')
-                    user_input['organismid'] = organismid if (organismid != 'None') else None
-                    
-                biomass = click.confirm('Do you want to check & normalise the biomass function(s)?')
-                user_input['biomass'] = biomass
-                    
-            else:
-                user_input['keggpathways'] = False
-                user_input['polish'] = False
-                user_input['biomass'] = False
-                user_input['sboterms'] = False
-                user_input['charge_corr'] = False
-                user_input['gapfill_model'] = False
-                user_input['man_cur'] = False
-            
-        today = date.today().strftime("%Y%m%d")
-        
-        print('This is your input:')
-        print(user_input)
-        if not os.path.isdir(user_input['out_path']):
-            print('Given out_path is not yet a directory, creating ' + user_input['out_path'])
-            os.makedirs(user_input['out_path'])
-        with open(user_input['out_path'] + 'user_input_' + str(today) + '.yaml', 'w') as f:
-            yaml.dump(user_input, f)
-        print('Your input was saved as yaml to '+ user_input['out_path'] + 'user_input_' + str(today) + '.yaml')
-        return user_input
-
-
+# @TEST
 def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
     """Guide the user step by step throuh the creation of the configuration for a cmpb pipeline run
     (via commandline).
