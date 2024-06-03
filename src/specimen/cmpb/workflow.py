@@ -27,7 +27,7 @@ from refinegems.curation.curate import resolve_duplicates
 from refinegems.curation.gapfill import gapfill_model, gapfill
 from refinegems.curation.pathways import kegg_pathways, kegg_pathway_analysis
 from refinegems.curation.polish import polish
-from refinegems.utility.connections import run_memote, perform_mcc, adjust_BOF
+from refinegems.utility.connections import run_memote, perform_mcc, adjust_BOF, run_SBOannotator
 from refinegems.utility.io import load_model, write_model_to_file
 
 # from SBOannotator import *
@@ -283,11 +283,12 @@ def run(configpath:Union[str,None]=None):
     libsbml_doc = readSBML(current_modelpath)
     libsbml_model = libsbml_doc.getModel()
     if config['general']['save_all_models']:
-        sbo_annotator(libsbml_doc, libsbml_model, 'constraint-based', True, 'create_dbs', 
-                      Path(dir,'cmpb','models', 'SBOannotated.xml'))
+        libsbml_model = run_SBOannotator(libsbml_model)
+        write_model_to_file(libsbml_model,Path(dir,'cmpb','models', 'SBOannotated.xml'))
+        current_modelpath = Path(dir,'cmpb','models', 'SBOannotated.xml')
     else:
-        sbo_annotator(libsbml_doc, libsbml_model, 'constraint-based', True, 'create_dbs', 
-                      Path(current_modelpath))
+        libsbml_model = run_SBOannotator(libsbml_model)
+        write_model_to_file(Path(current_modelpath))
 
     between_analysis(current_model,config,step='after_annotation')
     

@@ -17,11 +17,8 @@ import time
 import urllib.error
 
 # refinegems
-from refinegems.utility.io import load_model, kegg_reaction_parser
-from refinegems.utility.connections import run_memote
-
-# from SBOannotator import *
-from SBOannotator import sbo_annotator
+from refinegems.utility.io import load_model, kegg_reaction_parser, write_model_to_file
+from refinegems.utility.connections import run_memote, run_SBOannotator
 
 ################################################################################
 # functions
@@ -176,16 +173,8 @@ def run(model:str, dir:str, kegg_viaEC:bool=False,
     libsbml_doc = readSBML(model)
     libsbml_model = libsbml_doc.getModel()
 
-    # note:
-    #    current implementation needs the script SBOannotator.py
-    #    and the create_dbs.sql files from the SBOannotator github repo
-    #    runs currently only when started from 03-refinement/
-    # @TODO:
-    #    SBOannotator should be downloadable as a python tool
-    #    if not included download from github
-
-    sbo_annotator(libsbml_doc, libsbml_model, 'constraint-based', True, 'create_dbs', 
-                  Path(dir,'step3-annotation',libsbml_model.getId()+'_SBOannotated.xml'))
+    libsbml_model = run_SBOannotator(libsbml_model)
+    write_model_to_file(libsbml_model, Path(dir,'step3-annotation',libsbml_model.getId()+'_SBOannotated.xml'))
 
     end = time.time()
     print(F'\ttime: {end - start}s')

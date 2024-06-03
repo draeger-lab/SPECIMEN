@@ -37,7 +37,6 @@ dependencies = [
     'pyyaml',
     # 'refinegems >= 2.0',
     'requests',
-    'SBOannotator',
     'seaborn',
     'tqdm',
     'z3-solver',
