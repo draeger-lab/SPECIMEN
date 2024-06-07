@@ -24,24 +24,26 @@ classifiers = [
 ]
 
 dependencies = [
-    'biopython',
-    'bofdat', # but does not work like this!!!
-    'click',
-    'cobra',
-    'matplotlib',
+    'biopython>=1.83',
+    'bofdat>=0.1.7', # but does not work like this!!! @TODO how to handle this?
+    'click>=8.1.7',
+    'cobra>=0.27.0',
+    'matplotlib >= 3.8.2',
     #'MCC@git+https://github.com/Biomathsys/MassChargeCuration', # @TODO test if it works
-    'memote',
-    'numpy',
-    'pandas',
-    'python-libsbml',
-    'pyyaml',
-    # 'refinegems >= 2.0',
-    'requests',
-    'seaborn',
-    'tqdm',
-    'z3-solver',
-    'multiprocess>=0.70.16'
+    'multiprocess>=0.70.16',
+    'memote>=0.14.0',
+    'numpy>=1.26.3',
+    'pandas>=1.5.3',
+    'python-libsbml>=5.20.2',
+    'pyyaml>=6.0.1',
+    # 'refinegems>=2.0',
+    'requests>=2.32.2',
+    'seaborn>=0.13.2',
+    # 'sboannotator' # @TODO wait for future update
+    'tqdm>=4.66.1',
+    'z3-solver>=4.12.5'
 ]
+# @TODO
 # additional missing tools:
 #    EntrezDirect
 #    DIAMOND
