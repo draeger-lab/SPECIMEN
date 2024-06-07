@@ -101,11 +101,8 @@
 <span class="kn">import</span> <span class="nn">urllib.error</span>
 
 <span class="c1"># refinegems</span>
-<span class="kn">from</span> <span class="nn">refinegems.utility.io</span> <span class="kn">import</span> <span class="n">load_model</span><span class="p">,</span> <span class="n">kegg_reaction_parser</span>
-<span class="kn">from</span> <span class="nn">refinegems.utility.connections</span> <span class="kn">import</span> <span class="n">run_memote</span>
-
-<span class="c1"># from SBOannotator import *</span>
-<span class="kn">from</span> <span class="nn">SBOannotator</span> <span class="kn">import</span> <span class="n">sbo_annotator</span>
+<span class="kn">from</span> <span class="nn">refinegems.utility.io</span> <span class="kn">import</span> <span class="n">load_model</span><span class="p">,</span> <span class="n">kegg_reaction_parser</span><span class="p">,</span> <span class="n">write_model_to_file</span>
+<span class="kn">from</span> <span class="nn">refinegems.utility.connections</span> <span class="kn">import</span> <span class="n">run_memote</span><span class="p">,</span> <span class="n">run_SBOannotator</span>
 
 <span class="c1">################################################################################</span>
 <span class="c1"># functions</span>
@@ -265,16 +262,8 @@
     <span class="n">libsbml_doc</span> <span class="o">=</span> <span class="n">readSBML</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
     <span class="n">libsbml_model</span> <span class="o">=</span> <span class="n">libsbml_doc</span><span class="o">.</span><span class="n">getModel</span><span class="p">()</span>
 
-    <span class="c1"># note:</span>
-    <span class="c1">#    current implementation needs the script SBOannotator.py</span>
-    <span class="c1">#    and the create_dbs.sql files from the SBOannotator github repo</span>
-    <span class="c1">#    runs currently only when started from 03-refinement/</span>
-    <span class="c1"># @TODO:</span>
-    <span class="c1">#    SBOannotator should be downloadable as a python tool</span>
-    <span class="c1">#    if not included download from github</span>
-
-    <span class="n">sbo_annotator</span><span class="p">(</span><span class="n">libsbml_doc</span><span class="p">,</span> <span class="n">libsbml_model</span><span class="p">,</span> <span class="s1">&#39;constraint-based&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;create_dbs&#39;</span><span class="p">,</span> 
-                  <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;step3-annotation&#39;</span><span class="p">,</span><span class="n">libsbml_model</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="o">+</span><span class="s1">&#39;_SBOannotated.xml&#39;</span><span class="p">))</span>
+    <span class="n">libsbml_model</span> <span class="o">=</span> <span class="n">run_SBOannotator</span><span class="p">(</span><span class="n">libsbml_model</span><span class="p">)</span>
+    <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">libsbml_model</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;step3-annotation&#39;</span><span class="p">,</span><span class="n">libsbml_model</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="o">+</span><span class="s1">&#39;_SBOannotated.xml&#39;</span><span class="p">))</span>
 
     <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">F</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">time: </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">}</span><span class="s1">s&#39;</span><span class="p">)</span>

@@ -196,20 +196,20 @@ Defaults to 1024.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="specimen.util.set_up.save_cmpb_user_input">
-<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">save_cmpb_user_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configpath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict[slice(&lt;class</span> <span class="pre">'str'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'str'&gt;,</span> <span class="pre">None)]</span></span></span><a class="reference internal" href="../_modules/specimen/util/set_up.html#save_cmpb_user_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.util.set_up.save_cmpb_user_input" title="Link to this definition"></a></dt>
-<dd><p>This aims to collect user input from the command line to create a cmpb config file, 
-will also save the user input to a config if no config was given</p>
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">save_cmpb_user_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configpath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/specimen/util/set_up.html#save_cmpb_user_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.util.set_up.save_cmpb_user_input" title="Link to this definition"></a></dt>
+<dd><p>Guide the user step by step throuh the creation of the configuration for a cmpb pipeline run
+(via commandline).</p>
 <dl class="simple">
 <dt>Args:</dt><dd><ul class="simple">
 <li><dl class="simple">
-<dt>configpath (str): </dt><dd><p>Path to config file if present</p>
+<dt>configpath (Union[str,None], optional): </dt><dd><p>Path to a file to save the config under. Defaults to None.</p>
 </dd>
 </dl>
 </li>
 </ul>
 </dd>
 <dt>Returns:</dt><dd><dl class="simple">
-<dt>dict: </dt><dd><p>Either loaded config file or created from user input</p>
+<dt>dict: </dt><dd><p>The configuration in dictionary format.</p>
 </dd>
 </dl>
 </dd>
@@ -217,8 +217,8 @@ will also save the user input to a config if no config was given</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="specimen.util.set_up.validate_hqtb_config">
-<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">validate_hqtb_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">userc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/specimen/util/set_up.html#validate_hqtb_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.util.set_up.validate_hqtb_config" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="specimen.util.set_up.validate_config">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">validate_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">userc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'hqtb'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'cmpb'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hqtb'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/specimen/util/set_up.html#validate_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.util.set_up.validate_config" title="Link to this definition"></a></dt>
 <dd><p>Validate a user hqtb config file for use in the pipeline.</p>
 <p>Note: currently not everything is checked, mainly the needed files are.</p>
 <dl class="simple">

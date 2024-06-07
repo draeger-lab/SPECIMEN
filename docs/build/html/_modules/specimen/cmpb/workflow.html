@@ -94,11 +94,12 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 
-<span class="kn">from</span> <span class="nn">cobra</span> <span class="kn">import</span> <span class="n">Reaction</span>
+<span class="kn">from</span> <span class="nn">cobra</span> <span class="kn">import</span> <span class="n">Reaction</span><span class="p">,</span><span class="n">Model</span>
 <span class="kn">from</span> <span class="nn">libsbml</span> <span class="kn">import</span> <span class="n">readSBML</span>
 
 <span class="kn">from</span> <span class="nn">refinegems.analysis</span> <span class="kn">import</span> <span class="n">growth</span>
@@ -110,7 +111,7 @@
 <span class="kn">from</span> <span class="nn">refinegems.curation.gapfill</span> <span class="kn">import</span> <span class="n">gapfill_model</span><span class="p">,</span> <span class="n">gapfill</span>
 <span class="kn">from</span> <span class="nn">refinegems.curation.pathways</span> <span class="kn">import</span> <span class="n">kegg_pathways</span><span class="p">,</span> <span class="n">kegg_pathway_analysis</span>
 <span class="kn">from</span> <span class="nn">refinegems.curation.polish</span> <span class="kn">import</span> <span class="n">polish</span>
-<span class="kn">from</span> <span class="nn">refinegems.utility.connections</span> <span class="kn">import</span> <span class="n">run_memote</span><span class="p">,</span> <span class="n">perform_mcc</span><span class="p">,</span> <span class="n">adjust_BOF</span>
+<span class="kn">from</span> <span class="nn">refinegems.utility.connections</span> <span class="kn">import</span> <span class="n">run_memote</span><span class="p">,</span> <span class="n">perform_mcc</span><span class="p">,</span> <span class="n">adjust_BOF</span><span class="p">,</span> <span class="n">run_SBOannotator</span>
 <span class="kn">from</span> <span class="nn">refinegems.utility.io</span> <span class="kn">import</span> <span class="n">load_model</span><span class="p">,</span> <span class="n">write_model_to_file</span>
 
 <span class="c1"># from SBOannotator import *</span>
@@ -134,9 +135,28 @@
 
 <div class="viewcode-block" id="run">
 <a class="viewcode-back" href="../../../modules/cmpb.html#specimen.cmpb.workflow.run">[docs]</a>
-<span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">configpath</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">configpath</span><span class="p">:</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span><span class="kc">None</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the CarveMe</span>
 
-    <span class="k">def</span> <span class="nf">between_growth_test</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+<span class="sd">    Args:</span>
+<span class="sd">        - configpath (Union[str,None]): </span>
+<span class="sd">            The Path to a configuration file. If none given, prompts the user to enter the needed </span>
+<span class="sd">            information step by step.</span>
+<span class="sd">            Defaults to None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">between_growth_test</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper function for :py:func:`~specimen.cmpb.workflow.run`. </span>
+<span class="sd">        Run a growth test on a model with the options set in the config file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            - model (Model): </span>
+<span class="sd">                The cobra.Model for testing the growth.</span>
+<span class="sd">            - cfg (dict): </span>
+<span class="sd">                The loaded configuration file.</span>
+<span class="sd">            - step (str): </span>
+<span class="sd">                Descriptive string for the current step of the pipeline (important for saving the output).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># try to set objective to growth</span>
         <span class="n">growth_func_list</span> <span class="o">=</span> <span class="n">test_biomass_presence</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">growth_func_list</span><span class="p">:</span>
@@ -152,7 +172,18 @@
             <span class="n">mes</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;No growth/biomass function detected, growth simulation for step </span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s1"> will be skipped.&#39;</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">mes</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">between_analysis</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">between_analysis</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper function for :py:func:`~specimen.cmpb.workflow.run`. </span>
+<span class="sd">        Run a memote and/or stats test on a model with the options set in the config file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            - model (Model): </span>
+<span class="sd">                The cobra.Model for testing.</span>
+<span class="sd">            - cfg (dict): </span>
+<span class="sd">                The loaded configuration file.</span>
+<span class="sd">            - step (str): </span>
+<span class="sd">                Descriptive string for the current step of the pipeline (important for saving the output).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># optional analysis</span>
         <span class="k">if</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;memote_always_on&#39;</span><span class="p">]:</span>
             <span class="n">run_memote</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;html&#39;</span><span class="p">,</span> 
@@ -338,11 +369,12 @@
     <span class="n">libsbml_doc</span> <span class="o">=</span> <span class="n">readSBML</span><span class="p">(</span><span class="n">current_modelpath</span><span class="p">)</span>
     <span class="n">libsbml_model</span> <span class="o">=</span> <span class="n">libsbml_doc</span><span class="o">.</span><span class="n">getModel</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;save_all_models&#39;</span><span class="p">]:</span>
-        <span class="n">sbo_annotator</span><span class="p">(</span><span class="n">libsbml_doc</span><span class="p">,</span> <span class="n">libsbml_model</span><span class="p">,</span> <span class="s1">&#39;constraint-based&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;create_dbs&#39;</span><span class="p">,</span> 
-                      <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span> <span class="s1">&#39;SBOannotated.xml&#39;</span><span class="p">))</span>
+        <span class="n">libsbml_model</span> <span class="o">=</span> <span class="n">run_SBOannotator</span><span class="p">(</span><span class="n">libsbml_model</span><span class="p">)</span>
+        <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">libsbml_model</span><span class="p">,</span><span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span> <span class="s1">&#39;SBOannotated.xml&#39;</span><span class="p">))</span>
+        <span class="n">current_modelpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span> <span class="s1">&#39;SBOannotated.xml&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">sbo_annotator</span><span class="p">(</span><span class="n">libsbml_doc</span><span class="p">,</span> <span class="n">libsbml_model</span><span class="p">,</span> <span class="s1">&#39;constraint-based&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;create_dbs&#39;</span><span class="p">,</span> 
-                      <span class="n">Path</span><span class="p">(</span><span class="n">current_modelpath</span><span class="p">))</span>
+        <span class="n">libsbml_model</span> <span class="o">=</span> <span class="n">run_SBOannotator</span><span class="p">(</span><span class="n">libsbml_model</span><span class="p">)</span>
+        <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_modelpath</span><span class="p">)</span>
 
     <span class="n">between_analysis</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;after_annotation&#39;</span><span class="p">)</span>
     

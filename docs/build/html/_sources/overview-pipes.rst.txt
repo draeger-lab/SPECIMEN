@@ -10,7 +10,7 @@ More information about these differnt types of pipelines can be found below.
 
 .. hint:: 
 
-    Which type of pipeline to use with out data is heavily dependant on your organismen, 
+    Which type of pipeline to use with out data is heavily dependant on your organism, 
     available information for it and the data you wish to use as input.
 
 CarveMe + ModelPolisher based (CMPB) pipeline

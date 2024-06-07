@@ -1,11 +1,9 @@
 About HQTB
 ==========
 
-TODO: do not like it
-
-The HQTB (high-quality template based) pipeline curates the model starting from the annotated 
+The high-quality template based (HTQB) pipeline curates the model starting from the annotated 
 genome of your strain of interest and an already curated, ideally very high-quality template model 
-of a closely realted strain and some additional database information.
+of a closely related strain (species) and additional database information.
 
 This type of pipeline aims to build upon already existing knowledge to speed up model curation
 and minimize the need to perform steps again that have already been done in a similar concepts.

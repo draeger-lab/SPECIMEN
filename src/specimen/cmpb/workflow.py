@@ -288,7 +288,7 @@ def run(configpath:Union[str,None]=None):
         current_modelpath = Path(dir,'cmpb','models', 'SBOannotated.xml')
     else:
         libsbml_model = run_SBOannotator(libsbml_model)
-        write_model_to_file(Path(current_modelpath))
+        write_model_to_file(current_modelpath)
 
     between_analysis(current_model,config,step='after_annotation')
     

@@ -15,13 +15,27 @@ steps of the different pipelines separatly.
 Available Pipelines
 -------------------
 
-Currently, ``SPECIMEN`` includes the following pipelines:
+Currently, ``SPECIMEN`` includes the following pipelines (for a summary refer to :ref:`Overview of the pipelines`):
 
-- | ``CMPB`` - CarveMe + ModelPolisher based: 
-  | This pipeline curates the model based on a CarveMe draft model and additional input.
-- | ``HQTB`` - high-quality template based:
-  | Curates a model based on the annotated genome, a high-quality template model and additional database information.
+.. image:: images/buttons/cmpb.png
+  :height: 0px
+  :width: 0px
 
+.. raw:: html
+
+  <a class="reference external image-reference" href="overview-pipes.html">
+    <img src='_images/cmpb.png' alt='CMPB' title='CMPB' style="width: 30%;">
+  </a>
+
+.. image:: images/buttons/hqtb.png
+  :height: 0px
+  :width: 0px
+
+.. raw:: html
+
+  <a class="reference external image-reference" href="hqtb/about-pipeline.html">
+    <img src='_images/hqtb.png' alt='HQTB' title='HQTB' style="width: 30%;">
+  </a>
 
 .. toctree::
    :maxdepth: 2
