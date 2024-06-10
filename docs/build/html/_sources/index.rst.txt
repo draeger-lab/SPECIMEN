@@ -37,6 +37,16 @@ Currently, ``SPECIMEN`` includes the following pipelines (for a summary refer to
     <img src='_images/hqtb.png' alt='HQTB' title='HQTB' style="width: 30%;">
   </a>
 
+.. image:: images/buttons/PGAB_constr.png
+  :height: 0px
+  :width: 0px
+
+.. raw:: html
+
+  <a class="reference external image-reference" href="pipeline_idea.html">
+    <img src='_images/PGAB_constr.png' alt='PGAB' title='PGAB' style="width: 30%;">
+  </a>
+
 .. toctree::
    :maxdepth: 2
    :caption: Content

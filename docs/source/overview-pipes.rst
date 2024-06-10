@@ -37,3 +37,11 @@ a similar organism to the one the new model should be curated for.
     About HQTB <hqtb/about-pipeline>
     Run HQTB <hqtb/run-pipeline>
     HQTB Configuration <hqtb/hqtb-config>
+
+More ideas for pipelines
+------------------------
+
+Below are some ideas for pipelines, which may be implemented in future update(s):
+
+.. toctree::
+    PGAB <pipeline_idea>

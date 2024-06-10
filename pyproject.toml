@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = 'specimen'
 authors = [
   { name="Carolin Brune"},
+  { name="Gwendolyn O. Döbel"},
 ]
 description = "SPECIMEN: A package for strain-specific metabolic modelling."
 readme = "README.md"
@@ -20,6 +21,7 @@ classifiers = [
     # 'Operating System :: OS Independent'
     'Programming Language :: Python',
     # Topic :: Software Development :: Libraries :: Python Modules
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
     'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)'
 ]
 
