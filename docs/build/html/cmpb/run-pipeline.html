@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Run the CMPB Pipeline &mdash; SPECIMEN 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=559046d4" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom_theme.css?v=ef5873f9" />
+
+  
+    <link rel="shortcut icon" href="../_static/LogoSPECIMEN.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=8d563738"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=7859de39"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CMPB Configuration File" href="cmpb-config.html" />
+    <link rel="prev" title="About CMPB" href="about-pipeline.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/LogoSPECIMEN.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../overview-pipes.html">Overview of the Pipelines</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../overview-pipes.html#carveme-modelpolisher-based-cmpb-pipeline">CarveMe + ModelPolisher based (CMPB) pipeline</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="about-pipeline.html">About CMPB</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Run CMPB</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cmpb-quickstart">CMPB: Quickstart</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cmpb-collecting-data">CMPB: Collecting Data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cmpb-config.html">CMPB Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../overview-pipes.html#high-quality-template-based-hqtb-pipeline">High-quality template based (HQTB) pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview-pipes.html#more-ideas-for-pipelines">More ideas for pipelines</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../specimen.html">Contents of SPECIMEN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../help.html">Help &amp; FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev-notes.html">Notes for Developers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SPECIMEN</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../overview-pipes.html">Overview of the Pipelines</a></li>
+      <li class="breadcrumb-item active">Run the CMPB Pipeline</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cmpb/run-pipeline.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="run-the-cmpb-pipeline">
+<h1>Run the CMPB Pipeline<a class="headerlink" href="#run-the-cmpb-pipeline" title="Link to this heading"></a></h1>
+<p>This page explains how to run the complete CMPB (CarveMe + ModelPolisher based) pipeline
+and how to collected the neccessary data.</p>
+<p>For more information about the steps of the pipeline,
+see <a class="reference internal" href="about-pipeline.html#overview-of-the-cmpb-pipeline"><span class="std std-ref">Overview of the CMPB Pipeline</span></a>.</p>
+<section id="cmpb-quickstart">
+<h2>CMPB: Quickstart<a class="headerlink" href="#cmpb-quickstart" title="Link to this heading"></a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Currently, the pipeline can only be run with an already generated model as input.
+The CarveMe connection will be added in a future update.</p>
+</div>
+<p>The pipeline can either be run directly from the command line or its functions can be called from inside a Python script.
+The input in both cases is a configuration file that contains all information needed (data file paths and parameters) to run it.</p>
+<p>The configuration can be downloaded using the command line:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>specimen<span class="w"> </span>setup<span class="w"> </span>config<span class="w"> </span>-t<span class="w"> </span>cmpb
+</pre></div>
+</div>
+<p>To download the configuration file using Python, use:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">specimen</span>
+<span class="n">specimen</span><span class="o">.</span><span class="n">setup</span><span class="o">.</span><span class="n">download_config</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;./my_basic_config.yaml&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;cmpb&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After downloading the configuration file, open it with an editor and change the parameters as needed.
+Missing entries will be reported when starting the pipeline.</p>
+<p>To run the pipeline using the configuration file, use</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>specimen<span class="w"> </span>cmpb<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;config.yaml&quot;</span>
+</pre></div>
+</div>
+<p>on the command line or</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">specimen</span><span class="o">.</span><span class="n">cmpb</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="s1">&#39;config.yaml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>from inside a Python script or Jupyter Notebook with “config.yaml” being the path to your configuration file.</p>
+</section>
+<section id="cmpb-collecting-data">
+<h2>CMPB: Collecting Data<a class="headerlink" href="#cmpb-collecting-data" title="Link to this heading"></a></h2>
+<p>The pipeline has only two absolutely required parameters:</p>
+<ul class="simple">
+<li><p>the path to the annotated genome file (if a model is given, should be the file used to create it)</p></li>
+<li><p>a media configuration (from refineGEMs) for testing the model’s growth</p></li>
+</ul>
+<p>Further data can be added as available and/or needed (all are totally optional):</p>
+<ul>
+<li><p>the generated draft model e.g. using CarveMe</p></li>
+<li><p>The reference sequence GFF file (for gap analysis required, optional for CarveMe polishing)</p></li>
+<li><p>if available, the KEGG organism ID (for gap analysis required, optional for CarveMe polishing)</p></li>
+<li><p>the protein FASTA of your input genome (required for lab_strain=True, otherwise optional)</p></li>
+<li><p>additional files for gapfilling</p>
+<blockquote>
+<div><ul>
+<li><p>for KEGG see bullet points above</p></li>
+<li><p>for BioCyc, three txt files with downloaded smart tables and a protein fasta with:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>‘Accession-2’ and ‘Reaction of gene’ columns</p></li>
+<li><p>all reaction relevant information (*)</p></li>
+<li><p>all metabolite relevant information (+)</p></li>
+<li><p>protein FASTA used as input for CarveMe</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>optionally, a manually curated EXCEL sheet with information to be (potentially) added to the model</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>to enable adjusting the biomass objective function using BOFdat, the following information is required</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>path to a file containing the full genome sequenece of your organism</p></li>
+<li><p>the DNA weight fraction of your organism (experimentally determined or retrieved using literature research)</p></li>
+<li><p>the enzmy/ion weight fraction of your organism (experimentally determined or retrieved using literature research)</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="about-pipeline.html" class="btn btn-neutral float-left" title="About CMPB" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cmpb-config.html" class="btn btn-neutral float-right" title="CMPB Configuration File" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Carolin Brune.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

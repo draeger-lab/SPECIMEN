@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CMPB Configuration File &mdash; SPECIMEN 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=559046d4" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom_theme.css?v=ef5873f9" />
+
+  
+    <link rel="shortcut icon" href="../_static/LogoSPECIMEN.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=8d563738"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=7859de39"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="About HQTB" href="../hqtb/about-pipeline.html" />
+    <link rel="prev" title="Run the CMPB Pipeline" href="run-pipeline.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/LogoSPECIMEN.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../overview-pipes.html">Overview of the Pipelines</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../overview-pipes.html#carveme-modelpolisher-based-cmpb-pipeline">CarveMe + ModelPolisher based (CMPB) pipeline</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="about-pipeline.html">About CMPB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="run-pipeline.html">Run CMPB</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">CMPB Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../overview-pipes.html#high-quality-template-based-hqtb-pipeline">High-quality template based (HQTB) pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview-pipes.html#more-ideas-for-pipelines">More ideas for pipelines</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../specimen.html">Contents of SPECIMEN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../help.html">Help &amp; FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev-notes.html">Notes for Developers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SPECIMEN</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../overview-pipes.html">Overview of the Pipelines</a></li>
+      <li class="breadcrumb-item active">CMPB Configuration File</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cmpb/cmpb-config.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cmpb-configuration-file">
+<h1>CMPB Configuration File<a class="headerlink" href="#cmpb-configuration-file" title="Link to this heading"></a></h1>
+<p>Below, the configuration file with the underlying defaults, is listed.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Configuration file for the SPECIMEN CMPB pipeline</span>
+
+<span class="c1"># Explaination for default parameters:</span>
+<span class="c1">#    with the value __USER__ are required to be specified by the user</span>
+<span class="c1">#    with the value USER are required only under specific cases</span>
+
+<span class="c1"># meta info:</span>
+<span class="c1">#    model:     USER</span>
+<span class="c1">#    organism:  USER</span>
+<span class="c1">#    date:      USER</span>
+<span class="c1">#    author:    USER</span>
+
+<span class="c1"># input for the pipeline</span>
+<span class="c1"># ----------------------</span>
+<span class="nt">input</span><span class="p">:</span>
+<span class="nt">modelpath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NULL</span><span class="w">            </span><span class="c1"># optional, path to a model.</span>
+<span class="w">                            </span><span class="c1"># If not given, runs CarveMe</span>
+<span class="nt">annotated_genome</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">__USER__</span><span class="w"> </span><span class="c1"># required, path to the annotated genome file</span>
+<span class="nt">mediapath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">__USER__</span><span class="w">        </span><span class="c1"># path to a media config to tests growth with</span>
+
+<span class="c1"># general options</span>
+<span class="c1"># ---------------</span>
+<span class="nt">general</span><span class="p">:</span>
+<span class="nt">dir</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;./&#39;</span><span class="w">                  </span><span class="c1"># Path/Name of a directory to save output to</span>
+<span class="nt">colours</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;YlGn&#39;</span><span class="w">            </span><span class="c1"># set the colour scheme for the plots</span>
+<span class="w">                            </span><span class="c1"># should be a valid matplotlib continuous color palette</span>
+<span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">BiGG</span><span class="w">            </span><span class="c1"># Namespace to use for the model</span>
+<span class="w">                            </span><span class="c1"># Possible identifiers, currently: BiGG</span>
+<span class="nt">save_all_models</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">      </span><span class="c1"># save all models (models for each step)</span>
+<span class="nt">memote_always_on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span><span class="w">    </span><span class="c1"># run memote after every step</span>
+<span class="nt">stats_always_on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span><span class="w">     </span><span class="c1"># calculate the model statistics after every step</span>
+<span class="c1"># below are options used by multiple steps</span>
+<span class="nt">refseq_gff</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">USER</span><span class="w">           </span><span class="c1"># Path to RefSeq GFF file: Required for gap analysis with &#39;KEGG&#39;.</span>
+<span class="w">                            </span><span class="c1"># Can be optionally provided for cm-polish.</span>
+<span class="nt">kegg_organism_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">USER</span><span class="w">     </span><span class="c1"># KEGG ID of the organism: Required for gap analysis with KEGG.</span>
+<span class="w">                            </span><span class="c1"># Can be optionally provided for cm-polish.</span>
+
+<span class="c1"># part-specific options</span>
+<span class="c1"># ---------------------</span>
+
+<span class="c1"># polish a CarveMe model</span>
+<span class="c1">#    only neccessary, if the mode will or has been build with CarveMe</span>
+<span class="c1">#    will only be used, if model is indeed a CarveMe model</span>
+<span class="nt">cm-polish</span><span class="p">:</span>
+<span class="nt">email</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">USER</span><span class="w">              </span><span class="c1"># User Mail to use for Entrez</span>
+<span class="nt">protein_fasta</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">USER</span><span class="w">      </span><span class="c1"># optional, except for is_lab_strain: True.</span>
+<span class="w">                        </span><span class="c1"># The path to the protein FASTA used to create the CarveMe model.</span>
+<span class="nt">is_lab_strain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span><span class="w">     </span><span class="c1"># whether the users strain originates from a lab</span>
+<span class="w">                        </span><span class="c1"># Needs to be set to ensure that protein IDs get the &#39;bqbiol:isHomologTo&#39; qualifier</span>
+<span class="w">                        </span><span class="c1"># &amp; to set the locus_tag to the ones obtained by the annotation</span>
+
+<span class="c1"># gapfilling, optional</span>
+<span class="nt">gapfilling</span><span class="p">:</span>
+<span class="c1">### Automatic gap filling ###</span>
+<span class="c1"># All parameters are required for all db_to_compare choices except biocyc_files which is not required for &#39;KEGG&#39;</span>
+<span class="nt">gap_fill_params</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">db_to_compare</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">USER</span><span class="w">  </span><span class="c1"># One of the choices KEGG|BioCyc|KEGG+BioCyc</span>
+<span class="w">    </span><span class="nt">biocyc_files</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">USER</span><span class="w"> </span><span class="c1"># Path to TXT file containing a SmartTable from BioCyc with the columns &#39;Accession-2&#39; &#39;Reaction of gene&#39;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">USER</span><span class="w">  </span><span class="c1"># Path to TXT file containing a SmartTable with all reaction relevant information (*)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">USER</span><span class="w">  </span><span class="c1"># Path to TXT file containing a SmartTable with all metabolite relevant information (+)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">USER</span><span class="w">  </span><span class="c1"># Path to protein FASTA file used as input for CarveMe (Required to get the protein IDs from the locus tags)</span>
+<span class="c1"># (*) &#39;Reaction&#39; &#39;Reactants of reaction&#39; &#39;Products of reaction&#39; &#39;EC-Number&#39; &#39;KEGG Reaction&#39; &#39;MetaNetX&#39; &#39;Reaction-Direction&#39; &#39;Spontaneous?&#39;</span>
+<span class="c1"># (+) &#39;Compound&#39; &#39;Object ID&#39; &#39;Chemical Formula&#39; &#39;InChI-Key&#39; &#39;ChEBI&#39;</span>
+<span class="nt">gap_fill_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NULL</span><span class="w"> </span><span class="c1"># Path to Excel file with which gaps in model should be filled</span>
+<span class="c1"># Either obtained by running gapfilling/Created by hand with the same structure as the result file from gapfilling</span>
+<span class="c1"># Example Excel file to fill in by hand: data/modelName_gapfill_analysis_date_example.xlsx</span>
+
+<span class="c1"># add KEGG pathways as groups, optional</span>
+<span class="nt">kegg_pathway_groups</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">  </span><span class="c1"># decide, whether to run this or not</span>
+
+<span class="c1"># resolve duplicates</span>
+<span class="nt">duplicates</span><span class="p">:</span>
+<span class="c1"># three possible option for the resolvement of duplicates for the following model entities:</span>
+<span class="c1"># - check:  check for duplicates and simply report them</span>
+<span class="c1"># - remove: check for and remove duplicates from the model (if possible)</span>
+<span class="c1"># - skip:   skip the resolvement</span>
+<span class="nt">reactions</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">remove</span>
+<span class="nt">metabolites</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">remove</span>
+<span class="c1"># additional remove unused metabolites (reduces possible knowledge base)</span>
+<span class="nt">remove_unused_metabs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+
+<span class="c1"># BOFdat / Biomass objective function</span>
+<span class="nt">BOF</span><span class="p">:</span>
+<span class="nt">run_bofdat</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="c1"># if BOFdat should be run,</span>
+<span class="c1"># fill out the params below</span>
+<span class="nt">bofdat_params</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">full_genome_sequence</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">USER</span><span class="w">  </span><span class="c1"># whole genome sequence</span>
+<span class="w">    </span><span class="nt">dna_weight_fraction</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">USER</span><span class="w">   </span><span class="c1"># DNA weight fraction for the organism</span>
+<span class="w">    </span><span class="nt">weight_fraction</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">USER</span><span class="w">       </span><span class="c1"># Ezyme/ion weight fractions for the organism</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="run-pipeline.html" class="btn btn-neutral float-left" title="Run the CMPB Pipeline" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../hqtb/about-pipeline.html" class="btn btn-neutral float-right" title="About HQTB" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Carolin Brune.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

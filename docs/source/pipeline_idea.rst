@@ -9,7 +9,7 @@ PGAB: PGAP based pipeline
 
 Generating a model for an organism where no information on genes and proteins is obtainable via any database 
 causes the problem that the model will not contain valid database identifiers for any GeneProduct. To resolve this issue the 
-workflow in Figure :numref:`workflow` can be used.
+workflow in Figure :numref:`pgab_workflow` can be used.
 
 1. First annotate the genome with NCBI's Prokaryotic Genome Annotation Pipeline (PGAP) to obtain the same FASTA format as used in NCBI and use the flag for taxonomy checking.
 2. Then use DIAMOND with the ``nr`` database from NCBI and the obtained annotated FASTA file as input. Restrict the search to your organism's taxon if known.
@@ -30,7 +30,7 @@ workflow in Figure :numref:`workflow` can be used.
     | 
     | -> NO: The draft model is done.
 
-.. _workflow:
+.. _pgab_workflow:
 
 .. figure:: images/genome2draft.svg
   :alt: Workflow from genome sequence to a draft model

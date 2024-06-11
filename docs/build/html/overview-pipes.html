@@ -27,7 +27,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="About HQTB" href="hqtb/about-pipeline.html" />
+    <link rel="next" title="About CMPB" href="cmpb/about-pipeline.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
 </head>
 
@@ -55,7 +55,12 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Overview of the Pipelines</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#carveme-modelpolisher-based-cmpb-pipeline">CarveMe + ModelPolisher based (CMPB) pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#carveme-modelpolisher-based-cmpb-pipeline">CarveMe + ModelPolisher based (CMPB) pipeline</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cmpb/about-pipeline.html">About CMPB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cmpb/run-pipeline.html">Run CMPB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cmpb/cmpb-config.html">CMPB Configuration</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#high-quality-template-based-hqtb-pipeline">High-quality template based (HQTB) pipeline</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="hqtb/about-pipeline.html">About HQTB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="hqtb/run-pipeline.html">Run HQTB</a></li>
@@ -63,7 +68,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#more-ideas-for-pipelines">More ideas for pipelines</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pipeline_idea.html">pgap based</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pipeline_idea.html">PGAB</a></li>
 </ul>
 </li>
 </ul>
@@ -112,7 +117,32 @@ available information for it and the data you wish to use as input.</p>
 </div>
 <section id="carveme-modelpolisher-based-cmpb-pipeline">
 <h2>CarveMe + ModelPolisher based (CMPB) pipeline<a class="headerlink" href="#carveme-modelpolisher-based-cmpb-pipeline" title="Link to this heading"></a></h2>
-<p>TODO</p>
+<p>The CMPB pipeline is based on generating a draft model using CarveMe and subsequently extending and polishing
+the model using various tools.</p>
+<p>This pipeline can be run on an annotated genome or an already generated CarveMe model and requires very little additional
+information to be run on its base settings.
+However additional information can be added from
+e.g. KEGG or BioCyc to perform an automated gapfilling using <a class="reference external" href="https://github.com/draeger-lab/refinegems">refineGEMs</a> <a class="footnote-reference brackets" href="#footcite-bauerle2023genome" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Currently, the ModelPolisher connections is still under construction, but the pipeline
+can already be run.</p>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Further Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cmpb/about-pipeline.html">About CMPB</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cmpb/about-pipeline.html#overview-of-the-cmpb-pipeline">Overview of the CMPB Pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cmpb/run-pipeline.html">Run CMPB</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cmpb/run-pipeline.html#cmpb-quickstart">CMPB: Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cmpb/run-pipeline.html#cmpb-collecting-data">CMPB: Collecting Data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cmpb/cmpb-config.html">CMPB Configuration</a></li>
+</ul>
+</div>
 </section>
 <section id="high-quality-template-based-hqtb-pipeline">
 <h2>High-quality template based (HQTB) pipeline<a class="headerlink" href="#high-quality-template-based-hqtb-pipeline" title="Link to this heading"></a></h2>
@@ -130,8 +160,8 @@ a similar organism to the one the new model should be curated for.</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="hqtb/run-pipeline.html">Run HQTB</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="hqtb/run-pipeline.html#quickstart">Quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hqtb/run-pipeline.html#collecting-data">Collecting Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hqtb/run-pipeline.html#hqtb-quickstart">HQTB: Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hqtb/run-pipeline.html#hqtb-collecting-data">HQTB: Collecting Data</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="hqtb/hqtb-config.html">HQTB Configuration</a></li>
@@ -143,7 +173,7 @@ a similar organism to the one the new model should be curated for.</p>
 <p>Below are some ideas for pipelines, which may be implemented in future update(s):</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pipeline_idea.html">pgap based</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline_idea.html">PGAB</a></li>
 </ul>
 </div>
 </section>
@@ -154,7 +184,7 @@ a similar organism to the one the new model should be curated for.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="hqtb/about-pipeline.html" class="btn btn-neutral float-right" title="About HQTB" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cmpb/about-pipeline.html" class="btn btn-neutral float-right" title="About CMPB" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

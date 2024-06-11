@@ -59,8 +59,8 @@
 <li class="toctree-l2 current"><a class="reference internal" href="../overview-pipes.html#high-quality-template-based-hqtb-pipeline">High-quality template based (HQTB) pipeline</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="about-pipeline.html">About HQTB</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Run HQTB</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#quickstart">Quickstart</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#collecting-data">Collecting Data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#hqtb-quickstart">HQTB: Quickstart</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#hqtb-collecting-data">HQTB: Collecting Data</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="hqtb-config.html">HQTB Configuration</a></li>
@@ -105,8 +105,8 @@
 and how to collected the neccessary data.</p>
 <p>For more information about the steps of the pipeline,
 see <a class="reference internal" href="about-pipeline.html#overview-of-the-hqtb-pipeline"><span class="std std-ref">Overview of the HQTB Pipeline</span></a>.</p>
-<section id="quickstart">
-<h2>Quickstart<a class="headerlink" href="#quickstart" title="Link to this heading"></a></h2>
+<section id="hqtb-quickstart">
+<h2>HQTB: Quickstart<a class="headerlink" href="#hqtb-quickstart" title="Link to this heading"></a></h2>
 <p>The pipeline can either be run directly from the command line or its functions can be called from inside a Python script.
 The input in both cases is a configuration file that contains all information needed (data file paths and parameters) to run it.</p>
 <p>The configuration can be downloaded using the command line:</p>
@@ -128,7 +128,7 @@ Missing entries will be reported when starting the pipeline.</p>
 </pre></div>
 </div>
 <p>on the command line or</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">specimen</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">run_complete</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="s1">&#39;config.yaml&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">specimen</span><span class="o">.</span><span class="n">hqtb</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">run_complete</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="s1">&#39;config.yaml&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>from inside a Python script or Jupyter Notebook with “config.yaml” being the path to your configuration file.</p>
@@ -138,8 +138,8 @@ Missing entries will be reported when starting the pipeline.</p>
 To wrapper can be accessed using <code class="code docutils literal notranslate"><span class="pre">specimen</span> <span class="pre">hqtb</span> <span class="pre">run</span> <span class="pre">wrapper</span> <span class="pre">&quot;config.yaml&quot;</span></code> or <code class="code docutils literal notranslate"><span class="pre">specimen.workflow.wrapper_pipeline(config_file='/User/path/to/config.yaml',</span> <span class="pre">parent_dir=&quot;./&quot;)</span></code>.</p>
 </div>
 </section>
-<section id="collecting-data">
-<h2>Collecting Data<a class="headerlink" href="#collecting-data" title="Link to this heading"></a></h2>
+<section id="hqtb-collecting-data">
+<h2>HQTB: Collecting Data<a class="headerlink" href="#hqtb-collecting-data" title="Link to this heading"></a></h2>
 <p>If you are just starting a new project and do not have all the data ready to go, you can use the setup function of
 <strong>SPECIMEN</strong> to help you collect the data you need.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">specimen</span><span class="o">.</span><span class="n">set_up</span><span class="o">.</span><span class="n">build_data_directories</span><span class="p">(</span><span class="s1">&#39;your_folder_name&#39;</span><span class="p">)</span>
@@ -253,7 +253,7 @@ The tags report/optional report whether this input is necessary to run the pipel
 <li><p>medium:</p>
 <blockquote>
 <div><p>The media, either for analysis or gapfilling can be entered into the pipeline via a config file (each).
-The config files are from the <a class="reference external" href="https://github.com/draeger-lab/refinegems">refineGEMS</a> <a class="footnote-reference brackets" href="#footcite-bauerle2023genome" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> toolbox and access the in-build medium database of refinegems
+The config files are from the <a class="reference external" href="https://github.com/draeger-lab/refinegems">refineGEMs</a> <a class="footnote-reference brackets" href="#footcite-bauerle2023genome" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> toolbox and access its in-build medium database
 and additionally allow for manual adjustment / external input.</p>
 <p>A examplary config file can be accessed using the following command:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">download_config</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;my_media_config.yaml&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;media&#39;</span><span class="p">)</span>

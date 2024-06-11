@@ -7,8 +7,8 @@ and how to collected the neccessary data.
 For more information about the steps of the pipeline, 
 see :ref:`Overview of the HQTB Pipeline`.
 
-Quickstart
------------
+HQTB: Quickstart
+----------------
 
 The pipeline can either be run directly from the command line or its functions can be called from inside a Python script.
 The input in both cases is a configuration file that contains all information needed (data file paths and parameters) to run it.
@@ -44,7 +44,7 @@ on the command line or
 
 .. code-block:: python
 
-    specimen.workflow.run_complete(config_file='config.yaml')
+    specimen.hqtb.workflow.run_complete(config_file='config.yaml')
 
 from inside a Python script or Jupyter Notebook with "config.yaml" being the path to your configuration file.
 
@@ -54,8 +54,8 @@ from inside a Python script or Jupyter Notebook with "config.yaml" being the pat
     To wrapper can be accessed using :code:`specimen hqtb run wrapper "config.yaml"` or :code:`specimen.workflow.wrapper_pipeline(config_file='/User/path/to/config.yaml', parent_dir="./")`.
 
 
-Collecting Data
----------------
+HQTB: Collecting Data
+---------------------
 
 If you are just starting a new project and do not have all the data ready to go, you can use the setup function of
 **SPECIMEN** to help you collect the data you need.
@@ -121,7 +121,7 @@ Further details for collecting the data:
 - medium:   
 
     The media, either for analysis or gapfilling can be entered into the pipeline via a config file (each).
-    The config files are from the `refineGEMS <https://github.com/draeger-lab/refinegems>`__ :footcite:p:`bauerle2023genome` toolbox and access the in-build medium database of refinegems 
+    The config files are from the `refineGEMs <https://github.com/draeger-lab/refinegems>`__ :footcite:p:`bauerle2023genome` toolbox and access its in-build medium database 
     and additionally allow for manual adjustment / external input.
 
     A examplary config file can be accessed using the following command:

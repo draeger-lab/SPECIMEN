@@ -18,8 +18,7 @@ specimen subpackages
 
 specimen submodules
 -------------------
-The direct submodules of ``SPECIMEN`` are mainly for accessing the tool.
-They consists of one module for the command line access.
+The direct submodule of ``SPECIMEN`` is for accessing the tool from the command line.
 
 .. toctree::
    :maxdepth: 2

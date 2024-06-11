@@ -21,7 +21,7 @@ a *Klebsiella sp.* reference database and a *Klebsiella pneumoniae* template mod
 
 Branch for the integration of SPECIMEN-functionalities into refineGEMS and vice versa.
 
-Integration almost done. Cleanup for first release of SPECIMEN pending
+Integration done. Cleanup for first release of SPECIMEN pending
 
 **Further branches**
 

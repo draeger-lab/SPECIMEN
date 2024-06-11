@@ -58,7 +58,7 @@
 <li class="toctree-l2"><a class="reference internal" href="overview-pipes.html#carveme-modelpolisher-based-cmpb-pipeline">CarveMe + ModelPolisher based (CMPB) pipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="overview-pipes.html#high-quality-template-based-hqtb-pipeline">High-quality template based (HQTB) pipeline</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="overview-pipes.html#more-ideas-for-pipelines">More ideas for pipelines</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">pgap based</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">PGAB</a></li>
 </ul>
 </li>
 </ul>
@@ -102,7 +102,7 @@
 </div>
 <p>Generating a model for an organism where no information on genes and proteins is obtainable via any database
 causes the problem that the model will not contain valid database identifiers for any GeneProduct. To resolve this issue the
-workflow in Figure <a class="reference internal" href="#workflow"><span class="std std-numref">Fig. 1</span></a> can be used.</p>
+workflow in Figure <a class="reference internal" href="#pgab-workflow"><span class="std std-numref">Fig. 1</span></a> can be used.</p>
 <ol class="arabic">
 <li><p>First annotate the genome with NCBI’s Prokaryotic Genome Annotation Pipeline (PGAP) to obtain the same FASTA format as used in NCBI and use the flag for taxonomy checking.</p></li>
 <li><p>Then use DIAMOND with the <code class="docutils literal notranslate"><span class="pre">nr</span></code> database from NCBI and the obtained annotated FASTA file as input. Restrict the search to your organism’s taxon if known.</p></li>
@@ -133,7 +133,7 @@ workflow in Figure <a class="reference internal" href="#workflow"><span class="s
 </li>
 </ol>
 <figure class="align-default" id="id1">
-<span id="workflow"></span><img alt="Workflow from genome sequence to a draft model" src="_images/genome2draft.svg" /><figcaption>
+<span id="pgab-workflow"></span><img alt="Workflow from genome sequence to a draft model" src="_images/genome2draft.svg" /><figcaption>
 <p><span class="caption-number">Fig. 1 </span><span class="caption-text">Workflow from genome sequence to a draft model</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>

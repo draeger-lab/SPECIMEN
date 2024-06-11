@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About HQTB &mdash; SPECIMEN 1.0.0 documentation</title>
+  <title>About CMPB &mdash; SPECIMEN 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=559046d4" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -27,8 +27,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="1. Step 1: Bidirectional BLAST" href="step-desc/bidirect_blast.html" />
-    <link rel="prev" title="CMPB Configuration File" href="../cmpb/cmpb-config.html" /> 
+    <link rel="next" title="Run the CMPB Pipeline" href="run-pipeline.html" />
+    <link rel="prev" title="Overview of the Pipelines" href="../overview-pipes.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -55,16 +55,16 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../overview-pipes.html">Overview of the Pipelines</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../overview-pipes.html#carveme-modelpolisher-based-cmpb-pipeline">CarveMe + ModelPolisher based (CMPB) pipeline</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../overview-pipes.html#high-quality-template-based-hqtb-pipeline">High-quality template based (HQTB) pipeline</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">About HQTB</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#overview-of-the-hqtb-pipeline">Overview of the HQTB Pipeline</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../overview-pipes.html#carveme-modelpolisher-based-cmpb-pipeline">CarveMe + ModelPolisher based (CMPB) pipeline</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">About CMPB</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#overview-of-the-cmpb-pipeline">Overview of the CMPB Pipeline</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="run-pipeline.html">Run HQTB</a></li>
-<li class="toctree-l3"><a class="reference internal" href="hqtb-config.html">HQTB Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="run-pipeline.html">Run CMPB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cmpb-config.html">CMPB Configuration</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../overview-pipes.html#high-quality-template-based-hqtb-pipeline">High-quality template based (HQTB) pipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../overview-pipes.html#more-ideas-for-pipelines">More ideas for pipelines</a></li>
 </ul>
 </li>
@@ -88,9 +88,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../overview-pipes.html">Overview of the Pipelines</a></li>
-      <li class="breadcrumb-item active">About HQTB</li>
+      <li class="breadcrumb-item active">About CMPB</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/hqtb/about-pipeline.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/cmpb/about-pipeline.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -98,45 +98,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="about-hqtb">
-<h1>About HQTB<a class="headerlink" href="#about-hqtb" title="Link to this heading"></a></h1>
-<p>The high-quality template based (HTQB) pipeline curates the model starting from the annotated
-genome of your strain of interest and an already curated, ideally very high-quality template model
-of a closely related strain (species) and additional database information.</p>
-<p>This type of pipeline aims to build upon already existing knowledge to speed up model curation
-and minimize the need to perform steps again that have already been done in a similar concepts.</p>
-<section id="overview-of-the-hqtb-pipeline">
-<h2>Overview of the HQTB Pipeline<a class="headerlink" href="#overview-of-the-hqtb-pipeline" title="Link to this heading"></a></h2>
-<p>The following image shows an overrview of the steps of the pipeline:</p>
-<img alt="../_images/hqtb_pipeline-overview.png" src="../_images/hqtb_pipeline-overview.png" />
-<p>The pipeline consists of five main steps:</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="step-desc/bidirect_blast.html">1. Bidirectional BLAST</a></li>
-<li class="toctree-l1"><a class="reference internal" href="step-desc/gen_draft.html">2. Draft Model Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="step-desc/refinement.html">3. Model Refinement</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="step-desc/refine-parts/extension.html">3.1. Extension</a></li>
-<li class="toctree-l2"><a class="reference internal" href="step-desc/refine-parts/cleanup.html">3.2. Clean-up</a></li>
-<li class="toctree-l2"><a class="reference internal" href="step-desc/refine-parts/annot.html">3.3. Annotation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="step-desc/refine-parts/smooth.html">3.4. Smoothing</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="step-desc/validation.html">4. Validation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="step-desc/analysis.html">5. Analysis</a></li>
-</ul>
+  <section id="about-cmpb">
+<h1>About CMPB<a class="headerlink" href="#about-cmpb" title="Link to this heading"></a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Under construction</p>
 </div>
-<p>The wrapper function allows the curation of multiple model sequentially with the same
-boudary conditions.</p>
-<div class="admonition hint">
-<p class="admonition-title">Hint</p>
-<p>Many of the steps of the pipeline can be fine tuned and turned off/on.
-Check the configuration file for a full list of all parameters.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>All steps of the pipeline can be run separatly via the command line or
-the Python integration (see <a class="reference internal" href="run-pipeline.html#run-the-htqb-pipeline"><span class="std std-ref">Run the HTQB Pipeline</span></a>).</p>
-<p>All accessable function are listed in the <a class="reference internal" href="../specimen.html#contents-of-specimen"><span class="std std-ref">Contents of SPECIMEN</span></a> section.</p>
+<p>The CarveMe + ModelPolisher based (CMPB) pipeline …</p>
+<section id="overview-of-the-cmpb-pipeline">
+<h2>Overview of the CMPB Pipeline<a class="headerlink" href="#overview-of-the-cmpb-pipeline" title="Link to this heading"></a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Under construction</p>
 </div>
 </section>
 </section>
@@ -145,8 +118,8 @@ the Python integration (see <a class="reference internal" href="run-pipeline.htm
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../cmpb/cmpb-config.html" class="btn btn-neutral float-left" title="CMPB Configuration File" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="step-desc/bidirect_blast.html" class="btn btn-neutral float-right" title="1. Step 1: Bidirectional BLAST" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../overview-pipes.html" class="btn btn-neutral float-left" title="Overview of the Pipelines" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="run-pipeline.html" class="btn btn-neutral float-right" title="Run the CMPB Pipeline" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
