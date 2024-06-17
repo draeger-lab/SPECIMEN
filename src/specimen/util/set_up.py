@@ -93,7 +93,7 @@ def build_data_directories(pipeline: Literal['hqtb','high-quality template based
             Chunk size for the download. Defaults to 2048.
 
     Raises:
-        ValueError: Unknown input for parameter pipeline
+        - ValueError: Unknown input for parameter pipeline
     """
 
     match pipeline:
@@ -148,7 +148,7 @@ def download_config(filename:str='my_basic_config.yaml', type:Literal['hqtb-basi
             Defaults to 'hqtb basic'.
 
     Raises:
-        ValueError: Unknown type of config file detected.
+        - ValueError: Unknown type of config file detected.
     """
 
     # copy an examplary version of the config file for the user to edit it
@@ -199,7 +199,7 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
             Path to the user configuration file.
 
     Raises:
-        FileNotFoundError: Directory set for config:data:data:direc does not exist.
+        - FileNotFoundError: Directory set for config:data:data:direc does not exist.
 
     Returns:
         dict: 
@@ -242,11 +242,9 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
                 Defaults to None.
 
         Raises:
-            TypeError: Missing a required argument in the config file.
-
-            FileNotFoundError: Path does not exist: {dictA}
-
-            FileNotFoundError: Path does not exist: {dictA}
+            - TypeError: Missing a required argument in the config file.
+            - FileNotFoundError: Path does not exist: {dictA}
+            - FileNotFoundError: Path does not exist: {dictA}
         """
 
         if not isinstance(dictA,dict):

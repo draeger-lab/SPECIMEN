@@ -38,7 +38,7 @@ def run_complete(config_file:str = 'test_config.yaml'):
             Defaults to 'test_config.yaml'.
 
     Raises:
-        ValueError: Unkown file extension {extension} for file {config["subject"]["annotated_genome"]}.
+        - ValueError: Unkown file extension {extension} for file {config["subject"]["annotated_genome"]}.
     """
 
     # read in the configuration file
@@ -195,9 +195,8 @@ def wrapper_pipeline(config_file:str, parent_dir:str=""):
             Defaults to "".
 
     Raises:
-        ValueError: No or multiple annotated genome files found: subfolder
-
-        ValueError:  No or multiple full genome files found: subfolder
+        - ValueError: No or multiple annotated genome files found: subfolder
+        - ValueError:  No or multiple full genome files found: subfolder
     """
 
     # load config

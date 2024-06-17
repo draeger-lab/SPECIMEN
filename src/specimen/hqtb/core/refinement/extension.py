@@ -119,7 +119,7 @@ def find_best_diamond_hits(file:str, pid:float) -> pd.DataFrame:
 # mapping zo NCBI
 # ---------------
 def map_to_NCBI_efetch_row(row:pd.Series) -> pd.Series:
-    """Map a single entry from the table in :py:func:`~specimen.core.refinement.extension.get_ncbi_info` 
+    """Map a single entry from the table in :py:func:`~specimen.hqtb.core.refinement.extension.get_ncbi_info` 
     to NCBI using EntrezDirect.
 
     Args:
@@ -180,8 +180,8 @@ def get_ncbi_info(table:pd.DataFrame, ncbi_map_file:str=None) -> pd.DataFrame:
 
     Args:
         - table (pd.DataFrame):  
-            A table containing the output of :py:func:`specimen.core.refinement.extension.find_best_diamond_hits`.
-            Must have the column 'ncbi_accession_version'.
+            A table containing the output of :py:func:`specimen.hqtb.core.refinement.extension.find_best_diamond_hits`.
+            Must have the column ``ncbi_accession_version``.
         - ncbi_map_file (str, optional): 
             A csv file containing the ncbi mapping. 
             Defaults to None.
@@ -225,7 +225,7 @@ def get_ncbi_info(table:pd.DataFrame, ncbi_map_file:str=None) -> pd.DataFrame:
 # ---------------
 # @TODO
 def map_to_KEGG_row(row:pd.Series, loci_list:list[str]=None) -> pd.Series:
-    """Map a single entry of the table in :py:func:`~specimen.core.refinement.extension.map_to_KEGG` to KEGG.
+    """Map a single entry of the table in :py:func:`~specimen.hqtb.core.refinement.extension.map_to_KEGG` to KEGG.
 
     Args:
         - row (pd.Series): 
@@ -368,14 +368,14 @@ def map_to_KEGG_row(row:pd.Series, loci_list:list[str]=None) -> pd.Series:
 
 def map_to_KEGG(gene_table:pd.DataFrame,working_dir:str,
                 manual_dir:str,genome_summary:str=None) -> Path:
-    """Map entries of the table from :py:func:`~specimen.core.refinement.extension.get_ncbi_info` to KEGG.
+    """Map entries of the table from :py:func:`~specimen.hqtb.core.refinement.extension.get_ncbi_info` to KEGG.
     Get KEGG.reaction ID from locus tag, if available, otherwise try EC number.
     Entries of the finalised table are saved depending whether they were assigned
     a KEGG.reaction ID (further use) or not (possible starting point for manual curation).
 
     Args:
         - gene_table (pd.DataFrame): 
-            The input table containing the output of get_ncbi_info().
+            The input table containing the output of :py:func:`~specimen.hqtb.core.refinement.extension.get_ncbi_info`.
         - working_dir (str): 
             Path to the working directory - place to save genes with a KEGG.reaction ID.
         - manual_dir (str): 
@@ -425,7 +425,7 @@ def map_to_KEGG(gene_table:pd.DataFrame,working_dir:str,
 
 # @TODO
 def map_BiGG_reactions_row(row:pd.Series, namespace:pd.DataFrame) -> pd.Series:
-    """Map a single entry from the table in :py:func:`~specimen.core.refinement.extension.map_BiGG_reactions` to the BiGG reaction namespace.
+    """Map a single entry from the table in :py:func:`~specimen.hqtb.core.refinement.extension.map_BiGG_reactions` to the BiGG reaction namespace.
 
     @TODO
 
@@ -468,12 +468,12 @@ def map_BiGG_reactions_row(row:pd.Series, namespace:pd.DataFrame) -> pd.Series:
 # @TEST : fitted to refinegems
 # @CHECK : connections, e.g. input is now a param short 
 def map_BiGG_reactions(table_file:str) -> pd.DataFrame:
-    """Map the output of :py:func:`~specimen.core.refinement.extension.map_to_KEGG`
+    """Map the output of :py:func:`~specimen.hqtb.core.refinement.extension.map_to_KEGG`
     to a BiGG namespace file (rewritten-type, see auxilliaries).
 
     Args:
         - table_file (str): 
-            The path to the saved table from running map_to_KEGG().
+            The path to the saved table from running :py:func:`~specimen.hqtb.core.extension.map_to_KEGG`.
 
     Returns:
         pd.DataFrame: 
@@ -551,7 +551,7 @@ def add_gene(model:cobra.Model, reaction:str, row:pd.Series,
         - reaction (str): 
             The reaction id to add the gene to.
         - row (pd.Series): 
-            A single row of the output table of :py:func:`~specimen.core.refinement.extension.map_BiGG_reactions`.
+            A single row of the output table of :py:func:`~specimen.hqtb.core.refinement.extension.map_BiGG_reactions`.
         - first (bool, optional): 
             Shows, if gene is the first gene to be added to the reaction. 
             True if gene is first to be added.
@@ -1203,7 +1203,7 @@ def extent_model(table:pd.DataFrame, model:cobra.Model,
                  namespace:str='BiGG', 
                  exclude_dna:bool=True, exclude_rna:bool=True) -> cobra.Model:
     """Add reactions, metabolites and genes to a model based on the output of 
-    :py:func:`~specimen.core.refinement.extension.map_to_bigg`.
+    :py:func:`~specimen.hqtb.core.refinement.extension.map_to_bigg`.
 
     Args:
         - table (pd.DataFrame): 
@@ -1370,7 +1370,7 @@ def run(draft:str, gene_list:str, fasta:str,
             Defaults to False.
 
     Raises:
-        ValueError: Unknown sensitivity mode.
+        - ValueError: Unknown sensitivity mode.
     """
     
 

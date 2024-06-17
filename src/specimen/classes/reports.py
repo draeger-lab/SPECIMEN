@@ -81,7 +81,7 @@ class SpecimenModelInfoReport(ModelInfoReport):
 
         Returns:
             tuple:
-            
+                Two graphics (1) and (2):
                 (1) matplotlib.figure.Figure: The original report figure.
                 (2) matplotlib.figure.Figure: Report for the creation origin.
         """

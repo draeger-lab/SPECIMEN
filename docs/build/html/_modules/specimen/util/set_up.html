@@ -182,7 +182,7 @@
 <span class="sd">            Chunk size for the download. Defaults to 2048.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        ValueError: Unknown input for parameter pipeline</span>
+<span class="sd">        - ValueError: Unknown input for parameter pipeline</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">match</span> <span class="n">pipeline</span><span class="p">:</span>
@@ -240,7 +240,7 @@
 <span class="sd">            Defaults to &#39;hqtb basic&#39;.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        ValueError: Unknown type of config file detected.</span>
+<span class="sd">        - ValueError: Unknown type of config file detected.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># copy an examplary version of the config file for the user to edit it</span>
@@ -294,7 +294,7 @@
 <span class="sd">            Path to the user configuration file.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        FileNotFoundError: Directory set for config:data:data:direc does not exist.</span>
+<span class="sd">        - FileNotFoundError: Directory set for config:data:data:direc does not exist.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: </span>
@@ -337,11 +337,9 @@
 <span class="sd">                Defaults to None.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            TypeError: Missing a required argument in the config file.</span>
-
-<span class="sd">            FileNotFoundError: Path does not exist: {dictA}</span>
-
-<span class="sd">            FileNotFoundError: Path does not exist: {dictA}</span>
+<span class="sd">            - TypeError: Missing a required argument in the config file.</span>
+<span class="sd">            - FileNotFoundError: Path does not exist: {dictA}</span>
+<span class="sd">            - FileNotFoundError: Path does not exist: {dictA}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dictA</span><span class="p">,</span><span class="nb">dict</span><span class="p">):</span>

@@ -201,7 +201,9 @@ Defaults to ‘test_config.yaml’.</p>
 </li>
 </ul>
 </dd>
-<dt>Raises:</dt><dd><p>ValueError: Unkown file extension {extension} for file {config[“subject”][“annotated_genome”]}.</p>
+<dt>Raises:</dt><dd><ul class="simple">
+<li><p>ValueError: Unkown file extension {extension} for file {config[“subject”][“annotated_genome”]}.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -211,7 +213,7 @@ Defaults to ‘test_config.yaml’.</p>
 <span class="sig-prename descclassname"><span class="pre">specimen.hqtb.workflow.</span></span><span class="sig-name descname"><span class="pre">wrapper_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/specimen/hqtb/workflow.html#wrapper_pipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.hqtb.workflow.wrapper_pipeline" title="Link to this definition"></a></dt>
 <dd><p>Run the pipeline multiple times on a folder containing subfolders with
 subject annotated genomes and full genome sequences using the same configuration.</p>
-<dl>
+<dl class="simple">
 <dt>Args:</dt><dd><ul class="simple">
 <li><dl class="simple">
 <dt>config_file (str): </dt><dd><p>config file containing the general information to run the pipeline.
@@ -227,8 +229,10 @@ Defaults to “”.</p>
 </li>
 </ul>
 </dd>
-<dt>Raises:</dt><dd><p>ValueError: No or multiple annotated genome files found: subfolder</p>
-<p>ValueError:  No or multiple full genome files found: subfolder</p>
+<dt>Raises:</dt><dd><ul class="simple">
+<li><p>ValueError: No or multiple annotated genome files found: subfolder</p></li>
+<li><p>ValueError:  No or multiple full genome files found: subfolder</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

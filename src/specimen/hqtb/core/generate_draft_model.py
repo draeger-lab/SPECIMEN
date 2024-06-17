@@ -369,7 +369,7 @@ def run(template:str, bpbbh:str, dir:str,
             Defaults to False.
 
     Raises:
-        ValueError: 'Edit_names value {edit_names} not in list of allowed values: no, dot-to-underscore'
+        - ValueError: 'Edit_names value {edit_names} not in list of allowed values: no, dot-to-underscore'
     """
     
     total_time_s = time.time()

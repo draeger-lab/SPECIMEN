@@ -326,9 +326,9 @@ def run(template:str, input:str, dir:str,
             Defaults to 'more-sensitive'.
 
     Raises:
-        ValueError: Unknown file extension. Please set value for temp_header manually or check file.
-        ValueError: Unknown file extension. Please set value for in_header manually or check file.
-        ValueError: Unknown sensitive mode
+        - ValueError: Unknown file extension. Please set value for temp_header manually or check file.
+        - ValueError: Unknown file extension. Please set value for in_header manually or check file.
+        - ValueError: Unknown sensitive mode
     """
 
     total_time_s = time.time()

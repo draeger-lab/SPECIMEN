@@ -377,7 +377,7 @@ def run(model:str, dir:str,
             Defaults to False.
 
     Raises:
-        ValueError: Unknown option for check_dupl_meta
+        - ValueError: Unknown option for check_dupl_meta
     """
 
     # -------------------

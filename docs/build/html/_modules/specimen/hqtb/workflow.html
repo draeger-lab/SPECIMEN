@@ -124,7 +124,7 @@
 <span class="sd">            Defaults to &#39;test_config.yaml&#39;.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        ValueError: Unkown file extension {extension} for file {config[&quot;subject&quot;][&quot;annotated_genome&quot;]}.</span>
+<span class="sd">        - ValueError: Unkown file extension {extension} for file {config[&quot;subject&quot;][&quot;annotated_genome&quot;]}.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># read in the configuration file</span>
@@ -284,9 +284,8 @@
 <span class="sd">            Defaults to &quot;&quot;.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        ValueError: No or multiple annotated genome files found: subfolder</span>
-
-<span class="sd">        ValueError:  No or multiple full genome files found: subfolder</span>
+<span class="sd">        - ValueError: No or multiple annotated genome files found: subfolder</span>
+<span class="sd">        - ValueError:  No or multiple full genome files found: subfolder</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># load config</span>
