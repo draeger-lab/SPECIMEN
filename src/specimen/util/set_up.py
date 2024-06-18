@@ -133,7 +133,7 @@ def download_config(filename:str='my_basic_config.yaml', type:Literal['hqtb-basi
     The media config and the config for the cmpb / CarveMe + Modelpolisher based pipeline
     can be downloaded using 'media' and 'cmpb' respectively
 
-    For the htqb / high-quality template based pipeline:
+    For the hqtb / high-quality template based pipeline:
 
         Depending on the knowledge of the user, either a 'hqtb-basic' or an 'hqtb-advanced' type
         of configuration file can be downloaded (or 'hqtb-defaults' for developers).
@@ -142,7 +142,7 @@ def download_config(filename:str='my_basic_config.yaml', type:Literal['hqtb-basi
         - filename (str, optional): 
             Filename/filepath to save the downloaded config file under. 
             Defaults to 'my_basic_config.yaml'.
-        - type (Literal['htqb-basic','htqb-advanced','htqb-defaults','media','cmpb'], optional): 
+        - type (Literal['hqtb-basic','hqtb-advanced','hqtb-defaults','media','cmpb'], optional): 
             The type of file to download. 
             Can be 'hqtb-basic', 'hqtb-advanced' or 'hqtb-defaults' or 'media' or 'cmpb'. 
             Defaults to 'hqtb basic'.
@@ -155,19 +155,19 @@ def download_config(filename:str='my_basic_config.yaml', type:Literal['hqtb-basi
     match type:
         # the 'beginner' version
         case 'hqtb-basic':
-            config_file = files('specimen.data.config').joinpath('htqb_basic_config_expl.yaml')
+            config_file = files('specimen.data.config').joinpath('hqtb_basic_config_expl.yaml')
             with open(config_file, "r") as cfg_file, open(filename, 'w') as cfg_out:
                 for line in cfg_file:
                     cfg_out.write(line)
         # for advanced users
         case 'hqtb-advanced':
-            config_file = files('specimen.data.config').joinpath('htqb_advanced_config_expl.yaml')
+            config_file = files('specimen.data.config').joinpath('hqtb_advanced_config_expl.yaml')
             with open(config_file, "r") as cfg_file, open(filename, 'w') as cfg_out:
                 for line in cfg_file:
                     cfg_out.write(line)
         # for developer: the config with all internal defaults
         case 'hqtb-defaults':
-            config_file = files('specimen.data.config').joinpath('htqb_config_default.yaml')
+            config_file = files('specimen.data.config').joinpath('hqtb_config_default.yaml')
             with open(config_file, "r") as cfg_file, open(filename, 'w') as cfg_out:
                 for line in cfg_file:
                     cfg_out.write(line)
@@ -289,7 +289,7 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
     # load both files
     match pipeline:
         case 'hqtb':
-            defaultc_path = files('specimen.data.config').joinpath('htqb_config_default.yaml')
+            defaultc_path = files('specimen.data.config').joinpath('hqtb_config_default.yaml')
         case 'cmpb':
             defaultc_path = files('specimen.data.config').joinpath('cmpb_config.yaml')
         case _:

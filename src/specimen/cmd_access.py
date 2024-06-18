@@ -41,7 +41,7 @@ def setup():
 # -----------------
 @setup.command()
 @click.option('--filename', '-f', default='config.yaml', type=str, show_default=True, help='Name (path) to the save the config file under.')
-@click.option('--type', '-t', default='htqb-basic', type=click.Choice(['htqb-basic', 'htqb-advanced','htqb-defaults','media','cmpb']), help='Type of config file to download. Either a more detailed one for advanced usage or a basic one for beginners with less options.')
+@click.option('--type', '-t', default='hqtb-basic', type=click.Choice(['hqtb-basic', 'hqtb-advanced','hqtb-defaults','media','cmpb']), help='Type of config file to download. Either a more detailed one for advanced usage or a basic one for beginners with less options.')
 def config(filename,type):
     """Download a configuration file (.yaml).
 
