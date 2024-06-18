@@ -20,14 +20,14 @@ The configuration can be downloaded using the command line:
     specimen setup config
 
 This downloads a basic version with minimal parameters suitable for beginners. To download the advanced version that allows to adjust more parameters,
-add :code:`-t htqb-advanced` to the command. For further options, refer to the manual page (:code:`specimen setup config --help`).
+add :code:`-t hqtb-advanced` to the command. For further options, refer to the manual page (:code:`specimen setup config --help`).
 
 To download the configuration file using Python, use:
 
 .. code-block:: python
 
     import specimen
-    specimen.setup.download_config(filename='./my_basic_config.yaml', type='htqb-basic')
+    specimen.util.set_up.download_config(filename='./my_basic_config.yaml', type='hqtb-basic')
 
 As with the command line access, the type can be changed to "advanced".
 
@@ -62,7 +62,7 @@ If you are just starting a new project and do not have all the data ready to go,
 
 .. code-block:: python
 
-    specimen.set_up.build_data_directories('your_folder_name')
+    specimen.util.set_up.build_data_directories('your_folder_name')
 
 The function above creates the following directory structure for your project:
 

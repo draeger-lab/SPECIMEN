@@ -114,10 +114,10 @@ The input in both cases is a configuration file that contains all information ne
 </pre></div>
 </div>
 <p>This downloads a basic version with minimal parameters suitable for beginners. To download the advanced version that allows to adjust more parameters,
-add <code class="code docutils literal notranslate"><span class="pre">-t</span> <span class="pre">htqb-advanced</span></code> to the command. For further options, refer to the manual page (<code class="code docutils literal notranslate"><span class="pre">specimen</span> <span class="pre">setup</span> <span class="pre">config</span> <span class="pre">--help</span></code>).</p>
+add <code class="code docutils literal notranslate"><span class="pre">-t</span> <span class="pre">hqtb-advanced</span></code> to the command. For further options, refer to the manual page (<code class="code docutils literal notranslate"><span class="pre">specimen</span> <span class="pre">setup</span> <span class="pre">config</span> <span class="pre">--help</span></code>).</p>
 <p>To download the configuration file using Python, use:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">specimen</span>
-<span class="n">specimen</span><span class="o">.</span><span class="n">setup</span><span class="o">.</span><span class="n">download_config</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;./my_basic_config.yaml&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;htqb-basic&#39;</span><span class="p">)</span>
+<span class="n">specimen</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">set_up</span><span class="o">.</span><span class="n">download_config</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;./my_basic_config.yaml&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;hqtb-basic&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>As with the command line access, the type can be changed to “advanced”.</p>
@@ -142,7 +142,7 @@ To wrapper can be accessed using <code class="code docutils literal notranslate"
 <h2>HQTB: Collecting Data<a class="headerlink" href="#hqtb-collecting-data" title="Link to this heading"></a></h2>
 <p>If you are just starting a new project and do not have all the data ready to go, you can use the setup function of
 <strong>SPECIMEN</strong> to help you collect the data you need.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">specimen</span><span class="o">.</span><span class="n">set_up</span><span class="o">.</span><span class="n">build_data_directories</span><span class="p">(</span><span class="s1">&#39;your_folder_name&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">specimen</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">set_up</span><span class="o">.</span><span class="n">build_data_directories</span><span class="p">(</span><span class="s1">&#39;your_folder_name&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The function above creates the following directory structure for your project:</p>

@@ -8,7 +8,7 @@ authors = [
   { name="Carolin Brune"},
   { name="Gwendolyn O. Döbel"},
 ]
-description = "SPECIMEN: A package for strain-specific metabolic modelling."
+description = "SPECIMEN: A collection of workflows for strain-specific metabolic modelling."
 readme = "README.md"
 version = "1.0.0"
 requires-python = ">=3.10"

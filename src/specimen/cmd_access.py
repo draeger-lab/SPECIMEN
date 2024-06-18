@@ -66,7 +66,7 @@ def data_structure(pipeline, dir, chunk_size):
 
     PIPELINE is the type of pipeline for which the data structure should be build.
     """
-    specimen.util.set_up.build_data_directories(dir, chunk_size)
+    specimen.util.set_up.build_data_directories(pipeline, dir, chunk_size)
 
 #################
 # hqtb pipeline #
