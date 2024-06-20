@@ -1,6 +1,6 @@
 """Part one of the third step of the pipeline: refinement - extension.
 
-Extents the model by mapping missing genes to reactions via NCBI, KEGG,
+Extends the model by mapping missing genes to reactions via NCBI, KEGG,
 MetaNetX and BiGG.
 """
 
@@ -927,7 +927,7 @@ def get_metabolites_kegg(model:cobra.Model,equation:str,
                          bigg_metabolites:pd.DataFrame, 
                          namespace:Literal['BiGG']='BiGG') -> dict[cobra.Metabolite,int]:
     """Based on a given KEGG equation and a model, get or
-    create metabolite entires in/for the model.
+    create metabolite entries in/for the model.
 
     Args:
         - model (cobra.Model): 
