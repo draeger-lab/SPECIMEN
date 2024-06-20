@@ -18,7 +18,7 @@
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="../../../_static/documentation_options.js?v=8d563738"></script>
-        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
         <script src="../../../_static/copybutton.js?v=7859de39"></script>
@@ -225,7 +225,7 @@
 <span class="sd">    The media config and the config for the cmpb / CarveMe + Modelpolisher based pipeline</span>
 <span class="sd">    can be downloaded using &#39;media&#39; and &#39;cmpb&#39; respectively</span>
 
-<span class="sd">    For the htqb / high-quality template based pipeline:</span>
+<span class="sd">    For the hqtb / high-quality template based pipeline:</span>
 
 <span class="sd">        Depending on the knowledge of the user, either a &#39;hqtb-basic&#39; or an &#39;hqtb-advanced&#39; type</span>
 <span class="sd">        of configuration file can be downloaded (or &#39;hqtb-defaults&#39; for developers).</span>
@@ -234,7 +234,7 @@
 <span class="sd">        - filename (str, optional): </span>
 <span class="sd">            Filename/filepath to save the downloaded config file under. </span>
 <span class="sd">            Defaults to &#39;my_basic_config.yaml&#39;.</span>
-<span class="sd">        - type (Literal[&#39;htqb-basic&#39;,&#39;htqb-advanced&#39;,&#39;htqb-defaults&#39;,&#39;media&#39;,&#39;cmpb&#39;], optional): </span>
+<span class="sd">        - type (Literal[&#39;hqtb-basic&#39;,&#39;hqtb-advanced&#39;,&#39;hqtb-defaults&#39;,&#39;media&#39;,&#39;cmpb&#39;], optional): </span>
 <span class="sd">            The type of file to download. </span>
 <span class="sd">            Can be &#39;hqtb-basic&#39;, &#39;hqtb-advanced&#39; or &#39;hqtb-defaults&#39; or &#39;media&#39; or &#39;cmpb&#39;. </span>
 <span class="sd">            Defaults to &#39;hqtb basic&#39;.</span>
@@ -247,19 +247,19 @@
     <span class="k">match</span> <span class="nb">type</span><span class="p">:</span>
         <span class="c1"># the &#39;beginner&#39; version</span>
         <span class="k">case</span> <span class="s1">&#39;hqtb-basic&#39;</span><span class="p">:</span>
-            <span class="n">config_file</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;specimen.data.config&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;htqb_basic_config_expl.yaml&#39;</span><span class="p">)</span>
+            <span class="n">config_file</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;specimen.data.config&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;hqtb_basic_config_expl.yaml&#39;</span><span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfg_file</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfg_out</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">cfg_file</span><span class="p">:</span>
                     <span class="n">cfg_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
         <span class="c1"># for advanced users</span>
         <span class="k">case</span> <span class="s1">&#39;hqtb-advanced&#39;</span><span class="p">:</span>
-            <span class="n">config_file</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;specimen.data.config&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;htqb_advanced_config_expl.yaml&#39;</span><span class="p">)</span>
+            <span class="n">config_file</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;specimen.data.config&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;hqtb_advanced_config_expl.yaml&#39;</span><span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfg_file</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfg_out</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">cfg_file</span><span class="p">:</span>
                     <span class="n">cfg_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
         <span class="c1"># for developer: the config with all internal defaults</span>
         <span class="k">case</span> <span class="s1">&#39;hqtb-defaults&#39;</span><span class="p">:</span>
-            <span class="n">config_file</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;specimen.data.config&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;htqb_config_default.yaml&#39;</span><span class="p">)</span>
+            <span class="n">config_file</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;specimen.data.config&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;hqtb_config_default.yaml&#39;</span><span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfg_file</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfg_out</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">cfg_file</span><span class="p">:</span>
                     <span class="n">cfg_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
@@ -384,7 +384,7 @@
     <span class="c1"># load both files</span>
     <span class="k">match</span> <span class="n">pipeline</span><span class="p">:</span>
         <span class="k">case</span> <span class="s1">&#39;hqtb&#39;</span><span class="p">:</span>
-            <span class="n">defaultc_path</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;specimen.data.config&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;htqb_config_default.yaml&#39;</span><span class="p">)</span>
+            <span class="n">defaultc_path</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;specimen.data.config&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;hqtb_config_default.yaml&#39;</span><span class="p">)</span>
         <span class="k">case</span> <span class="s1">&#39;cmpb&#39;</span><span class="p">:</span>
             <span class="n">defaultc_path</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;specimen.data.config&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;cmpb_config.yaml&#39;</span><span class="p">)</span>
         <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>

@@ -32,7 +32,7 @@ workflow in Figure :numref:`pgab_workflow` can be used.
 
 .. _pgab_workflow:
 
-.. figure:: images/genome2draft.svg
+.. figure:: images/genome2draft.png
   :alt: Workflow from genome sequence to a draft model
 
   Workflow from genome sequence to a draft model
