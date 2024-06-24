@@ -34,11 +34,23 @@ dependencies = [
 # additional missing tools:
 #    EntrezDirect
 #    DIAMOND
+[project.optional-dependencies]
+# developer/docs installation dependancies
+docs = ["accessible-pygments",
+       "sphinx", 
+       "nbsphinx",
+       "sphinx_rtd_theme",
+       "pandoc",
+       "ipython",
+       "sphinxcontrib-bibtex",
+       "sphinx_copybutton",
+       "pip-tools"]
 
 # @TODO:
 [project.urls]
-homepage = 'https://github.com/draeger-lab/SPECIMEN'
+repository = 'https://github.com/draeger-lab/SPECIMEN'
 # documentation = 
+# homepage = 
 
 [project.scripts]
 specimen = "specimen.cmd_access:cli"
