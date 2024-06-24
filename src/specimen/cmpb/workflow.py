@@ -30,7 +30,7 @@ from refinegems.curation.polish import polish
 from refinegems.utility.connections import run_memote, perform_mcc, adjust_BOF, run_SBOannotator
 from refinegems.utility.io import load_model, write_model_to_file
 
-from ..util.set_up import save_cmpb_user_input
+from ..util.set_up import save_cmpb_user_input,validate_config
 
 ################################################################################
 # functions
@@ -117,6 +117,7 @@ def run(configpath:Union[str,None]=None):
     else:
         with open(configpath, "r") as cfg:
             config = yaml.load(cfg, Loader=yaml.loader.FullLoader)
+            config = validate_config(cfg, 'cmpb') 
 
     if not config['general']['save_all_models']:
         only_modelpath = Path(dir,'cmpb_out','model.xml') # @TODO Use model ID here...
@@ -151,10 +152,6 @@ def run(configpath:Union[str,None]=None):
     else:
         current_modelpath = config['input']['modelpath']
 
-    # optional analysis
-    current_model = load_model(current_modelpath,'cobra')
-    between_analysis(current_model, config, step='after_draft')
-
     # CarveMe correction
     ####################
 
@@ -183,12 +180,11 @@ def run(configpath:Union[str,None]=None):
             write_model_to_file(current_libmodel, only_modelpath)
             current_modelpath = only_modelpath
 
-
     # growth test
     # -----------
     current_model = load_model(current_modelpath,'cobra')
-    between_growth_test(current_model,config,step='after_CarveMe_correction')
-    between_analysis(current_model,config,step='after_CarveMe_correction')
+    between_growth_test(current_model,config,step='after_draft')
+    between_analysis(current_model, config, step='after_draft')
 
 
     # gapfilling

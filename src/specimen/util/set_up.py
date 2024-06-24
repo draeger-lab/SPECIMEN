@@ -8,9 +8,9 @@ __author__ = 'Carolin Brune'
 ################################################################################
 
 import click
+import logging
 import os
 import requests
-import warnings
 import yaml
 
 from datetime import date
@@ -256,8 +256,8 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
             # optional/requires stuff 
             elif dictA == 'USER':
                 # @TODO 
-                mes = 'Keyword USER detected in config. Either due to skipped options or missing required information.'
-                warnings.warn(mes)
+                mes = 'Keyword USER detected in config. Either due to skipped options or missing required information.\nReminder: this may lead to downstream problems.'
+                logging.warning(mes)
 
             # check paths
             elif key in PIPELINE_PATHS[pipeline] and dictA:
