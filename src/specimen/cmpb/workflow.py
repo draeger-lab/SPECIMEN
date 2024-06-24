@@ -197,7 +197,8 @@ def run(configpath:Union[str,None]=None):
     if config['gapfilling']['gap_fill_params']: 
         
         filename = Path(dir, 'cmpb', 'misc',f'{current_libmodel.getId()}_gap_analysis_{str(today)}')
-        
+        gapfilling_perfomed = True
+
         match config['gapfilling']['gap_fill_params']['db_to_compare']:
             
             case 'KEGG':
@@ -217,6 +218,9 @@ def run(configpath:Union[str,None]=None):
                     config['general']['kegg_organism_id'], config['gapfilling']['gap_fill_params']['biocyc_files'], 
                     filename
                     )
+            case 'USER' | None:
+                logging.info(f'Gapfilling skipped.')
+                gapfilling_perfomed = False
             case _:
                 logging.warning(
                     f'''
@@ -226,17 +230,18 @@ def run(configpath:Union[str,None]=None):
                     '''
                     )
                 
-        logging.info(f'Gap analysis for {current_libmodel.getId()} with {config["gapfilling"]["gap_fill_params"]["db_to_compare"]} was performed.')
-        logging.info(f'Complete Excel table is in file: {filename}.xlsx.')
+        if gapfilling_perfomed:
+            logging.info(f'Gap analysis for {current_libmodel.getId()} with {config["gapfilling"]["gap_fill_params"]["db_to_compare"]} was performed.')
+            logging.info(f'Complete Excel table is in file: {filename}.xlsx.')
 
-        # save model
-        if config['general']['save_all_models']:
-            write_model_to_file(current_libmodel, Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_autofilled_gaps.xml'))
-            current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_autofilled_gaps.xml')
-        else:
-            write_model_to_file(current_libmodel, current_modelpath)
-            
-        logging.info(f'Gaps were filled automatically in {current_libmodel.getId()}.')
+            # save model
+            if config['general']['save_all_models']:
+                write_model_to_file(current_libmodel, Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_autofilled_gaps.xml'))
+                current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_autofilled_gaps.xml')
+            else:
+                write_model_to_file(current_libmodel, current_modelpath)
+                
+            logging.info(f'Gaps were filled automatically in {current_libmodel.getId()}.')
                 
     if config['gapfilling']['gap_fill_file']: 
         current_libmodel = gapfill_model(current_libmodel, config['gapfilling']['gap_fill_file'])
