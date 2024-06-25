@@ -435,6 +435,7 @@ def run(configpath:Union[str,None]=None):
 # @TODO / @IDEAS Add option to have specific colour list per model for plots
     # for the comparison when runnin this on multiple models
 # @TODO Maybe get models at first and then add model IDs to every save filename?
+# @TODO Add optional FROG report at end of pipeline
 
 # run for multiple models
 def wrapper():
