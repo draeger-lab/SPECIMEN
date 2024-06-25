@@ -1,7 +1,7 @@
 PGAB: From genome sequence to draft model
 =========================================
 
-PGAB: PGAP based pipeline
+PGAB: PGAP-based pipeline
 
 .. note::
 
@@ -32,7 +32,7 @@ workflow in Figure :numref:`pgab_workflow` can be used.
 
 .. _pgab_workflow:
 
-.. figure:: images/genome2draft.png
+.. figure:: images/pgab_pipeline-overview.png
   :alt: Workflow from genome sequence to a draft model
 
-  Workflow from genome sequence to a draft model
+  Workflow from genome sequence to a draft model.

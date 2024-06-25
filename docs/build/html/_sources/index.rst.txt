@@ -23,7 +23,7 @@ Currently, ``SPECIMEN`` includes the following pipelines (for a summary refer to
 
 .. raw:: html
 
-  <a class="reference external image-reference" href="overview-pipes.html">
+  <a class="reference external image-reference" href="cmpb/about-pipeline.html">
     <img src='_images/cmpb.png' alt='CMPB' title='CMPB' style="width: 30%;">
   </a>
 
