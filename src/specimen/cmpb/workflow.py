@@ -115,9 +115,7 @@ def run(configpath:Union[str,None]=None):
     if not configpath:
         config = save_cmpb_user_input(Path('cmpb_out', 'logs', 'config_user.yaml')) 
     else:
-        with open(configpath, "r") as cfg:
-            config = yaml.load(cfg, Loader=yaml.loader.FullLoader)
-            config = validate_config(cfg, 'cmpb') 
+        config = validate_config(configpath, 'cmpb') 
 
     if not config['general']['save_all_models']:
         only_modelpath = Path(dir,'cmpb_out','model.xml') # @TODO Use model ID here...
