@@ -8,6 +8,10 @@ authors = [
   { name="Carolin Brune"},
   { name="Gwendolyn O. Döbel"},
 ]
+maintainers = [
+  {name = "Nina Roßbach"}
+]
+
 description = "SPECIMEN: A collection of workflows for strain-specific metabolic modelling."
 readme = "README.md"
 version = "1.0.0"

@@ -30,7 +30,7 @@ from refinegems.curation.polish import polish
 from refinegems.utility.connections import run_memote, perform_mcc, adjust_BOF, run_SBOannotator
 from refinegems.utility.io import load_model, write_model_to_file
 
-from ..util.set_up import save_cmpb_user_input,validate_config
+from ..util.set_up import save_cmpb_user_input, validate_config
 
 ################################################################################
 # functions
