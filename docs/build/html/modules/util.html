@@ -19,7 +19,7 @@
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="../_static/documentation_options.js?v=8d563738"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
         <script src="../_static/copybutton.js?v=7859de39"></script>
@@ -108,6 +108,69 @@
 <section id="module-specimen.util.set_up">
 <span id="specimen-util-set-up-module"></span><h2>specimen.util.set_up module<a class="headerlink" href="#module-specimen.util.set_up" title="Link to this heading"></a></h2>
 <p>Collection of functions for setting up the environment for the pipelines.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="specimen.util.set_up.CMPB_CONFIG_PATHS">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">CMPB_CONFIG_PATHS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['annotated_genome',</span> <span class="pre">'mediapath',</span> <span class="pre">'modelpath',</span> <span class="pre">'dir',</span> <span class="pre">'refseq_gff',</span> <span class="pre">'protein_fasta',</span> <span class="pre">'biocyc_files',</span> <span class="pre">'full_genome_sequence']</span></em><a class="headerlink" href="#specimen.util.set_up.CMPB_CONFIG_PATHS" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="specimen.util.set_up.HQTB_CONFIG_PATH_OPTIONAL">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">HQTB_CONFIG_PATH_OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['media_gap',</span> <span class="pre">'ncbi_map',</span> <span class="pre">'ncbi_dat',</span> <span class="pre">'biocyc',</span> <span class="pre">'universal',</span> <span class="pre">'pan-core']</span></em><a class="headerlink" href="#specimen.util.set_up.HQTB_CONFIG_PATH_OPTIONAL" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="specimen.util.set_up.HQTB_CONFIG_PATH_REQUIRED">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">HQTB_CONFIG_PATH_REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['annotated_genome',</span> <span class="pre">'full_sequence',</span> <span class="pre">'model',</span> <span class="pre">'diamond',</span> <span class="pre">'mnx_chem_prop',</span> <span class="pre">'mnx_chem_xref',</span> <span class="pre">'mnx_reac_prop',</span> <span class="pre">'mnx_reac_xref',</span> <span class="pre">'media_analysis']</span></em><a class="headerlink" href="#specimen.util.set_up.HQTB_CONFIG_PATH_REQUIRED" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="specimen.util.set_up.MNX_CHEM_PROP_URL">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">MNX_CHEM_PROP_URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://www.metanetx.org/cgi-bin/mnxget/mnxref/chem_prop.tsv'</span></em><a class="headerlink" href="#specimen.util.set_up.MNX_CHEM_PROP_URL" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="specimen.util.set_up.MNX_CHEM_XREF_URL">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">MNX_CHEM_XREF_URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://www.metanetx.org/cgi-bin/mnxget/mnxref/chem_xref.tsv'</span></em><a class="headerlink" href="#specimen.util.set_up.MNX_CHEM_XREF_URL" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="specimen.util.set_up.MNX_REAC_PROP_URL">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">MNX_REAC_PROP_URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://www.metanetx.org/cgi-bin/mnxget/mnxref/reac_prop.tsv'</span></em><a class="headerlink" href="#specimen.util.set_up.MNX_REAC_PROP_URL" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="specimen.util.set_up.MNX_REAC_XREF_URL">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">MNX_REAC_XREF_URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://www.metanetx.org/cgi-bin/mnxget/mnxref/reac_xref.tsv'</span></em><a class="headerlink" href="#specimen.util.set_up.MNX_REAC_XREF_URL" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="specimen.util.set_up.MNX_URL_DICT">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">MNX_URL_DICT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'chem_prop.tsv':</span> <span class="pre">'https://www.metanetx.org/cgi-bin/mnxget/mnxref/chem_prop.tsv',</span> <span class="pre">'chem_xref.tsv':</span> <span class="pre">'https://www.metanetx.org/cgi-bin/mnxget/mnxref/chem_xref.tsv',</span> <span class="pre">'reac_prop.tsv':</span> <span class="pre">'https://www.metanetx.org/cgi-bin/mnxget/mnxref/reac_prop.tsv',</span> <span class="pre">'reac_xref.tsv':</span> <span class="pre">'https://www.metanetx.org/cgi-bin/mnxget/mnxref/reac_xref.tsv'}</span></em><a class="headerlink" href="#specimen.util.set_up.MNX_URL_DICT" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="specimen.util.set_up.PIPELINE_PATHS">
+<span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">PIPELINE_PATHS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'cmpb':</span> <span class="pre">['annotated_genome',</span> <span class="pre">'mediapath',</span> <span class="pre">'modelpath',</span> <span class="pre">'dir',</span> <span class="pre">'refseq_gff',</span> <span class="pre">'protein_fasta',</span> <span class="pre">'biocyc_files',</span> <span class="pre">'full_genome_sequence'],</span> <span class="pre">'hqtb':</span> <span class="pre">['media_gap',</span> <span class="pre">'ncbi_map',</span> <span class="pre">'ncbi_dat',</span> <span class="pre">'biocyc',</span> <span class="pre">'universal',</span> <span class="pre">'pan-core',</span> <span class="pre">'annotated_genome',</span> <span class="pre">'full_sequence',</span> <span class="pre">'model',</span> <span class="pre">'diamond',</span> <span class="pre">'mnx_chem_prop',</span> <span class="pre">'mnx_chem_xref',</span> <span class="pre">'mnx_reac_prop',</span> <span class="pre">'mnx_reac_xref',</span> <span class="pre">'media_analysis']}</span></em><a class="headerlink" href="#specimen.util.set_up.PIPELINE_PATHS" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="specimen.util.set_up.build_data_directories">
 <span class="sig-prename descclassname"><span class="pre">specimen.util.set_up.</span></span><span class="sig-name descname"><span class="pre">build_data_directories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'hqtb'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'high-quality</span> <span class="pre">template</span> <span class="pre">based'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'cmpb'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'carveme</span> <span class="pre">modelpolisher</span> <span class="pre">based'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2048</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/specimen/util/set_up.html#build_data_directories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#specimen.util.set_up.build_data_directories" title="Link to this definition"></a></dt>

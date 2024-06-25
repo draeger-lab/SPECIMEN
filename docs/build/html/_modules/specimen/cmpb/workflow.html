@@ -18,7 +18,7 @@
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="../../../_static/documentation_options.js?v=8d563738"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
         <script src="../../../_static/copybutton.js?v=7859de39"></script>
@@ -114,7 +114,7 @@
 <span class="kn">from</span> <span class="nn">refinegems.utility.connections</span> <span class="kn">import</span> <span class="n">run_memote</span><span class="p">,</span> <span class="n">perform_mcc</span><span class="p">,</span> <span class="n">adjust_BOF</span><span class="p">,</span> <span class="n">run_SBOannotator</span>
 <span class="kn">from</span> <span class="nn">refinegems.utility.io</span> <span class="kn">import</span> <span class="n">load_model</span><span class="p">,</span> <span class="n">write_model_to_file</span>
 
-<span class="kn">from</span> <span class="nn">..util.set_up</span> <span class="kn">import</span> <span class="n">save_cmpb_user_input</span>
+<span class="kn">from</span> <span class="nn">..util.set_up</span> <span class="kn">import</span> <span class="n">save_cmpb_user_input</span><span class="p">,</span> <span class="n">validate_config</span>
 
 <span class="c1">################################################################################</span>
 <span class="c1"># functions</span>
@@ -201,8 +201,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">configpath</span><span class="p">:</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">save_cmpb_user_input</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span> <span class="s1">&#39;logs&#39;</span><span class="p">,</span> <span class="s1">&#39;config_user.yaml&#39;</span><span class="p">))</span> 
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">configpath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cfg</span><span class="p">:</span>
-            <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">validate_config</span><span class="p">(</span><span class="n">configpath</span><span class="p">,</span> <span class="s1">&#39;cmpb&#39;</span><span class="p">)</span> 
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;save_all_models&#39;</span><span class="p">]:</span>
         <span class="n">only_modelpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;model.xml&#39;</span><span class="p">)</span> <span class="c1"># @TODO Use model ID here...</span>
@@ -237,10 +236,6 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">current_modelpath</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">][</span><span class="s1">&#39;modelpath&#39;</span><span class="p">]</span>
 
-    <span class="c1"># optional analysis</span>
-    <span class="n">current_model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">current_modelpath</span><span class="p">,</span><span class="s1">&#39;cobra&#39;</span><span class="p">)</span>
-    <span class="n">between_analysis</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s1">&#39;after_draft&#39;</span><span class="p">)</span>
-
     <span class="c1"># CarveMe correction</span>
     <span class="c1">####################</span>
 
@@ -269,12 +264,11 @@
             <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">,</span> <span class="n">only_modelpath</span><span class="p">)</span>
             <span class="n">current_modelpath</span> <span class="o">=</span> <span class="n">only_modelpath</span>
 
-
     <span class="c1"># growth test</span>
     <span class="c1"># -----------</span>
     <span class="n">current_model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">current_modelpath</span><span class="p">,</span><span class="s1">&#39;cobra&#39;</span><span class="p">)</span>
-    <span class="n">between_growth_test</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;after_CarveMe_correction&#39;</span><span class="p">)</span>
-    <span class="n">between_analysis</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;after_CarveMe_correction&#39;</span><span class="p">)</span>
+    <span class="n">between_growth_test</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">step</span><span class="o">=</span><span class="s1">&#39;after_draft&#39;</span><span class="p">)</span>
+    <span class="n">between_analysis</span><span class="p">(</span><span class="n">current_model</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s1">&#39;after_draft&#39;</span><span class="p">)</span>
 
 
     <span class="c1"># gapfilling</span>
@@ -283,7 +277,8 @@
     <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;gapfilling&#39;</span><span class="p">][</span><span class="s1">&#39;gap_fill_params&#39;</span><span class="p">]:</span> 
         
         <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="s1">&#39;cmpb&#39;</span><span class="p">,</span> <span class="s1">&#39;misc&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_gap_analysis_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">today</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        
+        <span class="n">gapfilling_perfomed</span> <span class="o">=</span> <span class="kc">True</span>
+
         <span class="k">match</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;gapfilling&#39;</span><span class="p">][</span><span class="s1">&#39;gap_fill_params&#39;</span><span class="p">][</span><span class="s1">&#39;db_to_compare&#39;</span><span class="p">]:</span>
             
             <span class="k">case</span> <span class="s1">&#39;KEGG&#39;</span><span class="p">:</span>
@@ -303,6 +298,9 @@
                     <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;kegg_organism_id&#39;</span><span class="p">],</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;gapfilling&#39;</span><span class="p">][</span><span class="s1">&#39;gap_fill_params&#39;</span><span class="p">][</span><span class="s1">&#39;biocyc_files&#39;</span><span class="p">],</span> 
                     <span class="n">filename</span>
                     <span class="p">)</span>
+            <span class="k">case</span> <span class="s1">&#39;USER&#39;</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Gapfilling skipped.&#39;</span><span class="p">)</span>
+                <span class="n">gapfilling_perfomed</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s1">&#39;&#39;&#39;</span>
@@ -312,17 +310,18 @@
 <span class="s1">                    &#39;&#39;&#39;</span>
                     <span class="p">)</span>
                 
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Gap analysis for </span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1"> with </span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gapfilling&quot;</span><span class="p">][</span><span class="s2">&quot;gap_fill_params&quot;</span><span class="p">][</span><span class="s2">&quot;db_to_compare&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> was performed.&#39;</span><span class="p">)</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Complete Excel table is in file: </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">.xlsx.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">gapfilling_perfomed</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Gap analysis for </span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1"> with </span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gapfilling&quot;</span><span class="p">][</span><span class="s2">&quot;gap_fill_params&quot;</span><span class="p">][</span><span class="s2">&quot;db_to_compare&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> was performed.&#39;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Complete Excel table is in file: </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">.xlsx.&#39;</span><span class="p">)</span>
 
-        <span class="c1"># save model</span>
-        <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;save_all_models&#39;</span><span class="p">]:</span>
-            <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_autofilled_gaps.xml&#39;</span><span class="p">))</span>
-            <span class="n">current_modelpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_autofilled_gaps.xml&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">,</span> <span class="n">current_modelpath</span><span class="p">)</span>
-            
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Gaps were filled automatically in </span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+            <span class="c1"># save model</span>
+            <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;save_all_models&#39;</span><span class="p">]:</span>
+                <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_autofilled_gaps.xml&#39;</span><span class="p">))</span>
+                <span class="n">current_modelpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span><span class="s1">&#39;cmpb_out&#39;</span><span class="p">,</span><span class="s1">&#39;models&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">_autofilled_gaps.xml&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">write_model_to_file</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">,</span> <span class="n">current_modelpath</span><span class="p">)</span>
+                
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Gaps were filled automatically in </span><span class="si">{</span><span class="n">current_libmodel</span><span class="o">.</span><span class="n">getId</span><span class="p">()</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
                 
     <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;gapfilling&#39;</span><span class="p">][</span><span class="s1">&#39;gap_fill_file&#39;</span><span class="p">]:</span> 
         <span class="n">current_libmodel</span> <span class="o">=</span> <span class="n">gapfill_model</span><span class="p">(</span><span class="n">current_libmodel</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;gapfilling&#39;</span><span class="p">][</span><span class="s1">&#39;gap_fill_file&#39;</span><span class="p">])</span>

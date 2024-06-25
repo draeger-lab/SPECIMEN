@@ -74,3 +74,7 @@ numfig = True
 
 # Explicitly assign the master document
 master_doc = 'index'
+
+# -- Autodoc -----------------------------------------------------------------
+
+autodoc_preserve_defaults = True

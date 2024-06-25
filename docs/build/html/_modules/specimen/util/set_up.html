@@ -18,7 +18,7 @@
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="../../../_static/documentation_options.js?v=8d563738"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
         <script src="../../../_static/copybutton.js?v=7859de39"></script>
@@ -92,9 +92,9 @@
 <span class="c1">################################################################################</span>
 
 <span class="kn">import</span> <span class="nn">click</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">requests</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
@@ -111,24 +111,24 @@
 
 <span class="c1"># config keys</span>
 <span class="c1"># -----------</span>
-<span class="n">HQTB_CONFIG_PATH_OPTIONAL</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;media_gap&#39;</span><span class="p">,</span> <span class="s1">&#39;ncbi_map&#39;</span><span class="p">,</span> <span class="s1">&#39;ncbi_dat&#39;</span><span class="p">,</span><span class="s1">&#39;biocyc&#39;</span><span class="p">,</span><span class="s1">&#39;universal&#39;</span><span class="p">,</span><span class="s1">&#39;pan-core&#39;</span><span class="p">]</span>
+<span class="n">HQTB_CONFIG_PATH_OPTIONAL</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;media_gap&#39;</span><span class="p">,</span> <span class="s1">&#39;ncbi_map&#39;</span><span class="p">,</span> <span class="s1">&#39;ncbi_dat&#39;</span><span class="p">,</span><span class="s1">&#39;biocyc&#39;</span><span class="p">,</span><span class="s1">&#39;universal&#39;</span><span class="p">,</span><span class="s1">&#39;pan-core&#39;</span><span class="p">]</span> <span class="c1">#: :meta: </span>
 <span class="n">HQTB_CONFIG_PATH_REQUIRED</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;annotated_genome&#39;</span><span class="p">,</span><span class="s1">&#39;full_sequence&#39;</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;diamond&#39;</span><span class="p">,</span>
                              <span class="s1">&#39;mnx_chem_prop&#39;</span><span class="p">,</span> <span class="s1">&#39;mnx_chem_xref&#39;</span><span class="p">,</span><span class="s1">&#39;mnx_reac_prop&#39;</span><span class="p">,</span><span class="s1">&#39;mnx_reac_xref&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;media_analysis&#39;</span><span class="p">]</span>
+                             <span class="s1">&#39;media_analysis&#39;</span><span class="p">]</span> <span class="c1">#: :meta: </span>
 <span class="n">CMPB_CONFIG_PATHS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;annotated_genome&#39;</span><span class="p">,</span><span class="s1">&#39;mediapath&#39;</span><span class="p">,</span><span class="s1">&#39;modelpath&#39;</span><span class="p">,</span><span class="s1">&#39;dir&#39;</span><span class="p">,</span><span class="s1">&#39;refseq_gff&#39;</span><span class="p">,</span><span class="s1">&#39;protein_fasta&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;biocyc_files&#39;</span><span class="p">,</span><span class="s1">&#39;full_genome_sequence&#39;</span><span class="p">]</span>
+                     <span class="s1">&#39;biocyc_files&#39;</span><span class="p">,</span><span class="s1">&#39;full_genome_sequence&#39;</span><span class="p">]</span> <span class="c1">#: :meta: </span>
 <span class="n">PIPELINE_PATHS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;hqtb&#39;</span><span class="p">:</span><span class="n">HQTB_CONFIG_PATH_OPTIONAL</span><span class="o">+</span><span class="n">HQTB_CONFIG_PATH_REQUIRED</span><span class="p">,</span>
-                  <span class="s1">&#39;cmpb&#39;</span><span class="p">:</span><span class="n">CMPB_CONFIG_PATHS</span><span class="p">}</span>
+                  <span class="s1">&#39;cmpb&#39;</span><span class="p">:</span><span class="n">CMPB_CONFIG_PATHS</span><span class="p">}</span> <span class="c1">#: :meta: </span>
 
 
 <span class="c1"># external databases</span>
 <span class="c1"># ------------------</span>
-<span class="n">MNX_CHEM_XREF_URL</span> <span class="o">=</span> <span class="s1">&#39;https://www.metanetx.org/cgi-bin/mnxget/mnxref/chem_xref.tsv&#39;</span>
-<span class="n">MNX_CHEM_PROP_URL</span> <span class="o">=</span> <span class="s1">&#39;https://www.metanetx.org/cgi-bin/mnxget/mnxref/chem_prop.tsv&#39;</span>
-<span class="n">MNX_REAC_XREF_URL</span> <span class="o">=</span> <span class="s1">&#39;https://www.metanetx.org/cgi-bin/mnxget/mnxref/reac_xref.tsv&#39;</span>
-<span class="n">MNX_REAC_PROP_URL</span> <span class="o">=</span> <span class="s1">&#39;https://www.metanetx.org/cgi-bin/mnxget/mnxref/reac_prop.tsv&#39;</span>
+<span class="n">MNX_CHEM_XREF_URL</span> <span class="o">=</span> <span class="s1">&#39;https://www.metanetx.org/cgi-bin/mnxget/mnxref/chem_xref.tsv&#39;</span> <span class="c1">#: :meta: </span>
+<span class="n">MNX_CHEM_PROP_URL</span> <span class="o">=</span> <span class="s1">&#39;https://www.metanetx.org/cgi-bin/mnxget/mnxref/chem_prop.tsv&#39;</span> <span class="c1">#: :meta: </span>
+<span class="n">MNX_REAC_XREF_URL</span> <span class="o">=</span> <span class="s1">&#39;https://www.metanetx.org/cgi-bin/mnxget/mnxref/reac_xref.tsv&#39;</span> <span class="c1">#: :meta: </span>
+<span class="n">MNX_REAC_PROP_URL</span> <span class="o">=</span> <span class="s1">&#39;https://www.metanetx.org/cgi-bin/mnxget/mnxref/reac_prop.tsv&#39;</span> <span class="c1">#: :meta: </span>
 <span class="n">MNX_URL_DICT</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;chem_prop.tsv&#39;</span><span class="p">:</span><span class="n">MNX_CHEM_PROP_URL</span><span class="p">,</span> <span class="s1">&#39;chem_xref.tsv&#39;</span><span class="p">:</span><span class="n">MNX_CHEM_XREF_URL</span><span class="p">,</span>
-                <span class="s1">&#39;reac_prop.tsv&#39;</span><span class="p">:</span><span class="n">MNX_REAC_PROP_URL</span><span class="p">,</span> <span class="s1">&#39;reac_xref.tsv&#39;</span><span class="p">:</span><span class="n">MNX_REAC_XREF_URL</span><span class="p">}</span>
+                <span class="s1">&#39;reac_prop.tsv&#39;</span><span class="p">:</span><span class="n">MNX_REAC_PROP_URL</span><span class="p">,</span> <span class="s1">&#39;reac_xref.tsv&#39;</span><span class="p">:</span><span class="n">MNX_REAC_XREF_URL</span><span class="p">}</span> <span class="c1">#: :meta: </span>
 
 <span class="c1">################################################################################</span>
 <span class="c1"># functions</span>
@@ -351,8 +351,8 @@
             <span class="c1"># optional/requires stuff </span>
             <span class="k">elif</span> <span class="n">dictA</span> <span class="o">==</span> <span class="s1">&#39;USER&#39;</span><span class="p">:</span>
                 <span class="c1"># @TODO </span>
-                <span class="n">mes</span> <span class="o">=</span> <span class="s1">&#39;Keyword USER detected in config. Either due to skipped options or missing required information.&#39;</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">mes</span><span class="p">)</span>
+                <span class="n">mes</span> <span class="o">=</span> <span class="s1">&#39;Keyword USER detected in config. Either due to skipped options or missing required information.</span><span class="se">\n</span><span class="s1">Reminder: this may lead to downstream problems.&#39;</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">mes</span><span class="p">)</span>
 
             <span class="c1"># check paths</span>
             <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">PIPELINE_PATHS</span><span class="p">[</span><span class="n">pipeline</span><span class="p">]</span> <span class="ow">and</span> <span class="n">dictA</span><span class="p">:</span>

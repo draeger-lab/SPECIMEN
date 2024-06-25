@@ -27,24 +27,24 @@ from refinegems.utility.set_up import download_config as rg_config
 
 # config keys
 # -----------
-HQTB_CONFIG_PATH_OPTIONAL = ['media_gap', 'ncbi_map', 'ncbi_dat','biocyc','universal','pan-core']
+HQTB_CONFIG_PATH_OPTIONAL = ['media_gap', 'ncbi_map', 'ncbi_dat','biocyc','universal','pan-core'] #: :meta: 
 HQTB_CONFIG_PATH_REQUIRED = ['annotated_genome','full_sequence','model','diamond',
                              'mnx_chem_prop', 'mnx_chem_xref','mnx_reac_prop','mnx_reac_xref',
-                             'media_analysis']
+                             'media_analysis'] #: :meta: 
 CMPB_CONFIG_PATHS = ['annotated_genome','mediapath','modelpath','dir','refseq_gff','protein_fasta',
-                     'biocyc_files','full_genome_sequence']
+                     'biocyc_files','full_genome_sequence'] #: :meta: 
 PIPELINE_PATHS = {'hqtb':HQTB_CONFIG_PATH_OPTIONAL+HQTB_CONFIG_PATH_REQUIRED,
-                  'cmpb':CMPB_CONFIG_PATHS}
+                  'cmpb':CMPB_CONFIG_PATHS} #: :meta: 
 
 
 # external databases
 # ------------------
-MNX_CHEM_XREF_URL = 'https://www.metanetx.org/cgi-bin/mnxget/mnxref/chem_xref.tsv'
-MNX_CHEM_PROP_URL = 'https://www.metanetx.org/cgi-bin/mnxget/mnxref/chem_prop.tsv'
-MNX_REAC_XREF_URL = 'https://www.metanetx.org/cgi-bin/mnxget/mnxref/reac_xref.tsv'
-MNX_REAC_PROP_URL = 'https://www.metanetx.org/cgi-bin/mnxget/mnxref/reac_prop.tsv'
+MNX_CHEM_XREF_URL = 'https://www.metanetx.org/cgi-bin/mnxget/mnxref/chem_xref.tsv' #: :meta: 
+MNX_CHEM_PROP_URL = 'https://www.metanetx.org/cgi-bin/mnxget/mnxref/chem_prop.tsv' #: :meta: 
+MNX_REAC_XREF_URL = 'https://www.metanetx.org/cgi-bin/mnxget/mnxref/reac_xref.tsv' #: :meta: 
+MNX_REAC_PROP_URL = 'https://www.metanetx.org/cgi-bin/mnxget/mnxref/reac_prop.tsv' #: :meta: 
 MNX_URL_DICT = {'chem_prop.tsv':MNX_CHEM_PROP_URL, 'chem_xref.tsv':MNX_CHEM_XREF_URL,
-                'reac_prop.tsv':MNX_REAC_PROP_URL, 'reac_xref.tsv':MNX_REAC_XREF_URL}
+                'reac_prop.tsv':MNX_REAC_PROP_URL, 'reac_xref.tsv':MNX_REAC_XREF_URL} #: :meta: 
 
 ################################################################################
 # functions
