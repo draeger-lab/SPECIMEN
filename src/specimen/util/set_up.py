@@ -27,14 +27,18 @@ from refinegems.utility.set_up import download_config as rg_config
 
 # config keys
 # -----------
+
+# config keys for pipeline files
 HQTB_CONFIG_PATH_OPTIONAL = ['media_gap', 'ncbi_map', 'ncbi_dat','biocyc','universal','pan-core'] #: :meta: 
 HQTB_CONFIG_PATH_REQUIRED = ['annotated_genome','full_sequence','model','diamond',
                              'mnx_chem_prop', 'mnx_chem_xref','mnx_reac_prop','mnx_reac_xref',
                              'media_analysis'] #: :meta: 
-CMPB_CONFIG_PATHS = ['annotated_genome','mediapath','modelpath','dir','refseq_gff','protein_fasta',
+CMPB_CONFIG_PATHS = ['annotated_genome','mediapath','modelpath','refseq_gff','protein_fasta',
                      'biocyc_files','full_genome_sequence'] #: :meta: 
 PIPELINE_PATHS = {'hqtb':HQTB_CONFIG_PATH_OPTIONAL+HQTB_CONFIG_PATH_REQUIRED,
                   'cmpb':CMPB_CONFIG_PATHS} #: :meta: 
+# config keys for pipelines directories
+PIPELINE_DIR_PATHS = ['dir']
 
 
 # external databases
@@ -259,7 +263,8 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
                 mes = 'Keyword USER detected in config. Either due to skipped options or missing required information.\nReminder: this may lead to downstream problems.'
                 logging.warning(mes)
 
-            # check paths
+            # check paths (files)
+            # @TODO : difference requird and optional?
             elif key in PIPELINE_PATHS[pipeline] and dictA:
                 if isinstance(dictA,str) and os.path.isfile(dictA):
                     return
@@ -271,7 +276,12 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
                             raise FileNotFoundError(F'Path does not exist: {f}')
                 else:
                     raise FileNotFoundError(F'Path does not exist: {dictA}')
-    
+            # check paths (directories)
+            elif key in PIPELINE_DIR_PATHS and dictA:
+                if isinstance(dictA,str) and os.path.exists(dictA):
+                    return
+                else:
+                    raise FileNotFoundError(F'Path does not exist: {dictA}')
             else:
                 pass
                 # @TODO
