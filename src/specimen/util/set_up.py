@@ -348,6 +348,9 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
     # combine
     combined_config = dict_recursive_combine(config_d, config_u)
 
+    # overwrite __USER__ and USER
+    combined_config = dict_recursive_overwrite(combined_config)
+
     # check for missing or problematic values
     # special case for HQTB pipeline with relative paths
     if 'data' in combined_config.keys() and 'data_direc' in combined_config['data'].keys() and combined_config['data']['data_direc']:
