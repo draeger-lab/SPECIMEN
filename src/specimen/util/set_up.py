@@ -33,10 +33,13 @@ HQTB_CONFIG_PATH_OPTIONAL = ['media_gap', 'ncbi_map', 'ncbi_dat','biocyc','unive
 HQTB_CONFIG_PATH_REQUIRED = ['annotated_genome','full_sequence','model','diamond',
                              'mnx_chem_prop', 'mnx_chem_xref','mnx_reac_prop','mnx_reac_xref',
                              'media_analysis'] #: :meta: 
-CMPB_CONFIG_PATHS = ['annotated_genome','mediapath','modelpath','refseq_gff','protein_fasta',
+CMPB_CONFIG_PATHS_REQUIRED = ['annotated_genome','mediapath','modelpath','refseq_gff','protein_fasta',
                      'biocyc_files','full_genome_sequence'] #: :meta: 
-PIPELINE_PATHS = {'hqtb':HQTB_CONFIG_PATH_OPTIONAL+HQTB_CONFIG_PATH_REQUIRED,
-                  'cmpb':CMPB_CONFIG_PATHS} #: :meta: 
+CMPB_CONFIG_PATHS_OPTIONAL = [] # :meta:
+PIPELINE_PATHS_OPTIONAL = {'hqtb':HQTB_CONFIG_PATH_OPTIONAL,
+                  'cmpb':CMPB_CONFIG_PATHS_OPTIONAL} #: :meta: 
+PIPELINE_PATHS_REQUIRED = {'hqtb':HQTB_CONFIG_PATH_REQUIRED,
+                  'cmpb':CMPB_CONFIG_PATHS_REQUIRED} #: :meta: 
 # config keys for pipelines directories
 PIPELINE_DIR_PATHS = ['dir']
 
@@ -210,7 +213,7 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
             The validated, read-in configuration file, nested (read-in yaml file).
     """
     def dict_recursive_combine(dictA:dict, dictB:dict) -> dict:
-        """Helper-function for :py:func:`~specimen.util.set_up.validate_hqtb_config` to combine two configuration file.
+        """Helper-function for :py:func:`~specimen.util.set_up.validate_config` to combine two configuration file.
 
         Args:
             - dictA (dict): 
@@ -228,6 +231,36 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
         for key in dictA.keys():
             if key in dictB.keys():
                 dictA[key] = dict_recursive_combine(dictA[key], dictB[key])
+        return dictA
+    
+    def dict_recursive_overwrite(dictA:dict) -> dict:
+        """Helper-function for :py:func:`~specimen.util.set_up.validate_config` to combine two configuration file.
+
+        Args:
+            - dictA (dict): 
+                The dictionary to validate
+
+        Raises:
+            - TypeError: Missing file/path
+
+        Returns:
+            dict: 
+                the Dictionary with USER overwritten as None
+        """
+
+        if not isinstance(dictA,dict):
+            # check for missing input
+            if dictA == '__USER__':
+                raise TypeError(F'Missing a required argument in the config file')
+            elif dictA == 'USER':
+                # @TODO 
+                mes = 'Keyword USER detected in config. Either due to skipped options or missing required information.\nReminder: this may lead to downstream problems.'
+                logging.warning(mes)
+                return None
+            return dictA
+
+        for key in dictA.keys():
+            dictA[key] = dict_recursive_overwrite(dictA)
         return dictA
 
 
@@ -252,41 +285,44 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
         """
 
         if not isinstance(dictA,dict):
-
-            # definitly missing, but required input
-            if dictA == '__USER__':
-                raise TypeError(F'Missing a required argument in the config file: {key}')
-            
-            # optional/requires stuff 
-            elif dictA == 'USER':
-                # @TODO 
-                mes = 'Keyword USER detected in config. Either due to skipped options or missing required information.\nReminder: this may lead to downstream problems.'
-                logging.warning(mes)
-
-            # check paths (files)
-            # @TODO : difference requird and optional?
-            elif key in PIPELINE_PATHS[pipeline] and dictA:
-                if isinstance(dictA,str) and os.path.isfile(dictA):
+            # required file paths
+            if key in PIPELINE_PATHS_REQUIRED[pipeline]: 
+                if dictA and os.path.isfile(dictA):
                     return
-                elif isinstance(dictA,list):
-                    for f in dictA:
-                        if os.path.isfile(f):
+                else: 
+                    raise FileNotFoundError(F'Path does not exist: {dictA}')
+            # missing optional file
+            elif key in PIPELINE_PATHS_OPTIONAL and not dictA:
+                # @TODO, already warning in Overwrite?
+                return 
+            # optional file paths
+            elif key in PIPELINE_PATHS_OPTIONAL:
+                if isinstance(str,dictA):
+                    if os.path.isfile(dictA):
+                        return
+                    else: 
+                        raise FileNotFoundError(F'Path does not exist: {dictA}')
+                if isinstance(list,dictA):
+                    for entry in dictA:
+                        if dictA and os.path.isfile(dictA):
+                            return
+                        elif not dictA:
+                            # @TODO
                             pass
-                        else:
-                            raise FileNotFoundError(F'Path does not exist: {f}')
-                else:
-                    raise FileNotFoundError(F'Path does not exist: {dictA}')
-            # check paths (directories)
-            elif key in PIPELINE_DIR_PATHS and dictA:
-                if isinstance(dictA,str) and os.path.exists(dictA):
+                        else: 
+                            raise FileNotFoundError(F'Path does not exist: {dictA}')
+            elif key in PIPELINE_DIR_PATHS:
+                if dictA and os.path.exists(dictA):
                     return
                 else:
-                    raise FileNotFoundError(F'Path does not exist: {dictA}')
+                    raise FileNotFoundError(F'Directory does not exist: {dictA}')
+            # not found or missing
             else:
-                pass
                 # @TODO
-                #   extend function to cover more of the options
+                pass
+                
             return
+
         else:
             for key in dictA.keys():
                 dict_recursive_check(dictA[key], key, pipeline)
