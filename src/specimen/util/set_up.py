@@ -257,10 +257,11 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
                 mes = 'Keyword USER detected in config. Either due to skipped options or missing required information.\nReminder: this may lead to downstream problems.'
                 logging.warning(mes)
                 return None
-            return dictA
+            else:
+                return dictA
 
         for key in dictA.keys():
-            dictA[key] = dict_recursive_overwrite(dictA)
+            dictA[key] = dict_recursive_overwrite(dictA[key])
         return dictA
 
 
