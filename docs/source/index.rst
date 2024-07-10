@@ -7,10 +7,9 @@ Welcome to SPECIMEN!
 ``SPECIMEN`` is a Python package that contains a growing collection of workflows for the 
 automated curation of high-quality, ideally strain-specific, genome-scale metabolic models (GEMs).
 
-These workflows are mainly based on the `refineGEMs <https://github.com/draeger-lab/refinegems>`__ :footcite:p:`bauerle2023genome` toolbox.
+These workflows are mainly based on the `refineGEMs <https://github.com/draeger-lab/refinegems/tree/dev-2>`__ :footcite:p:`bauerle2023genome` toolbox.
 
-Additionally, ``SPECIMEN`` allows the use of most of the functions and 
-steps of the different pipelines separatly.
+Additionally, most of the functions and steps of the different pipelines in ``SPECIMEN`` can be used separatly.
 
 Available Pipelines
 -------------------
