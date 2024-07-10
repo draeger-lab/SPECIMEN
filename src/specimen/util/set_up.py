@@ -199,7 +199,13 @@ def download_config(filename:str='my_basic_config.yaml', type:Literal['hqtb-basi
 def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
     """Validate a user hqtb config file for use in the pipeline.
 
-    Note: currently not everything is checked, mainly the needed files are.
+    .. note::
+    
+        Currently not everything is checked, mainly the needed files are.
+
+    .. warning::
+
+        Currently working not perfectly, under construction
 
     Args:
         - userc (str): 

@@ -6,7 +6,6 @@ The specimen.cmd_access submodule
    :undoc-members:
    :show-inheritance:
 
-
 After a successfull installation, ``SPECIMEN`` can be accessed via the command line
 from inside the Python environment it was installed in using:
 
@@ -16,7 +15,8 @@ from inside the Python environment it was installed in using:
 
 The following commands are available:
 
-- ``run`` : Run the whole pipeline or a specific step.
+- ``cmpb`` : Pipeline for GEM curation based on CarveMe model and ModelPolisher.
+- ``hqtb`` : Pipeline for GEM curation based on a high-quality template.
 - ``setup`` : Setup structure, data and more.
 
 
@@ -41,27 +41,31 @@ Options:
 
 .. code:: bash
 
-   specimen data structure
+   specimen data structure [PIPELINE]
 
 Setup a directory with the basic structure for the data needed for the pipeline.
+
+Argument:
+
+- ``PIPELINE``: The name of the pipeline to setup the structure for.
 
 Options:
 
 - ``--dir/-d``: Name/Path of the directory
 - ``--chunk-size/-s``: Parameter for doenloading files from the web.
 
-specimen run 
-------------
+specimen hqtb 
+-------------
 
 .. code:: bash
 
-   specimen run pipeline [CONFIG]
+   specimen hqtb run_pipeline [CONFIG]
 
 Run the complete pipeline with a configuration file as input.
 
 .. code:: bash 
 
-   specimen run wrapper [CONFIG]
+   specimen hqtb run_wrapper [CONFIG]
    
 Run the pipeline using a config on a directory containing multiple input genomes.
 
@@ -71,7 +75,7 @@ Options:
 
 .. code:: bash 
 
-   specimen run bdb [TEMPLATE] [INPUT]
+   specimen hqtb bdb [TEMPLATE] [INPUT]
 
 Run step 1: bidirectional BLAST of the pipeline. Requires the input and template genome as input.
 
@@ -87,7 +91,7 @@ Options:
 
 .. code:: bash
 
-   specimen run draft [TEMPLATE] [BPBBH]
+   specimen hqtb draft [TEMPLATE] [BPBBH]
 
 Run step 2: generate draft model of the pipeline. Requires the results of the bidirectional BLAST 
 and the template model as input.
@@ -104,7 +108,7 @@ Options:
 
 .. code:: bash 
 
-   specimen run validation [MODEL]
+   specimen hqtb validation [MODEL]
 
 Run step 4: validation on a model.
 
@@ -115,7 +119,7 @@ Options:
 
 .. code:: bash 
 
-   specimen run analysis [MODEL]
+   specimen hqtb analysis [MODEL]
 
 Run step 5: analysis on a model.
 
@@ -129,14 +133,14 @@ Options:
 - ``--test-aa-auxotrophies/--taa``: Option to test media/model for auxotrophies.
 - ``--pathway/--pathway-analysis``: Option to perform a pathway analysis using KEGG pathway identifiers.
 
-specimen run refinement
-^^^^^^^^^^^^^^^^^^^^^^^
+specimen hqtb refinement
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Run the different parts of the step 3: refinement of the pipeline.
 
 .. code:: bash
 
-   specimen run refinement extension 
+   specimen hqtb refinement extension 
 
 Run the first part, extension.
 
@@ -167,7 +171,7 @@ Further options:
 
 .. code:: bash
 
-   specimen run refinement cleanup [MODEL]
+   specimen hqtb refinement cleanup [MODEL]
 
 Based on a draft model, run the second part of refinement, cleanup.
 
@@ -190,7 +194,7 @@ Options:
 
 .. code:: bash
 
-   specimen run refinement annotation [MODEL]
+   specimen hqtb refinement annotation [MODEL]
    
 Run the thrid part of the refinement, annotation, on a given model.
 
@@ -203,7 +207,7 @@ Options:
 
 .. code:: bash 
 
-   specimen run refinement smoothing [MODEL]
+   specimen hqtb refinement smoothing [MODEL]
 
 Required Options:
 
@@ -218,3 +222,12 @@ Further Options:
 - ``--dna_weight_frac``: DNA macromolecular weight fraction for your organism. Default is 0.023 for Klebsiella based on Liao et al.
 - ``--ion_weight_frac``: weight fraction for the coenzymes and ions. Default is 0.05 based on the default of BOFdat.
 - ``--memote``: Use memote on the extended model.
+
+specimen cmpb
+-------------
+
+.. code:: bash
+
+   specimen cmpb run [CONFIG]
+
+Run the complete pipeline with a configuration file as input.

@@ -14,10 +14,6 @@ import click
 # entry points
 ################################################################################
 
-###############################
-# unchanged
-###############################
-
 @click.group()
 @click.help_option("--help", "-h")
 @click.version_option()
@@ -71,6 +67,7 @@ def data_structure(pipeline, dir, chunk_size):
 #################
 # hqtb pipeline #
 #################
+
 @cli.group()
 def hqtb():
     """Pipeline for GEM curation based on a high-quality template."""
@@ -123,9 +120,6 @@ def bdb(template, input, template_name, input_name, temp_header, in_header, dir,
     """
     specimen.core.bidirectional_blast.run(template, input, dir,template_name, input_name, temp_header, in_header, threads, extra_info=['locus_tag', 'product', 'protein_id'], sensitivity=sensitivity)
 
-###############################
-# below untested, but corrected
-###############################
 
 # generafte draft
 # ---------------
@@ -266,9 +260,6 @@ def cleanup(model,
         chunk_size,
         memote)
     
-###############################
-# unchanged
-###############################
 
 @refinement.command()
 @click.argument('model', type=str)
@@ -293,9 +284,6 @@ def annotation(model,dir,kegg_via_ec,kegg_via_rc,memote):
                                             memote=memote)
 
 
-###############################
-# below untested, but corrected
-###############################
 
 @refinement.command()
 @click.argument('model',type=str)
@@ -326,10 +314,6 @@ def smoothing(model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, egc, na
                                            dna_weight_frac, ion_weight_frac, 
                                            memote)
 
-
-#######################
-     # below OK #
-#######################
 
 # validation
 # ----------
