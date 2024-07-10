@@ -14,7 +14,7 @@ maintainers = [
 
 description = "SPECIMEN: A collection of workflows for strain-specific metabolic modelling."
 readme = "README.md"
-version = "1.0.0"
+version = "0.0.dev0"
 requires-python = ">=3.10"
 license = {text = "GPL-3.0"}
 keywords = ['Systems Biology', 'GEM', 'Metabolic Modelling', 'Python Package', 'Pipeline']
@@ -31,8 +31,7 @@ classifiers = [
 
 dependencies = [
     # 'refinegems>=2.0', # has all other needed dependancies
-    'requests>=2.32.2',
-    'tqdm>=4.66.1',
+    "refinegems@git+https://github.com/draeger-lab/refinegems@dev-2",
 ]
 # @TODO
 # additional missing tools:
