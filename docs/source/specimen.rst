@@ -3,7 +3,7 @@ Contents of SPECIMEN
 
 The ``SPECIMEN`` package contains a number of modules and subpackages, which are listed below.
 
-To seach by name, use the :ref:`genindex`, for a list of the modules, see :ref:`modindex`.
+To search by name, use the :ref:`genindex`, for a list of the modules, see :ref:`modindex`.
 
 specimen subpackages
 --------------------
