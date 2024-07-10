@@ -16,7 +16,7 @@ CMPB: Quickstart
     The CarveMe connection will be added in a future update.
 
 The pipeline can either be run directly from the command line or its functions can be called from inside a Python script.
-The input in both cases is a configuration file that contains all information needed (data file paths and parameters) to run it.
+The input in both cases is a `configuration file <cmpb-config.html>`__ that contains all information needed (data file paths and parameters) to run it.
 
 The configuration can be downloaded using the command line:
 
