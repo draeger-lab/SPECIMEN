@@ -37,10 +37,10 @@ e.g. KEGG or BioCyc to perform an automated gapfilling using `refineGEMs <https:
     Run CMPB <cmpb/run-pipeline>
     CMPB Configuration <cmpb/cmpb-config>
 
-High-quality template based (HQTB) pipeline
--------------------------------------------
+High-quality template based (``HQTB``) pipeline
+-----------------------------------------------
 
-The HQTB pipeline curates a new model from an annotated genome based on a high-quality template model 
+The ``HQTB`` pipeline curates a new model from an annotated genome based on a high-quality template model 
 (plus corresponding annotated genome) and additional database information. 
 
 This pipeline aims to profit from already performed (manual) curation of an already existing model, 
