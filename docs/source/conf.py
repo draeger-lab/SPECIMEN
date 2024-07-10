@@ -7,8 +7,8 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'SPECIMEN'
-copyright = '2024, Carolin Brune'
-author = 'Carolin Brune'
+copyright = '2024, Carolin Brune and Gwendolyn O. Döbel'
+author = 'Carolin Brune and Gwendolyn O. Döbel'
 release = '0.0.dev0'
 
 # -- Path setup --------------------------------------------------------------

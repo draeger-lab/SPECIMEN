@@ -1,9 +1,9 @@
 Help & FAQ
 ==========
 
-If you run into any problems regarding **SPECIMEN** 
+If you run into any problems regarding ``SPECIMEN``
 or have wishes and ideas for features to be included, please write an issue on our
-`github page <https://github.com/draeger-lab/SPECIMEN>`__ or contact us directly.
+`GitHub page <https://github.com/draeger-lab/SPECIMEN>`__ or contact us directly.
 
 Known Bugs and Issues
 -----------------------
@@ -11,7 +11,7 @@ Known Bugs and Issues
 Pydantic
 ^^^^^^^^
 
-Pydantic warning `underscore_attrs_are_private has been removed` has not - yet - caused any issues.
+Pydantic warning :code:`underscore_attrs_are_private has been removed` has not - yet - caused any issues.
 However, the core of the problems (= what causes the warning) has yet to be identified. 
 
 BOFdat

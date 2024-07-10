@@ -19,9 +19,9 @@ a *Klebsiella sp.* reference database and a *Klebsiella pneumoniae* template mod
 
 **refinegems-integration** : ONGOING
 
-Branch for the integration of SPECIMEN-functionalities into refineGEMS and vice versa.
+Branch for the integration of ``SPECIMEN``-functionalities into refineGEMS and vice versa.
 
-Integration done. Cleanup for first release of SPECIMEN pending
+Integration done. Cleanup for first development release of ``SPECIMEN`` pending.
 
 **Further branches**
 
@@ -34,6 +34,7 @@ More developer-relevant information can be found in the :code:`dev` folder on th
 
 Documentation Notes
 -------------------
+
 The documentation is generated based the Sphinx :code:`sphinx.ext.autodoc` extension.
 A mustache-file with additional formatting can be found in the :code:`dev` folder (ready to integrate in e.g. VSCode). 
 For further information refer to the `refineGEMS documentation notes <https://refinegems.readthedocs.io/en/latest/development.html>`__.
