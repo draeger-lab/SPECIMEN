@@ -7,7 +7,7 @@ The third part of the refinement aims to clean the model regarding its entities,
 - Complete BioCyc/MetaCyc, if only one of the two is present.
 - Find and resolve duplicate metabolites and reactions.
 - Delete unused metabolites.
-- Perform (additional) gapfilling.
+- Perform (additional) gap filling.
 
 Except for the *complete Bio/MetaCyc annotations* all steps are optional.
 
@@ -15,7 +15,7 @@ Except for the *complete Bio/MetaCyc annotations* all steps are optional.
 
 .. warning::
 
-    The gapfilling is currently only available in it COBRApy variant.
+    The gap filling is currently only available in the COBRApy variant.
 
     This part of the pipeline is still a working process, 
     stay tuned for future updates.

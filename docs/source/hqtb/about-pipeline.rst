@@ -32,7 +32,7 @@ boudary parameters.
 
 .. hint::
     Many of the steps of the pipeline can be fine tuned and turned off/on. 
-    Check the configuration file for a full list of all parameters.
+    Check the `configuration file <hqtb-config.html>`__ for a full list of all parameters.
 
 .. note::
 

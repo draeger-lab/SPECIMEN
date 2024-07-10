@@ -1,7 +1,7 @@
 Step 2: Generate a Draft Model
 ==============================
 
-Based on the results of step 1, step 2 of the pipelines generates a draft model based on the 
+Based on the results of step 1, step 2 of the pipeline generates a draft model based on the 
 template model.
 
 .. note:: 
