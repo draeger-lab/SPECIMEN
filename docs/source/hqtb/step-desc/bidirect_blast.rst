@@ -2,7 +2,7 @@ Step 1: Bidirectional BLAST
 ===========================
 
 The first step of the pipeline is to perform a  bidirectional BLAST using DIAMOND 
-on the input and template genome. The aim is to identify genes that are found 
+on the input and template genomes. The aim is to identify genes that are found 
 in both genomes. The bidirectional BLAST ensures a high certainty value. The idea 
 is based on the workflow described by :footcite:t:`norsigian2020workflow`.
 

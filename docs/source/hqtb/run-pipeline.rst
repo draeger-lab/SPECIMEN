@@ -1,7 +1,7 @@
 Run the HTQB Pipeline
 =====================
 
-This page explains how to run the complete HTQB (high-quality template based) pipeline 
+This page explains how to run the complete ``HTQB`` (high-quality template based) pipeline 
 and how to collected the neccessary data.
 
 For more information about the steps of the pipeline, 
@@ -16,6 +16,7 @@ The input in both cases is a configuration file that contains all information ne
 The configuration can be downloaded using the command line:
 
 .. code-block:: bash
+    :class: copyable
 
     specimen setup config
 
@@ -25,11 +26,12 @@ add :code:`-t hqtb-advanced` to the command. For further options, refer to the m
 To download the configuration file using Python, use:
 
 .. code-block:: python
+    :class: copyable
 
     import specimen
     specimen.util.set_up.download_config(filename='./my_basic_config.yaml', type='hqtb-basic')
 
-As with the command line access, the type can be changed to "advanced".
+As with the command line access, the type can be changed to ``hqtb-advanced``.
 
 After downloading the configuration file, open it with an editor and change the parameters as needed.
 Missing entries will be reported when starting the pipeline.
@@ -37,12 +39,14 @@ Missing entries will be reported when starting the pipeline.
 To run the pipeline using the configuration file, use
 
 .. code-block:: bash
+    :class: copyable
 
     specimen hqtb run pipeline "config.yaml"
 
 on the command line or
 
 .. code-block:: python
+    :class: copyable
 
     specimen.hqtb.workflow.run_complete(config_file='config.yaml')
 
@@ -58,9 +62,10 @@ HQTB: Collecting Data
 ---------------------
 
 If you are just starting a new project and do not have all the data ready to go, you can use the setup function of
-**SPECIMEN** to help you collect the data you need.
+``SPECIMEN`` to help you collect the data you need.
 
 .. code-block:: python
+    :class: copyable
 
     specimen.util.set_up.build_data_directories('your_folder_name')
 
@@ -127,12 +132,14 @@ Further details for collecting the data:
     A examplary config file can be accessed using the following command:
 
     .. code-block:: python
+        :class: copyable
 
         download_config(filename='my_media_config.yaml', type='media')
 
     Or via the command line (additional name can be added using the flag :code:`-f <name>`):
 
     .. code-block:: bash
+        :class: copyable
         
         specimen setup config -t media
 

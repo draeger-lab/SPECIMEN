@@ -1,12 +1,12 @@
 About HQTB
 ==========
 
-The high-quality template based (HTQB) pipeline curates the model starting from the annotated 
+The high-quality template based (``HTQB``) pipeline curates the model starting from the annotated 
 genome of your strain of interest and an already curated, ideally very high-quality template model 
 of a closely related strain (species) and additional database information.
 
 This type of pipeline aims to build upon already existing knowledge to speed up model curation
-and minimize the need to perform steps again that have already been done in a similar concepts.
+and minimize the need to perform steps again that have already been done in a similar context.
 
 Overview of the HQTB Pipeline
 -----------------------------
@@ -27,8 +27,8 @@ The pipeline consists of five main steps:
     Validation <step-desc/validation.rst>
     Analysis <step-desc/analysis.rst>
 
-The wrapper function allows the curation of multiple model sequentially with the same 
-boudary conditions.
+The wrapper function allows the curation of multiple models sequentially using the same 
+boudary parameters.
 
 .. hint::
     Many of the steps of the pipeline can be fine tuned and turned off/on. 

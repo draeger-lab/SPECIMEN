@@ -1,7 +1,7 @@
 HQTB Configuration File
 =======================
 
-Below, the configuration file with the underlying defaults, is listed.
+Below, the configuration file with the underlying defaults, is shown.
 
 .. code-block:: yaml 
 
