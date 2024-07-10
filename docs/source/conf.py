@@ -9,7 +9,7 @@
 project = 'SPECIMEN'
 copyright = '2024, Carolin Brune'
 author = 'Carolin Brune'
-release = '1.0.0'
+release = '0.0.dev0'
 
 # -- Path setup --------------------------------------------------------------
 
@@ -20,7 +20,7 @@ release = '1.0.0'
 import os
 import sys
 from pathlib import Path
-sys.path.insert(0, os.path.abspath('../../src/'))
+sys.path.insert(0, os.path.abspath(str(Path('..','..','src'))))
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -39,7 +39,7 @@ extensions = [
               ]
 
 templates_path = ['_templates']
-exclude_patterns = []
+exclude_patterns = ['_build']
 
 # For copy buttons in code blocks
 copybutton_selector =  "div.copyable pre"

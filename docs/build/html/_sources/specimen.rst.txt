@@ -3,7 +3,9 @@ Contents of SPECIMEN
 
 The ``SPECIMEN`` package contains a number of modules and subpackages, which are listed below.
 
-To seach by name, use the :ref:`genindex`, for a list of the modules, see :ref:`modindex`.
+To search for specific entities by name, use the :ref:`genindex`. 
+
+For a list of the modules, see :ref:`modindex`.
 
 specimen subpackages
 --------------------
@@ -18,7 +20,6 @@ specimen subpackages
 
 specimen submodules
 -------------------
-The direct submodule of ``SPECIMEN`` is for accessing the tool from the command line.
 
 .. toctree::
    :maxdepth: 2
