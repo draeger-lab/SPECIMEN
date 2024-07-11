@@ -1,3 +1,21 @@
+# Configuration file for the SPECIMEN HTQB pipeline
+
+# This is the shortend version. More more options, 
+# download the hqtb-advaned configuration file.
+
+# Meaning of the default parameters:
+#    The value __USER__ indicates parameters required to be specified by the user
+#    The value USER indicates parameters required only in specific cases
+
+# Meta info:
+#    model:     USER
+#    organism:  USER
+#    date:      USER
+#    author:    USER
+
+# Input for the pipeline
+# ----------------------
+
 # information about the genome to be used to generate the new model
 subject:
     annotated genome: __USER__
