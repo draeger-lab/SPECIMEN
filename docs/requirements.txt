@@ -478,12 +478,16 @@ sphinx-rtd-theme
     # manually added
 sphinxcontrib-applehelp==1.0.8
     # via sphinx
+sphinxcontrib-bibtex==2.5.0
+    # manually
 sphinxcontrib-devhelp==1.0.6
     # via sphinx
 sphinxcontrib-htmlhelp==2.0.5
     # via sphinx
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
+sphinxcontrib-jquery
+    # manually
 sphinxcontrib-qthelp==1.0.7
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.10
