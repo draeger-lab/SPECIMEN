@@ -5,7 +5,7 @@
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/draeger-lab/specimen/main)
 ![Repo Size](https://img.shields.io/github/repo-size/draeger-lab/specimen)
 ![GitHub all releases](https://img.shields.io/github/downloads/draeger-lab/specimen/total?logo=github&label=GitHub%20downloads)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12723501.svg)](https://doi.org/10.5281/zenodo.12723501)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12723500.svg)](https://doi.org/10.5281/zenodo.12723500)
 
 ![Logo of SPECIMEN](docs/source/images/LogoSPECIMEN.png)
 
