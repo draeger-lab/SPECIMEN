@@ -4,6 +4,7 @@
 Below, the configuration file with the underlying defaults, is shown.
 
 .. code-block:: yaml 
+    
     # Configuration file for the SPECIMEN HQTB pipeline
 
     # Meaning of the default parameters:
