@@ -52,7 +52,7 @@ docs = ["accessible-pygments",
 # @TODO:
 [project.urls]
 repository = 'https://github.com/draeger-lab/SPECIMEN'
-# documentation = 
+documentation = 'https://specimen.readthedocs.io/en/latest/'
 # homepage = 
 
 [project.scripts]

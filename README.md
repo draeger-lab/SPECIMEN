@@ -40,4 +40,4 @@ For greater control or for further integration into other scripts, the modules o
 
 ## Documentation
 
-For more information about the available pipelines, the code or for troubleshooting, please refer to the documentation of the tool [here]().
+For more information about the available pipelines, the code or for troubleshooting, please refer to the documentation of the tool [here](https://specimen.readthedocs.io/en/latest/).
