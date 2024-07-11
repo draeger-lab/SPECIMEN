@@ -5,7 +5,7 @@ This page explains how to run the complete ``CMPB`` (CarveMe + ModelPolisher bas
 and how to collect the neccessary data.
 
 For more information about the steps of the pipeline, 
-see :ref:`Overview of the CMPB Pipeline`.
+see :ref:`cmpb-overview`.
 
 ``CMPB``: Quickstart 
 --------------------
@@ -16,7 +16,7 @@ see :ref:`Overview of the CMPB Pipeline`.
     The CarveMe connection will be added in a future update.
 
 The pipeline can either be run directly from the command line or its functions can be called from inside a Python script.
-The input in both cases is a `configuration file <cmpb-config.html>`__ that contains all information needed (data file paths and parameters) to run it.
+The input in both cases is a :doc:`configuration file <cmpb-config>` that contains all information needed (data file paths and parameters) to run it.
 
 The configuration can be downloaded using the command line:
 
