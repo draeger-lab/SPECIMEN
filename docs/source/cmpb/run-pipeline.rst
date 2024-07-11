@@ -7,8 +7,8 @@ and how to collect the neccessary data.
 For more information about the steps of the pipeline, 
 see :ref:`Overview of the CMPB Pipeline`.
 
-CMPB: Quickstart 
-----------------
+``CMPB``: Quickstart 
+--------------------
 
 .. warning::
 
