@@ -1,63 +1,63 @@
-HQTB Configuration File
-=======================
+``HQTB`` Configuration File
+===========================
 
 Below, the configuration file with the underlying defaults, is shown.
 
 .. code-block:: yaml 
 
-    # information about the genome to be used to generate the new model
+    # Information about the genome to be used to generate the new model
     subject:
         annotated_genome: __USER__
         full_sequence: __USER__
 
-    # information about the template model/genome
+    # Information about the template model/genome
     template:
         annotated_genome: __USER__
         model: __USER__
         namespace: BiGG
 
-    # information about the output
+    # Information about the output
     out:
         dir: ./specimen_run/
         name: specimen_model
         memote: False
 
-    # data(bases) required to run the program
+    # Data(bases) required to run the program
     data:
-        # if this parameter is set, assumes that the directory structure from setup
+        # If this parameter is set, assumes that the directory structure from setup
         # is used and uses this path to a directory as the parent folder for the
         # following paths (assumes all data paths are relative ones)
         data_direc: null
-        # required
+        # Required
         diamond: __USER__
-        # needed but potentially downloaded
+        # Needed but potentially downloaded
         mnx_chem_prop: MetaNetX/chem_prop.tsv
         mnx_chem_xref: MetaNetX/chem_xref.tsv
         mnx_reac_prop: MetaNetX/reac_prop.tsv
         mnx_reac_xref: MetaNetX/reac_xref.tsv
-        # optional, but good and manual
+        # Optional, but good and manual
         ncbi_map: null
         ncbi_dat: null
-        # optional for directionality control
+        # Optional for directionality control
         biocyc: null
-        # optional:
-        #   the pan-core model is used for analysis and if no universal model
-        #   is given, also for gapfilling
-        #   if the pan-core model is too small for useful gapfilling, use an
-        #   additional universal model for gapfilling
-        #   if none if given gapfilling (and core-pan analysis) is skipped
+        # Optional:
+        #   The pan-core model is used for analysis and if no universal model
+        #   is given, also for gapfilling.
+        #   If the pan-core model is too small for useful gapfilling, use an
+        #   additional universal model for gapfilling.
+        #   If none is given gapfilling (and core-pan analysis) is skipped
         universal: null
         pan-core: null
 
-    # paramters for the single steps of the pipeline
+    # Paramters for the single steps of the pipeline
     parameters:
         bidirectional_blast:
-            # default should suffice except special cases
+            # Default should suffice except special cases
             template_name: null
             input_name: null
             temp_header: null
             in_header: null
-            # can be set by user if wanted, but not necessary
+            # Can be set by user if wanted, but not necessary
             sensitivity: more-sensitive
 
         generate_draft_model:
@@ -66,59 +66,59 @@ Below, the configuration file with the underlying defaults, is shown.
             medium: default
 
         refinement_extension:
-            # default (usually) fine
+            # Default (usually) fine
             id: locus_tag
-            # default fine
+            # Default fine
             sensitivity: more-sensitive
-            # default alright but good to edit for trying different options
+            # Default alright but good to edit for trying different options
             coverage: 95.0
             pid: 90.0
-            # default almost needed, except for special cases
+            # Default almost needed, except for special cases
             exclude_dna: True
             exclude_rna: True
 
         refinement_cleanup:
-            # default as standart
+            # Default as standard
             check_dupl_reac: True
             check_dupl_meta: default
             remove_unused_meta: False
             remove_dupl_reac: True
             remove_dupl_meta: True
-            # current default means no gapfilling
+            # Current default means no gapfilling
             media_gap: null
 
         refinement_annotation:
-            # for KEGG pathway annotation
+            # For KEGG pathway annotation
             viaEC: False
             viaRC: False
 
         refinement_smoothing:
-            # useful
+            # Useful
             mcc: skip
             # ECG correction
             egc: null
-            # depend on organism (current: Klebsiella )
+            # Depend on organism (current: Klebsiella )
             dna_weight_frac: 0.023
             ion_weight_frac: 0.05
 
-        # validation:
-            # default should suffice
+        # Validation:
+            # Default should suffice
 
         analysis:
-            # default is currently only option
+            # Default is currently only option
             pc_based_on: id
-            # can be default but useful to edit
-            media_analysis: __USER__ # edit to fit a default media config file
+            # Can be default but useful to edit
+            media_analysis: __USER__ # Edit to fit a default media config file
             test_aa_auxotrophies: True
-            # perform pathway analysis with KEGG
+            # Perform pathway analysis with KEGG
             pathway: True
 
-    # options for performance
+    # Options for performance
     performance:
         threads: 2
-        # for the gapfilling, if iterations and chunk_size are set (not null)
+        # For the gapfilling, if iterations and chunk_size are set (not null)
         # use a heuristic for faster performance:
-        #     instead of using all reactions that can be added at once,
+        #     Instead of using all reactions that can be added at once,
         #     run x interations of gapfilling with n-size randomised chunks of reactions
         gapfilling:
             iterations: 3

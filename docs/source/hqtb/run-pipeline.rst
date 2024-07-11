@@ -1,19 +1,19 @@
-Run the HTQB Pipeline
-=====================
+Run the ``HQTB`` Pipeline
+=========================
 
 This page explains how to run the complete ``HTQB`` (high-quality template based) pipeline 
 and how to collected the neccessary data.
 
 For more information about the steps of the pipeline, 
-see :ref:`Overview of the HQTB Pipeline`.
+see :ref:`overview-hqtb`.
 
-HQTB: Quickstart
-----------------
+``HQTB``: Quickstart
+--------------------
 
 The pipeline can either be run directly from the command line or its functions can be called from inside a Python script.
 The input in both cases is a configuration file that contains all information needed (data file paths and parameters) to run it.
 
-The configuration can be downloaded using the command line:
+The `configuration <hqtb-config.html>`__ can be downloaded using the command line:
 
 .. code-block:: bash
     :class: copyable
@@ -54,12 +54,12 @@ from inside a Python script or Jupyter Notebook with "config.yaml" being the pat
 
 .. note::
 
-    Additionally, the pipeline can be run with a wrapper to susequently build multiple models for different genome using the same parameters.
-    To wrapper can be accessed using :code:`specimen hqtb run wrapper "config.yaml"` or :code:`specimen.workflow.wrapper_pipeline(config_file='/User/path/to/config.yaml', parent_dir="./")`.
+    Additionally, the pipeline can be run with a wrapper to susequently build multiple models for different genomes using the same parameters.
+    The wrapper can be accessed using :code:`specimen hqtb run wrapper "config.yaml"` or :code:`specimen.workflow.wrapper_pipeline(config_file='/User/path/to/config.yaml', parent_dir="./")`.
 
 
-HQTB: Collecting Data
----------------------
+``HQTB``: Collecting Data
+-------------------------
 
 If you are just starting a new project and do not have all the data ready to go, you can use the setup function of
 ``SPECIMEN`` to help you collect the data you need.
@@ -69,7 +69,11 @@ If you are just starting a new project and do not have all the data ready to go,
 
     specimen.util.set_up.build_data_directories('your_folder_name')
 
-The function above creates the following directory structure for your project:
+| The function above creates the following directory structure for your project.
+| The 'contains' column lists what is supposed to be inside the according folder. 
+  The tags manual/semi/automated report how these files are added to the folder (automated = by the setup function, manual = by the user).
+  ``TODO``: Was bedeutet semi?
+  The tags required/optional report whether this input is necessary to run the pipeline or if it is an optional input.
 
 .. table::
     :align: center 
@@ -97,39 +101,37 @@ The function above creates the following directory structure for your project:
     | universal-models   | universal models             | manual, optional    |
     +--------------------+------------------------------+---------------------+
 
-In the contains columns it is listed what is supposed to be inside that folder.
-The tags manual/semi/automated report how these are added to the folder (automated = by the setup function, manual = by the user).
-The tags report/optional report whether this input is necessary to run the pipeline or if it is an optional input.
-
 .. note::
 
-    Regarding the annotated genomes, the program currently only supports the file types ``GBFF`` and ``FAA`` + ``FNA``.
+    Regarding the annotated_genomes folder, the program currently only supports the file types ``GBFF`` and ``FAA`` + ``FNA``.
+    ``TODO``: Für welche Dateien in contains gilt das?
 
 Further details for collecting the data:
 
-- BioCyc:
+- `BioCyc <https://biocyc.org/>`__:
 
-    - downloading a smart table from BioCyc requires a subscription
-    - the smart table needs to have the columns Reactions, EC-Number, KEGG reaction, METANETX and Reaction-Direction
+    - Downloading a smart table from BioCyc requires a subscription.
+    - The SmartTable needs to have the columns 'Reactions', 'EC-Number', 'KEGG reaction', 'METANETX' and 'Reaction-Direction'.
 
-- RefSeqs
+- RefSeq
 
-    - one way to builf a DIAMOND reference database is to download a set of reference sequences from the NCBI database, e.g. in the **FAA** format
-    - use the function :code:`specimen.util.util.create_DIAMOND_db_from_folder('/User/path/input/directory', '/User/Path/for/output/', name = 'database', extention = 'faa')` to create a DIAMOND database
-    - to speed up the mapping, create an additional mapping file from the e.g. ``GBFF`` files from NCBI using :code:`specimen.util.util.create_NCBIinfo_mapping('/User/path/input/directory', '/User/Path/for/output/', extention = 'gbff')`
-    - to ensure correct mapping to KEGG, an additional information file can be created by constructing a CSV file with the following columns: NCBI genome, organism, locus_tag (start) and KEGG.organism
+    - One way to build a DIAMOND reference database is to download a set of reference sequences from the NCBI database, e.g. in the **FAA** format.
+    - Use the function :code:`specimen.util.util.create_DIAMOND_db_from_folder('/User/path/input/directory', '/User/Path/for/output/', name = 'database', extention = 'faa')` to create a DIAMOND database
+    - To speed up the mapping, create an additional mapping file from the e.g. ``GBFF`` files from NCBI using :code:`specimen.util.util.create_NCBIinfo_mapping('/User/path/input/directory', '/User/Path/for/output/', extention = 'gbff')`
+    - To ensure correct mapping to KEGG, an additional information file can be created by constructing a CSV file with the following columns: 'NCBI genome', 'organism', 'locus_tag' (start) and 'KEGG.organism'
+      ``TODO``: Was ist hier mit start gemeint?
 
-        - the information of the first three columns can be taken from the previous two steps while
-        - the last column the user needs to check, if the genomes have been entered into KEGG and have an organism identifier
-        - this file is purely optional for running the pipeline but potentially leads to better results
+        - The information of the first three columns can be taken from the previous two steps while
+        - For the last column the user needs to check, if the genomes have been entered into KEGG and have an organism identifier.
+        - This file is purely optional for running the pipeline but potentially leads to better results.
 
 - medium:   
 
-    The media, either for analysis or gapfilling can be entered into the pipeline via a config file (each).
-    The config files are from the `refineGEMs <https://github.com/draeger-lab/refinegems>`__ :footcite:p:`bauerle2023genome` toolbox and access its in-build medium database 
-    and additionally allow for manual adjustment / external input.
+    The media, either for analysis or gap filling can be entered into the pipeline via a config file (each). ``TODO``: Muss wirklich für jedes Medium eine neue Datei erstellt werden?
+    The config files are from the `refineGEMs <https://github.com/draeger-lab/refinegems/tree/dev-2>`__ :footcite:p:`bauerle2023genome` toolbox and access its in-build medium database. 
+    Additionally, the config files allow for manual adjustment / external input.
 
-    A examplary config file can be accessed using the following command:
+    An examplary config file can be accessed using the following command:
 
     .. code-block:: python
         :class: copyable

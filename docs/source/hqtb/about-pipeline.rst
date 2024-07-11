@@ -8,8 +8,10 @@ of a closely related strain (species) and additional database information.
 This type of pipeline aims to build upon already existing knowledge to speed up model curation
 and minimize the need to perform steps again that have already been done in a similar context.
 
-Overview of the HQTB Pipeline
------------------------------
+.. _overview-hqtb:
+
+Overview of the ``HQTB`` Pipeline
+---------------------------------
 
 The following image shows an overrview of the steps of the pipeline:
 
@@ -24,8 +26,9 @@ The pipeline consists of five main steps:
     Step 2: Draft Model Generation <step-desc/gen_draft.rst>
 
 - | Step 3: Model Refinement 
+
   | Refine the previously generated draft model to make the model more complete and strain-specific. 
-  In other words, fitting it more closely to the input genome.
+  | In other words, fitting it more closely to the input genome.
 
     - :doc:`Part 1: Extension <step-desc/refine-parts/extension>`
     - :doc:`Part 2: Clean-up <step-desc/refine-parts/cleanup>`
@@ -55,12 +58,12 @@ boudary parameters.
 
 .. hint::
     Many of the steps of the pipeline can be fine tuned and turned off/on. 
-    Check the `configuration file <hqtb-config.html>`__ for a full list of all parameters.
+    Check the :doc:`configuration file <hqtb-config>` for a full list of all parameters.
 
 .. note::
 
     All steps of the pipeline can be run separatly via the command line or 
-    the Python integration (see :ref:`Run the HTQB Pipeline`).
+    the Python integration (see :doc:`run-pipeline`).
 
     All accessable function are listed in the :ref:`Contents of SPECIMEN` section.
 
