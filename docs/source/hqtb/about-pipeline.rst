@@ -27,8 +27,7 @@ The pipeline consists of five main steps:
 
 - | Step 3: Model Refinement 
 
-  | Refine the previously generated draft model to make the model more complete and strain-specific. 
-  | In other words, fitting it more closely to the input genome.
+  | Refine the previously generated draft model to make the model more complete and strain-specific. In other words, fitting it more closely to the input genome.
 
     - :doc:`Part 1: Extension <step-desc/refine-parts/extension>`
     - :doc:`Part 2: Clean-up <step-desc/refine-parts/cleanup>`
