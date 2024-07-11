@@ -20,12 +20,16 @@ appdirs==1.4.4
     # via
     #   bioservices
     #   cobra
+appnope
+    # manually
 argcomplete==3.4.0
     # via gffutils
 argh==0.31.2
     # via gffutils
 arrow==1.3.0
     # via cookiecutter
+asttockens
+    # manually
 attrs==23.2.0
     # via
     #   cattrs
@@ -46,6 +50,8 @@ bioregistry==0.11.10
     # via refinegems
 bioservices==1.11.2
     # via refinegems
+bleach
+    # manually
 bofdat==0.1.7
     # via refinegems
 cattrs==23.2.3
@@ -108,6 +114,10 @@ cycler==0.12.1
     # via matplotlib
 deap==1.4.1
     # via bofdat
+decorator
+    # manually
+defusedxml
+    # manually
 depinfo==2.2.0
     # via
     #   cobra
@@ -132,6 +142,10 @@ exceptiongroup==1.2.1
     #   anyio
     #   cattrs
     #   pytest
+executing
+    # manually
+fastjsonschema
+    # manually
 fonttools==4.53.1
     # via matplotlib
 future==1.0.0
@@ -170,6 +184,10 @@ importlib-resources==6.4.0
     # via cobra
 iniconfig==2.0.0
     # via pytest
+ipython
+    # manually
+jedi 
+    # manually
 jinja2==3.1.4
     # via
     #   cookiecutter
@@ -181,8 +199,16 @@ jsonschema==4.23.0
     # via memote
 jsonschema-specifications==2023.12.1
     # via jsonschema
+jupyter-client
+    # manually
+jupyter-core
+    # manually
+jupyterlab-pygments
+    # manually
 kiwisolver==1.4.5
     # via matplotlib
+latexcodec
+    # manually
 libchebipy==1.0.10
     # via refinegems
 line-profiler==4.1.3
@@ -205,10 +231,14 @@ matplotlib==3.9.1
     #   refinegems
     #   seaborn
     #   venn
+matplotlib-inline
+    # manually
 mdurl==0.1.2
     # via markdown-it-py
 memote==0.17.0
     # via refinegems
+mistune
+    # manually
 more-click==0.1.2
     # via
     #   bioregistry
@@ -223,6 +253,12 @@ mypy-extensions==1.0.0
     # via typing-inspect
 natsort==8.4.0
     # via domdf-python-tools
+nbclient
+    # manually
+nbconvert
+    # manually
+nbformat
+    # manually
 nbsphinx
     # manually added
 numpy==1.26.4
@@ -264,6 +300,12 @@ pandas==2.2.2
     #   seaborn
 pandera==0.20.1
     # via memote
+pandoc
+    # manually
+pandocfilters
+    # manually
+parso
+    # manually
 pebble==5.0.7
     # via bofdat
 pexpect==4.9.0
@@ -275,10 +317,22 @@ platformdirs==4.2.2
     #   apeye
     #   easydev
     #   requests-cache
+plumbum
+    # manually
 pluggy==1.5.0
     # via pytest
+ply
+    # manually
+prompt-toolkit
+    # manually
 ptyprocess==0.7.0
     # via pexpect
+pure-eval
+    # manually
+pybtex
+    # manually
+pybtex-docutils
+    # manually
 pycparser==2.22
     # via cffi
 pydantic==2.8.2
@@ -335,6 +389,8 @@ pyyaml==6.0.1
     # via
     #   cookiecutter
     #   refinegems
+pyzmq
+    # manually
 ratelimit==2.2.1
     # via refinegems
 referencing==0.35.1
@@ -438,6 +494,8 @@ sqlalchemy==2.0.31
     #   refinegems
 sqlite-dump==0.1.1
     # via refinegems
+stack-data
+    # manually
 suds-community==1.1.2
     # via bioservices
 swiglpk==5.0.10
@@ -454,11 +512,17 @@ text-unidecode==1.3
     # via python-slugify
 threadpoolctl==3.5.0
     # via scikit-learn
+tinycss2
+    # manually
 tomli==2.0.1
     # via
     #   numpydoc
     #   pytest
     #   sphinx
+tornado
+    # manually
+traitlets
+    # manually
 tqdm==4.66.4
     # via
     #   bioregistry
@@ -491,6 +555,10 @@ urllib3==2.2.2
     #   requests-cache
 venn==0.1.3
     # via refinegems
+wcwidth
+    # manually
+webencodings
+    # manually
 wrapt==1.16.0
     # via
     #   bioservices
