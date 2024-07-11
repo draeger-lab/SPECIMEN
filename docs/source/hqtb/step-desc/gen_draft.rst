@@ -6,8 +6,10 @@ template model.
 
 .. note:: 
 
-    For the pipeline to work, the template model needs to be constructed from the genome that was
-    used as a reference during the alignment in step 1.
+    When running this step outside the context of the pipeline, the input files 
+    need to be related to each other. The identifiers of the genes 
+    for the matches of the bidirectional blast results and the genes in the template model
+    are the same or can be adjusted using the given parameters as needed.
 
 A graphical representation of the steps can be found below:
 
@@ -15,11 +17,11 @@ A graphical representation of the steps can be found below:
 
 The draft model is constructed based on the idea of :footcite:t:`norsigian2020workflow` by:
 
-- Filtering the BLAST best bidirectional hits by their percentage identity value (PID > threshold suggests, a homolog was found).
+- Filtering the BLAST best bidirectional hits by their percentage identity value (only matches with a PID greater than a given threshold are considered homologous).
 - Choosing a medium for the new model. Options include:
 
     - Using the one from the template
-    - Setting all exchanges to open (not advised)
+    - Setting all exchanges to open (not advised, quickly leads to unrealistic growth rates)
     - Loading one from the ``refineGEMs`` database
 
 - Removing genes from the template that have no (found) homolog in the template genome.

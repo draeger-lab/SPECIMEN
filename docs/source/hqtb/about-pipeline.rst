@@ -19,13 +19,36 @@ The pipeline consists of five main steps:
 
 .. toctree::
     :maxdepth: 3
-    :numbered:
 
-    Bidirectional BLAST <step-desc/bidirect_blast.rst>
-    Draft Model Generation <step-desc/gen_draft.rst>
-    Model Refinement <step-desc/refinement.rst>
-    Validation <step-desc/validation.rst>
-    Analysis <step-desc/analysis.rst>
+    Step 1: Bidirectional BLAST <step-desc/bidirect_blast.rst>
+    Step 2: Draft Model Generation <step-desc/gen_draft.rst>
+
+- | Step 3: Model Refinement 
+  | Refine the previously generated draft model to make the model more complete and strain-specific. 
+  In other words, fitting it more closely to the input genome.
+
+    - :doc:`Part 1: Extension <step-desc/refine-parts/extension>`
+    - :doc:`Part 2: Clean-up <step-desc/refine-parts/cleanup>`
+    - :doc:`Part 3: Annotation <step-desc/refine-parts/annot>`
+    - :doc:`Part 4: Smoothing <step-desc/refine-parts/smooth>`
+
+.. toctree::
+    :maxdepth: 3
+
+    Step 4: Validation <step-desc/validation.rst>
+    Step 5: Analysis <step-desc/analysis.rst>
+
+
+.. toctree::
+    :hidden:
+    :maxdepth: 2
+
+    Part 1: Extension <step-desc/refine-parts/extension.rst>
+    Part 2: Clean-up <step-desc/refine-parts/cleanup.rst>
+    Part 3: Annotation <step-desc/refine-parts/annot.rst>
+    Part 4: Smoothing <step-desc/refine-parts/smooth.rst>
+
+
 
 The wrapper function allows the curation of multiple models sequentially using the same 
 boudary parameters.

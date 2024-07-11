@@ -9,7 +9,7 @@ The model refinement process is split into four parts:
 .. toctree::
     :maxdepth: 2
 
-    Extension <refine-parts/extension.rst>
-    Clean-up <refine-parts/cleanup.rst>
-    Annotation <refine-parts/annot.rst>
-    Smoothing <refine-parts/smooth.rst>
+    Part 1: Extension <refine-parts/extension.rst>
+    Part 2: Clean-up <refine-parts/cleanup.rst>
+    Part 3: Annotation <refine-parts/annot.rst>
+    Part 4: Smoothing <refine-parts/smooth.rst>
