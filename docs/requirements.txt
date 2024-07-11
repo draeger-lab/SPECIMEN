@@ -117,7 +117,7 @@ dill==0.3.8
     # via multiprocess
 diskcache==5.6.3
     # via cobra
-docutils==0.21.2
+docutil
     # via sphinx
 domdf-python-tools==3.9.0
     # via
@@ -221,6 +221,8 @@ mypy-extensions==1.0.0
     # via typing-inspect
 natsort==8.4.0
     # via domdf-python-tools
+nbsphinx==0.9.3
+    # manually added
 numpy==1.26.4
     # via
     #   biopython
