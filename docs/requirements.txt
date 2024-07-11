@@ -28,7 +28,7 @@ argh==0.31.2
     # via gffutils
 arrow==1.3.0
     # via cookiecutter
-asttockens
+asttokens
     # manually
 attrs==23.2.0
     # via
