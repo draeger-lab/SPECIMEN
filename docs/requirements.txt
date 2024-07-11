@@ -4,6 +4,8 @@
 #
 #    pip-compile --output-file=requirements.txt ../pyproject.toml
 #
+accessible-pygments==0.0.4
+    # manually
 alabaster==0.7.16
     # via sphinx
 annotated-types==0.7.0
@@ -221,7 +223,7 @@ mypy-extensions==1.0.0
     # via typing-inspect
 natsort==8.4.0
     # via domdf-python-tools
-nbsphinx==0.9.3
+nbsphinx
     # manually added
 numpy==1.26.4
     # via
