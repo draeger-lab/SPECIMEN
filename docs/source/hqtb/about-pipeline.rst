@@ -64,6 +64,6 @@ boudary parameters.
     All steps of the pipeline can be run separatly via the command line or 
     the Python integration (see :doc:`run-pipeline`).
 
-    All accessable function are listed in the :ref:`Contents of SPECIMEN` section.
+    All accessible functions are listed in the :ref:`Contents of SPECIMEN` section.
 
 .. footbibliography::
