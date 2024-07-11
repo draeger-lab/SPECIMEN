@@ -71,8 +71,7 @@ If you are just starting a new project and do not have all the data ready to go,
 
 | The function above creates the following directory structure for your project.
 | The 'contains' column lists what is supposed to be inside the according folder. 
-  The tags manual/semi/automated report how these files are added to the folder (automated = by the setup function, manual = by the user).
-  ``TODO``: Was bedeutet semi?
+  The tags manual/semi/automated report how these files are added to the folder (automated = by the setup function; semi = multiple steps neccessary, some by the program, some by the user; manual = by the user).
   The tags required/optional report whether this input is necessary to run the pipeline or if it is an optional input.
 
 .. table::
@@ -103,8 +102,9 @@ If you are just starting a new project and do not have all the data ready to go,
 
 .. note::
 
-    Regarding the annotated_genomes folder, the program currently only supports the file types ``GBFF`` and ``FAA`` + ``FNA``.
-    ``TODO``: Für welche Dateien in contains gilt das?
+    Regarding the annotated_genomes folder, the program currently only supports 
+    the file types ``GBFF`` and ``FAA`` + ``FNA`` (from the NCBI and PROKKA annotation pipelines respectively)
+    as genome annotation formats.
 
 Further details for collecting the data:
 
@@ -118,8 +118,7 @@ Further details for collecting the data:
     - One way to build a DIAMOND reference database is to download a set of reference sequences from the NCBI database, e.g. in the **FAA** format.
     - Use the function :code:`specimen.util.util.create_DIAMOND_db_from_folder('/User/path/input/directory', '/User/Path/for/output/', name = 'database', extention = 'faa')` to create a DIAMOND database
     - To speed up the mapping, create an additional mapping file from the e.g. ``GBFF`` files from NCBI using :code:`specimen.util.util.create_NCBIinfo_mapping('/User/path/input/directory', '/User/Path/for/output/', extention = 'gbff')`
-    - To ensure correct mapping to KEGG, an additional information file can be created by constructing a CSV file with the following columns: 'NCBI genome', 'organism', 'locus_tag' (start) and 'KEGG.organism'
-      ``TODO``: Was ist hier mit start gemeint?
+    - To ensure correct mapping to KEGG, an additional information file can be created by constructing a CSV file with the following columns: 'NCBI genome', 'organism', 'locus_tag' (only the part until the seperator '_', the part, that is the same for all locus tags) and 'KEGG.organism'
 
         - The information of the first three columns can be taken from the previous two steps while
         - For the last column the user needs to check, if the genomes have been entered into KEGG and have an organism identifier.
@@ -127,7 +126,8 @@ Further details for collecting the data:
 
 - medium:   
 
-    The media, either for analysis or gap filling can be entered into the pipeline via a config file (each). ``TODO``: Muss wirklich für jedes Medium eine neue Datei erstellt werden?
+    The media, either for analysis or gap filling can be entered into the pipeline via a config file. 
+    The same media file can be used for both or one file for each step can be entered into the pipeline. 
     The config files are from the `refineGEMs <https://github.com/draeger-lab/refinegems/tree/dev-2>`__ :footcite:p:`bauerle2023genome` toolbox and access its in-build medium database. 
     Additionally, the config files allow for manual adjustment / external input.
 

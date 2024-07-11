@@ -4,6 +4,20 @@
 Below, the configuration file with the underlying defaults, is shown.
 
 .. code-block:: yaml 
+    # Configuration file for the SPECIMEN HQTB pipeline
+
+    # Meaning of the default parameters:
+    #    The value __USER__ indicates parameters required to be specified by the user
+    #    The value USER indicates parameters required only in specific cases
+
+    # Meta info:
+    #    model:     USER
+    #    organism:  USER
+    #    date:      USER
+    #    author:    USER
+
+    # Input for the pipeline
+    # ----------------------
 
     # Information about the genome to be used to generate the new model
     subject:
