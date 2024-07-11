@@ -1,0 +1,101 @@
+``CMPB`` Configuration File
+===========================
+
+Below, the configuration file with the underlying defaults, is displayed.
+
+.. code-block:: yaml 
+    
+    # Configuration file for the SPECIMEN CMPB pipeline
+
+    # Meaning of the default parameters:
+    #    The value __USER__ indicates parameters required to be specified by the user
+    #    The value USER indicates parameters required only in specific cases
+
+    # Meta info:
+    #    model:     USER
+    #    organism:  USER
+    #    date:      USER
+    #    author:    USER
+
+    # Input for the pipeline
+    # ----------------------
+    input:
+      modelpath: NULL            # Optional, path to a model.
+                                 # If not given, runs CarveMe -> Future update!
+      annotated_genome: __USER__ # Required, path to the annotated genome file
+      mediapath: __USER__        # Path to a media config to test growth with
+
+    # General options
+    # ---------------
+    general:
+      dir: './'                  # Path/Name of a directory to save output to
+      colours: 'YlGn'            # Set the colour scheme for the plots
+                                 # should be a valid matplotlib continuous color palette
+      namespace: BiGG            # Namespace to use for the model
+                                 # Possible identifiers, currently: BiGG
+      save_all_models: True      # Save a model per step
+      memote_always_on: False    # Run MEMOTE after every step
+      stats_always_on: False     # Calculate the model statistics after every step
+
+      # Below are options used by multiple steps
+      refseq_gff: USER           # Path to RefSeq GFF file: Required for gap analysis with 'KEGG'. 
+                                 # Can be optionally provided for cm-polish.
+      kegg_organism_id: USER     # KEGG ID of the organism: Required for gap analysis with 'KEGG'.
+                                 # Can be optionally provided for cm-polish.
+
+    # Part-specific options
+    # ---------------------
+
+    # Polish a CarveMe model
+    #    Only neccessary, if the model will or has been build with CarveMe
+    #    Will only be used, if model is indeed a CarveMe model
+    cm-polish:
+      email: USER              # User Mail to use for Entrez 
+      protein_fasta: USER      # Optional, except for 'is_lab_strain: True'.
+                               # The path to the protein FASTA used to create the CarveMe model.
+      is_lab_strain: False     # Whether the users strain originates from a lab
+                               # Needs to be set to ensure that protein IDs get the 'bqbiol:isHomologTo' qualifier
+                               # & to set the locus_tag to the ones obtained by the annotation
+                               # (Warning: Might cause issues if annotatione was not performed with NCBI PGAP!)
+
+    # Filling gaps, optional
+    gapfilling:
+      ### Automatic gap filling ###
+      # All parameters are required for all 'db_to_compare' choices except 'biocyc_files' which is not required for 'KEGG'
+      gap_fill_params:
+        db_to_compare: USER  # One of the choices KEGG|BioCyc|KEGG+BioCyc 
+        biocyc_files: 
+          - USER # Path to TXT file containing a SmartTable from BioCyc with the columns 'Accession-2' 'Reaction of gene'
+          - USER  # Path to TXT file containing a SmartTable with all reaction relevant information (*)
+          - USER  # Path to TXT file containing a SmartTable with all metabolite relevant information (+)
+          - USER  # Path to protein FASTA file used as input for CarveMe (Required to get the protein IDs from the locus tags)
+      # (*) 'Reaction' 'Reactants of reaction' 'Products of reaction' 'EC-Number' 'KEGG Reaction' 'MetaNetX' 'Reaction-Direction' 'Spontaneous?'
+      # (+) 'Compound' 'Object ID' 'Chemical Formula' 'InChI-Key' 'ChEBI'
+      gap_fill_file: NULL # Path to Excel file with which gaps in model should be filled
+      # Either obtained by running gapfilling/Created by hand with the same structure as the result file from gapfilling
+      # Example Excel file to fill in by hand: refinegems/src/refinegems/example/example_inputs/modelName_gapfill_analysis_date_example.xlsx
+
+    # Add KEGG pathways as groups, optional
+    kegg_pathway_groups: True
+
+    # Resolve duplicates
+    duplicates:
+      # Three possible options for the resolvement of duplicates for the following model entities:
+      # - check:  Check for duplicates and simply report them
+      # - remove: Check for and remove duplicates from the model (if possible)
+      # - skip:   Skip the resolvement
+      reactions: remove
+      metabolites: remove
+      # Additionally, remove unused metabolites (possibly reduces knowledge-base)
+      remove_unused_metabs: False
+
+    # BOFdat / Biomass objective function
+    BOF:
+      run_bofdat: False
+      # if BOFdat should be run, 
+      # fill out the params below
+      bofdat_params:
+        full_genome_sequence: USER  # Whole genome sequence
+        dna_weight_fraction: USER   # DNA weight fraction for the organism
+        weight_fraction: USER       # Ezyme/ion weight fractions for the organism
+

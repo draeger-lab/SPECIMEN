@@ -1,41 +1,28 @@
 Contents of SPECIMEN
 ====================
 
-The **SPECIMEN** package contains a number of modules and subpackages, which are listed below.
+The ``SPECIMEN`` package contains a number of modules and subpackages, which are listed below.
 
-Subpackages
------------
+To search for specific entities by name, use the :ref:`genindex`. 
+
+For a list of the modules, see :ref:`modindex`.
+
+specimen subpackages
+--------------------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 3
 
-   specimen.classes
-   specimen.core
-   specimen.util
+   specimen.classes <modules/classes.rst>
+   specimen.cmpb <modules/cmpb.rst>
+   specimen.hqtb <modules/hqtb.rst>
+   specimen.util <modules/util.rst>
 
-Submodules
-----------
+specimen submodules
+-------------------
 
-specimen.cmd\_access module
----------------------------
+.. toctree::
+   :maxdepth: 2
 
-.. automodule:: specimen.cmd_access
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   specimen.cmd_access <modules/cmd.rst>
 
-specimen.workflow module
-------------------------
-
-.. automodule:: specimen.workflow
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: specimen
-   :members:
-   :undoc-members:
-   :show-inheritance:

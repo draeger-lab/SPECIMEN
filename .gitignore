@@ -2,7 +2,9 @@
 .DS_Store
 __pycache__
 
-data/media.csv
-data/media.numbers
+# Sphinx documentation
+docs/_build/
 
-example/
+build/*
+specimen.egg-info
+**/specimen.egg-info/* 

@@ -1,41 +1,68 @@
 .. SPECIMEN documentation master file, created by
    sphinx-quickstart on Sun Aug  6 09:58:51 2023.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
 Welcome to SPECIMEN!
-====================================
+====================
 
-**SPECIMEN** is a Python package that provides functionalities for strain-specific curation of metabolic model using a high-quality template model.
+``SPECIMEN`` is a Python package that contains a growing collection of workflows for the 
+automated curation of high-quality, ideally strain-specific, genome-scale metabolic models (GEMs).
 
-Overview
-------------
+These workflows are mainly based on the `refineGEMs <https://github.com/draeger-lab/refinegems/tree/dev-2>`__ :footcite:p:`bauerle2023genome` toolbox.
 
-The main core of **SPECIMEN** is an automated pipeline that curates a new GEM based on a genome, a template model and some additional information.
-The pipeline can be accessed from the command line or from inside a Python script. An overview of the different steps of the pipeline can be seen below.
+Additionally, most of the functions and steps of the different pipelines in ``SPECIMEN`` can be used separatly.
 
-.. image:: ./images/pipeline-overview.png
+Available Pipelines
+-------------------
 
-Additionally, **SPECIMEN** allows the use of the functions / steps of the pipeline separatly and provides further functionalities for:
+Currently, ``SPECIMEN`` includes the following pipelines (for a summary refer to :ref:`Overview of the pipelines`):
 
-- setting up and collecting some (but not all) of the data needed for the pipeline
-- building, manipulation and storing different media as well as a pre-build database
+.. image:: images/buttons/cmpb.png
+  :height: 0px
+  :width: 0px
+
+.. raw:: html
+
+  <a class="reference external image-reference" href="cmpb/about-pipeline.html">
+    <img src='_images/cmpb.png' alt='CMPB' title='CMPB' style="width: 30%;">
+  </a>
+
+.. image:: images/buttons/hqtb.png
+  :height: 0px
+  :width: 0px
+
+.. raw:: html
+
+  <a class="reference external image-reference" href="hqtb/about-pipeline.html">
+    <img src='_images/hqtb.png' alt='HQTB' title='HQTB' style="width: 30%;">
+  </a>
+
+.. image:: images/buttons/PGAB_constr.png
+  :height: 0px
+  :width: 0px
+
+.. raw:: html
+
+  <a class="reference external image-reference" href="pipeline_idea.html">
+    <img src='_images/PGAB_constr.png' alt='PGAB' title='PGAB' style="width: 30%;">
+  </a>
+
+
+How to Cite
+-----------
+
+.. warning::
+
+  Coming soon
 
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Content
 
    installation
-   about-pipeline
-   run-pipeline
+   overview-pipes 
    specimen
    help
    dev-notes
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. footbibliography::

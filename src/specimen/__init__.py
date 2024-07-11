@@ -1,3 +1,4 @@
-__all__ = ['workflow', 'util','core','classes', 'cmd_access']
+__all__ = ['util','classes', 'cmd_access','cmpb','hqtb']
 
-from specimen import workflow, util, core, classes, cmd_access
+from specimen import util, classes, cmd_access, cmpb, hqtb
+

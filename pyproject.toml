@@ -6,46 +6,60 @@ build-backend = "setuptools.build_meta"
 name = 'specimen'
 authors = [
   { name="Carolin Brune"},
+  { name="Gwendolyn O. Döbel"},
 ]
-description = ""
+maintainers = [
+  {name = "Nina Roßbach"}
+]
+
+description = "SPECIMEN: A collection of workflows for strain-specific metabolic modelling."
 readme = "README.md"
+version = "0.0.dev0"
 requires-python = ">=3.10"
-#keywords = []
-#license = {}
+license = {text = "GPL-3.0"}
+keywords = ['Systems Biology', 'GEM', 'Metabolic Modelling', 'Python Package', 'Pipeline']
+
 classifiers = [
-    "Programming Language :: Python :: 3.10",
     'Operating System :: MacOS',
-    "Operating System :: Unix"
+    "Operating System :: Unix", # @TODO make it OS independant  - testing remains
+    # 'Operating System :: OS Independent'
+    'Programming Language :: Python',
+    # Topic :: Software Development :: Libraries :: Python Modules
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)'
 ]
+
 dependencies = [
-    'biopython',
-    'click',
-    'cobra',
-    'python-libsbml',
-    # MCC@git+https://github.com/Biomathsys/MassChargeCuration
-    'matplotlib',
-    'memote',
-    'numpy',
-    'pandas',
-    'requests',
-    'SBOannotator',
-    'seaborn',
-    'tqdm',
-    'pyyaml',
-    'z3-solver'
+    # 'refinegems>=2.0', # has all other needed dependancies
+    "refinegems@git+https://github.com/draeger-lab/refinegems@dev-2",
 ]
+# @TODO
 # additional missing tools:
 #    EntrezDirect
 #    DIAMOND
-dynamic = ['version']
+[project.optional-dependencies]
+# developer/docs installation dependancies
+docs = ["accessible-pygments",
+       "sphinx", 
+       "nbsphinx",
+       "sphinx_rtd_theme",
+       "pandoc",
+       "ipython",
+       "sphinxcontrib-bibtex",
+       "sphinx_copybutton",
+       "pip-tools"]
+
+# @TODO:
+[project.urls]
+repository = 'https://github.com/draeger-lab/SPECIMEN'
+# documentation = 
+# homepage = 
 
 [project.scripts]
 specimen = "specimen.cmd_access:cli"
 
 # include data
 [tool.setuptools.packages.find]
-where = ['src','data']
+where = ['src']
 [tool.setuptools.package-data]
-medium = ['media.csv']
-KEGG = ['KEGG_pathway_metabolism.csv']
-config = ['*.yaml']
+"specimen.data.config" = ['*.yaml']
