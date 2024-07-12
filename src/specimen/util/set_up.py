@@ -380,7 +380,7 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
 
 # @TEST
 def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
-    """Guide the user step by step throuh the creation of the configuration for a cmpb pipeline run
+    """Guide the user step by step through the creation of the configuration for a cmpb pipeline run
     (via commandline).
 
     Args:
@@ -443,7 +443,7 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
             config['general']['save_all_models'] = False
 
     # run memote always y/n
-    run_memote = click.prompt('Do you want run memote after each step?', type=click.Choice(['y','n']), show_choices=True)
+    run_memote = click.prompt('Do you want to run memote after each step?', type=click.Choice(['y','n']), show_choices=True)
     match run_memote:
         case 'y':
             config['general']['memote_always_on'] = True
@@ -451,7 +451,7 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
             config['general']['memote_always_on'] = False
     
     # run stats always y/n
-    models_stats = click.prompt('Do you want run memote after each step?', type=click.Choice(['y','n']), show_choices=True)
+    models_stats = click.prompt('Do you want to run memote after each step?', type=click.Choice(['y','n']), show_choices=True)
     match models_stats:
         case 'y':
             config['general']['stats_always_on'] = True
@@ -462,7 +462,7 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
     refseq = click.prompt('If you want to run a gap analysis with KEGG or have a CarveMe model, please enter the path to your refseq gff file', type=click.Path(exists=True))
     config['general']['refseq_organism_id'] = refseq
 
-    kegg_org_id = click.prompt('If you want to run a gap analysis with KEGG or have a CarveMe model, please enter the path to your refseq gff file', type=click.Path(exists=True))
+    kegg_org_id = click.prompt('If you want to run a gap analysis with KEGG, please enter the KEGG organism ID', type=click.Path(exists=True))
     config['general']['refseq_organism_id'] = kegg_org_id
 
     # part-specific 
@@ -476,7 +476,7 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
     if carveme == 'y':
         email = click.prompt('Enter an email address for the connection to NCBI Entrez', type=str)
         config['cm-polish']['email'] = email
-        labs = click.prompt('Do you have a lab strain?', type=click.Choice(['y','n']), show_choices=True)
+        labs = click.prompt('Do you have a strain without any database information?', type=click.Choice(['y','n']), show_choices=True)
         labs = True if labs == 'y' else False
         config['cm-polish']['is_lab_strain'] = labs
         if labs:
@@ -507,7 +507,7 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
             Path3 = click.prompt('Enter path to protein FASTA file used as input for CarveMe', type=click.Path(exists=True))
             config['gapfilling']['gap_fill_params']['biocyc_files'] = [Path0, Path1, Path2, Path3]
 
-
+# @TODO: Funktioniert das so? Bei den anderen yes-no-Fragen hast du noch alles auf True oder False gesetzt.
     # kegg pathways as groups
     kegg_pw_groups = click.prompt('Do you want to add KEGG pathways as groups to the model?', type=click.Choice(['y','n']), show_choices=True)
     config['kegg_pathway_groups'] = kegg_pw_groups
@@ -525,6 +525,7 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
         case 'n':
             config['duplicates']['remove_unused_metabs'] = False
 
+# @TODO: Ask for any biomass correction
     # BOF
     do_bofdat = click.prompt('Do you want do run BOFdat?', type=click.Choice(['y','n']), show_choices=True)
     match do_bofdat:
@@ -534,7 +535,7 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
             config['BOF']['full_genome_sequence'] = full_genome_path
             dna_wf = click.prompt('Enter the DNA weight fraction of your organism', type=float)
             config['BOF']['dna_weight_fraction'] = dna_wf
-            wf = click.prompt('Enter the wight fraction of your organsim (enzyme/ion)', type=float)
+            wf = click.prompt('Enter the weight fraction of your organsim (enzyme/ion)', type=float)
             config['BOF']['weight_fraction'] = wf
         case 'n':
             config['BOF']['run_bofdat'] = False
