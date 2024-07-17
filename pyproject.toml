@@ -49,7 +49,6 @@ docs = ["accessible-pygments",
        "sphinx_copybutton",
        "pip-tools"]
 
-# @TODO:
 [project.urls]
 repository = 'https://github.com/draeger-lab/SPECIMEN'
 documentation = 'https://specimen.readthedocs.io/en/latest/'

@@ -57,7 +57,10 @@ from inside a Python script or Jupyter Notebook with "config.yaml" being the pat
 
 The pipeline has two obligatory parameters:
 
-- The path to the annotated genome file (if a model is given, should be the file used to create it)
+- Path to a model 
+
+    - If no model is given, the `protein_fasta` needs to be provided. The format needs to be the same as the files provides by NCBI under `<GenBank assembly>` -> `ftp` -> `<name>_translated_cds.faa.gz`
+
 - A media configuration (from refineGEMs) for testing the model's growth
 
 Further data can be added as available and/or needed (all are completely optional):

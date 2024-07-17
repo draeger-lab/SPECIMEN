@@ -13,7 +13,7 @@
 
 SPECIMEN is a collection of different workflows designed for the automated and standardised curation of genome-scale models. It is mainly based on the [refineGEMs toolbox](https://github.com/draeger-lab/refinegems/tree/dev-2), but also includes additional tools like [CarveMe](https://carveme.readthedocs.io/en/latest/).
 
-> Note: This tool is currently still under active developement, any feedback or ides are welcome.
+> Note: This tool is currently still under active developement, any feedback or ideas are welcome.
 
 Currently avaible workflow:
 

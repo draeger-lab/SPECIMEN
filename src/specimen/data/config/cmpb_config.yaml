@@ -15,7 +15,7 @@
 input:
   modelpath: NULL            # Optional, path to a model.
                              # If not given, runs CarveMe -> Future update!
-  annotated_genome: __USER__ # Required, path to the annotated genome file
+  # annotated_genome: USER # Some alternative input if not model is given
   mediapath: __USER__        # Path to a media config to test growth with
 
 # General options
@@ -46,6 +46,7 @@ cm-polish:
   email: USER              # User Mail to use for Entrez 
   protein_fasta: USER      # Optional, except for 'is_lab_strain: True'.
                            # The path to the protein FASTA used to create the CarveMe model.
+                           # For more information, please refer to the documentation.
   is_lab_strain: False     # Whether the users strain originates from a lab
                            # Needs to be set to ensure that protein IDs get the 'bqbiol:isHomologTo' qualifier
                            # & to set the locus_tag to the ones obtained by the annotation
