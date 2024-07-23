@@ -239,7 +239,7 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
                 dictA[key] = dict_recursive_combine(dictA[key], dictB[key])
         return dictA
     
-    def dict_recursive_overwrite(dictA:dict) -> dict:
+    def dict_recursive_overwrite(dictA:dict, key:str=None) -> dict:
         """Helper-function for :py:func:`~specimen.util.set_up.validate_config` to combine two configuration file.
 
         Args:
@@ -257,17 +257,17 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
         if not isinstance(dictA,dict):
             # check for missing input
             if dictA == '__USER__':
-                raise TypeError(F'Missing a required argument in the config file')
+                raise TypeError(F'Missing a required argument in the config file ({key}).')
             elif dictA == 'USER':
                 # @TODO 
-                mes = 'Keyword USER detected in config. Either due to skipped options or missing required information.\nReminder: this may lead to downstream problems.'
+                mes = F'Keyword USER detected in config ({key}). Either due to skipped options or missing required information.\nReminder: this may lead to downstream problems.'
                 logging.warning(mes)
                 return None
             else:
                 return dictA
 
         for key in dictA.keys():
-            dictA[key] = dict_recursive_overwrite(dictA[key])
+            dictA[key] = dict_recursive_overwrite(dictA[key],key)
         return dictA
 
 
@@ -276,7 +276,7 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
     def dict_recursive_check(dictA:dict, key:str=None, 
                              pipeline:Literal['hqtb','cmpb']='hqtb'):
         """Helper-function for :py:func:`~specimen.util.set_up.validate_config` 
-        to check if a configuration is valid to run the hight-quality template based pipeline.
+        to check if a configuration is valid to run the high-quality template based pipeline.
 
         Args:
             - dictA (dict): 
@@ -290,26 +290,28 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
             - FileNotFoundError: Path does not exist: {dictA}
             - FileNotFoundError: Path does not exist: {dictA}
         """
-
+        
         if not isinstance(dictA,dict):
             # required file paths
-            if key in PIPELINE_PATHS_REQUIRED[pipeline]: 
-                if dictA and os.path.isfile(dictA):
+            if key in PIPELINE_PATHS_REQUIRED[pipeline]:
+                if isinstance(dictA,list):
+                    for item in dictA:
+                        if os.path.isfile(item):
+                            continue
+                        else:
+                            raise FileNotFoundError(F'Path does not exist: {dictA}')
+                elif dictA and os.path.isfile(dictA):
                     return
                 else: 
                     raise FileNotFoundError(F'Path does not exist: {dictA}')
-            # missing optional file
-            elif key in PIPELINE_PATHS_OPTIONAL and not dictA:
-                # @TODO, already warning in Overwrite?
-                return 
             # optional file paths
-            elif key in PIPELINE_PATHS_OPTIONAL:
-                if isinstance(str,dictA):
+            elif key in PIPELINE_PATHS_OPTIONAL[pipeline]:
+                if isinstance(dictA,str):
                     if os.path.isfile(dictA):
                         return
                     else: 
                         raise FileNotFoundError(F'Path does not exist: {dictA}')
-                if isinstance(list,dictA):
+                if isinstance(dictA,list):
                     for entry in dictA:
                         if dictA and os.path.isfile(dictA):
                             return
