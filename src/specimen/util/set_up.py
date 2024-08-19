@@ -60,6 +60,7 @@ MNX_URL_DICT = {'chem_prop.tsv':MNX_CHEM_PROP_URL, 'chem_xref.tsv':MNX_CHEM_XREF
 # setup data (structure)
 # ----------------------
 # @TEST : deleted BiGG part, since its already covered with refinegems
+# @DEPRECATE: MNX now coverend in refinegems - change extension after cleaning gapfill module in refinegems
 def download_mnx(dir:str='MetaNetX', chunk_size:int=1024):
     """Download the data needed from the MetaNetX database.
 
