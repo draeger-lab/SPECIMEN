@@ -17,6 +17,7 @@ import yaml
 
 from cobra import Reaction,Model
 from libsbml import readSBML
+import subprocess
 
 from refinegems.analysis import growth
 from refinegems.analysis.investigate import plot_rea_sbo_single
@@ -99,11 +100,12 @@ def run(configpath:Union[str,None]=None):
         if cfg['general']['memote_always_on']:
             run_memote(model, 'html', 
                     return_res=False, 
-                    save_res=Path(cfg['general']["dir"], 'cmpb_out', 'misc','memote',f'{step}_.html'), 
+                    save_res=Path(cfg['general']["dir"], 'cmpb_out', 'misc','memote',f'{step}.html'),
                     verbose=False)
         if cfg['general']['stats_always_on']:
             report = ModelInfoReport(model)
-            report.save(Path(cfg['general']["dir"],'cmpb_out', 'misc', 'stats',f'{step}_.html'),
+            Path(dir,"cmpb_out",'misc', 'stats', step).mkdir(parents=True, exist_ok=False)
+            report.save(Path(cfg['general']["dir"],'cmpb_out', 'misc', 'stats', step),
                         color_palette=config['general']['colours']) 
 
 
@@ -113,7 +115,7 @@ def run(configpath:Union[str,None]=None):
     # load config
     # -----------
     if not configpath:
-        config = save_cmpb_user_input(Path('cmpb_out', 'logs', 'config_user.yaml')) 
+        config = save_cmpb_user_input()
     else:
         config = validate_config(configpath, 'cmpb') 
 
@@ -142,29 +144,28 @@ def run(configpath:Union[str,None]=None):
 
     # CarveMe
     #########
-    # @TODO
-    # will come in a future update
     if not config['input']['modelpath']:
-        # run CarveMe
-        raise ValueError('Currently, CarveMe has not been included in the pipeline. Please use it separatly. This function will be provided in a future update.')
-    else:
-        current_modelpath = config['input']['modelpath']
+        if config['carveme']['gram'] == "grampos" or config['carveme']['gram'] == "gramneg":
+            subprocess.run(["carve", config['cm-polish']['protein_fasta'], "--solver", "scip", '-u', config['carveme']['gram'], "-o", dir+"\cmpb_out\models\Draft.xml"])
+        else: 
+            subprocess.run(["carve", config['cm-polish']['protein_fasta'], "--solver", "scip", "-o", dir+"\cmpb_out\models\Draft.xml"])
+        config['input']['modelpath'] = dir+'\cmpb_out\models\Draft.xml'
+    current_modelpath = config['input']['modelpath']
 
     # CarveMe correction
     ####################
-
-    current_libmodel = load_model(current_modelpath,'libsbml')
+    current_libmodel = load_model(str(current_modelpath),'libsbml')
     # check, if input is a CarveMe model
-    if 'CarveMe' in current_libmodel.getNotesString():
+    if 'CarveMe' in current_libmodel.getAnnotationString():
         Path(dir,"cmpb_out",'misc', 'wrong_annotations').mkdir(parents=True, exist_ok=False)
         current_libmodel = polish(current_libmodel, 
-                                  email = config['cm-polish']['email'], 
-                                  id_db = config['general']['namespace'], 
-                                  refseq_gff = config['cm-polish']['refseq_gff'], 
-                                  protein_fasta = config['cm-polish']['protein_fasta'], 
-                                  lab_strain = config['cm-polish']['is_lab_strain'], 
-                                  kegg_organism_id = config['cm-polish']['kegg_organism_id'], 
-                                  path = Path(dir,'cmpb_out','misc','wrong_annotations')) 
+                                  email = config['cm-polish']['email'],
+                                  id_db = config['general']['namespace'],
+                                  refseq_gff = config['general']['refseq_gff'],
+                                  protein_fasta = config['cm-polish']['protein_fasta'],
+                                  lab_strain = config['cm-polish']['is_lab_strain'],
+                                  kegg_organism_id = config['general']['kegg_organism_id'],
+                                  path = Path(dir,'cmpb_out','misc','wrong_annotations'))
         # rg correct charges
         current_libmodel, mult_charges_dict = correct_charges_modelseed(current_libmodel)
         mult_charges_tab = pd.DataFrame.from_dict(mult_charges_dict, orient='index')
@@ -172,15 +173,15 @@ def run(configpath:Union[str,None]=None):
         
         # save model
         if config['general']['save_all_models']:
-            write_model_to_file(current_libmodel, Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_CarveMe_correction.xml'))
+            write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_CarveMe_correction.xml')))     
             current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_CarveMe_correction.xml')
         else:
-            write_model_to_file(current_libmodel, only_modelpath)
+            write_model_to_file(current_libmodel, str(only_modelpath))
             current_modelpath = only_modelpath
 
     # growth test
     # -----------
-    current_model = load_model(current_modelpath,'cobra')
+    current_model = load_model(str(current_modelpath),'cobra')
     between_growth_test(current_model,config,step='after_draft')
     between_analysis(current_model, config, step='after_draft')
 
@@ -190,7 +191,7 @@ def run(configpath:Union[str,None]=None):
     # options: automatic/manual extension/manual input
     if config['gapfilling']['gap_fill_params']: 
         
-        filename = Path(dir, 'cmpb', 'misc',f'{current_libmodel.getId()}_gap_analysis_{str(today)}')
+        filename = str(Path(dir, 'cmpb_out', 'misc',f'{current_libmodel.getId()}_gap_analysis_{str(today)}'))
         gapfilling_perfomed = True
 
         match config['gapfilling']['gap_fill_params']['db_to_compare']:
@@ -230,10 +231,10 @@ def run(configpath:Union[str,None]=None):
 
             # save model
             if config['general']['save_all_models']:
-                write_model_to_file(current_libmodel, Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_autofilled_gaps.xml'))
+                write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_autofilled_gaps.xml')))
                 current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_autofilled_gaps.xml')
             else:
-                write_model_to_file(current_libmodel, current_modelpath)
+                write_model_to_file(current_libmodel, str(current_modelpath))
                 
             logging.info(f'Gaps were filled automatically in {current_libmodel.getId()}.')
                 
@@ -242,10 +243,10 @@ def run(configpath:Union[str,None]=None):
 
         # save model
         if config['general']['save_all_models']:
-            write_model_to_file(current_libmodel, Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_manually_filled_gaps.xml'))
+            write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_manually_filled_gaps.xml')))
             current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_manually_filled_gaps.xml')
         else:
-            write_model_to_file(current_libmodel, current_modelpath)
+            write_model_to_file(current_libmodel, str(current_modelpath))
             
         logging.info(f'Gaps were filled based on a  manually curated file in {current_libmodel.getId()}.')
         
@@ -262,37 +263,39 @@ def run(configpath:Union[str,None]=None):
     # -----------------
     if config['kegg_pathway_groups']:
         current_libmodel, missing_list = kegg_pathways(current_modelpath)
-        with open(Path(dir, 'cmpb', 'misc', 'reac_wo_kegg_pathway_groups.txt'), 'w') as outfile:
+        with open(Path(dir, 'cmpb_out', 'misc', 'kegg_pathway', 'reac_wo_kegg_pathway_groups.txt'), 'w') as outfile:
             for line in missing_list:
                 outfile.write(f'{line}\n')
         # save model
         if config['general']['save_all_models']:
-            write_model_to_file(current_libmodel, Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_added_KeggPathwayGroups.xml'))
+            write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_added_KeggPathwayGroups.xml')))
             current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_added_KeggPathwayGroups.xml')
         else:
-            write_model_to_file(current_libmodel, current_modelpath)
+            write_model_to_file(current_libmodel, str(current_modelpath))
 
     # SBOannotator
     # ------------
     # @TODO 
     #  theoretically: something along the way:
-    libsbml_doc = readSBML(current_modelpath)
-    libsbml_model = libsbml_doc.getModel()
+    #libsbml_doc = readSBML(current_modelpath)
+    #libsbml_model = libsbml_doc.getModel()
+    """ current_libmodel = load_model(str(current_modelpath),'libsbml')
     if config['general']['save_all_models']:
-        libsbml_model = run_SBOannotator(libsbml_model)
-        write_model_to_file(libsbml_model,Path(dir,'cmpb','models', 'SBOannotated.xml'))
-        current_modelpath = Path(dir,'cmpb','models', 'SBOannotated.xml')
+        current_libmodel = run_SBOannotator(current_libmodel)
+        write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models', 'SBOannotated.xml')))
+        current_modelpath = Path(dir,'cmpb_out','models', 'SBOannotated.xml')
     else:
-        libsbml_model = run_SBOannotator(libsbml_model)
-        write_model_to_file(current_modelpath)
+        current_libmodel = run_SBOannotator(current_libmodel)
+        write_model_to_file(current_libmodel, str(current_modelpath))
 
+    current_model = load_model(str(current_modelpath),'cobra')
     between_analysis(current_model,config,step='after_annotation')
-    
+     """
 
     # model cleanup
     ###############
-    current_model = load_model(current_modelpath)
-
+    current_model = load_model(str(current_modelpath), 'cobra')
+    
     # duplicates
     # ----------
     match config['duplicates']['reactions']:
@@ -338,16 +341,16 @@ def run(configpath:Union[str,None]=None):
 
     # save model
     if config['general']['save_all_models']:
-        write_model_to_file(current_model, Path(dir,'cmpb_out','models',f'{current_model.getId()}_after_duplicate_removal.xml'))
-        current_modelpath = Path(dir,'cmpb_out','models',f'{current_model.getId()}_after_duplicate_removal.xml')
+        write_model_to_file(current_model, str(Path(dir,'cmpb_out','models',f'{current_model.id}_after_duplicate_removal.xml')))
+        current_modelpath = Path(dir,'cmpb_out','models',f'{current_model.id}_after_duplicate_removal.xml')
     else:
-        write_model_to_file(current_model, only_modelpath)
+        write_model_to_file(current_model, str(only_modelpath))
         current_modelpath = only_modelpath
 
     # BOF
     # ---
     # BOFdat - optional
-    current_model = load_model(current_modelpath,'cobra')
+    current_model = load_model(str(current_modelpath),'cobra')
     if config['BOF']['run_bofdat']:
         check_bof = test_biomass_presence(current_model)
         if check_bof:
@@ -367,7 +370,6 @@ def run(configpath:Union[str,None]=None):
                                 dna_weight_fraction = config['BOF']['bofdat_params']['dna_weight_fraction'], 
                                 weight_frac = config['BOF']['bofdat_params']['weight_fraction'])
             current_model = check_normalise_biomass(current_model)
-
     # check and normalise 
     else:
         current_model = check_normalise_biomass(current_model)
@@ -375,32 +377,33 @@ def run(configpath:Union[str,None]=None):
     # save 
     # save model
     if config['general']['save_all_models']:
-        write_model_to_file(current_model, Path(dir,'cmpb_out','models',f'{current_model.getId()}_after_BOF.xml'))
-        current_modelpath = Path(dir,'cmpb_out','models',f'{current_model.getId()}_after_BOF.xml')
+        write_model_to_file(current_model, str(Path(dir,'cmpb_out','models',f'{current_model.id}_after_BOF.xml')))
+        current_modelpath = Path(dir,'cmpb_out','models',f'{current_model.id}_after_BOF.xml')
     else:
-        write_model_to_file(current_model, current_modelpath)
+        write_model_to_file(current_model, str(current_modelpath))
     
     # MCC
     # ---
-    current_model = perform_mcc(current_model, Path(dir,'cmpb','misc','mcc'),apply=True)
+    current_model = perform_mcc(current_model, Path(dir,'cmpb_out','misc','mcc'),apply=True)
 
     # save the final model
     if config['general']['save_all_models']:
-        write_model_to_file(current_model, Path(dir,'cmpb_out','models',f'{current_model.getId()}_final_model.xml'))
-        current_modelpath = Path(dir,'cmpb_out','models',f'{current_model.getId()}_final_model.xml')
+        write_model_to_file(current_model, str(Path(dir,'cmpb_out','models',f'{current_model.id}_final_model.xml')))
+        current_modelpath = Path(dir,'cmpb_out','models',f'{current_model.id}_final_model.xml')
     else:
-        write_model_to_file(current_model, only_modelpath)
+        write_model_to_file(current_model, str(only_modelpath))
         current_modelpath = only_modelpath
 
     # analysis
     ##########
-    current_model = load_model(current_modelpath,'cobra')
-    current_libmodel = load_model(current_modelpath,'libsbml')
+    current_model = load_model(str(current_modelpath),'cobra')
+    current_libmodel = load_model(str(current_modelpath),'libsbml')
 
     # stats
     # -----
     stats_report = ModelInfoReport(current_model)
-    stats_report.save(Path(dir,'cmpb_out', 'misc','stats'),
+    Path(dir,'cmpb_out', 'misc','stats','final').mkdir(parents=True, exist_ok=False)
+    stats_report.save(Path(dir,'cmpb_out', 'misc','stats','final'),
                       color_palette=config['general']['colours']) 
     
     # kegg pathway
@@ -426,7 +429,7 @@ def run(configpath:Union[str,None]=None):
     # ------------
     media_list = growth.read_media_config(config['input']['mediapath'])
     auxo_report = growth.test_auxotrophies(current_model, media_list[0], media_list[1], config['general']['namespace'])
-    auxo_report.save(Path(dir,'cmpb_out','misc','auxotrophies'),
+    auxo_report.save(Path(dir,'cmpb_out','misc','auxotrophy'),
                      color_palette=config['general']['colours']) 
 
 

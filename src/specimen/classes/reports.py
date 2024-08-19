@@ -86,7 +86,7 @@ class SpecimenModelInfoReport(ModelInfoReport):
                 (2) matplotlib.figure.Figure: Report for the creation origin.
         """
 
-        # @TODO maybe change plot type, as with small numbers its barely visibale
+        # @TODO maybe change plot type, as with small numbers its barely visible
         def plot_origin(data, color_palette):
 
             # create colour gradient

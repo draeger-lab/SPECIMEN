@@ -39,6 +39,14 @@ general:
 # Part-specific options
 # ---------------------
 
+# Build a model using CarveMe
+carveme:
+  run_carve: False
+  # if CarveMe should be run, 
+  # fill out the params below
+  protein_fasta: USER  # FASTA used for CarveMe
+  gram: USER           # grampos or gramneg?
+
 # Polish a CarveMe model
 #    Only neccessary, if the model will or has been build with CarveMe
 #    Will only be used, if model is indeed a CarveMe model
