@@ -30,9 +30,10 @@ from typing import Literal
 from Bio.KEGG import REST
 from Bio.KEGG import Enzyme, Compound
 
-from refinegems.utility.io import kegg_reaction_parser, load_a_table_from_database
+from refinegems.utility.io import load_a_table_from_database
 from refinegems.utility.entities import create_random_id, get_reaction_annotation_dict, match_id_to_namespace
 from refinegems.utility.connections import run_memote
+from refinegems.utility.db_access import kegg_reaction_parser
 
 # further required programs:
 #        - DIAMOND, tested with version 0.9.14 (works only for certain sensitivity mode)

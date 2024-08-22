@@ -22,7 +22,7 @@ import subprocess
 from refinegems.analysis import growth
 from refinegems.analysis.investigate import plot_rea_sbo_single
 from refinegems.classes.reports import ModelInfoReport
-from refinegems.utility.entities import test_biomass_presence
+from refinegems.utility.util import test_biomass_presence
 from refinegems.curation.biomass import check_normalise_biomass
 from refinegems.curation.charges import correct_charges_modelseed
 from refinegems.curation.curate import resolve_duplicates
@@ -120,10 +120,6 @@ def run(configpath:Union[str,None]=None):
     else:
         config = validate_config(configpath, 'cmpb') 
 
-    if not config['general']['save_all_models']:
-        only_modelpath = Path(dir,'cmpb_out','model.xml') # @TODO Use model ID here...
-                                                          # model might not exist here ...
-
     # create directory structure
     # --------------------------
 
@@ -138,6 +134,12 @@ def run(configpath:Union[str,None]=None):
     Path(dir,"cmpb_out",'misc', 'stats').mkdir(parents=True, exist_ok=False)          #      |- stats
     Path(dir,"cmpb_out",'misc', 'kegg_pathway').mkdir(parents=True, exist_ok=False)   #      |- kegg_pathways
     Path(dir,"cmpb_out",'misc', 'auxotrophy').mkdir(parents=True, exist_ok=False)     #      |- auxothrophy
+
+    # save modelpath
+    # --------------
+    if not config['general']['save_all_models']:
+        only_modelpath = Path(dir,'cmpb_out','models','model.xml') # @TODO Use model ID here...
+                                                          # model might not exist here ...
 
     # create log
     # ----------
@@ -314,8 +316,8 @@ def run(configpath:Union[str,None]=None):
     current_libmodel = load_model(str(current_modelpath),'libsbml')
     if config['general']['save_all_models']:
         current_libmodel = run_SBOannotator(current_libmodel)
-        write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models', 'SBOannotated.xml')))
-        current_modelpath = Path(dir,'cmpb_out','models', 'SBOannotated.xml')
+        write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models', f'{current_libmodel.getId()}_SBOannotated.xml')))
+        current_modelpath = Path(dir,'cmpb_out','models', f'{current_libmodel.getId()}_SBOannotated.xml')
     else:
         current_libmodel = run_SBOannotator(current_libmodel)
         write_model_to_file(current_libmodel, str(current_modelpath))
@@ -416,6 +418,7 @@ def run(configpath:Union[str,None]=None):
     
     # MCC
     # ---
+    Path(dir,"cmpb_out",'misc','mcc').mkdir(parents=True, exist_ok=False)
     current_model = perform_mcc(current_model, Path(dir,'cmpb_out','misc','mcc'),apply=True)
 
     # save the final model
