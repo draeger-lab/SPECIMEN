@@ -421,7 +421,6 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
     print('------------')
     print('The following information is REQUIRED for the pipeline')
     print('------------')
-    config['input']['annotated_genome'] = click.prompt('Enter the path to your annotated genome file', type=click.Path(exists=True))
     config['input']['mediapath'] = click.prompt('Enter the path to a media configuration file for growth simulation', type=click.Path(exists=True))
 
     # general options
@@ -437,7 +436,7 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
     set_col = click.prompt('Do you want to use the default colour map YlGn for the visualisation?', type=click.Choice(['y','n']), show_choices=True)
     match set_col:
         case 'n':
-            colours = click.prompt('Enter your choosen colour scheme', type=str)
+            colours = click.prompt('Enter your chosen colour scheme', type=str)
             config['general']['colours'] = colours
         case 'y':
             pass
@@ -467,11 +466,25 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
             config['general']['stats_always_on'] = False
 
     # some additional, sometimes required, sometimes optional files
-    refseq = click.prompt('If you want to run a gap analysis with KEGG or have a CarveMe model, please enter the path to your refseq gff file', type=click.Path(exists=True))
+    refseq = click.prompt('If you want to run a gap analysis with KEGG or have a CarveMe model, please enter the path to your refseq gff file', type=click.Path())
     config['general']['refseq_organism_id'] = refseq
 
     kegg_org_id = click.prompt('If you want to run a gap analysis with KEGG, please enter the KEGG organism ID')
     config['general']['kegg_organism_id'] = kegg_org_id
+    
+    protein_fasta = click.prompt('If you want to use CarveMe or GeneGapFiller, please enter the path to your protein fasta file', type=click.Path())
+    config['general']['protein_fasta'] = protein_fasta
+
+    # tech resources
+    # --------------
+    email = click.prompt('Enter the e-mail that will be used for Entrez')
+    config['tech-resources']['email'] = email
+
+    set_threads = click.prompt('The default number of threads available for tools like DIAMOND is 2. Do you want to change that?', type=click.Choice(['y','n']), show_choices=True)
+    match set_threads:
+        case 'y':
+            threads = click.prompt('Enter the number of threads available for tools like DIAMOND', type=int)
+            config['tech-resources']['threads'] = threads
 
     # part-specific 
     # -------------
@@ -480,54 +493,81 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
     print('------------')
 
     # CarveMe
-    carve = click.prompt('Do you want to build a model using CarveMe', type=click.Choice(['y','n']), show_choices=True)
+    carve = click.prompt('Do you want to build a model using CarveMe?', type=click.Choice(['y','n']), show_choices=True)
     match carve:
         case 'y':
-            config['carveme']['run_carve'] = True
-            prot_fa = click.prompt('Please enter the path to your protein fasta file', type=click.Path(exists=True))
-            config['carveme']['protein_fasta'] = prot_fa
+            if config['general']['protein_fasta'] is None:
+                protein_fasta = click.prompt('Enter the path to your protein fasta file', type=click.Path(exists=True))
+                config['general']['protein_fasta'] = protein_fasta
             gram = click.prompt('Do you want to use a template specialized for gram-positive or gram-negative bacteria?', type=click.Choice(['grampos','gramneg','None']), show_choices=True)
             config['carveme']['gram'] = gram
         case 'n':
-            config['carveme']['run_carve'] = False
+            if config['input']['modelpath'] is None:
+                model = click.prompt('Please choose between an existing model or building a model with CarveMe. To run the CMPB workflow, you need a model.', type=click.Choice(['modelpath','CarveMe']), show_choices=True)
+                match model:
+                    case 'modelpath':
+                        modelpath = click.prompt('Enter the path to an existing model', type=click.Path(exists=True))
+                        config['input']['modelpath'] = modelpath
+                    case 'CarveMe':
+                        carveme = click.prompt('Enter the path to a protein fasta file', type=click.Path(exists=True))
+                        config['general']['protein_fasta'] = carveme
     
     # model polish
-    carveme = click.prompt('Is your draft model CarveMe-based or will CarveMe be run?', type=click.Choice(['y','n']), show_choices=True)
+    carveme = click.prompt('Is your draft model CarveMe-based?', type=click.Choice(['y','n']), show_choices=True)
     if carveme == 'y':
-        email = click.prompt('Enter an email address for the connection to NCBI Entrez', type=str)
-        config['cm-polish']['email'] = email
         labs = click.prompt('Do you have a strain without any database information?', type=click.Choice(['y','n']), show_choices=True)
         labs = True if labs == 'y' else False
         config['cm-polish']['is_lab_strain'] = labs
-        if labs:
-            prot_fa = click.prompt('Please enter the path to your protein fasta file', type=click.Path(exists=True))
-            config['cm-polish']['protein_fasta'] = prot_fa
-        else:
-            check_prot_fa = click.prompt('Do you want to/can provide the protein fasta?', type=click.Choice(['y','n']), show_choices=True)
-            if check_prot_fa == 'y':
-                prot_fa = click.prompt('Please enter the path to your protein fasta file', type=click.Path(exists=True))
-                config['cm-polish']['protein_fasta'] = prot_fa
-            else:
-                config['cm-polish']['protein_fasta'] = None
     
-
     # gapfilling
     gap_analysis = click.prompt('Do you want to run a gap analysis?', type=click.Choice(['y','n']), show_choices=True) 
 
     if gap_analysis == 'y':
-        db_to_compare = click.prompt('Available database information for the gapfilling', type=click.Choice(['KEGG','BioCyc','KEGG+BioCyc']), show_choices=True) 
-        config['gapfilling']['gap_fill_params']['db_to_compare'] = db_to_compare
-      
-        if 'KEGG' in db_to_compare:
-            pass
-        if 'BioCyc' in db_to_compare:
-            Path0 = click.prompt('Enter the path to your BioCyc TXT file containing a SmartTable with the columns \'Accession-2\' and \'Reaction of gene\'', type=click.Path(exists=True))
-            Path1 = click.prompt('Enter the path to your BioCyc TXT file containing a SmartTable with all reaction relevant information', type=click.Path(exists=True))
-            Path2 = click.prompt('Enter the path to your Biocyc TXT file containing a SmartTable with all metabolite relevant information', type=click.Path(exists=True))
-            Path3 = click.prompt('Enter path to protein FASTA file used as input for CarveMe', type=click.Path(exists=True))
-            config['gapfilling']['gap_fill_params']['biocyc_files'] = [Path0, Path1, Path2, Path3]
+        idprefix = click.prompt('Enter a prefix to be used of IDs for the namespace do not exist')
+        config['gapfilling']['idprefix'] = idprefix
+        formula_check = click.prompt('Enter the parameter for checking the metabolite formula before adding them to the model', type=click.Choice(['none','strict','existence','wildcard']), show_choices=True)
+        config['gapfilling']['formula-check'] = formula_check
+        exclude_dna = click.prompt('Do you want to exlude reactions containing \'DNA\' in their name?', type=click.Choice(['y','n']), show_choices=True)
+        config['gapfilling']['exclude-dna'] = exclude_dna
+        exclude_rna = click.prompt('Do you want to exlude reactions containing \'RNA\' in their name?', type=click.Choice(['y','n']), show_choices=True)
+        config['gapfilling']['exclude-rna'] = exclude_rna
 
-# @TODO: Funktioniert das so? Bei den anderen yes-no-Fragen hast du noch alles auf True oder False gesetzt. -> Habs geändert, weil sonst steht in der config n und es wird trotzdem durchgeführt
+        algorithm = click.prompt('Which algorithm do you want to use for gapfilling?', type=click.Choice(['KEGGapFiller','BioCycGapFiller','GeneGapFiller']), show_choices=True)
+        match algorithm:
+            case 'KEGGapFiller':
+                config['gapfilling']['KEGGapFiller'] = True
+
+                if config['general']['kegg_organism_id'] is None:
+                    kegg_org_id = click.prompt('Enter the KEGG organism id')
+                    config['general']['kegg_organism_id'] = kegg_org_id
+            case 'BioCycGapFiller':
+                config['gapfilling']['BioCycGapFiller'] = True
+
+                gene_table = click.prompt('Enter the path to a gene smart table from BioCyc', type=click.Path(exists=True))
+                config['gapfilling']['BioCycGapFiller parameters']['gene-table'] = gene_table
+                reacs_table = click.prompt('Enter the path to a reactions smart table from BioCyc', type=click.Path(exists=True))
+                config['gapfilling']['BioCycGapFiller parameters']['reacs-table'] = reacs_table
+                gff = click.prompt('Enter the path to a GFF file of the genome of the model', type=click.Path(exists=True))
+                config['gapfilling']['BioCycGapFiller parameters']['gff'] = gff
+            case 'GeneGapFiller':
+                config['gapfilling']['GeneGapFiller'] = True
+
+                gff = click.prompt('Enter the path to a GFF file of the genome of the model', type=click.Path(exists=True))
+                config['gapfilling']['GeneGapFiller parameters']['gff'] = gff
+                swissprot_dmnd = click.prompt('Enter the path to the SwissProt DIAMOND database file', type=click.Path(exists=True))
+                config['gapfilling']['GeneGapFiller parameters']['swissprot-dmnd'] = swissprot_dmnd
+                swissprot_mapping = click.prompt('Enter the path to the SwissProt mapping file', type=click.Path(exists=True))
+                config['gapfilling']['GeneGapFiller parameters']['swissprot-mapping'] = swissprot_mapping
+                check_NCBI = click.prompt('Do you want to enable checking NCBI accession numbers for EC numbers?', type=click.Choice(['y','n']), show_choices=True)
+                check_NCBI = True if check_NCBI == 'y' else False
+                config['gapfilling']['GeneGapFiller parameters']['check-NCBI'] = check_NCBI
+                sensitivity = click.prompt('Enter the sensitivity option for the DIAMOND run', type=click.Choice(['fast','mid-sensitive','sensitive','more-sensitive','very-sensitive','ultra-sensitive']), show_choices=True)
+                config['gapfilling']['GeneGapFiller parameters']['sensitivity'] = sensitivity
+                coverage = click.prompt('Enter the coverage for DIAMOND', type=float)
+                config['gapfilling']['GeneGapFiller parameters']['coverage'] = coverage
+                percentage_identity = click.prompt('Enter the percentage identity threshold value for accepting matches', type=float)
+                config['gapfilling']['GeneGapFiller parameters']['percentage identity'] = percentage_identity
+
     # kegg pathways as groups
     kegg_pw_groups = click.prompt('Do you want to add KEGG pathways as groups to the model?', type=click.Choice(['y','n']), show_choices=True)
     match kegg_pw_groups:
@@ -537,7 +577,6 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
             config['kegg_pathway_groups'] = False
 
     # resolve duplicates
-
     reac_dups = click.prompt('Do you want to check for and/or remove duplicate reactions?', type=click.Choice(['skip','check','remove']), show_choices=True)
     config['duplicates']['reactions'] = reac_dups
     meta_dups = click.prompt('Do you want to check for and/or remove duplicate metabolites?', type=click.Choice(['skip','check','remove']), show_choices=True)
@@ -559,7 +598,7 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
             config['BOF']['full_genome_sequence'] = full_genome_path
             dna_wf = click.prompt('Enter the DNA weight fraction of your organism', type=float)
             config['BOF']['dna_weight_fraction'] = dna_wf
-            wf = click.prompt('Enter the weight fraction of your organsim (enzyme/ion)', type=float)
+            wf = click.prompt('Enter the weight fraction of your organism (enzyme/ion)', type=float)
             config['BOF']['weight_fraction'] = wf
         case 'n':
             config['BOF']['run_bofdat'] = False
