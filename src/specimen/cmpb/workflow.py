@@ -123,8 +123,7 @@ def run(configpath:Union[str,None]=None):
 
     dir = config['general']['dir']
     if not config['general']['save_all_models']:
-        only_modelpath = Path(dir,'cmpb_out','model.xml') # @TODO Use model ID here...
-                                                          # model might not exist here ...
+        only_modelpath = Path(dir,'cmpb_out','model.xml') 
 
     # create directory structure
     # --------------------------
@@ -377,8 +376,6 @@ def run(configpath:Union[str,None]=None):
     
     # in-between testing
     between_growth_test(current_model,config,step='after_duplicate_removal')
-    import sys
-    sys.exit(0) # ------------------ issue above ------------------------
     between_analysis(current_model,config,step='after_duplicate_removal')
 
     # BOF
@@ -469,10 +466,11 @@ def run(configpath:Union[str,None]=None):
 
 ####### IDEAS below ####
 
-# @TODO / @IDEAS Add option to have specific colour list per model for plots
+# @TODO 
+# - Add option to have specific colour list per model for plots
     # for the comparison when runnin this on multiple models
-# @TODO Maybe get models at first and then add model IDs to every save filename?
-# @TODO Add optional FROG report at end of pipeline
+# - Maybe get models at first and then add model IDs to every save filename?
+# - Add optional FROG report at end of pipeline
 
 # run for multiple models
 def wrapper():

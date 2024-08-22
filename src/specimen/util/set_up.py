@@ -33,8 +33,10 @@ HQTB_CONFIG_PATH_OPTIONAL = ['media_gap', 'ncbi_map', 'ncbi_dat','biocyc','unive
 HQTB_CONFIG_PATH_REQUIRED = ['annotated_genome','full_sequence','model','diamond',
                              'mnx_chem_prop', 'mnx_chem_xref','mnx_reac_prop','mnx_reac_xref',
                              'media_analysis'] #: :meta: 
-CMPB_CONFIG_PATHS_REQUIRED = ['mediapath','protein_fasta','refseq_gff','annotated_genome'] #: :meta:
-CMPB_CONFIG_PATHS_OPTIONAL = ['modelpath','biocyc_files','full_genome_sequence'] # :meta:
+CMPB_CONFIG_PATHS_REQUIRED = ['mediapath'] #: :meta:
+CMPB_CONFIG_PATHS_OPTIONAL = ['modelpath','full_genome_sequence','refseq_gff', 'protein_fasta',
+                              'gene-table','reacs-table','gff','swissprot-dmnd',
+                              'swissprot-mapping'] # :meta:
 PIPELINE_PATHS_OPTIONAL = {'hqtb':HQTB_CONFIG_PATH_OPTIONAL,
                   'cmpb':CMPB_CONFIG_PATHS_OPTIONAL} #: :meta: 
 PIPELINE_PATHS_REQUIRED = {'hqtb':HQTB_CONFIG_PATH_REQUIRED,
