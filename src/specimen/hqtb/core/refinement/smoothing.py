@@ -16,9 +16,10 @@ import warnings
 import cobra
 from cobra import Reaction
 
-from refinegems.curation.biomass import test_biomass_presence, check_normalise_biomass
+from refinegems.curation.biomass import check_normalise_biomass
 from refinegems.classes import egcs
 from refinegems.utility.connections import adjust_BOF, perform_mcc, run_memote
+from refinegems.utility.util import test_biomass_presence
 
 ################################################################################
 # variables

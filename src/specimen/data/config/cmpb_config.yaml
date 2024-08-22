@@ -128,4 +128,4 @@ BOF:
   bofdat_params:
     full_genome_sequence: USER  # Whole genome sequence
     dna_weight_fraction: USER   # DNA weight fraction for the organism
-    weight_fraction: USER       # Ezyme/ion weight fractions for the organism
+    weight_fraction: USER       # Enzyme/ion weight fractions for the organism

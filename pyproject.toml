@@ -61,4 +61,4 @@ specimen = "specimen.cmd_access:cli"
 [tool.setuptools.packages.find]
 where = ['src']
 [tool.setuptools.package-data]
-"specimen.data.config" = ['*.yaml']
+"specimen.data.config" = ['*.yaml','*.yml']

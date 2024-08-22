@@ -85,6 +85,7 @@ def run(configpath:Union[str,None]=None):
             mes = f'No growth/biomass function detected, growth simulation for step {step} will be skipped.'
             warnings.warn(mes)
 
+
     def between_analysis(model: Model, cfg:dict, step:str):
         """Helper function for :py:func:`~specimen.cmpb.workflow.run`. 
         Run a memote and/or stats test on a model with the options set in the config file.
@@ -120,15 +121,20 @@ def run(configpath:Union[str,None]=None):
     else:
         config = validate_config(configpath, 'cmpb') 
 
+    dir = config['general']['dir']
+    if not config['general']['save_all_models']:
+        only_modelpath = Path(dir,'cmpb_out','model.xml') # @TODO Use model ID here...
+                                                          # model might not exist here ...
+
     # create directory structure
     # --------------------------
 
-    dir = config['general']['dir']
     Path(dir,"cmpb_out").mkdir(parents=True, exist_ok=False)                          # cmpb_out
     Path(dir,"cmpb_out",'models').mkdir(parents=True, exist_ok=False)                 #   |- models
     Path(dir,"cmpb_out",'logs').mkdir(parents=True, exist_ok=False)                   #   |- logs
     Path(dir,"cmpb_out",'misc').mkdir(parents=True, exist_ok=False)                   #   |- misc
     Path(dir,"cmpb_out",'misc', 'memote').mkdir(parents=True, exist_ok=False)         #      |- memote
+    Path(dir,"cmpb_out",'misc', 'mcc').mkdir(parents=True, exist_ok=False)            #      |- mcc
     Path(dir,"cmpb_out",'misc', 'gapfill').mkdir(parents=True, exist_ok=False)        #      |- gapfill
     Path(dir,"cmpb_out",'misc', 'growth').mkdir(parents=True, exist_ok=False)         #      |- growth
     Path(dir,"cmpb_out",'misc', 'stats').mkdir(parents=True, exist_ok=False)          #      |- stats
@@ -214,7 +220,6 @@ def run(configpath:Union[str,None]=None):
                 current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_KEGG_gapfill.xml')
             else:
                 write_model_to_file(current_libmodel, str(only_modelpath))
-                current_modelpath = only_modelpath
             current_model = load_model(current_modelpath,'cobra')
         else:
             mes = f'No KEGG organism ID provided. Gapfilling with KEGG will be skipped.'
@@ -239,11 +244,10 @@ def run(configpath:Union[str,None]=None):
                                          )
         # save model
         if config['general']['save_all_models']:
-            write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_KEGG_gapfill.xml')))     
-            current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_KEGG_gapfill.xml')
+            write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_BioCyc_gapfill.xml')))     
+            current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_BioCyc_gapfill.xml')
         else:
             write_model_to_file(current_libmodel, str(only_modelpath))
-            current_modelpath = only_modelpath
         current_model = load_model(current_modelpath,'cobra')
         
     # GeneGapFiller
@@ -258,7 +262,7 @@ def run(configpath:Union[str,None]=None):
                                fasta = config['general']['protein_fasta'],
                                dmnd_db = config['gapfilling']['GeneGapFiller parameters']['swissprot-dmnd'],
                                swissprot_map = config['gapfilling']['GeneGapFiller parameters']['swissprot-mapping'],
-                               outdir = Path(dir,"cmpb_out",'misc', 'gapfill'), # @TODO or would a subfolder be better?
+                               outdir = Path(dir,"cmpb_out",'misc', 'gapfill'), # @DISCUSSION or would a subfolder be better?
                                sens = config['gapfilling']['GeneGapFiller parameters']['sensitivity'],
                                cov = config['gapfilling']['GeneGapFiller parameters']['coverage'],
                                t = config['tech-resources']['threads'],
@@ -272,17 +276,14 @@ def run(configpath:Union[str,None]=None):
                                           exclude_rna = config['gapfilling']['exclude-rna']
                                          )
         # save model
-        if config['general']['save_all_models'] and run_gapfill:
-            write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_KEGG_gapfill.xml')))     
-            current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_KEGG_gapfill.xml')
+        if config['general']['save_all_models']:
+            write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_Gene_gapfill.xml')))     
+            current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_Gene_gapfill.xml')
             current_model = load_model(current_modelpath,'cobra')
-        elif run_gapfill:
+        else:
             write_model_to_file(current_libmodel, str(only_modelpath))
-            current_modelpath = only_modelpath
             current_model = load_model(current_modelpath,'cobra')
-        else: 
-            pass # no gapfill
-    
+
     # testing
     if run_gapfill:
         between_growth_test(current_model,config,step='after_gapfill')
@@ -292,6 +293,8 @@ def run(configpath:Union[str,None]=None):
     ###############
     # @TODO
     # future update
+    # currently being revamped 
+    # and python access is coming soon
 
     # Annotations
     #############
@@ -312,8 +315,8 @@ def run(configpath:Union[str,None]=None):
 
     # SBOannotator
     # ------------
-    # @TEST , if it works
     current_libmodel = load_model(str(current_modelpath),'libsbml')
+    
     if config['general']['save_all_models']:
         current_libmodel = run_SBOannotator(current_libmodel)
         write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models', f'{current_libmodel.getId()}_SBOannotated.xml')))
@@ -370,9 +373,6 @@ def run(configpath:Union[str,None]=None):
                        remove_unused_meta=config['duplicates']['remove_unused_metabs'], 
                        remove_dupl_reac=remove_dupl_reac)
 
-    between_growth_test(current_model,config,step='after_duplicate_removal')
-    between_analysis(current_model,config,step='after_duplicate_removal')
-
     # save model
     if config['general']['save_all_models']:
         write_model_to_file(current_model, str(Path(dir,'cmpb_out','models',f'{current_model.id}_after_duplicate_removal.xml')))
@@ -380,6 +380,12 @@ def run(configpath:Union[str,None]=None):
     else:
         write_model_to_file(current_model, str(only_modelpath))
         current_modelpath = only_modelpath
+    
+    # in-between testing
+    between_growth_test(current_model,config,step='after_duplicate_removal')
+    import sys
+    sys.exit(0) # ------------------ issue above ------------------------
+    between_analysis(current_model,config,step='after_duplicate_removal')
 
     # BOF
     # ---
@@ -408,7 +414,6 @@ def run(configpath:Union[str,None]=None):
     else:
         current_model = check_normalise_biomass(current_model)
 
-    # save 
     # save model
     if config['general']['save_all_models']:
         write_model_to_file(current_model, str(Path(dir,'cmpb_out','models',f'{current_model.id}_after_BOF.xml')))
