@@ -50,7 +50,7 @@ tech-resources:
 # Build a model using CarveMe
 # ---------------------------
 carveme:
-  run_carve: False
+  # requires protein_fasta under general to be set
   # if CarveMe should be run, 
   # fill out the params below
   gram: USER           # grampos or gramneg?

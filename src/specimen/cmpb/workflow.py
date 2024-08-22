@@ -141,12 +141,6 @@ def run(configpath:Union[str,None]=None):
     Path(dir,"cmpb_out",'misc', 'kegg_pathway').mkdir(parents=True, exist_ok=False)   #      |- kegg_pathways
     Path(dir,"cmpb_out",'misc', 'auxotrophy').mkdir(parents=True, exist_ok=False)     #      |- auxothrophy
 
-    # save modelpath
-    # --------------
-    if not config['general']['save_all_models']:
-        only_modelpath = Path(dir,'cmpb_out','models','model.xml') # @TODO Use model ID here...
-                                                          # model might not exist here ...
-
     # create log
     # ----------
     today = date.today().strftime("%Y%m%d")
