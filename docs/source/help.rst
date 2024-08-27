@@ -33,7 +33,7 @@ Which types of organism work with ``SPECIMEN``?
 
 ``SPECIMEN`` was originally written for prokaryota. However, adapting ``SPECIMEN`` to work with 
 other organism types is something we hope to archieve with a future update. 
-Currently, the pipelines have yet to be tested on types of organism other than prokaryota.
+Currently, the workflows have yet to be tested on types of organism other than prokaryota.
 
 Which namespaces can I use?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

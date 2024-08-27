@@ -5,7 +5,7 @@ The third part of the refinement aims to improve the annotations of the model.
 
 .. image:: ../../../images/modules/3_3_annotation.png
 
-As seen in the picture above, the pipeline currently covers:
+As seen in the picture above, the workflow currently covers:
 
 - SBOterm annotations
 - KEGG pathway annotations for reactions

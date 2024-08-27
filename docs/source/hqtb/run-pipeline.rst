@@ -1,16 +1,16 @@
-Run the ``HQTB`` Pipeline
+Run the ``HQTB`` Workflow
 =========================
 
-This page explains how to run the complete ``HTQB`` (high-quality template based) pipeline 
+This page explains how to run the complete ``HTQB`` (high-quality template based) worfklow 
 and how to collected the neccessary data.
 
-For more information about the steps of the pipeline, 
+For more information about the steps of the worfklow, 
 see :ref:`overview-hqtb`.
 
 ``HQTB``: Quickstart
 --------------------
 
-The pipeline can either be run directly from the command line or its functions can be called from inside a Python script.
+The workflow can either be run directly from the command line or its functions can be called from inside a Python script.
 The input in both cases is a configuration file that contains all information needed (data file paths and parameters) to run it.
 
 The `configuration <hqtb-config.html>`__ can be downloaded using the command line:
@@ -34,9 +34,9 @@ To download the configuration file using Python, use:
 As with the command line access, the type can be changed to ``hqtb-advanced``.
 
 After downloading the configuration file, open it with an editor and change the parameters as needed.
-Missing entries will be reported when starting the pipeline.
+Missing entries will be reported when starting the worfklow.
 
-To run the pipeline using the configuration file, use
+To run the worfklow using the configuration file, use
 
 .. code-block:: bash
     :class: copyable
@@ -54,7 +54,7 @@ from inside a Python script or Jupyter Notebook with "config.yaml" being the pat
 
 .. note::
 
-    Additionally, the pipeline can be run with a wrapper to susequently build multiple models for different genomes using the same parameters.
+    Additionally, the worfklow can be run with a wrapper to susequently build multiple models for different genomes using the same parameters.
     The wrapper can be accessed using :code:`specimen hqtb run wrapper "config.yaml"` or :code:`specimen.workflow.wrapper_pipeline(config_file='/User/path/to/config.yaml', parent_dir="./")`.
 
 
@@ -72,7 +72,7 @@ If you are just starting a new project and do not have all the data ready to go,
 | The function above creates the following directory structure for your project.
 | The 'contains' column lists what is supposed to be inside the according folder. 
   The tags manual/semi/automated report how these files are added to the folder (automated = by the setup function; semi = multiple steps neccessary, some by the program, some by the user; manual = by the user).
-  The tags required/optional report whether this input is necessary to run the pipeline or if it is an optional input.
+  The tags required/optional report whether this input is necessary to run the workflow or if it is an optional input.
 
 .. table::
     :align: center 
@@ -122,12 +122,12 @@ Further details for collecting the data:
 
         - The information of the first three columns can be taken from the previous two steps while
         - For the last column the user needs to check, if the genomes have been entered into KEGG and have an organism identifier.
-        - This file is purely optional for running the pipeline but potentially leads to better results.
+        - This file is purely optional for running the worfklow but potentially leads to better results.
 
 - medium:   
 
-    The media, either for analysis or gap filling can be entered into the pipeline via a config file. 
-    The same media file can be used for both or one file for each step can be entered into the pipeline. 
+    The media, either for analysis or gap filling can be entered into the workflow via a config file. 
+    The same media file can be used for both or one file for each step can be entered into the workflow. 
     The config files are from the `refineGEMs <https://github.com/draeger-lab/refinegems/tree/dev-2>`__ :footcite:p:`bauerle2023genome` toolbox and access its in-build medium database. 
     Additionally, the config files allow for manual adjustment / external input.
 

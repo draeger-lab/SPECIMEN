@@ -17,6 +17,6 @@ Except for the *complete Bio/MetaCyc annotations* all steps are optional.
 
     The gap filling is currently only available in the COBRApy variant.
 
-    This part of the pipeline is still a working process, 
+    This part of the workflow is still a working process, 
     stay tuned for future updates.
 

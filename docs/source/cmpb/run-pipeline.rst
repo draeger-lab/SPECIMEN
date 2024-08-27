@@ -1,10 +1,10 @@
-Run the ``CMPB`` Pipeline
+Run the ``CMPB`` Workflow
 =========================
 
-This page explains how to run the complete ``CMPB`` (CarveMe + ModelPolisher based) pipeline 
+This page explains how to run the complete ``CMPB`` (CarveMe + ModelPolisher based) worfklow 
 and how to collect the neccessary data.
 
-For more information about the steps of the pipeline, 
+For more information about the steps of the worfklow, 
 see :ref:`cmpb-overview`.
 
 ``CMPB``: Quickstart 
@@ -12,10 +12,10 @@ see :ref:`cmpb-overview`.
 
 .. warning::
 
-    Currently, the pipeline can only be run with an already generated model as input.
+    Currently, the workflow can only be run with an already generated model as input.
     The CarveMe connection will be added in a future update.
 
-The pipeline can either be run directly from the command line or its functions can be called from inside a Python script.
+The worfklow can either be run directly from the command line or its functions can be called from inside a Python script.
 The input in both cases is a :doc:`configuration file <cmpb-config>` that contains all information needed (data file paths and parameters) to run it.
 
 The configuration can be downloaded using the command line:
@@ -34,9 +34,9 @@ To download the configuration file using Python, use:
     specimen.setup.download_config(filename='./my_basic_config.yaml', type='cmpb')
 
 After downloading the configuration file, open it with an editor and change the parameters as needed.
-Missing entries will be reported when starting the pipeline.
+Missing entries will be reported when starting the worfklow.
 
-To run the pipeline using the configuration file, use
+To run the worfklow using the configuration file, use
 
 .. code-block:: bash
     :class: copyable
@@ -55,7 +55,7 @@ from inside a Python script or Jupyter Notebook with "config.yaml" being the pat
 ``CMPB``: Collecting Data
 -------------------------
 
-The pipeline has two obligatory parameters:
+The worfklow has two obligatory parameters:
 
 - Path to a model 
 

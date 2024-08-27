@@ -1,18 +1,18 @@
 About ``CMPB``
 ==============
 
-The CarveMe + ModelPolisher based (CMPB) pipeline curates a model using refineGEMs and ModelPolisher.
+The CarveMe + ModelPolisher based (CMPB) workflow curates a model using refineGEMs and ModelPolisher.
 The starting point is either the input files for CarveMe (future update) or an already built model.
 
-This pipeline aims at minimising the user's workload by concatenating steps that could be done individually with the 
+This workflow aims at minimising the user's workload by concatenating steps that could be done individually with the 
 integrated tools.
 
 .. _cmpb-overview:
 
-Overview of the ``CMPB`` Pipeline
+Overview of the ``CMPB`` worfklow
 ---------------------------------
 
-The following image shows an overrview of the steps of the pipeline:
+The following image shows an overrview of the steps of the worfklow:
 
 .. _cmpb_workflow:
 
@@ -26,7 +26,7 @@ The following steps are executed in the workflow:
 .. hint::
   All steps can also be performed individually.
 
-  Many of the steps of the pipeline can be fine tuned and turned off/on. 
+  Many of the steps of the worfklow can be fine tuned and turned off/on. 
   Check the :doc:`configuration file <cmpb-config>` for a full list of all parameters.
 
 - Step 0: Possible inputs
