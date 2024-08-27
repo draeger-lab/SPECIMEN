@@ -128,7 +128,7 @@ def run(genome:str,model:str,dir:str,mcc='skip',
         case 'greedy':
             print('GreedyEGCSolver:')
             solver = egcs.GreedyEGCSolver()
-            results = solver.solve_egcs(model,namespace=namespace) # @NOTE automatically uses c,p as compartments - maybe change later
+            results = solver.solve_egcs(model,namespace=namespace) # @NOTE automatically uses c,p as compartments 
             if results:
                 for k,v in results.items():
                     print(f'\t{k}: {v}')

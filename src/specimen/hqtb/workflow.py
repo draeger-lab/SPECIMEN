@@ -1,4 +1,9 @@
-"""Funktions to run the workflow to create a GEM based on a high-quality template model.
+"""Functions to run the workflow to create a GEM based on a high-quality template model.
+
+.. warning:: 
+
+    This module is under heavy construction due to added content and 
+    changes in refineGEMs.
 """
 
 __author__ = 'Carolin Brune'
@@ -26,10 +31,10 @@ from .. import util
 # functions
 ################################################################################
 
-# @TODO
+# @TODO rewrite gap filling to fit refineGEMs
+# @TODO add more annotation/cleanup stuff from refineGEMs
 # @TEST
-#  -> improvements regarding new SPECIMEN update and OS independency
-def run_complete(config_file:str = 'test_config.yaml'):
+def run(config_file:str = 'test_config.yaml'):
     """Run the complete workflow for creating a strain-specific model.
 
     Args:
@@ -182,7 +187,7 @@ def run_complete(config_file:str = 'test_config.yaml'):
                               pathway=config['parameters']['analysis']['pathway'])
 
 
-def wrapper_pipeline(config_file:str, parent_dir:str=""):
+def wrapper(config_file:str, parent_dir:str=""):
     """Run the pipeline multiple times on a folder containing subfolders with
     subject annotated genomes and full genome sequences using the same configuration.
 
@@ -236,4 +241,4 @@ def wrapper_pipeline(config_file:str, parent_dir:str=""):
                 yaml.dump(current_config, config_stream)
             current_config = util.set_up.validate_config(temp_config.name)
 
-            run_complete(temp_config)
+            run(temp_config)

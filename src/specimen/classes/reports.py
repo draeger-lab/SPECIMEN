@@ -26,9 +26,8 @@ from refinegems.classes.reports import ModelInfoReport
 ################################################################################
 
 class SpecimenModelInfoReport(ModelInfoReport):
-    """A SPECIMEN-specific report for a given model.
-
-    Child-class of the refineGEMs class ModelInfoReport.
+    """A SPECIMEN-specific version of the 
+    ModelInfoReport for a given model.
 
     Attributes:
         model: 
@@ -70,7 +69,7 @@ class SpecimenModelInfoReport(ModelInfoReport):
     
     # depending on the implementation, save and make html 
     # can be inherited or need to be overwritten 
-    # but currently a @TODO
+    # @TODO
     def visualise(self, color_palette: str = 'YlGn') -> tuple[matplotlib.figure.Figure]:
         """Extend the visualisation function to include a graph for the creation type.
 
@@ -120,12 +119,17 @@ class SpecimenModelInfoReport(ModelInfoReport):
 
         return (fig1,fig2)
     
+    
     def save(self, dir: str, color_palette: str = 'YlGn') -> None:
         """Save the report and the 
 
         Args:
-            - dir (str): _description_
-            - color_palette (str, optional): _description_. Defaults to 'YlGn'.
+            - dir (str): 
+                Path to a directory to save the output files to.
+            - color_palette (str, optional): 
+                Name of a matplotlib colour palette. 
+                Used as the input for the figures.
+                Defaults to 'YlGn'.
         """
 
         # save the statistics report

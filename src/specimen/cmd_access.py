@@ -10,6 +10,8 @@ __author__ = 'Carolin Brune'
 import specimen
 import click
 
+import specimen.hqtb
+
 ################################################################################
 # entry points
 ################################################################################
@@ -50,53 +52,53 @@ def config(filename,type):
 # setup data directory structure
 # ------------------------------
 @setup.command()
-@click.argument('pipeline', type=click.Choice(['hqtb','high-quality template based', 
+@click.argument('workflow', type=click.Choice(['hqtb','high-quality template based', 
                                                'cmpb', 'carveme modelpolisher based']))
 @click.option('--dir','-d', type=str, default='./data/', show_default=True, help='Name/path to the directory create subdirectories in.')
 @click.option('--chunk-size', '-s', type=int, default=2048, show_default=True, help=' Size of the chunks of data while downloading.')
-def data_structure(pipeline, dir, chunk_size):
+def data_structure(workflow, dir, chunk_size):
     """Create a data directory and download basic databases.
 
     Creates the 'ideal' data directory structure and directly downloads
     the MetaNetX and BiGG data files.
 
-    PIPELINE is the type of pipeline for which the data structure should be build.
+    WORKFLOW is the type of workflow for which the data structure should be build.
     """
-    specimen.util.set_up.build_data_directories(pipeline, dir, chunk_size)
+    specimen.util.set_up.build_data_directories(workflow, dir, chunk_size)
 
 #################
-# hqtb pipeline #
+# hqtb workflow #
 #################
 
 @cli.group()
 def hqtb():
-    """Pipeline for GEM curation based on a high-quality template."""
+    """Workflow for GEM curation based on a high-quality template."""
 
-# run complete pipeline from config
+# run complete workflow from config
 # ---------------------------------
 @hqtb.command()
 @click.argument('config', type=str)
-def run_pipeline(config):
-    """Run the complete pipeline based on a config file.
+def run(config):
+    """Run the complete workflow based on a config file.
 
     CONFIG is the path to the configuration file to read the parameters from.
     """
-    specimen.workflow.run_complete(config)
+    specimen.hqtb.workflow.run(config)
 
 
-# run complete pipeline from config and folder (run multiple  times)
+# run complete workflow from config and folder (run multiple  times)
 # ------------------------------------------------------------------
 @hqtb.command()
 @click.argument('config', type=str)
 @click.option('-d','--directory', default='', type=str, help='Path to the (parent) directory that contains the folders if the subject input files.')
-def run_wrapper(config,directory):
-    """Run the complete pipeline multiple times based on a config file
+def wrapper(config,directory):
+    """Run the complete workflow multiple times based on a config file
     and a folder. The folder should contain subfolders with the subject files
     (annotated and full genome).
 
     CONFIG is the path to the configuration file to read the parameters from.
     """
-    specimen.workflow.wrapper_pipeline(config, parent_dir=directory)
+    specimen.hqtb.workflow.wrapper(config, parent_dir=directory)
 
 
 # run bidirectional blast
@@ -113,12 +115,12 @@ def run_wrapper(config,directory):
 @click.option('--sensitivity', '-s', type=click.Choice(['sensitive','more-sensitive','very-sensitive','ultra-sensitive']), default='sensitive', help='Sensitivity mode for DIAMOND blastp run. Can be sensitive, more-sensitive, very-sensitive or ultra-sensitive. Default is sensitive.')
 
 def bdb(template, input, template_name, input_name, temp_header, in_header, dir, threads, sensitivity):
-    """Step 1 of the pipeline: Perform bidirectional blast on a TEMPLATE and an INPUT annotated genome.
+    """Step 1 of the workflow: Perform bidirectional blast on a TEMPLATE and an INPUT annotated genome.
 
     TEMPLATE is an annotated genome file (path) that is used for comparison.
     INPUT is an annotated genome file (path) that will be compared to TEMPLATE
     """
-    specimen.core.bidirectional_blast.run(template, input, dir,template_name, input_name, temp_header, in_header, threads, extra_info=['locus_tag', 'product', 'protein_id'], sensitivity=sensitivity)
+    specimen.hqtb.core.bidirectional_blast.run(template, input, dir,template_name, input_name, temp_header, in_header, threads, extra_info=['locus_tag', 'product', 'protein_id'], sensitivity=sensitivity)
 
 
 # generafte draft
@@ -134,12 +136,12 @@ def bdb(template, input, template_name, input_name, temp_header, in_header, dir,
 @click.option('--namespace','--nsp',type=click.Choice(['BiGG']),default='BiGG',help='Namespace of the model.')
 @click.option('--memote', is_flag=True, default=False, help='Run Memote on the generated draft model.')
 def draft(template, bpbbh, dir, edit_names, pid, name, medium, nsp, memote):
-    """Step 2 of the pipeline: Generate a draft model from a blastp best hits tsv file and a template model.
+    """Step 2 of the workflow: Generate a draft model from a blastp best hits tsv file and a template model.
 
     TEMPLATE is the path (string) to the template model.\n
-    BPBBH is the path (string) to the  BLASTp bidirectional best hits (step 1).
+    BPBBH is the path (string) to the BLASTp bidirectional best hits (step 1).
     """
-    specimen.core.generate_draft_model.run(template, bpbbh, dir, edit_names, 
+    specimen.hqtb.core.generate_draft_model.run(template, bpbbh, dir, edit_names, 
                                            pid, name, medium, nsp, memote)
 
 
@@ -186,7 +188,7 @@ def extension(draft, gene_list, fasta, db, dir,
     draft, gene_list, fasta, db, dir,
     mnx_chem_prop, mnx_chem_xref, mnx_reac_prop, mnx_reac_xref
     """
-    specimen.core.refinement.extension.run(draft, gene_list, fasta, db, dir,
+    specimen.hqtb.core.refinement.extension.run(draft, gene_list, fasta, db, dir,
         mnx_chem_prop, mnx_chem_xref, mnx_reac_prop, mnx_reac_xref,
         ncbi_map, ncbi_dat,
         id, sensitivity,
@@ -243,7 +245,7 @@ def cleanup(model,
     MODEL is the path to the model to perform the this refinement step on.
     Ideally in the format of this workflow or the results might differ.
     """
-    specimen.core.refinement.cleanup.run(model,
+    specimen.hqtb.core.refinement.cleanup.run(model,
         dir,
         biocyc_db,
         check_dupl_reac,
@@ -277,7 +279,7 @@ def annotation(model,dir,kegg_via_ec,kegg_via_rc,memote):
 
     MODEL is the path to the model to be annotated.
     """
-    specimen.core.refinement.annotation.run(model,
+    specimen.hqtb.core.refinement.annotation.run(model,
                                             dir,
                                             kegg_viaEC=kegg_via_ec,
                                             kegg_viaRC=kegg_via_rc,
@@ -308,7 +310,7 @@ def smoothing(model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, egc, na
     MODEL is the path to the model that is to b refined.\n
     Further required is a genome FASTA file of the genome the model was build on.
     """
-    specimen.core.refinement.smoothing.run(genome, model, dir, mcc, 
+    specimen.hqtb.core.refinement.smoothing.run(genome, model, dir, mcc, 
                                            egc,
                                            namespace,
                                            dna_weight_frac, ion_weight_frac, 
@@ -322,14 +324,14 @@ def smoothing(model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, egc, na
 @click.option('--dir', '-d', default='./validation/', type=str, help='Path to a directory for the output.')
 @click.option('--run-test', '-t', multiple=True, default=['all'], help='define, which tests should be run. Current possibilities are "all" and "cobra"')
 def validation(model,dir,run_test):
-    """Step 4 of the pipeline: Validate the model.
+    """Step 4 of the workflow: Validate the model.
 
     MODEL is the path to the model to be validated.
     """
     if 'all' in run_test:
-        specimen.core.validation.run(dir, model, tests=None, all=True)
+        specimen.hqtb.core.validation.run(dir, model, tests=None, all=True)
     else:
-        specimen.core.validation.run(dir, model, tests=run_test, all=False)
+        specimen.hqtb.core.validation.run(dir, model, tests=run_test, all=False)
 
 
 
@@ -355,14 +357,14 @@ def analysis(model,
         mp,
         test_aa_auxotrophies,
         pathway):
-    """Step 5 of the pipeline: Analyse the final model.
+    """Step 5 of the workflow: Analyse the final model.
 
     Includes a statistical analysis and optional a
     pan-core as well as a growth analysis.
 
     MODEL is the path to the model to be analysed.
     """
-    specimen.core.analysis.run(model_path=model, 
+    specimen.hqtb.core.analysis.run(model_path=model, 
                                dir=dir, 
                                media_path=mp, 
                                namespace=n,
@@ -373,19 +375,21 @@ def analysis(model,
 
 
 #################
-# cmpb pipeline #
+# cmpb workflow #
 #################
 
 @cli.group()
 def cmpb():
-    """Pipeline for GEM curation based on CarveMe model and ModelPolisher."""
+    """Workflow for GEM curation based (mainly) 
+    on CarveMe and ModelPolisher."""
 
+#  @TODO allow command line input as well
 @cmpb.command()
 @click.argument('config',type=click.Path(exists=True))
 def run(config):
-    """Run the pipeline for GEM curation based on a CarveMe model using a config file.
+    """Run the workflow for GEM curation based on a CarveMe model using a config file.
 
     CONFIG is the path to the config file.
     """
     
-    specimen.cmpb.run(config)
+    specimen.cmpb.workflow.run(config)
