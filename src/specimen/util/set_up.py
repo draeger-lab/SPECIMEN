@@ -11,6 +11,7 @@ import click
 import logging
 import os
 import requests
+import warnings
 import yaml
 
 from datetime import date
@@ -65,6 +66,9 @@ MNX_URL_DICT = {'chem_prop.tsv':MNX_CHEM_PROP_URL, 'chem_xref.tsv':MNX_CHEM_XREF
 # @DEPRECATE: MNX now coverend in refinegems - change extension after cleaning gapfill module in refinegems
 def download_mnx(dir:str='MetaNetX', chunk_size:int=1024):
     """Download the data needed from the MetaNetX database.
+    
+    .. warning::
+        This function will be deprecated soon.
 
     Args:
         - dir (str, optional): 
@@ -74,6 +78,8 @@ def download_mnx(dir:str='MetaNetX', chunk_size:int=1024):
             Size of the chunk of data that is loaded into memory during download. 
             Defaults to 1024.
     """
+    mes = f'This function will be deprecated soon. Functionality has been moved to refineGEMs.'
+    warnings.warn(mes, FutureWarning)
 
     for mnx_name,mnx_url in MNX_URL_DICT.items():
         r = requests.get(mnx_url, stream=True)
@@ -197,7 +203,7 @@ def download_config(filename:str='my_basic_config.yaml', type:Literal['hqtb-basi
 # hqtb
 # ----
 
-# @TODO 
+# @TODO improve & cleanup
 # @TEST changes
 def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
     """Validate a user hqtb config file for use in the pipeline.
@@ -205,10 +211,6 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
     .. note::
     
         Currently not everything is checked, mainly the needed files are.
-
-    .. warning::
-
-        Currently working not perfectly, under construction
 
     Args:
         - userc (str): 
@@ -533,7 +535,7 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
         config['gapfilling']['exclude-dna'] = exclude_dna
         exclude_rna = click.prompt('Do you want to exlude reactions containing \'RNA\' in their name?', type=click.Choice(['y','n']), show_choices=True)
         config['gapfilling']['exclude-rna'] = exclude_rna
-
+        # @TODO enable running multiple GapFiller
         algorithm = click.prompt('Which algorithm do you want to use for gapfilling?', type=click.Choice(['KEGGapFiller','BioCycGapFiller','GeneGapFiller']), show_choices=True)
         match algorithm:
             case 'KEGGapFiller':
@@ -590,7 +592,7 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
         case 'n':
             config['duplicates']['remove_unused_metabs'] = False
 
-# @TODO: Ask for any biomass correction
+    # @TODO: Ask for any biomass correction
     # BOF
     do_bofdat = click.prompt('Do you want do run BOFdat?', type=click.Choice(['y','n']), show_choices=True)
     match do_bofdat:

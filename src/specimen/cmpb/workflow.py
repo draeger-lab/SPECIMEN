@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+"""Workflow call for the CarveMe-ModelPolisher-based (CMPB) workflow.
+"""
 
 __author__ = "Tobias Fehrenbach, Famke Baeuerle, Gwendolyn O. Döbel and Carolin Brune"
 
@@ -31,6 +33,7 @@ from refinegems.curation.pathways import kegg_pathways, kegg_pathway_analysis
 from refinegems.curation.polish import polish
 from refinegems.utility.connections import run_memote, perform_mcc, adjust_BOF, run_SBOannotator
 from refinegems.utility.io import load_model, write_model_to_file
+from refinegems.developement.decorators import implement
 
 from ..util.set_up import save_cmpb_user_input, validate_config
 
@@ -49,7 +52,7 @@ from ..util.set_up import save_cmpb_user_input, validate_config
 #   while current_libmodel means the libsbml model
 
 def run(configpath:Union[str,None]=None):
-    """Run the CarveMe
+    """Run the CarveMe-ModelPolisher-based (CMPB) workflow.
 
     Args:
         - configpath (Union[str,None]): 
@@ -199,7 +202,7 @@ def run(configpath:Union[str,None]=None):
             # gapfilling with KEGG via KEGG organism ID
             kgf = KEGGapFiller(config['general']['kegg_organism_id'])
             kgf.find_missing_genes(current_libmodel)
-            kgf.find_missing_reacs(current_model)
+            kgf.find_missing_reactions(current_model)
             current_libmodel = kgf.fill_model(current_libmodel, 
                                               namespace = config['general']['namespace'],
                                               idprefix = config['gapfilling']['idprefix'],
@@ -227,7 +230,7 @@ def run(configpath:Union[str,None]=None):
                                )
         # @TEST if it works
         bcgf.find_missing_genes(current_libmodel)
-        bcgf.find_missing_reacs(current_model)
+        bcgf.find_missing_reactions(current_model)
         current_libmodel = kgf.fill_model(current_libmodel, 
                                           namespace = config['general']['namespace'],
                                           idprefix = config['gapfilling']['idprefix'],
@@ -249,7 +252,7 @@ def run(configpath:Union[str,None]=None):
         ggf = GeneGapFiller()
         ggf.find_missing_genes(config['gapfilling']['GeneGapFiller parameters']['gff'],
                                current_libmodel)
-        ggf.find_missing_reacs(current_model,
+        ggf.find_missing_reactions(current_model,
                                mail = config['tech-resources']['email'],
                                check_NCBI = config['gapfilling']['GeneGapFiller parameters']['check-NCBI'],
                                fasta = config['general']['protein_fasta'],
@@ -473,5 +476,8 @@ def run(configpath:Union[str,None]=None):
 # - Add optional FROG report at end of pipeline
 
 # run for multiple models
+@implement
 def wrapper():
+    """Run given settings for the CarveMe-ModelPolisher-based (CMPB) workflow on multuple models.
+    """
     pass
