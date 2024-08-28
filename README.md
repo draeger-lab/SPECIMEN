@@ -30,9 +30,9 @@ Currently avaible workflow:
 
 Download this repository and run the command `pip install -e .` inside the top-level directory.     
 
-When running the HQTB Pipeline, further tools need to be installed:
+When running certain steps, further tools need to be installed:
 
-- [DIAMOND, version 2.0.4 or higher](https://github.com/bbuchfink/diamond)
+- [DIAMOND, version 2.0.4 or higher](https://github.com/bbuchfink/diamond), needed for GeneGapFiller and HQTB
 - [EntrezDirect](https://www.ncbi.nlm.nih.gov/books/NBK179288/), if no NCBI mapping has been created beforehand
 
 ## Quickstart
