@@ -3,8 +3,8 @@ Overview of the Workflows
 
 The following workflows are currently available:
 
-- ``CMPB``: CarveMe + ModelPolisher based 
-- ``HQTB``: High-quality template based 
+- :ref:`CMPB<CMPB Overview>`: CarveMe + ModelPolisher based 
+- :ref:`HQTB<HQTB Overview>`: High-quality template based 
 
 More information about these differnt types of workflows can be found below.
 
@@ -16,6 +16,8 @@ More information about these differnt types of workflows can be found below.
 
 CarveMe + ModelPolisher based (``CMPB``) workflow
 -------------------------------------------------
+
+.. _CMPB Overview:
 
 The ``CMPB`` workflow is based on generating a draft model using `CarveMe <https://github.com/cdanielmachado/carveme>`__ and subsequently extending and polishing
 the model using various tools.
@@ -40,6 +42,8 @@ e.g. KEGG or BioCyc to perform an automated gap filling using `refineGEMs <https
 
 High-quality template based (``HQTB``) workflow
 -----------------------------------------------
+
+.. _HQTB Overview:
 
 .. warning:: 
     Due to chances in ``refineGEMs``, this workflow is under heavy 

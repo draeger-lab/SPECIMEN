@@ -65,27 +65,20 @@ The worfklow has two obligatory parameters:
 
 Further data can be added as available and/or needed (all are completely optional):
 
-- The generated draft model e.g. using CarveMe
+- The generated draft model e.g. using ``CarveMe``
 - The reference sequence GFF file (for gap analysis via KEGG required, optional for CarveMe polishing)
+    - Some of the gap-filling options (BioCyc, Gene) also require a GFF file, but since the type of GFF influcences the results, the input is separated from the first GFF.
 - If available, the KEGG organism ID (for gap analysis via KEGG required, optional for CarveMe polishing)
 - The protein FASTA of your input genome (required for lab\_strain=True, otherwise optional)
 - Additional files for filling gaps: 
 
     - For KEGG see bullet points above 
-    - For BioCyc, three txt files from downloaded BioCyc SmartTables and a protein FASTA with:
+    - Gap-filling with BioCyc requires two BioCyc SmartTables, one for the genes and one for the reactions of the organism.
+    - | The gap-filling via genes uses a SwissProt database file and mapping (for more information about the setup, see ``refinegems.utility.setup.download_url``).
+      | Additionally, if checking protein accession numbers against NCBI should be enabled, an email address needs to be given.
 
-         - 'Accession-2' and 'Reaction of gene' columns
-         - All reaction relevant information [#]_
-         - All metabolite relevant information [#]_
-         - Protein FASTA used as input for CarveMe
-
-    - Optionally, a manually curated EXCEL sheet with information to be (potentially) added to the model
-
-- To enable adjusting the biomass objective function using BOFdat, the following information is required
+- To enable adjusting the biomass objective function using ``BOFdat``, the following information is required
     
     - Path to a file containing the full genome sequenece of your organism
     - The DNA weight fraction of your organism (experimentally determined or retrieved using literature research)
     - The enzyme/ion weight fraction of your organism (experimentally determined or retrieved using literature research)
-
-.. [#] 'Reaction' 'Reactants of reaction' 'Products of reaction' 'EC-Number' 'KEGG Reaction' 'MetaNetX' 'Reaction-Direction' 'Spontaneous?'
-.. [#] 'Compound' 'Object ID' 'Chemical Formula' 'InChI-Key' 'ChEBI'

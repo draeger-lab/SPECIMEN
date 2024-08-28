@@ -45,6 +45,7 @@ from ..util.set_up import save_cmpb_user_input, validate_config
     # @TODO / @IDEAS
     # use temp folder or report all model/in-between steps
     # what to write in the log file
+    # e.g. runtimes, warnings, hints and more
     # ....................................................
 
 # dev notes
@@ -417,7 +418,6 @@ def run(configpath:Union[str,None]=None):
     
     # MCC
     # ---
-    Path(dir,"cmpb_out",'misc','mcc').mkdir(parents=True, exist_ok=False)
     current_model = perform_mcc(current_model, Path(dir,'cmpb_out','misc','mcc'),apply=True)
 
     # save the final model
