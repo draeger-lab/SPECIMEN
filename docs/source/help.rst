@@ -14,17 +14,6 @@ Pydantic
 Pydantic warning :code:`underscore_attrs_are_private has been removed` has not - yet - caused any issues.
 However, the core of the problems (= what causes the warning) has yet to be identified. 
 
-BOFdat
-^^^^^^
-
-For `BOFdat <https://github.com/jclachance/BOFdat>`_, to be running as expected, 
-one needs to change :code:`solution.f` to :code:`solution.objective_value` in the :code:`coenzymes_and_ions.py` file of the tool's files.
-
-.. warning:: 
-
-    The change in the files for BOFdat is neccessary, otherwise it will raise an error while running the connected functions.
-
-
 FAQs
 ----
 

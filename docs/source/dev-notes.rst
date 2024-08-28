@@ -21,8 +21,9 @@ The version in this release has as of yet only be tested on prokaryote genomes.
 ``dev``: ONGOING
 ^^^^^^^^^^^^^^^^
 
-Development branch. 
-Currently, features marked as future update throughout the documentation are worked on.
+| Development branch. 
+| Place to fix errors, chase bugs and polish the code.
+| Additionally, features marked as future update throughout the documentation are actively being worked on.
 
 Further branches
 ^^^^^^^^^^^^^^^^
