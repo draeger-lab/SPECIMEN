@@ -17,8 +17,9 @@ import time
 import urllib.error
 
 # refinegems
-from refinegems.utility.io import load_model, kegg_reaction_parser, write_model_to_file
+from refinegems.utility.io import load_model, write_model_to_file
 from refinegems.utility.connections import run_memote, run_SBOannotator
+from refinegems.utility.db_access import kegg_reaction_parser
 
 ################################################################################
 # functions

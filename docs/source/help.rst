@@ -14,17 +14,6 @@ Pydantic
 Pydantic warning :code:`underscore_attrs_are_private has been removed` has not - yet - caused any issues.
 However, the core of the problems (= what causes the warning) has yet to be identified. 
 
-BOFdat
-^^^^^^
-
-For `BOFdat <https://github.com/jclachance/BOFdat>`_, to be running as expected, 
-one needs to change :code:`solution.f` to :code:`solution.objective_value` in the :code:`coenzymes_and_ions.py` file of the tool's files.
-
-.. warning:: 
-
-    The change in the files for BOFdat is neccessary, otherwise it will raise an error while running the connected functions.
-
-
 FAQs
 ----
 
@@ -33,7 +22,7 @@ Which types of organism work with ``SPECIMEN``?
 
 ``SPECIMEN`` was originally written for prokaryota. However, adapting ``SPECIMEN`` to work with 
 other organism types is something we hope to archieve with a future update. 
-Currently, the pipelines have yet to be tested on types of organism other than prokaryota.
+Currently, the workflows have yet to be tested on types of organism other than prokaryota.
 
 Which namespaces can I use?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

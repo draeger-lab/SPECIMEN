@@ -11,6 +11,7 @@ import click
 import logging
 import os
 import requests
+import warnings
 import yaml
 
 from datetime import date
@@ -33,9 +34,10 @@ HQTB_CONFIG_PATH_OPTIONAL = ['media_gap', 'ncbi_map', 'ncbi_dat','biocyc','unive
 HQTB_CONFIG_PATH_REQUIRED = ['annotated_genome','full_sequence','model','diamond',
                              'mnx_chem_prop', 'mnx_chem_xref','mnx_reac_prop','mnx_reac_xref',
                              'media_analysis'] #: :meta: 
-CMPB_CONFIG_PATHS_REQUIRED = ['annotated_genome','mediapath','modelpath','refseq_gff','protein_fasta',
-                     'biocyc_files','full_genome_sequence'] #: :meta: 
-CMPB_CONFIG_PATHS_OPTIONAL = [] # :meta:
+CMPB_CONFIG_PATHS_REQUIRED = ['mediapath'] #: :meta:
+CMPB_CONFIG_PATHS_OPTIONAL = ['modelpath','full_genome_sequence','refseq_gff', 'protein_fasta',
+                              'gene-table','reacs-table','gff','swissprot-dmnd',
+                              'swissprot-mapping'] # :meta:
 PIPELINE_PATHS_OPTIONAL = {'hqtb':HQTB_CONFIG_PATH_OPTIONAL,
                   'cmpb':CMPB_CONFIG_PATHS_OPTIONAL} #: :meta: 
 PIPELINE_PATHS_REQUIRED = {'hqtb':HQTB_CONFIG_PATH_REQUIRED,
@@ -61,8 +63,12 @@ MNX_URL_DICT = {'chem_prop.tsv':MNX_CHEM_PROP_URL, 'chem_xref.tsv':MNX_CHEM_XREF
 # setup data (structure)
 # ----------------------
 # @TEST : deleted BiGG part, since its already covered with refinegems
+# @DEPRECATE: MNX now coverend in refinegems - change extension after cleaning gapfill module in refinegems
 def download_mnx(dir:str='MetaNetX', chunk_size:int=1024):
     """Download the data needed from the MetaNetX database.
+    
+    .. warning::
+        This function will be deprecated soon.
 
     Args:
         - dir (str, optional): 
@@ -72,6 +78,8 @@ def download_mnx(dir:str='MetaNetX', chunk_size:int=1024):
             Size of the chunk of data that is loaded into memory during download. 
             Defaults to 1024.
     """
+    mes = f'This function will be deprecated soon. Functionality has been moved to refineGEMs.'
+    warnings.warn(mes, FutureWarning)
 
     for mnx_name,mnx_url in MNX_URL_DICT.items():
         r = requests.get(mnx_url, stream=True)
@@ -195,17 +203,14 @@ def download_config(filename:str='my_basic_config.yaml', type:Literal['hqtb-basi
 # hqtb
 # ----
 
-# @TODO -> @TEST changes
+# @TODO improve & cleanup
+# @TEST changes
 def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
     """Validate a user hqtb config file for use in the pipeline.
 
     .. note::
     
         Currently not everything is checked, mainly the needed files are.
-
-    .. warning::
-
-        Currently working not perfectly, under construction
 
     Args:
         - userc (str): 
@@ -239,7 +244,7 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
                 dictA[key] = dict_recursive_combine(dictA[key], dictB[key])
         return dictA
     
-    def dict_recursive_overwrite(dictA:dict) -> dict:
+    def dict_recursive_overwrite(dictA:dict, key:str=None) -> dict:
         """Helper-function for :py:func:`~specimen.util.set_up.validate_config` to combine two configuration file.
 
         Args:
@@ -257,17 +262,17 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
         if not isinstance(dictA,dict):
             # check for missing input
             if dictA == '__USER__':
-                raise TypeError(F'Missing a required argument in the config file')
+                raise TypeError(F'Missing a required argument in the config file ({key}).')
             elif dictA == 'USER':
                 # @TODO 
-                mes = 'Keyword USER detected in config. Either due to skipped options or missing required information.\nReminder: this may lead to downstream problems.'
+                mes = F'Keyword USER detected in config ({key}). Either due to skipped options or missing required information.\nReminder: This may lead to downstream problems.'
                 logging.warning(mes)
                 return None
             else:
                 return dictA
 
         for key in dictA.keys():
-            dictA[key] = dict_recursive_overwrite(dictA[key])
+            dictA[key] = dict_recursive_overwrite(dictA[key],key)
         return dictA
 
 
@@ -276,7 +281,7 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
     def dict_recursive_check(dictA:dict, key:str=None, 
                              pipeline:Literal['hqtb','cmpb']='hqtb'):
         """Helper-function for :py:func:`~specimen.util.set_up.validate_config` 
-        to check if a configuration is valid to run the hight-quality template based pipeline.
+        to check if a configuration is valid to run the high-quality template based pipeline.
 
         Args:
             - dictA (dict): 
@@ -290,34 +295,41 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
             - FileNotFoundError: Path does not exist: {dictA}
             - FileNotFoundError: Path does not exist: {dictA}
         """
-
+        
         if not isinstance(dictA,dict):
             # required file paths
-            if key in PIPELINE_PATHS_REQUIRED[pipeline]: 
-                if dictA and os.path.isfile(dictA):
+            if key in PIPELINE_PATHS_REQUIRED[pipeline]:
+                if isinstance(dictA,list):
+                    for entry in dictA:
+                        if os.path.isfile(entry):
+                            continue
+                        else:
+                            raise FileNotFoundError(F'Path does not exist: {dictA}')
+                elif dictA and os.path.isfile(dictA):
                     return
                 else: 
                     raise FileNotFoundError(F'Path does not exist: {dictA}')
-            # missing optional file
-            elif key in PIPELINE_PATHS_OPTIONAL and not dictA:
-                # @TODO, already warning in Overwrite?
-                return 
             # optional file paths
-            elif key in PIPELINE_PATHS_OPTIONAL:
-                if isinstance(str,dictA):
+            elif key in PIPELINE_PATHS_OPTIONAL[pipeline]:
+                if isinstance(dictA,str):
                     if os.path.isfile(dictA):
                         return
-                    else: 
+                    elif not os.path.isfile(dictA): 
+                        mes = F'Path does not exist: {dictA}. \nReminder: It is optional, but it may lead to downstream problems.'
+                        logging.warning(mes)
+                        pass
+                    else:
                         raise FileNotFoundError(F'Path does not exist: {dictA}')
-                if isinstance(list,dictA):
+                if isinstance(dictA,list):
                     for entry in dictA:
-                        if dictA and os.path.isfile(dictA):
+                        if entry and os.path.isfile(entry):
                             return
-                        elif not dictA:
-                            # @TODO
+                        elif not os.path.isfile(entry):
+                            mes = F'Path does not exist: {entry}. \nReminder: It is optional, but it may lead to downstream problems.'
+                            logging.warning(mes)
                             pass
                         else: 
-                            raise FileNotFoundError(F'Path does not exist: {dictA}')
+                            raise FileNotFoundError(F'Path does not exist: {entry}')
             elif key in PIPELINE_DIR_PATHS:
                 if dictA and os.path.exists(dictA):
                     return
@@ -380,7 +392,7 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
 
 # @TEST
 def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
-    """Guide the user step by step throuh the creation of the configuration for a cmpb pipeline run
+    """Guide the user step by step through the creation of the configuration for a cmpb pipeline run
     (via commandline).
 
     Args:
@@ -413,7 +425,6 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
     print('------------')
     print('The following information is REQUIRED for the pipeline')
     print('------------')
-    config['input']['annotated_genome'] = click.prompt('Enter the path to your annotated genome file', type=click.Path(exists=True))
     config['input']['mediapath'] = click.prompt('Enter the path to a media configuration file for growth simulation', type=click.Path(exists=True))
 
     # general options
@@ -429,7 +440,7 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
     set_col = click.prompt('Do you want to use the default colour map YlGn for the visualisation?', type=click.Choice(['y','n']), show_choices=True)
     match set_col:
         case 'n':
-            colours = click.prompt('Enter your choosen colour scheme', type=str)
+            colours = click.prompt('Enter your chosen colour scheme', type=str)
             config['general']['colours'] = colours
         case 'y':
             pass
@@ -443,7 +454,7 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
             config['general']['save_all_models'] = False
 
     # run memote always y/n
-    run_memote = click.prompt('Do you want run memote after each step?', type=click.Choice(['y','n']), show_choices=True)
+    run_memote = click.prompt('Do you want to run memote after each step?', type=click.Choice(['y','n']), show_choices=True)
     match run_memote:
         case 'y':
             config['general']['memote_always_on'] = True
@@ -451,7 +462,7 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
             config['general']['memote_always_on'] = False
     
     # run stats always y/n
-    models_stats = click.prompt('Do you want run memote after each step?', type=click.Choice(['y','n']), show_choices=True)
+    models_stats = click.prompt('Do you want to run stats after each step?', type=click.Choice(['y','n']), show_choices=True)
     match models_stats:
         case 'y':
             config['general']['stats_always_on'] = True
@@ -459,11 +470,25 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
             config['general']['stats_always_on'] = False
 
     # some additional, sometimes required, sometimes optional files
-    refseq = click.prompt('If you want to run a gap analysis with KEGG or have a CarveMe model, please enter the path to your refseq gff file', type=click.Path(exists=True))
+    refseq = click.prompt('If you want to run a gap analysis with KEGG or have a CarveMe model, please enter the path to your refseq gff file', type=click.Path())
     config['general']['refseq_organism_id'] = refseq
 
-    kegg_org_id = click.prompt('If you want to run a gap analysis with KEGG or have a CarveMe model, please enter the path to your refseq gff file', type=click.Path(exists=True))
-    config['general']['refseq_organism_id'] = kegg_org_id
+    kegg_org_id = click.prompt('If you want to run a gap analysis with KEGG, please enter the KEGG organism ID')
+    config['general']['kegg_organism_id'] = kegg_org_id
+    
+    protein_fasta = click.prompt('If you want to use CarveMe or GeneGapFiller, please enter the path to your protein fasta file', type=click.Path())
+    config['general']['protein_fasta'] = protein_fasta
+
+    # tech resources
+    # --------------
+    email = click.prompt('Enter the e-mail that will be used for Entrez')
+    config['tech-resources']['email'] = email
+
+    set_threads = click.prompt('The default number of threads available for tools like DIAMOND is 2. Do you want to change that?', type=click.Choice(['y','n']), show_choices=True)
+    match set_threads:
+        case 'y':
+            threads = click.prompt('Enter the number of threads available for tools like DIAMOND', type=int)
+            config['tech-resources']['threads'] = threads
 
     # part-specific 
     # -------------
@@ -471,49 +496,91 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
     print('Part-specific options')
     print('------------')
 
+    # CarveMe
+    carve = click.prompt('Do you want to build a model using CarveMe?', type=click.Choice(['y','n']), show_choices=True)
+    match carve:
+        case 'y':
+            if config['general']['protein_fasta'] is None:
+                protein_fasta = click.prompt('Enter the path to your protein fasta file', type=click.Path(exists=True))
+                config['general']['protein_fasta'] = protein_fasta
+            gram = click.prompt('Do you want to use a template specialized for gram-positive or gram-negative bacteria?', type=click.Choice(['grampos','gramneg','None']), show_choices=True)
+            config['carveme']['gram'] = gram
+        case 'n':
+            if config['input']['modelpath'] is None:
+                model = click.prompt('Please choose between an existing model or building a model with CarveMe. To run the CMPB workflow, you need a model.', type=click.Choice(['modelpath','CarveMe']), show_choices=True)
+                match model:
+                    case 'modelpath':
+                        modelpath = click.prompt('Enter the path to an existing model', type=click.Path(exists=True))
+                        config['input']['modelpath'] = modelpath
+                    case 'CarveMe':
+                        carveme = click.prompt('Enter the path to a protein fasta file', type=click.Path(exists=True))
+                        config['general']['protein_fasta'] = carveme
+    
     # model polish
-    carveme = click.prompt('Is your draft model CarveMe-based or will CarveMe be run?', type=click.Choice(['y','n']), show_choices=True)
+    carveme = click.prompt('Is your draft model CarveMe-based?', type=click.Choice(['y','n']), show_choices=True)
     if carveme == 'y':
-        email = click.prompt('Enter an email address for the connection to NCBI Entrez', type=str)
-        config['cm-polish']['email'] = email
-        labs = click.prompt('Do you have a lab strain?', type=click.Choice(['y','n']), show_choices=True)
+        labs = click.prompt('Do you have a strain without any database information?', type=click.Choice(['y','n']), show_choices=True)
         labs = True if labs == 'y' else False
         config['cm-polish']['is_lab_strain'] = labs
-        if labs:
-            prot_fa = click.prompt('Please enter the path to your protein fasta file', type=click.Path(exists=True))
-            config['cm-polish']['protein_fasta'] = prot_fa
-        else:
-            check_prot_fa = click.prompt('Do you want to/can provide the protein fasta?', type=click.Choice(['y','n']), show_choices=True)
-            if check_prot_fa == 'y':
-                prot_fa = click.prompt('Please enter the path to your protein fasta file', type=click.Path(exists=True))
-                config['cm-polish']['protein_fasta'] = prot_fa
-            else:
-                config['cm-polish']['protein_fasta'] = None
     
-
     # gapfilling
     gap_analysis = click.prompt('Do you want to run a gap analysis?', type=click.Choice(['y','n']), show_choices=True) 
 
     if gap_analysis == 'y':
-        db_to_compare = click.prompt('Available database information for the gapfilling', type=click.Choice(['KEGG','BioCyc','KEGG+BioCyc']), show_choices=True) 
-        config['gapfilling']['gap_fill_params']['db_to_compare'] = db_to_compare
-      
-        if 'KEGG' in db_to_compare:
-            pass
-        if 'BioCyc' in db_to_compare:
-            Path0 = click.prompt('Enter the path to your BioCyc TXT file containing a SmartTable with the columns \'Accession-2\' and \'Reaction of gene\'', type=click.Path(exists=True))
-            Path1 = click.prompt('Enter the path to your BioCyc TXT file containing a SmartTable with all reaction relevant information', type=click.Path(exists=True))
-            Path2 = click.prompt('Enter the path to your Biocyc TXT file containing a SmartTable with all metabolite relevant information', type=click.Path(exists=True))
-            Path3 = click.prompt('Enter path to protein FASTA file used as input for CarveMe', type=click.Path(exists=True))
-            config['gapfilling']['gap_fill_params']['biocyc_files'] = [Path0, Path1, Path2, Path3]
+        idprefix = click.prompt('Enter a prefix to be used of IDs for the namespace do not exist')
+        config['gapfilling']['idprefix'] = idprefix
+        formula_check = click.prompt('Enter the parameter for checking the metabolite formula before adding them to the model', type=click.Choice(['none','strict','existence','wildcard']), show_choices=True)
+        config['gapfilling']['formula-check'] = formula_check
+        exclude_dna = click.prompt('Do you want to exlude reactions containing \'DNA\' in their name?', type=click.Choice(['y','n']), show_choices=True)
+        config['gapfilling']['exclude-dna'] = exclude_dna
+        exclude_rna = click.prompt('Do you want to exlude reactions containing \'RNA\' in their name?', type=click.Choice(['y','n']), show_choices=True)
+        config['gapfilling']['exclude-rna'] = exclude_rna
+        # @TODO enable running multiple GapFiller
+        algorithm = click.prompt('Which algorithm do you want to use for gapfilling?', type=click.Choice(['KEGGapFiller','BioCycGapFiller','GeneGapFiller']), show_choices=True)
+        match algorithm:
+            case 'KEGGapFiller':
+                config['gapfilling']['KEGGapFiller'] = True
 
+                if config['general']['kegg_organism_id'] is None:
+                    kegg_org_id = click.prompt('Enter the KEGG organism id')
+                    config['general']['kegg_organism_id'] = kegg_org_id
+            case 'BioCycGapFiller':
+                config['gapfilling']['BioCycGapFiller'] = True
+
+                gene_table = click.prompt('Enter the path to a gene smart table from BioCyc', type=click.Path(exists=True))
+                config['gapfilling']['BioCycGapFiller parameters']['gene-table'] = gene_table
+                reacs_table = click.prompt('Enter the path to a reactions smart table from BioCyc', type=click.Path(exists=True))
+                config['gapfilling']['BioCycGapFiller parameters']['reacs-table'] = reacs_table
+                gff = click.prompt('Enter the path to a GFF file of the genome of the model', type=click.Path(exists=True))
+                config['gapfilling']['BioCycGapFiller parameters']['gff'] = gff
+            case 'GeneGapFiller':
+                config['gapfilling']['GeneGapFiller'] = True
+
+                gff = click.prompt('Enter the path to a GFF file of the genome of the model', type=click.Path(exists=True))
+                config['gapfilling']['GeneGapFiller parameters']['gff'] = gff
+                swissprot_dmnd = click.prompt('Enter the path to the SwissProt DIAMOND database file', type=click.Path(exists=True))
+                config['gapfilling']['GeneGapFiller parameters']['swissprot-dmnd'] = swissprot_dmnd
+                swissprot_mapping = click.prompt('Enter the path to the SwissProt mapping file', type=click.Path(exists=True))
+                config['gapfilling']['GeneGapFiller parameters']['swissprot-mapping'] = swissprot_mapping
+                check_NCBI = click.prompt('Do you want to enable checking NCBI accession numbers for EC numbers?', type=click.Choice(['y','n']), show_choices=True)
+                check_NCBI = True if check_NCBI == 'y' else False
+                config['gapfilling']['GeneGapFiller parameters']['check-NCBI'] = check_NCBI
+                sensitivity = click.prompt('Enter the sensitivity option for the DIAMOND run', type=click.Choice(['fast','mid-sensitive','sensitive','more-sensitive','very-sensitive','ultra-sensitive']), show_choices=True)
+                config['gapfilling']['GeneGapFiller parameters']['sensitivity'] = sensitivity
+                coverage = click.prompt('Enter the coverage for DIAMOND', type=float)
+                config['gapfilling']['GeneGapFiller parameters']['coverage'] = coverage
+                percentage_identity = click.prompt('Enter the percentage identity threshold value for accepting matches', type=float)
+                config['gapfilling']['GeneGapFiller parameters']['percentage identity'] = percentage_identity
 
     # kegg pathways as groups
     kegg_pw_groups = click.prompt('Do you want to add KEGG pathways as groups to the model?', type=click.Choice(['y','n']), show_choices=True)
-    config['kegg_pathway_groups'] = kegg_pw_groups
+    match kegg_pw_groups:
+        case 'y':
+            config['kegg_pathway_groups'] = True
+        case 'n':
+            config['kegg_pathway_groups'] = False
 
     # resolve duplicates
-
     reac_dups = click.prompt('Do you want to check for and/or remove duplicate reactions?', type=click.Choice(['skip','check','remove']), show_choices=True)
     config['duplicates']['reactions'] = reac_dups
     meta_dups = click.prompt('Do you want to check for and/or remove duplicate metabolites?', type=click.Choice(['skip','check','remove']), show_choices=True)
@@ -525,6 +592,7 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
         case 'n':
             config['duplicates']['remove_unused_metabs'] = False
 
+    # @TODO: Ask for any biomass correction
     # BOF
     do_bofdat = click.prompt('Do you want do run BOFdat?', type=click.Choice(['y','n']), show_choices=True)
     match do_bofdat:
@@ -534,11 +602,10 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
             config['BOF']['full_genome_sequence'] = full_genome_path
             dna_wf = click.prompt('Enter the DNA weight fraction of your organism', type=float)
             config['BOF']['dna_weight_fraction'] = dna_wf
-            wf = click.prompt('Enter the wight fraction of your organsim (enzyme/ion)', type=float)
+            wf = click.prompt('Enter the weight fraction of your organism (enzyme/ion)', type=float)
             config['BOF']['weight_fraction'] = wf
         case 'n':
             config['BOF']['run_bofdat'] = False
-
 
     # save config
     if configpath:

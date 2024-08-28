@@ -1,7 +1,7 @@
 Step 5: Analyse the Model
 =========================
 
-The fifth and final step of the pipeline is a short analysis of the curated model, 
+The fifth and final step of the workflow is a short analysis of the curated model, 
 generating a set of tables and graphics to nicely display the model content. Most steps, 
 excluding the statistical model analysis, are optional and can be skipped.
 

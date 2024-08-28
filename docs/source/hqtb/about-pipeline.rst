@@ -1,23 +1,23 @@
 About HQTB
 ==========
 
-The high-quality template based (``HTQB``) pipeline curates the model starting from the annotated 
+The high-quality template based (``HTQB``) workflow curates the model starting from the annotated 
 genome of your strain of interest and an already curated, ideally very high-quality template model 
 of a closely related strain (species) and additional database information.
 
-This type of pipeline aims to build upon already existing knowledge to speed up model curation
+This type of workflow aims to build upon already existing knowledge to speed up model curation
 and minimize the need to perform steps again that have already been done in a similar context.
 
 .. _overview-hqtb:
 
-Overview of the ``HQTB`` Pipeline
+Overview of the ``HQTB`` Workflow
 ---------------------------------
 
-The following image shows an overrview of the steps of the pipeline:
+The following image shows an overrview of the steps of the workflow:
 
 .. image:: ../images/hqtb_pipeline-overview.png
 
-The pipeline consists of five main steps:
+The workflow consists of five main steps:
 
 .. toctree::
     :maxdepth: 3
@@ -56,12 +56,12 @@ The wrapper function allows the curation of multiple models sequentially using t
 boudary parameters.
 
 .. hint::
-    Many of the steps of the pipeline can be fine tuned and turned off/on. 
+    Many of the steps of the workflow can be fine tuned and turned off/on. 
     Check the :doc:`configuration file <hqtb-config>` for a full list of all parameters.
 
 .. note::
 
-    All steps of the pipeline can be run separatly via the command line or 
+    All steps of the workflow can be run separatly via the command line or 
     the Python integration (see :doc:`run-pipeline`).
 
     All accessible functions are listed in the :ref:`Contents of SPECIMEN` section.

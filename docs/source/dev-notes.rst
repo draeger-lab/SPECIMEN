@@ -16,13 +16,14 @@ The version in this release has as of yet only be tested on prokaryote genomes.
 
 .. note::
 
-    The pipeline has yet to be tested on different species and specifically Eukarya, if it works without problems on those as well.
+    The workflow has yet to be tested on different species and specifically Eukarya, if it works without problems on those as well.
 
 ``dev``: ONGOING
 ^^^^^^^^^^^^^^^^
 
-Development branch. 
-Currently, features marked as future update throughout the documentation are worked on.
+| Development branch. 
+| Place to fix errors, chase bugs and polish the code.
+| Additionally, features marked as future update throughout the documentation are actively being worked on.
 
 Further branches
 ^^^^^^^^^^^^^^^^

@@ -11,17 +11,18 @@
 
 # SPECIMEN
 
-SPECIMEN is a collection of different workflows designed for the automated and standardised curation of genome-scale models. It is mainly based on the [refineGEMs toolbox](https://github.com/draeger-lab/refinegems/tree/dev-2), but also includes additional tools like [CarveMe](https://carveme.readthedocs.io/en/latest/).
+SPECIMEN is a collection of different workflows designed for the automated and standardised curation of genome-scale models. It is mainly based on the [refineGEMs toolbox](https://github.com/draeger-lab/refinegems/tree/main), but also includes additional tools like [CarveMe](https://carveme.readthedocs.io/en/latest/).
 
-> Note: This tool is currently still under active developement, any feedback or ides are welcome.
+> Note: <br> 
+  This tool is currently still under active developement, any feedback or ideas are welcome. Also, since its developemental, please note that bugs and error will probably occur. Please feel free to report them to the developers.
 
 Currently avaible workflow:
 
 - CMPB - CarveMe-ModelPolisher based:\\Starting from a CarveMe draft model, refine and extend it towards a high-quality stain-specific model
 
-    > Note: For a future update, optional direct integration of CarveMe into the pipeline is planned
-
 - HQTB - High-quality template based:\\This pipeline follows the modelling approach of using a high-quality template model as a basis for the reconstruction of a new model from a new genome (e.g. a different strain). 
+
+> Note: Due to some major refactoring changes in refineGEMs this workflow might not run as expected.
 
 - PGAB: under construction
 
@@ -29,9 +30,9 @@ Currently avaible workflow:
 
 Download this repository and run the command `pip install -e .` inside the top-level directory.     
 
-When running the HQTB Pipeline, further tools need to be installed:
+When running certain steps, further tools need to be installed:
 
-- [DIAMOND, version 2.0.4 or higher](https://github.com/bbuchfink/diamond)
+- [DIAMOND, version 2.0.4 or higher](https://github.com/bbuchfink/diamond), needed for GeneGapFiller and HQTB
 - [EntrezDirect](https://www.ncbi.nlm.nih.gov/books/NBK179288/), if no NCBI mapping has been created beforehand
 
 ## Quickstart

@@ -1,12 +1,12 @@
 Step 2: Generate a Draft Model
 ==============================
 
-Based on the results of step 1, step 2 of the pipeline generates a draft model based on the 
+Based on the results of step 1, step 2 of the workflow generates a draft model based on the 
 template model.
 
 .. note:: 
 
-    When running this step outside the context of the pipeline, the input files 
+    When running this step outside the context of the workflow, the input files 
     need to be related to each other. The identifiers of the genes 
     for the matches of the bidirectional blast results and the genes in the template model
     are the same or can be adjusted using the given parameters as needed.

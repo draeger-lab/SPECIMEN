@@ -1,6 +1,12 @@
 The specimen.cmd_access submodule
 =================================
 
+.. warning:: 
+
+   The ``HQTB`` workflow is under heavy construction due to 
+   changes in ``refineGEMs``. It might not work as expected 
+   (or throw errors). Please await the next update.
+
 .. automodule:: specimen.cmd_access
    :members:
    :undoc-members:
@@ -15,8 +21,8 @@ from inside the Python environment it was installed in using:
 
 The following commands are available:
 
-- ``cmpb`` : Pipeline for GEM curation based on CarveMe model and ModelPolisher.
-- ``hqtb`` : Pipeline for GEM curation based on a high-quality template.
+- ``cmpb`` : Workflow for GEM curation based on CarveMe model and ModelPolisher.
+- ``hqtb`` : Workflow for GEM curation based on a high-quality template.
 - ``setup`` : Setup structure, data and more.
 
 
@@ -32,22 +38,22 @@ specimen setup
 
    specimen setup config 
 
-Download a configuration file, either for the pipeline or for media.
+Download a configuration file, either for the worfklow or for media.
 
 Options:
 
 - ``--filename/-f``: Name/Path to save the config under.
-- ``--type/-t``: Type of config to download. Can be media or basic/advanced for the pipeline config.
+- ``--type/-t``: Type of config to download. Can be media or basic/advanced for the worfklow config.
 
 .. code:: bash
 
-   specimen data structure [PIPELINE]
+   specimen data structure [WORKFLOW]
 
-Setup a directory with the basic structure for the data needed for the pipeline.
+Setup a directory with the basic structure for the data needed for the workflow.
 
 Argument:
 
-- ``PIPELINE``: The name of the pipeline to setup the structure for.
+- ``WORKFLOW``: The name of the worfklow to setup the structure for.
 
 Options:
 
@@ -59,15 +65,15 @@ specimen hqtb
 
 .. code:: bash
 
-   specimen hqtb run_pipeline [CONFIG]
+   specimen hqtb run [CONFIG]
 
-Run the complete pipeline with a configuration file as input.
+Run the complete worfklow with a configuration file as input.
 
 .. code:: bash 
 
-   specimen hqtb run_wrapper [CONFIG]
+   specimen hqtb wrapper [CONFIG]
    
-Run the pipeline using a config on a directory containing multiple input genomes.
+Run the workflow using a config on a directory containing multiple input genomes.
 
 Options:
 
@@ -77,7 +83,7 @@ Options:
 
    specimen hqtb bdb [TEMPLATE] [INPUT]
 
-Run step 1: bidirectional BLAST of the pipeline. Requires the input and template genome as input.
+Run step 1: bidirectional BLAST of the workflow. Requires the input and template genome as input.
 
 Options:
 
@@ -93,7 +99,7 @@ Options:
 
    specimen hqtb draft [TEMPLATE] [BPBBH]
 
-Run step 2: generate draft model of the pipeline. Requires the results of the bidirectional BLAST 
+Run step 2: generate draft model of the worfklow. Requires the results of the bidirectional BLAST 
 and the template model as input.
 
 Options:
@@ -136,7 +142,7 @@ Options:
 specimen hqtb refinement
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Run the different parts of the step 3: refinement of the pipeline.
+Run the different parts of the step 3: refinement of the workflow.
 
 .. code:: bash
 
@@ -230,4 +236,4 @@ specimen cmpb
 
    specimen cmpb run [CONFIG]
 
-Run the complete pipeline with a configuration file as input.
+Run the complete CMPB workflow with a configuration file as input.

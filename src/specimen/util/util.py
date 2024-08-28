@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+"""Utility functions.
+"""
+
+__author__ = 'Carolin Brune'
+
 ################################################################################
 # requirements
 ################################################################################
@@ -15,7 +21,7 @@ from pathlib import Path
 from typing import Literal
 
 # further required programs:
-#        - DIAMOND, tested with version 0.9.14
+#        - DIAMOND, tested with version 0.9.14+
 
 ################################################################################
 # variables
@@ -95,6 +101,8 @@ def create_DIAMOND_db_from_folder(dir:str, out:str, name:str='database',
 # create a NCBI mapping file for the database
 # -------------------------------------------
 
+# @DISCUSSION can be merge or replaced with the one in refineGEMs?
+# @DEPRECATE if the answer to the question above is yes
 def get_info_GenBank_Record(file_path:str) -> pd.DataFrame:
     """Retrieves a table containg information about the following qualifiers from a
     Genbank file: ['protein_id','locus_tag','db_xref','old_locus_tag','EC_number'].

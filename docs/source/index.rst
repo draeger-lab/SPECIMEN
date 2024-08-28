@@ -9,12 +9,12 @@ automated curation of high-quality, ideally strain-specific, genome-scale metabo
 
 These workflows are mainly based on the `refineGEMs <https://github.com/draeger-lab/refinegems/tree/dev-2>`__ :footcite:p:`bauerle2023genome` toolbox.
 
-Additionally, most of the functions and steps of the different pipelines in ``SPECIMEN`` can be used separatly.
+Additionally, most of the functions and steps of the different workflows in ``SPECIMEN`` can be used separatly.
 
-Available Pipelines
+Available Workflows
 -------------------
 
-Currently, ``SPECIMEN`` includes the following pipelines (for a summary refer to :ref:`Overview of the pipelines`):
+Currently, ``SPECIMEN`` includes the following workflows (for a summary refer to :ref:`overview of the workflows`):
 
 .. image:: images/buttons/cmpb.png
   :height: 0px

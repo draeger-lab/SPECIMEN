@@ -18,7 +18,7 @@
 
 # information about the genome to be used to generate the new model
 subject:
-    annotated genome: __USER__
+    annotated_genome: __USER__
     full_sequence: __USER__
 
 # information about the template model/genome
