@@ -73,7 +73,7 @@ parameters:
     generate_draft_model:
         # if the gene ids of the template model do not match the
         # identifiers of the annotated genome file, use this option to edit them
-        edit_names: no
+        edit_names: "no"
         # filter for genes based on percentage identity value
         pid: 80.0
         # Which medium to save the model with.
@@ -81,7 +81,7 @@ parameters:
 
     refinement_extension:
         # Id to use for checking (change not advised)
-        id: locus_tag
+        id: null
         # change the sensitivity of DIAMOND
         sensitivity: more-sensitive
         coverage: 95.0
@@ -90,6 +90,7 @@ parameters:
         # include for knowledge-based model)
         exclude_dna: True
         exclude_rna: True
+        email: USER
 
     refinement_cleanup:
         # Options for duplicate checking/removal
@@ -100,6 +101,7 @@ parameters:
         remove_dupl_meta: True
         # Optional for gapfilling (input is a media config file, refineGEMs standart)
         media_gap: null
+        growth_threshold: 0.05
 
     refinement_annotation:
         # for KEGG pathway annotation

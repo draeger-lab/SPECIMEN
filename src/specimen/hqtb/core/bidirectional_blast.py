@@ -63,6 +63,7 @@ def extract_cds(file: str, name: str, dir: str, collect_info: list, identifier: 
                 ):
 
                     for record in SeqIO.parse(f,"genbank"):
+                        x = 1
                         if record.features:
                             for feature in record.features:
 
@@ -132,14 +133,14 @@ def create_diamond_db(dir: str, name: str, path: str, threads: int):
     """
 
     # check if database already exists
-    if os.path.isfile(Path(dir,'DIAMONDdb',name+'.dmnd')):
+    if os.path.isfile(Path(dir,'db',name+'.dmnd')):
         print(F'database for {name} already exists')
     else:
         # generate new database using diamond makedb
         print(F'create DIAMOND database for {name} using:')
-        print(F'diamond makedb --in {path} -d {str(Path(dir,"db",name))} -p {int(threads)}')
+        print(F'diamond makedb --in {path} -d {str(Path(dir,"db",name+".dmnd"))} -p {int(threads)}')
         start = time.time()
-        subprocess.run([F'diamond makedb --in {path} -d {str(Path(dir,"db",name))} -p {int(threads)}'], shell=True)
+        subprocess.run(["diamond", "makedb", "--in", path, "-d", str(Path(dir,"db",name+".dmnd")), "-p", str(threads)], shell=True)
         end = time.time()
         print(F'\t time: {end - start}s')
 
@@ -172,7 +173,7 @@ def run_diamond_blastp(dir: str, db: str, query: str, fasta_path:str , sensitivi
         print(F'blast {query} against {db} using:')
         print(F'diamond blastp -d {str(Path(dir,"db/",db+".dmnd"))} -q {F"{fasta_path}"} --{sensitivity} -p {int(threads)} -o {outname} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen ')
         start = time.time()
-        subprocess.run([F'diamond blastp -d {str(Path(dir,"db",db+".dmnd"))} -q {F"{fasta_path}"} --{sensitivity} -p {int(threads)} -o {outname} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen '], shell=True)
+        subprocess.run(["diamond", "blastp", "-d", str(Path(dir,"db",db+".dmnd")), "-q", fasta_path, "--"+sensitivity, "-p", str(threads), "-o", outname, "--outfmt", "6", "qseqid", "sseqid", "pident", "length", "mismatch", "gapopen", "qstart", "qend", "sstart", "send", "evalue", "bitscore", "qlen"], shell=True)
         end = time.time()
         print(F'\ttime: {end - start}s')
 
@@ -309,7 +310,7 @@ def run(template:str, input:str, dir:str,
             Defaults to None.
         - temp_header (str, optional): 
             Feature qualifier of the gbff (NCBI) / faa (PROKKA) of the template to use as header for the FASTA files.
-            If None is given, sets it based on file extension (currently only implememted for gbff and faa).
+            If None is given, sets it based on file extension (currently only implemented for gbff and faa).
             Defaults to 'protein_id'.
         - in_header (str, optional): 
             Feature qualifier of the gbff (NCBI) / faa (PROKKA) of the input to use as header for the FASTA files. 

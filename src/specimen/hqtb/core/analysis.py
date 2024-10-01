@@ -74,7 +74,7 @@ def run(model_path:str, dir:str,
         print('Given directory already has required structure.')
 
     # load model
-    model = load_model(model_path,'cobra')
+    model = load_model(str(model_path),'cobra')
 
     # ------------------
     # general statistics

@@ -84,7 +84,7 @@ def download_mnx(dir:str='MetaNetX', chunk_size:int=1024):
     for mnx_name,mnx_url in MNX_URL_DICT.items():
         r = requests.get(mnx_url, stream=True)
         total = int(r.headers.get('content-length', 0))
-        with open(Path(dir,mnx_name), 'wb') as f, tqdm(desc=Path(dir,mnx_name), total=total,
+        with open(Path(dir,mnx_name), 'wb') as f, tqdm(desc=str(Path(dir,mnx_name)), total=total,
             unit='iB', unit_scale=True, unit_divisor=1024,) as bar:
             for data in r.iter_content(chunk_size=chunk_size):
                 size = f.write(data)

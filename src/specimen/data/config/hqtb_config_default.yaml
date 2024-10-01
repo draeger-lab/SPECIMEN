@@ -69,13 +69,13 @@ parameters:
         sensitivity: more-sensitive
 
     generate_draft_model:
-        edit_names: no
+        edit_names: "no"
         pid: 80.0
         medium: default
 
     refinement_extension:
         # default (usually) fine
-        id: locus_tag
+        id: null
         # default fine
         sensitivity: more-sensitive
         # default alright but good to edit for trying different options
@@ -84,9 +84,10 @@ parameters:
         # default almost needed, except for special cases
         exclude_dna: True
         exclude_rna: True
+        email: USER
 
     refinement_cleanup:
-        # default as standart
+        # default as standard
         check_dupl_reac: True
         check_dupl_meta: default
         remove_unused_meta: False
@@ -94,6 +95,7 @@ parameters:
         remove_dupl_meta: True
         # current default means no gapfilling
         media_gap: null
+        growth_threshold: 0.05
 
     refinement_annotation:
         # for KEGG pathway annotation

@@ -377,7 +377,6 @@ def run(template:str, bpbbh:str, dir:str,
     # -----------
     # check input
     # -----------
-
     if edit_names not in ['no','dot-to-underscore']:
         raise ValueError(F'Edit_names value {edit_names} not in list of allowed values: no, dot-to-underscore')
 
@@ -403,7 +402,7 @@ def run(template:str, bpbbh:str, dir:str,
     if len(growth_objfunc) == 1:
         template_model.objective = growth_objfunc[0]
     elif len(growth_objfunc) > 1:
-        mes = f'Multiple BOF detected. Chosing the following: {growth_objfunc[0]}'
+        mes = f'Multiple BOF detected. Choosing the following: {growth_objfunc[0]}'
         warnings.warn(mes, category=UserWarning)
         template_model.objective = growth_objfunc[0]
     else:
@@ -435,7 +434,7 @@ def run(template:str, bpbbh:str, dir:str,
     # -------------------
 
     if memote:
-        memote_path = Path(dir,'step1-extension',name+'.html')
+        memote_path = str(Path(dir,name+'.html'))
         run_memote(draft, 'html', return_res=False, save_res=memote_path, verbose=True)
 
     total_time_e = time.time()

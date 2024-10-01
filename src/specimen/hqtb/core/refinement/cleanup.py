@@ -499,5 +499,5 @@ def run(model:str, dir:str,
     # ---------------------------------
         
     if memote:
-        memote_path = Path(dir,'step2-clean-up',name+'.html')
+        memote_path = str(Path(dir,'step2-clean-up',name+'.html'))
         run_memote(model, 'html', return_res=False, save_res=memote_path, verbose=True)
