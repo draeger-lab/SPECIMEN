@@ -105,5 +105,6 @@ autodoc_mock_imports = ["psycopg2",
                         "colorama",
                         "matplotlib",
                         "seaborn",
-                        "venn"
+                        "venn",
+                        'refinegems'
                         ]
