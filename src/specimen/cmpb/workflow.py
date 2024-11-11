@@ -15,7 +15,6 @@ from pathlib import Path
 from typing import Union
 
 import warnings
-import yaml
 
 from cobra import Reaction,Model
 from libsbml import readSBML

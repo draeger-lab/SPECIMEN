@@ -107,5 +107,6 @@ autodoc_mock_imports = ["psycopg2",
                         "seaborn",
                         "venn",
                         'refinegems',
-                        'xmltodict'
+                        'xmltodict',
+                        'typing'
                         ]
