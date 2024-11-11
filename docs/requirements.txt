@@ -196,8 +196,6 @@ traitlets==5.14.3
     #   nbconvert
     #   nbformat
     #   nbsphinx
-typing-extensions==4.12.2
-    # via ipython
 urllib3==2.2.2
     # via requests
 wcwidth==0.2.13

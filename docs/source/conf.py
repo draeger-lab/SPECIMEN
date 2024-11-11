@@ -78,3 +78,4 @@ master_doc = 'index'
 # -- Autodoc -----------------------------------------------------------------
 
 autodoc_preserve_defaults = True
+autodoc_mock_imports = ['refinegems']
