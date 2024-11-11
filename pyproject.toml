@@ -35,14 +35,12 @@ dependencies = [
     # @NOTE
     # need to installed but install does not work with PyPi that way
     "bofdat@git+https://github.com/draeger-lab/BOFdat", # our fork with hot fix(es)
-    "masschargecuration@git+https://github.com/Biomathsys/MassChargeCuration@installation-fix"
+    "masschargecuration@git+https://github.com/Biomathsys/MassChargeCuration"
 ]
 # @TODO: some kind of installation file / help?
 # additional missing tools:
 #    EntrezDirect -> maybe change to Bio.Entrez or use refineGEMs functions?
 #    DIAMOND
-#    BOFdat: "bofdat@git+https://github.com/draeger-lab/BOFdat", # our fork with hot fix(es)
-#    MCC: "masschargecuration@git+https://github.com/Biomathsys/MassChargeCuration@installation-fix"
 
 [project.optional-dependencies]
 # developer/docs installation dependancies
