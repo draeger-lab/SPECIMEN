@@ -11,7 +11,7 @@ __author__ = 'Carolin Brune'
 ################################################################################
 
 from pathlib import Path
-from Bio import SeqIO
+from Bio import Entrez, SeqIO
 
 import pandas as pd
 import re
@@ -19,6 +19,7 @@ import subprocess
 import sys
 import time
 import urllib.error
+import xmltodict
 
 from tqdm import tqdm
 from tqdm.auto import tqdm
@@ -33,7 +34,7 @@ from Bio.KEGG import Enzyme, Compound
 from refinegems.utility.io import load_a_table_from_database
 from refinegems.utility.entities import create_random_id, get_reaction_annotation_dict, match_id_to_namespace
 from refinegems.utility.connections import run_memote
-from refinegems.utility.db_access import kegg_reaction_parser
+from refinegems.utility.db_access import kegg_reaction_parser, get_ec_from_ncbi
 
 # further required programs:
 #        - DIAMOND, tested with version 0.9.14 (works only for certain sensitivity mode)
@@ -117,11 +118,11 @@ def find_best_diamond_hits(file:str, pid:float) -> pd.DataFrame:
 # map to additional information
 # -----------------------------
 
-# mapping zo NCBI
+# mapping to NCBI
 # ---------------
-def map_to_NCBI_efetch_row(row:pd.Series) -> pd.Series:
+def map_to_NCBI_efetch_row(row:pd.Series, email:str) -> pd.Series:
     """Map a single entry from the table in :py:func:`~specimen.hqtb.core.refinement.extension.get_ncbi_info` 
-    to NCBI using EntrezDirect.
+    to NCBI using Entrez.
 
     Args:
         - row (pd.Series): 
@@ -133,51 +134,47 @@ def map_to_NCBI_efetch_row(row:pd.Series) -> pd.Series:
     """
 
     #  EC number
-    # fetch_ec = subprocess.run(['efetch','-db','protein','-id',row["ncbi_accession_version"],'-format','gpc','|','xtract','-insd','Protein','EC_number'], stdout=subprocess.PIPE, shell=False, encoding='utf-8')
-    fetch_ec = subprocess.run(['efetch','-db','protein','-id',row["ncbi_accession_version"],'-format','gpc'], check=True, capture_output=True)
-    fetch_ec = subprocess.run(['xtract','-insd','Protein','EC_number'], input=fetch_ec.stdout, capture_output=True)
-    fetch_ec = fetch_ec.stdout.decode('utf-8')
+    fetch_ec = get_ec_from_ncbi(email, row["locus_tag"])
+
     if fetch_ec:
         row['EC number'] = fetch_ec
     else:
         row['EC number'] = '-'
 
     # locus_tag_ref old_locus_tag GeneID
-    fetch_rest = subprocess.run(['esearch','-db','gene','-query',row["ncbi_accession_version"]], check=True, capture_output=True)
-    fetch_rest = subprocess.run(['efetch','-format','docsum'], input=fetch_rest.stdout, capture_output=True)
-    fetch_rest = subprocess.run(['xtract','-pattern','DocumentSummary','-element','Id,OtherAliases'], input=fetch_rest.stdout, capture_output=True)
-    fetch_rest = fetch_rest.stdout.decode('utf-8')
-
-    if fetch_rest:
-        # since there is no way to determine, which entry is the correct one,
-        # if multiple entries are returned, always take the first one.
-        # Assuming, if multiple are returned, they represent the same gene in different subjects.
-        fetch_rest = fetch_rest.split('\n')[0]
-        id, aliases = fetch_rest.split('\t')
-        row['GeneID'] = id
-        aliases = [a.strip for a in aliases.split(',')]
-        row['locus_tag_ref'] = aliases[0]
-        if len(aliases) > 1:
-            row['old_locus_tag'] = aliases[1]
-            # further names get ignored
-            # .........................................
-            # possible problem:
-            # assumes, that aliases 1 and 2 are always
-            # locus_tag_ref and old_locus_tag
-            # .........................................
+    search = Entrez.esearch(db='gene', term='YP_008530238.1')
+    search = xmltodict.parse(search)
+    print(search['eSearchResult']['IdList']['Id'])
+    handle = Entrez.efetch(db='gene', id=search['eSearchResult']['IdList']['Id'], rettype='docsum', retmode='xml')
+    handle = xmltodict.parse(handle)
+    # since there is no way to determine, which entry is the correct one,
+    # if multiple entries are returned, always take the first one.
+    # Assuming, if multiple are returned, they represent the same gene in different subjects.
+    row['GeneID'] = handle['eSummaryResult']['DocumentSummarySet']['DocumentSummary']['@uid']
+    aliases = handle['eSummaryResult']['DocumentSummarySet']['DocumentSummary']['OtherAliases']
+    aliases = [a.strip() for a in aliases.split(',')]
+    row['locus_tag_ref'] = aliases[0]
+    if len(aliases) > 1:
+        row['old_locus_tag'] = aliases[1]
+        # further names get ignored
+        # .........................................
+        # possible problem:
+        # assumes, that aliases 1 and 2 are always
+        # locus_tag_ref and old_locus_tag
+        # .........................................
 
     return row
 
 
 # @TODO
-def get_ncbi_info(table:pd.DataFrame, ncbi_map_file:str=None) -> pd.DataFrame:
+def get_ncbi_info(table:pd.DataFrame, ncbi_map_file:str=None, email:str=None) -> pd.DataFrame:
     """Retrieve information from NCBI via mapping to precomputed files.
 
        If no mapping exists, try via Entrez - implemented, but does not work well
 
        -> problems with connecting successfully to NCBI.
 
-       @TODO if time, rewrite using the Bioppython package, see if it works better
+       @TODO see if Biopython package works better than EntrezDirect
 
     Args:
         - table (pd.DataFrame):  
@@ -218,7 +215,7 @@ def get_ncbi_info(table:pd.DataFrame, ncbi_map_file:str=None) -> pd.DataFrame:
         table['old_locus_tag'] = pd.Series(dtype='str')
         table['GeneID'] = pd.Series(dtype='str')
         table['EC number'] = pd.Series(dtype='str')
-        table = table.progress_apply(lambda row: map_to_NCBI_efetch_row(row), axis=1)
+        table = table.progress_apply(lambda row: map_to_NCBI_efetch_row(row, email), axis=1)
 
     return table
 
@@ -1119,34 +1116,35 @@ def add_reaction(model:cobra.Model,row:pd.Series,
         # retrieve reaction information from KEGG
         reac_kegg = kegg_reaction_parser(row['KEGG.reaction'])
 
-        # add name
-        # --------
-        #     from KEGG name
-        reac.name = reac_kegg['name']
+        if reac_kegg is not None:
+            # add name
+            # --------
+            #     from KEGG name
+            reac.name = reac_kegg['name']
 
-        # add notes
-        # ---------
-        reac.notes['creation'] = 'via KEGG'
-        reac.notes['KEGG.information'] = row['KEGG.notes']
+            # add notes
+            # ---------
+            reac.notes['creation'] = 'via KEGG'
+            reac.notes['KEGG.information'] = row['KEGG.notes']
 
-        # add metabolites
-        # ----------------
-        reac.add_metabolites(get_metabolites_kegg(model,reac_kegg['equation'],chem_xref,chem_prop,bigg_metabolites, namespace))
-            #@TODO .............
-            #   direction of reaction
-            #   ---> current solution:
-            #        use one direction only
-            # ..................
+            # add metabolites
+            # ----------------
+            reac.add_metabolites(get_metabolites_kegg(model,reac_kegg['equation'],chem_xref,chem_prop,bigg_metabolites, namespace))
+                #@TODO .............
+                #   direction of reaction
+                #   ---> current solution:
+                #        use one direction only
+                # ..................
 
-        # add annotations
-        # ---------------
-        reac.annotation['ec-code'] = row['EC number']
-        reac.annotation['kegg.reaction'] = row['KEGG.reaction']
-        for db, identifiers in reac_kegg['db'].items():
-            if len(identifiers) == 1:
-                reac.annotation[db] = identifiers[0]
-            else:
-                reac.annotation[db] = identifiers
+            # add annotations
+            # ---------------
+            reac.annotation['ec-code'] = row['EC number']
+            reac.annotation['kegg.reaction'] = row['KEGG.reaction']
+            for db, identifiers in reac_kegg['db'].items():
+                if len(identifiers) == 1:
+                    reac.annotation[db] = identifiers[0]
+                else:
+                    reac.annotation[db] = identifiers
 
 
     # --------------------------------------
@@ -1306,7 +1304,8 @@ def run(draft:str, gene_list:str, fasta:str,
         db:str, dir:str, 
         mnx_chem_prop:str, mnx_chem_xref:str, 
         mnx_reac_prop:str, mnx_reac_xref:str, 
-        ncbi_map:str, ncbi_dat:str, 
+        ncbi_map:str, ncbi_dat:str,
+        email:str, 
         id:str='locus_tag', 
         sensitivity:Literal['sensitive', 'more-sensitive', 'very-sensitive','ultra-sensitive']='more-sensitive', 
         coverage:float=95.0, pid:float=90.0, 
@@ -1342,6 +1341,8 @@ def run(draft:str, gene_list:str, fasta:str,
             Path to the NCBI information mapping file. Optional, but recommended.
         - ncbi_dat (str):
             Path to the NCBI database information file. Optional, but recommended.
+        - email (str):
+            User's mail address for the NCBI Entrez tool.
         - id (str, optional): 
             Name of the column of the csv file that contains the entries that were 
             used as gene identifiers in the draft model. 
@@ -1415,94 +1416,97 @@ def run(draft:str, gene_list:str, fasta:str,
     end = time.time()
     print(F'\ttime: {end - start}s')
 
-    # ------------------------------------------------------
-    # use DIAMOND to identify homologs for the missing genes
-    # ------------------------------------------------------
+    if len(missing_genes) >= 1:
+        # ------------------------------------------------------
+        # use DIAMOND to identify homologs for the missing genes
+        # ------------------------------------------------------
 
-    print('\n# -----------\n# run DIAMOND\n# -----------')
+        print('\n# -----------\n# run DIAMOND\n# -----------')
 
-    start = time.time()
+        start = time.time()
 
-    outname_diamond = Path(dir,'step1-extension','DIAMOND_results.tsv')
-    bl = "\\ "
-    print(F'\tRunning the following command:')
-    print(F'diamond blastp -d {db.replace(" ",bl)} -q {Path(dir.replace(" ",bl),"step1-extension","missing_genes.fasta")} --{sensitivity} --query-cover {coverage} -p {int(threads)} -o {outname_diamond} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore')
-    subprocess.run([F'diamond blastp -d {db.replace(" ",bl)} -q {Path(dir.replace(" ",bl),"step1-extension","missing_genes.fasta")} --{sensitivity} --query-cover {coverage} -p {int(threads)} -o {outname_diamond} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore'], shell=True)
+        outname_diamond = Path(dir,'step1-extension','DIAMOND_results.tsv')
+        bl = "\\ "
+        print(F'\tRunning the following command:')
+        print(F"diamond blastp -d {str(db).replace(' ',bl)} -q {Path(str(dir).replace(' ',bl),'step1-extension','missing_genes.fasta')} --{sensitivity} --query-cover {coverage} -p {int(threads)} -o {outname_diamond} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore")
+        subprocess.run(["diamond", "blastp", "-d", str(db).replace(' ',bl), "-q", Path(str(dir).replace(' ',bl),"step1-extension","missing_genes.fasta"), "--"+sensitivity, "--query-cover", str(coverage), "-p", str(threads), "-o", outname_diamond, "--outfmt", "6", "qseqid", "sseqid", "pident", "length", "mismatch", "gapopen", "qstart", "qend", "sstart", "send", "evalue", "bitscore"], shell=True)
 
-    end = time.time()
-    print(F'\ttime: {end - start}s')
+        end = time.time()
+        print(F'\ttime: {end - start}s')
 
-    # -----------------------------------------
-    # find best hits for each gene, if possible
-    # -----------------------------------------
+        # -----------------------------------------
+        # find best hits for each gene, if possible
+        # -----------------------------------------
 
-    print('\n# --------------------\n# filter out best hits\n# --------------------')
+        print('\n# --------------------\n# filter out best hits\n# --------------------')
 
-    start = time.time()
+        start = time.time()
 
-    # best hit for each query / missing gene, if one exists
-    best_hits = find_best_diamond_hits(outname_diamond, pid)
-    print(F'\tgenes after DIAMOND with coverage > {coverage}, PID {pid}: {len(best_hits)}')
+        # best hit for each query / missing gene, if one exists
+        best_hits = find_best_diamond_hits(outname_diamond, pid)
+        print(F'\tgenes after DIAMOND with coverage > {coverage}, PID {pid}: {len(best_hits)}')
 
-    end = time.time()
-    print(F'\ttime: {end - start}s')
+        end = time.time()
+        print(F'\ttime: {end - start}s')
 
-    # --------------------------------------------
-    # get further information on the missing genes
-    # --------------------------------------------
+        # --------------------------------------------
+        # get further information on the missing genes
+        # --------------------------------------------
 
-    print('\n# --------------------------\n# get additional information\n# --------------------------')
+        print('\n# --------------------------\n# get additional information\n# --------------------------')
 
-    start = time.time()
+        start = time.time()
 
-    # from NCBI
-    print('\tRetrieve information from NCBI via accession version number')
-    genes_to_add = get_ncbi_info(best_hits, ncbi_map)
+        # from NCBI
+        print('\tRetrieve information from NCBI via accession version number')
+        genes_to_add = get_ncbi_info(best_hits, ncbi_map, email)
 
-    # map to KEGG (gene or ec --> enzyme and reaction)
-    print('\tMap to KEGG')
-    genes_to_add = map_to_KEGG(genes_to_add, Path(dir,"step1-extension"), Path(dir,"manual_curation"), ncbi_dat)
+        # map to KEGG (gene or ec --> enzyme and reaction)
+        print('\tMap to KEGG')
+        genes_to_add = map_to_KEGG(genes_to_add, Path(dir,"step1-extension"), Path(dir,"manual_curation"), ncbi_dat)
 
-    # map to BiGG
-    print('\tmap information to BiGG namespace via EC number AND KEGG.reaction ID')
-    genes_to_add = map_BiGG_reactions(genes_to_add)
+        # map to BiGG
+        print('\tmap information to BiGG namespace via EC number AND KEGG.reaction ID')
+        genes_to_add = map_BiGG_reactions(genes_to_add)
 
-    end = time.time()
-    print(F'\ttime: {end - start}s')
+        end = time.time()
+        print(F'\ttime: {end - start}s')
 
-    # ------------------
-    # add genes to model
-    # ------------------
+        # ------------------
+        # add genes to model
+        # ------------------
 
-    print('\n# ------------------\n# add genes to model\n# ------------------')
+        print('\n# ------------------\n# add genes to model\n# ------------------')
 
-    start = time.time()
-    # save starting values
-    m_before = len(draft.metabolites)
-    r_before = len(draft.reactions)
-    g_before = len(draft.genes)
+        start = time.time()
+        # save starting values
+        m_before = len(draft.metabolites)
+        r_before = len(draft.reactions)
+        g_before = len(draft.genes)
 
-    # extent the model
-    draft = extent_model(genes_to_add,draft,mnx_chem_prop,mnx_chem_xref,mnx_reac_prop,mnx_reac_xref, exclude_dna, exclude_rna)
-    # save it
-    name = F'{draft.id}_extended'
-    cobra.io.write_sbml_model(draft, Path(dir,'step1-extension',name+'.xml'))
+        # extent the model
+        draft = extent_model(genes_to_add,draft,mnx_chem_prop,mnx_chem_xref,mnx_reac_prop,mnx_reac_xref, exclude_dna, exclude_rna)
+        # save it
+        name = F'{draft.id}_extended'
+        cobra.io.write_sbml_model(draft, Path(dir,'step1-extension',name+'.xml'))
 
-    # find out the differences to before
-    r_after = len(draft.reactions)
-    print(F'\tnumber of added reactions: {r_after - r_before}')
-    m_after = len(draft.metabolites)
-    print(F'\tnumber of added metabolites: {m_after - m_before}')
-    g_after = len(draft.genes)
-    print(F'\tnumber of added genes: {g_after - g_before}')
+        # find out the differences to before
+        r_after = len(draft.reactions)
+        print(F'\tnumber of added reactions: {r_after - r_before}')
+        m_after = len(draft.metabolites)
+        print(F'\tnumber of added metabolites: {m_after - m_before}')
+        g_after = len(draft.genes)
+        print(F'\tnumber of added genes: {g_after - g_before}')
 
-    end = time.time()
-    print(F'\ttime: {end - start}s')
+        end = time.time()
+        print(F'\ttime: {end - start}s')
 
-    # ---------------------------------
-    # assess model quality using memote
-    # ---------------------------------
+        # ---------------------------------
+        # assess model quality using memote
+        # ---------------------------------
 
-    if memote:
-        memote_path = Path(dir,'step1-extension',name+'.html')
-        run_memote(draft, 'html', return_res=False, save_res=memote_path, verbose=True)
+        if memote:
+            memote_path = str(Path(dir,'step1-extension',name+'.html'))
+            run_memote(draft, 'html', return_res=False, save_res=memote_path, verbose=True)
+    else:
+        print("\tNo missing genes found. The first refinement step, extension, will be skipped.")

@@ -65,7 +65,7 @@ parameters:
     generate_draft_model:
         # if the gene ids of the template model do not match the
         # identifiers of the annotated genome file, use this option to edit them
-        edit_names: no
+        edit_names: "no"
         pid: 80.0
 
     refinement_extension:
@@ -73,6 +73,7 @@ parameters:
         sensitivity: more-sensitive
         coverage: 95.0
         pid: 90.0
+        email: USER
 
     refinement_cleanup:
         # current default means no gapfilling

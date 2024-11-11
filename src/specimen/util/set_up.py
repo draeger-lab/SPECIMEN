@@ -84,7 +84,7 @@ def download_mnx(dir:str='MetaNetX', chunk_size:int=1024):
     for mnx_name,mnx_url in MNX_URL_DICT.items():
         r = requests.get(mnx_url, stream=True)
         total = int(r.headers.get('content-length', 0))
-        with open(Path(dir,mnx_name), 'wb') as f, tqdm(desc=Path(dir,mnx_name), total=total,
+        with open(Path(dir,mnx_name), 'wb') as f, tqdm(desc=str(Path(dir,mnx_name)), total=total,
             unit='iB', unit_scale=True, unit_divisor=1024,) as bar:
             for data in r.iter_content(chunk_size=chunk_size):
                 size = f.write(data)
@@ -535,42 +535,48 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
         config['gapfilling']['exclude-dna'] = exclude_dna
         exclude_rna = click.prompt('Do you want to exlude reactions containing \'RNA\' in their name?', type=click.Choice(['y','n']), show_choices=True)
         config['gapfilling']['exclude-rna'] = exclude_rna
-        # @TODO enable running multiple GapFiller
+        
         algorithm = click.prompt('Which algorithm do you want to use for gapfilling?', type=click.Choice(['KEGGapFiller','BioCycGapFiller','GeneGapFiller']), show_choices=True)
-        match algorithm:
-            case 'KEGGapFiller':
-                config['gapfilling']['KEGGapFiller'] = True
+        another_gapfiller = True
+        while another_gapfiller:
+            match algorithm:
+                case 'KEGGapFiller':
+                    config['gapfilling']['KEGGapFiller'] = True
 
-                if config['general']['kegg_organism_id'] is None:
-                    kegg_org_id = click.prompt('Enter the KEGG organism id')
-                    config['general']['kegg_organism_id'] = kegg_org_id
-            case 'BioCycGapFiller':
-                config['gapfilling']['BioCycGapFiller'] = True
+                    if config['general']['kegg_organism_id'] is None:
+                        kegg_org_id = click.prompt('Enter the KEGG organism id')
+                        config['general']['kegg_organism_id'] = kegg_org_id
+                case 'BioCycGapFiller':
+                    config['gapfilling']['BioCycGapFiller'] = True
 
-                gene_table = click.prompt('Enter the path to a gene smart table from BioCyc', type=click.Path(exists=True))
-                config['gapfilling']['BioCycGapFiller parameters']['gene-table'] = gene_table
-                reacs_table = click.prompt('Enter the path to a reactions smart table from BioCyc', type=click.Path(exists=True))
-                config['gapfilling']['BioCycGapFiller parameters']['reacs-table'] = reacs_table
-                gff = click.prompt('Enter the path to a GFF file of the genome of the model', type=click.Path(exists=True))
-                config['gapfilling']['BioCycGapFiller parameters']['gff'] = gff
-            case 'GeneGapFiller':
-                config['gapfilling']['GeneGapFiller'] = True
+                    gene_table = click.prompt('Enter the path to a gene smart table from BioCyc', type=click.Path(exists=True))
+                    config['gapfilling']['BioCycGapFiller parameters']['gene-table'] = gene_table
+                    reacs_table = click.prompt('Enter the path to a reactions smart table from BioCyc', type=click.Path(exists=True))
+                    config['gapfilling']['BioCycGapFiller parameters']['reacs-table'] = reacs_table
+                    gff = click.prompt('Enter the path to a GFF file of the genome of the model', type=click.Path(exists=True))
+                    config['gapfilling']['BioCycGapFiller parameters']['gff'] = gff
+                case 'GeneGapFiller':
+                    config['gapfilling']['GeneGapFiller'] = True
 
-                gff = click.prompt('Enter the path to a GFF file of the genome of the model', type=click.Path(exists=True))
-                config['gapfilling']['GeneGapFiller parameters']['gff'] = gff
-                swissprot_dmnd = click.prompt('Enter the path to the SwissProt DIAMOND database file', type=click.Path(exists=True))
-                config['gapfilling']['GeneGapFiller parameters']['swissprot-dmnd'] = swissprot_dmnd
-                swissprot_mapping = click.prompt('Enter the path to the SwissProt mapping file', type=click.Path(exists=True))
-                config['gapfilling']['GeneGapFiller parameters']['swissprot-mapping'] = swissprot_mapping
-                check_NCBI = click.prompt('Do you want to enable checking NCBI accession numbers for EC numbers?', type=click.Choice(['y','n']), show_choices=True)
-                check_NCBI = True if check_NCBI == 'y' else False
-                config['gapfilling']['GeneGapFiller parameters']['check-NCBI'] = check_NCBI
-                sensitivity = click.prompt('Enter the sensitivity option for the DIAMOND run', type=click.Choice(['fast','mid-sensitive','sensitive','more-sensitive','very-sensitive','ultra-sensitive']), show_choices=True)
-                config['gapfilling']['GeneGapFiller parameters']['sensitivity'] = sensitivity
-                coverage = click.prompt('Enter the coverage for DIAMOND', type=float)
-                config['gapfilling']['GeneGapFiller parameters']['coverage'] = coverage
-                percentage_identity = click.prompt('Enter the percentage identity threshold value for accepting matches', type=float)
-                config['gapfilling']['GeneGapFiller parameters']['percentage identity'] = percentage_identity
+                    gff = click.prompt('Enter the path to a GFF file of the genome of the model', type=click.Path(exists=True))
+                    config['gapfilling']['GeneGapFiller parameters']['gff'] = gff
+                    swissprot_dmnd = click.prompt('Enter the path to the SwissProt DIAMOND database file', type=click.Path(exists=True))
+                    config['gapfilling']['GeneGapFiller parameters']['swissprot-dmnd'] = swissprot_dmnd
+                    swissprot_mapping = click.prompt('Enter the path to the SwissProt mapping file', type=click.Path(exists=True))
+                    config['gapfilling']['GeneGapFiller parameters']['swissprot-mapping'] = swissprot_mapping
+                    check_NCBI = click.prompt('Do you want to enable checking NCBI accession numbers for EC numbers?', type=click.Choice(['y','n']), show_choices=True)
+                    check_NCBI = True if check_NCBI == 'y' else False
+                    config['gapfilling']['GeneGapFiller parameters']['check-NCBI'] = check_NCBI
+                    sensitivity = click.prompt('Enter the sensitivity option for the DIAMOND run', type=click.Choice(['fast','mid-sensitive','sensitive','more-sensitive','very-sensitive','ultra-sensitive']), show_choices=True)
+                    config['gapfilling']['GeneGapFiller parameters']['sensitivity'] = sensitivity
+                    coverage = click.prompt('Enter the coverage for DIAMOND', type=float)
+                    config['gapfilling']['GeneGapFiller parameters']['coverage'] = coverage
+                    percentage_identity = click.prompt('Enter the percentage identity threshold value for accepting matches', type=float)
+                    config['gapfilling']['GeneGapFiller parameters']['percentage identity'] = percentage_identity
+            another_gapfiller = click.prompt('Do you want to use another algorithm for gapfilling?', type=click.Choice(['y','n']), show_choices=True)
+            another_gapfiller = True if another_gapfiller == 'y' else False
+            if another_gapfiller:
+                algorithm = click.prompt('Which algorithm do you want to use for gapfilling?', type=click.Choice(['KEGGapFiller','BioCycGapFiller','GeneGapFiller']), show_choices=True)
 
     # kegg pathways as groups
     kegg_pw_groups = click.prompt('Do you want to add KEGG pathways as groups to the model?', type=click.Choice(['y','n']), show_choices=True)

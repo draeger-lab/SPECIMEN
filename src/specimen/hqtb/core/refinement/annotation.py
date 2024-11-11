@@ -54,9 +54,15 @@ def kegg_reaction_to_kegg_pathway(model:cobra.Model, viaEC:bool=False, viaRC:boo
 
             # via reaction
             try:
-                reaction = kegg_reaction_parser(reac.annotation['kegg.reaction'])
-                if 'db' in reaction and 'kegg.pathway' in reaction['db']:
-                    pathways = reaction['db']['kegg.pathway']
+                if isinstance(reac.annotation['kegg.reaction'],list):
+                    for annotation in reac.annotation['kegg.reaction']:
+                        reaction = kegg_reaction_parser(annotation)
+                        if reaction is not None and 'db' in reaction and 'kegg.pathway' in reaction['db']:
+                           pathways.append(reaction['db']['kegg.pathway'])
+                else:
+                    reaction = kegg_reaction_parser(reac.annotation['kegg.reaction'])
+                    if reaction is not None and 'db' in reaction and 'kegg.pathway' in reaction['db']:
+                        pathways = reaction['db']['kegg.pathway']
             except urllib.error.HTTPError:
                 print(F'HTTPError: {reac.id}, {reac.annotation["kegg.reaction"]}')
             except ConnectionResetError:
@@ -175,13 +181,13 @@ def run(model:str, dir:str, kegg_viaEC:bool=False,
     libsbml_model = libsbml_doc.getModel()
 
     libsbml_model = run_SBOannotator(libsbml_model)
-    write_model_to_file(libsbml_model, Path(dir,'step3-annotation',libsbml_model.getId()+'_SBOannotated.xml'))
+    write_model_to_file(libsbml_model, str(Path(dir,'step3-annotation',libsbml_model.getId()+'_SBOannotated.xml')))
 
     end = time.time()
     print(F'\ttime: {end - start}s')
 
     # reload model
-    model = load_model(Path(dir,'step3-annotation',libsbml_model.getId()+'_SBOannotated.xml'), 'cobra')
+    model = load_model(str(Path(dir,'step3-annotation',libsbml_model.getId()+'_SBOannotated.xml')), 'cobra')
 
     # ................................................................
     # @EXTENDABLE
@@ -204,7 +210,7 @@ def run(model:str, dir:str, kegg_viaEC:bool=False,
     # ----------
     # save model
     # ----------
-    cobra.io.write_sbml_model(model, Path(dir,'step3-annotation',{model.id}+'_annotated.xml'))
+    cobra.io.write_sbml_model(model, Path(dir,'step3-annotation',model.id+'_annotated.xml'))
 
     # ---------------------------------
     # assess model quality using memote
@@ -213,7 +219,7 @@ def run(model:str, dir:str, kegg_viaEC:bool=False,
     if memote:
         start = time.time()
         name = model.id
-        memote_path = Path(dir,'step3-annotation',name+'_annotated.html')
+        memote_path = str(Path(dir,'step3-annotation',name+'_annotated.html'))
         run_memote(model, 'html', return_res=False, save_res=memote_path, verbose=True)
         end = time.time()
         print(F'\ttotal time: {end - start}s')

@@ -9,6 +9,7 @@ __author__ = 'Carolin Brune'
 
 import time
 import tempfile
+import os
 from pathlib import Path
 from typing import Literal
 import warnings
@@ -137,7 +138,7 @@ def run(genome:str,model:str,dir:str,mcc='skip',
         case _:
             solver = egcs.EGCSolver()
             print(f'\tFound EGCs:\n')
-            print(f'\t{solver.find_egcs()}')
+            print(f'\t{solver.find_egcs(model,with_reacs=True,namespace=namespace)}') # @NOTE automatically uses c,p as compartments 
 
     end = time.time()
     print(F'\ttime: {end - start}s')
@@ -150,7 +151,7 @@ def run(genome:str,model:str,dir:str,mcc='skip',
     print('\n# ----------\n# adjust BOF\n# ----------')
     start = time.time()
 
-    with tempfile.NamedTemporaryFile(suffix='.xml') as temp_model:
+    with tempfile.NamedTemporaryFile(suffix='.xml', delete=False) as temp_model:
         # generate an up-to-date model xml-file
         cobra.io.write_sbml_model(model,temp_model.name)
         # update BOF
@@ -168,7 +169,7 @@ def run(genome:str,model:str,dir:str,mcc='skip',
        
             # optimise BOF(s)
             model = check_normalise_biomass(model)
-
+    os.remove(temp_model.name)
 
     end = time.time()
     print(F'\ttime: {end - start}s')
@@ -187,6 +188,6 @@ def run(genome:str,model:str,dir:str,mcc='skip',
     # ---------------------------------
 
     if memote:
-        memote_path = Path(dir,'step4-smoothing',model_name+'.html')
+        memote_path = str(Path(dir,'step4-smoothing',model_name+'.html'))
         run_memote(model, 'html', return_res=False, save_res=memote_path, verbose=True)
 

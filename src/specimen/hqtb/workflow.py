@@ -54,7 +54,7 @@ def run(config_file:str = 'test_config.yaml'):
     #     config['out']['dir']: directory for output, e.g. 10-run/
     try:
         Path(config['out']['dir'],"logs").mkdir(parents=True, exist_ok=False)
-        print('Creating new directory ' + Path(config["out"]["dir"],"logs"))
+        print('Creating new directory ' +str(Path(config["out"]["dir"],"logs")))
     except FileExistsError:
         warnings.warn('Given directory already exists. High possibility of files being overwritten.')
 
@@ -102,8 +102,10 @@ def run(config_file:str = 'test_config.yaml'):
             match extension:
                 case '.gbff':
                     fasta = Path(config["out"]["dir"],'01_bidirectional_blast','FASTA',os.path.splitext(os.path.basename(config["subject"]["annotated_genome"]))[0] + '_prot.fa')
+                    header = 'protein_id'
                 case '.faa':
                     fasta = config['subject']['annotated_genome']
+                    header = 'locus_tag'
                 case _:
                     raise ValueError(F'Unkown file extension {extension} for file {config["subject"]["annotated_genome"]}.')
 
@@ -118,7 +120,8 @@ def run(config_file:str = 'test_config.yaml'):
                                           config['data']['mnx_reac_xref'],
                                           config['data']['ncbi_map'],
                                           config['data']['ncbi_dat'],
-                                          id=config['parameters']['refinement_extension']['id'],
+                                          email=config['parameters']['refinement_extension']['email'],
+                                          id=header,
                                           sensitivity=config['parameters']['refinement_extension']['sensitivity'],
                                           coverage=config['parameters']['refinement_extension']['coverage'],
                                           pid=config['parameters']['refinement_extension']['pid'],
@@ -168,7 +171,7 @@ def run(config_file:str = 'test_config.yaml'):
     with open(Path(config["out"]["dir"],'logs','log_04_validation.txt'),'w') as log:
         with contextlib.redirect_stdout(log):
             core.validation.run(dir=config["out"]["dir"],
-                                model_path =  Path(config["out"]["dir"],'03_refinement','step4-smoothing',config["out"]["name"]+'_smooth.xml'),
+                                model_path=Path(config["out"]["dir"],'03_refinement','step4-smoothing',config["out"]["name"]+'_smooth.xml'),
                                 tests=None,
                                 run_all=True)
 

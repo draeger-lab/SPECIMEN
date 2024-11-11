@@ -35,6 +35,30 @@ Developer Information
 
 More developer-relevant information can be found in the :code:`dev` folder on the `github page <https://github.com/draeger-lab/SPECIMEN>`__.
 
+Updating the `requirements.txt`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| To create the `requirements.txt` adjust the `requirements.in` file as needed in the folder docs.
+| Then navigate to the folder docs in the command line:
+
+.. code-block:: console
+    :class: copyable
+
+    cd docs
+
+and use the following command to automatically generate the new `requirements.txt`:
+
+.. code-block:: console
+    :class: copyable
+    
+    python3 -m piptools compile --strip-extras --output-file=requirements.txt requirements.in
+
+To bump to the newest versions possible, use the following command in the `docs` directory:
+
+.. code-block:: console
+    :class: copyable
+
+    pip-compile --upgrade
+
 Documentation Notes
 -------------------
 
