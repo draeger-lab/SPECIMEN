@@ -31,7 +31,7 @@ general:
   stats_always_on: False     # Calculate the model statistics after every step
 
   # Options used by multiple steps of the workflow
-  refseq_gff: USER           # Path to RefSeq GFF file: 
+  gff: USER                  # Path to RefSeq/Genbank GFF file:
                              # Can be optionally provided for cm-polish.
   kegg_organism_id: USER     # KEGG ID of the organism: Required for gap analysis with 'KEGG'.
                              # Can be optionally provided for cm-polish.
