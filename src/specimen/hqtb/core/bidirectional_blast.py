@@ -138,9 +138,9 @@ def create_diamond_db(dir: str, name: str, path: str, threads: int):
     else:
         # generate new database using diamond makedb
         print(F'create DIAMOND database for {name} using:')
-        print(F'diamond makedb --in {path} -d {str(Path(dir,"db",name+".dmnd"))} -p {int(threads)}')
+        print(F'diamond makedb --in {path} --db {str(Path(dir,"db",name+".dmnd"))} --threads {int(threads)}')
         start = time.time()
-        subprocess.run(["diamond", "makedb", "--in", path, "-d", str(Path(dir,"db",name+".dmnd")), "-p", str(threads)], shell=True)
+        subprocess.run(["diamond", "makedb", "--in", path, "--db", str(Path(dir,"db",name+".dmnd")), "--threads", str(threads)])
         end = time.time()
         print(F'\t time: {end - start}s')
 
@@ -173,7 +173,7 @@ def run_diamond_blastp(dir: str, db: str, query: str, fasta_path:str , sensitivi
         print(F'blast {query} against {db} using:')
         print(F'diamond blastp -d {str(Path(dir,"db/",db+".dmnd"))} -q {F"{fasta_path}"} --{sensitivity} -p {int(threads)} -o {outname} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen ')
         start = time.time()
-        subprocess.run(["diamond", "blastp", "-d", str(Path(dir,"db",db+".dmnd")), "-q", fasta_path, "--"+sensitivity, "-p", str(threads), "-o", outname, "--outfmt", "6", "qseqid", "sseqid", "pident", "length", "mismatch", "gapopen", "qstart", "qend", "sstart", "send", "evalue", "bitscore", "qlen"], shell=True)
+        subprocess.run(["diamond", "blastp", "-d", str(Path(dir,"db",db+".dmnd")), "-q", fasta_path, "--"+sensitivity, "-p", str(threads), "-o", outname, "--outfmt", "6", "qseqid", "sseqid", "pident", "length", "mismatch", "gapopen", "qstart", "qend", "sstart", "send", "evalue", "bitscore", "qlen"])
         end = time.time()
         print(F'\ttime: {end - start}s')
 
