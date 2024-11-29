@@ -105,6 +105,17 @@ gapfilling:
     percentage identity: 90.0     # Percentage identity threshold value for accepting
                                   # matches found by DIAMOND as homologous.
 
+# Polish the model using ModelPolisher
+# ------------------------------------
+modelpolisher: True                         # Activate ModelPolisher
+mp:
+  allow-model-to-be-saved-on-server: False  # Enable saving the model on the server
+  fixing:
+    dont-fix: False                         # Sets unset default values that are mandatory
+  annotation:
+    bigg:
+      annotate-with-bigg: True              # Enable annotation with BiGG
+      include-any-uri: True                 # Enable adding annotations that are not MIRIAM-compliant
 
 # Add KEGG pathways as groups, optional
 # -------------------------------------

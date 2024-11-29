@@ -11,6 +11,7 @@ __author__ = "Tobias Fehrenbach, Famke Baeuerle, Gwendolyn O. Döbel and Carolin
 import logging
 import pandas as pd
 from datetime import date
+import model_polisher as mp
 from pathlib import Path
 from typing import Union
 
@@ -140,6 +141,7 @@ def run(configpath:Union[str,None]=None):
     Path(dir,"cmpb_out",'misc', 'gapfill').mkdir(parents=True, exist_ok=False)        #      |- gapfill
     Path(dir,"cmpb_out",'misc', 'growth').mkdir(parents=True, exist_ok=False)         #      |- growth
     Path(dir,"cmpb_out",'misc', 'stats').mkdir(parents=True, exist_ok=False)          #      |- stats
+    Path(dir,"cmpb_out",'misc', 'modelpolisher').mkdir(parents=True, exist_ok=False)  #      |- modelpolisher
     Path(dir,"cmpb_out",'misc', 'kegg_pathway').mkdir(parents=True, exist_ok=False)   #      |- kegg_pathways
     Path(dir,"cmpb_out",'misc', 'auxotrophy').mkdir(parents=True, exist_ok=False)     #      |- auxothrophy
 
@@ -216,7 +218,8 @@ def run(configpath:Union[str,None]=None):
                 current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_KEGG_gapfill.xml')
             else:
                 write_model_to_file(current_libmodel, str(only_modelpath))
-            current_model = load_model(current_modelpath,'cobra')
+                current_modelpath = only_modelpath
+            current_model = load_model(str(current_modelpath),'cobra')
         else:
             mes = f'No KEGG organism ID provided. Gapfilling with KEGG will be skipped.'
             raise warnings.warn(mes,UserWarning)
@@ -244,7 +247,8 @@ def run(configpath:Union[str,None]=None):
             current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_BioCyc_gapfill.xml')
         else:
             write_model_to_file(current_libmodel, str(only_modelpath))
-        current_model = load_model(current_modelpath,'cobra')
+            current_modelpath = only_modelpath
+        current_model = load_model(str(current_modelpath),'cobra')
         
     # GeneGapFiller
     if config['gapfilling']['GeneGapFiller']:
@@ -275,10 +279,11 @@ def run(configpath:Union[str,None]=None):
         if config['general']['save_all_models']:
             write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_Gene_gapfill.xml')))     
             current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_Gene_gapfill.xml')
-            current_model = load_model(current_modelpath,'cobra')
         else:
             write_model_to_file(current_libmodel, str(only_modelpath))
-            current_model = load_model(current_modelpath,'cobra')
+            current_modelpath = only_modelpath
+            
+    current_model = load_model(str(current_modelpath),'cobra')
 
     # testing
     if run_gapfill:
@@ -287,10 +292,32 @@ def run(configpath:Union[str,None]=None):
 
     # ModelPolisher
     ###############
-    # @TODO
-    # future update
-    # currently being revamped 
-    # and python access is coming soon
+    if config['modelpolisher']:
+        config_mp = {"allow-model-to-be-saved-on-server": config["mp"]["allow-model-to-be-saved-on-server"], 
+                         "fixing": {"dont-fix": config["mp"]["fixing"]["dont-fix"]},
+                         "annotation": {"bigg": {"annotate-with-bigg": config["mp"]["annotation"]["bigg"]["annotate-with-bigg"], 
+                                                 "include-any-uri": config["mp"]["annotation"]["bigg"]["include-any-uri"]}}}
+        
+        result = mp.polish_model_file(current_modelpath, config_mp)
+        
+        # @DISCUSSION Should the run-id be saved somewhere for debugging purposes? result['run_id']
+        pd.DataFrame(result['diff']).to_csv(Path(dir,'cmpb_out','misc','modelpolisher','diff_mp.csv'), sep=';', header=False)
+        pd.DataFrame(result['pre_validation']).to_csv(Path(dir,'cmpb_out','misc','modelpolisher','pre_validation.csv'), sep=';', header=True)
+        pd.DataFrame(result['post_validation']).to_csv(Path(dir,'cmpb_out','misc','modelpolisher','post_validation.csv'), sep=';', header=True)
+
+        # save model
+        if config['general']['save_all_models']:
+            write_model_to_file(result["polished_document"].getModel(), str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_ModelPolisher.xml')))     
+            current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_ModelPolisher.xml')
+        else:
+            write_model_to_file(result["polished_document"].getModel(), str(only_modelpath))
+            current_modelpath = only_modelpath
+
+        current_model = load_model(str(current_modelpath),'cobra')
+
+        # in-between testing
+        between_growth_test(current_model,config,step='after_ModelPolisher')
+        between_analysis(current_model, config, step='after_ModelPolisher')
 
     # Annotations
     #############
@@ -307,7 +334,8 @@ def run(configpath:Union[str,None]=None):
             write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_added_KeggPathwayGroups.xml')))
             current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_added_KeggPathwayGroups.xml')
         else:
-            write_model_to_file(current_libmodel, str(current_modelpath))
+            write_model_to_file(current_libmodel, str(only_modelpath))
+            current_modelpath = only_modelpath
 
     # SBOannotator
     # ------------
@@ -319,7 +347,8 @@ def run(configpath:Union[str,None]=None):
         current_modelpath = Path(dir,'cmpb_out','models', f'{current_libmodel.getId()}_SBOannotated.xml')
     else:
         current_libmodel = run_SBOannotator(current_libmodel)
-        write_model_to_file(current_libmodel, str(current_modelpath))
+        write_model_to_file(current_libmodel, str(only_modelpath))
+        current_modelpath = only_modelpath
 
     current_model = load_model(str(current_modelpath),'cobra')
     between_analysis(current_model,config,step='after_annotation')
@@ -413,7 +442,8 @@ def run(configpath:Union[str,None]=None):
         write_model_to_file(current_model, str(Path(dir,'cmpb_out','models',f'{current_model.id}_after_BOF.xml')))
         current_modelpath = Path(dir,'cmpb_out','models',f'{current_model.id}_after_BOF.xml')
     else:
-        write_model_to_file(current_model, str(current_modelpath))
+        write_model_to_file(current_model, str(only_modelpath))
+        current_modelpath = only_modelpath
     
     # MCC
     # ---

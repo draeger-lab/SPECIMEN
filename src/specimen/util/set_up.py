@@ -578,6 +578,28 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
             if another_gapfiller:
                 algorithm = click.prompt('Which algorithm do you want to use for gapfilling?', type=click.Choice(['KEGGapFiller','BioCycGapFiller','GeneGapFiller']), show_choices=True)
 
+    # ModelPolisher
+    modelpolisher = click.prompt('Do you want to run ModelPolisher?', type=click.Choice(['y','n']), show_choices=True)
+    match modelpolisher:
+        case 'y':
+            config['modelpolisher'] = True
+            allow_model_to_be_saved_on_server = click.prompt('Do you want to allow the model to be saved on the server?', type=click.Choice(['y','n']), show_choices=True)
+            allow_model_to_be_saved_on_server = True if allow_model_to_be_saved_on_server == 'y' else False
+            config['mp']['allow-model-to-be-saved-on-server'] = allow_model_to_be_saved_on_server
+
+            dont_fix = click.prompt('Do you want to fix the model? Unset default values will be set, if they are mandatory.', type=click.Choice(['y','n']), show_choices=True)
+            dont_fix = False if dont_fix == 'y' else True
+            config['mp']['fixing']['dont-fix'] = dont_fix
+            
+            annotate_with_bigg = click.prompt('Do you want to annotate with BiGG?', type=click.Choice(['y','n']), show_choices=True)
+            annotate_with_bigg = True if annotate_with_bigg == 'y' else False
+            config['mp']['annotation']['bigg']['annotate-with-bigg'] = annotate_with_bigg
+            include_any_uri = click.prompt('Do you want to include annotation that are not MIRIAM-compliant?', type=click.Choice(['y','n']), show_choices=True)
+            include_any_uri = True if include_any_uri == 'y' else False
+            config['mp']['annotation']['bigg']['include-any-uri'] = include_any_uri
+        case 'n':
+            config['modelpolisher'] = False
+
     # kegg pathways as groups
     kegg_pw_groups = click.prompt('Do you want to add KEGG pathways as groups to the model?', type=click.Choice(['y','n']), show_choices=True)
     match kegg_pw_groups:
