@@ -111,6 +111,8 @@ class SpecimenModelInfoReport(ModelInfoReport):
                 ax.bar_label(p,count,rotation=270)
                 bottom += count
                 c += 0.2
+            
+            plt.legend()
 
             return fig
         
