@@ -154,10 +154,10 @@ def run(configpath:Union[str,None]=None):
     #########
     if not config['input']['modelpath']:
         if config['carveme']['gram'] == "grampos" or config['carveme']['gram'] == "gramneg":
-            subprocess.run(["carve", config['general']['protein_fasta'], "--solver", "scip", '-u', config['carveme']['gram'], "-o", dir+"\cmpb_out\models\Draft.xml"])
+            subprocess.run(["carve", config['general']['protein_fasta'], "--solver", "scip", '-u', config['carveme']['gram'], "-o", dir+r"\cmpb_out\models\Draft.xml"])
         else: 
-            subprocess.run(["carve", config['general']['protein_fasta'], "--solver", "scip", "-o", dir+"\cmpb_out\models\Draft.xml"])
-        config['input']['modelpath'] = dir+'\cmpb_out\models\Draft.xml'
+            subprocess.run(["carve", config['general']['protein_fasta'], "--solver", "scip", "-o", dir+r"\cmpb_out\models\Draft.xml"])
+        config['input']['modelpath'] = dir+r'\cmpb_out\models\Draft.xml'
     current_modelpath = config['input']['modelpath']
 
     # CarveMe correction
