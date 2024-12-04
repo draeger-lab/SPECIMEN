@@ -60,9 +60,9 @@ def check_direction(model:cobra.Model,data_file:str) -> cobra.Model:
     # --------------------
     data = pd.read_csv(data_file, sep='\t')
     # rewrite the columns into a better comparable/searchable format
-    data['KEGG reaction'] = data['KEGG reaction'].str.extract('.*>(R\d*)<.*')
-    data['METANETX']      = data['METANETX'].str.extract('.*>(MNXR\d*)<.*')
-    data['EC-Number']     = data['EC-Number'].str.extract('EC-(.*)')
+    data['KEGG reaction'] = data['KEGG reaction'].str.extract(r'.*>(R\d*)<.*')
+    data['METANETX']      = data['METANETX'].str.extract(r'.*>(MNXR\d*)<.*')
+    data['EC-Number']     = data['EC-Number'].str.extract(r'EC-(.*)')
 
     # check direction
     # --------------------
