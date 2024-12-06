@@ -10,6 +10,7 @@ __author__ = 'Carolin Brune'
 import pandas as pd
 pd.options.mode.chained_assignment = None # editing on copy and saving is elsewhere
 
+import logging
 import subprocess
 import time
 import os.path
@@ -17,6 +18,17 @@ import os.path
 from Bio import SeqIO
 from pathlib import Path
 from typing import Literal
+
+################################################################################
+# setup logging
+################################################################################
+# general logging
+genlogger = logging.getLogger(__name__)
+# internal logger with logging file
+
+logger = logging.getLogger(__name__+'-intern')
+logger.setLevel(logging.DEBUG)
+logger.propagate = False
 
 ################################################################################
 # functions
@@ -42,6 +54,8 @@ def extract_cds(file: str, name: str, dir: str, collect_info: list, identifier: 
         str: 
             Name of the FASTA-file 
     """
+    # get logger
+    logger = logging.getLogger(__name__+'-intern')
     
     extension = os.path.splitext(os.path.basename(file))[1]
 
@@ -52,7 +66,7 @@ def extract_cds(file: str, name: str, dir: str, collect_info: list, identifier: 
             fasta_name = Path(dir,'FASTA',name+'_prot.fa')
             # check, if CDS were already extracted
             if os.path.isfile(Path(dir,'FASTA',name+'_nucs.fa')) and os.path.isfile(Path(dir,'FASTA',name+'_prot.fa')):
-                print(F'CDS for {name} were already extracted')
+                logger.info(F'CDS for {name} were already extracted')
             else:
                 # run extraction process
                 info_list = []
@@ -101,13 +115,13 @@ def extract_cds(file: str, name: str, dir: str, collect_info: list, identifier: 
                                     info_list.append(temp_dict)
 
                 info_df = pd.DataFrame.from_dict(info_list)
-                print(F'{len(info_df)} CDS were extracted from {name}')
+                logger.info(F'{len(info_df)} CDS were extracted from {name}')
                 info_df.to_csv(Path(dir,name+'_info.csv'), index=False)
             return fasta_name
 
         case '.faa':
             # no CDS extraction needed, only the info-file
-            print('faa extension detected. Assuming no CDS extraction is needed.')
+            logger.info('faa extension detected. Assuming no CDS extraction is needed.')
             info_df = pd.DataFrame([seq.id for seq in SeqIO.parse(file, 'fasta')], columns=['locus_tag'])
             info_df.to_csv(Path(dir,name+'_info.csv'), index=False)
             fasta_name = file
@@ -131,18 +145,20 @@ def create_diamond_db(dir: str, name: str, path: str, threads: int):
         - threads (int): 
             Number of threads to use.
     """
+    # get logger
+    logger = logging.getLogger(__name__+'-intern')
 
     # check if database already exists
     if os.path.isfile(Path(dir,'db',name+'.dmnd')):
-        print(F'database for {name} already exists')
+        logger.info(F'database for {name} already exists')
     else:
         # generate new database using diamond makedb
-        print(F'create DIAMOND database for {name} using:')
-        print(F'diamond makedb --in {path} --db {str(Path(dir,"db",name+".dmnd"))} --threads {int(threads)}')
+        logger.info(F'create DIAMOND database for {name} using:')
+        logger.info(F'diamond makedb --in {path} --db {str(Path(dir,"db",name+".dmnd"))} --threads {int(threads)}')
         start = time.time()
         subprocess.run(["diamond", "makedb", "--in", path, "--db", str(Path(dir,"db",name+".dmnd")), "--threads", str(threads)])
         end = time.time()
-        print(F'\t time: {end - start}s')
+        logger.info(F'\t time: {end - start}s')
 
 
 def run_diamond_blastp(dir: str, db: str, query: str, fasta_path:str , sensitivity: str, threads: int):
@@ -163,19 +179,21 @@ def run_diamond_blastp(dir: str, db: str, query: str, fasta_path:str , sensitivi
         - threads (int): 
             Number of threads that will be used for running DIAMOND
     """
+    # get logger
+    logger = logging.getLogger(__name__+'-intern')
 
     outname = Path(dir,'DIAMONDblastp',f'{query}_vs_{db}.tsv')
     # check if file already exists
     if os.path.isfile(outname):
-        print(F'file or filename for {query} vs. {db} blastp already exists')
+        logger.info(F'file or filename for {query} vs. {db} blastp already exists')
     else:
         # blast file
-        print(F'blast {query} against {db} using:')
-        print(F'diamond blastp -d {str(Path(dir,"db/",db+".dmnd"))} -q {F"{fasta_path}"} --{sensitivity} -p {int(threads)} -o {outname} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen ')
+        logger.info(F'blast {query} against {db} using:')
+        logger.info(F'diamond blastp -d {str(Path(dir,"db/",db+".dmnd"))} -q {F"{fasta_path}"} --{sensitivity} -p {int(threads)} -o {outname} --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen ')
         start = time.time()
         subprocess.run(["diamond", "blastp", "-d", str(Path(dir,"db",db+".dmnd")), "-q", fasta_path, "--"+sensitivity, "-p", str(threads), "-o", outname, "--outfmt", "6", "qseqid", "sseqid", "pident", "length", "mismatch", "gapopen", "qstart", "qend", "sstart", "send", "evalue", "bitscore", "qlen"])
         end = time.time()
-        print(F'\ttime: {end - start}s')
+        logger.info(F'\ttime: {end - start}s')
 
 
 def bdbp_diamond(dir: str, template_name:str, input_name: str, template_path: str, input_path: str, sensitivity='sensitive', threads=2):
@@ -199,21 +217,23 @@ def bdbp_diamond(dir: str, template_name:str, input_name: str, template_path: st
             Number of threads to use when running DIAMOND. 
             Defaults to 2.
     """
+    # get logger
+    logger = logging.getLogger(__name__+'-intern')
 
     # -----------------------
     # create output directory
     # -----------------------
     try:
         Path(dir,"db").mkdir(parents=True, exist_ok=False)
-        print(F'Creating new directory {str(Path(dir,"db"))}')
+        logger.info(F'Creating new directory {str(Path(dir,"db"))}')
     except FileExistsError:
-        print('Given directory already has required structure.')
+        logger.info('Given directory already has required structure.')
 
     try:
         Path(dir,"DIAMONDblastp").mkdir(parents=True, exist_ok=False)
-        print(F'Creating new directory {str(Path(dir,"DIAMONDblastp"))}')
+        logger.info(F'Creating new directory {str(Path(dir,"DIAMONDblastp"))}')
     except FileExistsError:
-        print('Given directory already has required structure.')
+        logger.info('DIAMONDblastp: Given directory already has required structure.')
 
     # ---------------------
     # make DIAMOND database
@@ -247,6 +267,8 @@ def extract_bestbdbp_hits(tvq: str, qvt: str, name: str, cov:float=0.25):
             All hits with coverage < cov will be excluded. 
             Defaults to 0.25.
     """
+    # get logger
+    logger = logging.getLogger(__name__+'-intern')
 
     # default value for coverage (currently) based on Norsigian et al. 2020
 
@@ -282,8 +304,8 @@ def extract_bestbdbp_hits(tvq: str, qvt: str, name: str, cov:float=0.25):
             list_best_hits.append(best_hit)
     # write results into file
     out = pd.DataFrame(list_best_hits, columns=col_names)
-    print(F'{len(out)} blast best hits with the template genome')
-    print(F'{len(out[out["reciprocal"]==1])} reciprocal and {len(out[out["reciprocal"]==0])} query blast best hits')
+    logger.info(F'{len(out)} blast best hits with the template genome')
+    logger.info(F'{len(out[out["reciprocal"]==1])} reciprocal and {len(out[out["reciprocal"]==0])} query blast best hits')
     out.to_csv(F"{name}.tsv", index=False, sep="\t")
 
 
@@ -331,6 +353,24 @@ def run(template:str, input:str, dir:str,
         - ValueError: Unknown file extension. Please set value for in_header manually or check file.
         - ValueError: Unknown sensitive mode
     """
+    # create output directory
+    try:
+        Path(dir,"FASTA").mkdir(parents=True, exist_ok=False)
+        genlogger.info(F'Creating new directory {str(Path(dir,"FASTA"))}')
+    except FileExistsError:
+        genlogger.info('Given directory already has required structure: FASTA')
+        
+    # set path for logging file
+    Path(dir,"FASTA",'fasta.log').unlink(missing_ok=True)
+    handler = logging.handlers.RotatingFileHandler(str(Path(dir,"FASTA",'fasta.log')), 
+                                                    mode='w', 
+                                                    #maxBytes=1000, 
+                                                    backupCount=10, 
+                                                    encoding='utf-8', 
+                                                    delay=0)
+    handler.setFormatter(logging.Formatter("{levelname} \t {name} \t {message}", 
+                                            style="{",))
+    logger.addHandler(handler)
 
     total_time_s = time.time()
     # -----------
@@ -370,38 +410,34 @@ def run(template:str, input:str, dir:str,
     # start program
     # -------------
 
-    print('\nbidirectional blast\n################################################################################\n')
+    logger.info('\nbidirectional blast\n################################################################################\n')
 
     # ---------------------
     # extract CDS sequences
     # ---------------------
 
-    print('\n# ----------------------\n# extract CDS into FASTA\n# ----------------------\n')
+    logger.info('\n# ----------------------\n# extract CDS into FASTA\n# ----------------------\n')
 
-    try:
-        Path(dir,"FASTA").mkdir(parents=True, exist_ok=False)
-        print(F'Creating new directory {str(Path(dir,"FASTA"))}')
-    except FileExistsError:
-        print('Given directory already has required structure.')
+    
 
-    print('processing template genome...')
+    logger.info('processing template genome...')
     start = time.time()
     temp_fasta = extract_cds(template, template_name, dir, extra_info, temp_header)
     end = time.time()
-    print(F'\ttotal time: {end - start}s')
+    logger.info(F'\ttotal time: {end - start}s')
 
-    print('processing genome of interest...')
+    logger.info('processing genome of interest...')
     start = time.time()
     inpu_fasta = extract_cds(input, input_name, dir, extra_info, in_header)
     end = time.time()
-    print(F'\ttotal time: {end - start}s')
+    logger.info(F'\ttotal time: {end - start}s')
 
 
     # ----------------------------
     # perform bidirectional blastp
     # ----------------------------
 
-    print('\n# ----------------------------\n# perform bidirectional blastp\n# ----------------------------\n')
+    logger.info('\n# ----------------------------\n# perform bidirectional blastp\n# ----------------------------\n')
 
     # reciprical blast - diamond version
     bdbp_diamond(dir, template_name, input_name, temp_fasta, inpu_fasta, sensitivity, threads)
@@ -410,12 +446,12 @@ def run(template:str, input:str, dir:str,
     # find best bidirectional hits
     # ----------------------------
 
-    print('\n# ----------------------------\n# find best bidirectional hits\n# ----------------------------\n')
+    logger.info('\n# ----------------------------\n# find best bidirectional hits\n# ----------------------------\n')
 
     start = time.time()
     extract_bestbdbp_hits(Path(dir,'DIAMONDblastp',f'{template_name}_vs_{input_name}.tsv'),Path(dir,'DIAMONDblastp',F'{input_name}_vs_{template_name}.tsv'), Path(dir,F'{input_name}_{template_name}_bbh'))
     end = time.time()
-    print(F'\ttotal time: {end - start}s')
+    logger.info(F'\ttotal time: {end - start}s')
 
     total_time_e = time.time()
-    print(F'total runtime: {total_time_e-total_time_s}s')
+    logger.info(F'total runtime: {total_time_e-total_time_s}s')

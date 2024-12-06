@@ -19,6 +19,17 @@ from pathlib import Path
 from typing import Literal
 
 ################################################################################
+# setup logging
+################################################################################
+# general logging
+genlogger = logging.getLogger(__name__)
+# internal logger with logging file
+
+logger = logging.getLogger(__name__+'-intern')
+logger.setLevel(logging.DEBUG)
+logger.propagate = False
+
+################################################################################
 # functions
 ################################################################################
 
@@ -40,9 +51,6 @@ def run(dir:str, model_path:str, tests:None|Literal['cobra']=None, run_all:bool=
             the previous parameter.
             Defaults to True.
     """
-    # general logging
-    genlogger = logging.getLogger(__name__)
-    
 
     total_time_s = time.time()
 
@@ -56,17 +64,14 @@ def run(dir:str, model_path:str, tests:None|Literal['cobra']=None, run_all:bool=
     except FileExistsError:
         genlogger.info('Given directory already has required structure.')
 
-    # -------------
-    # setup logging
-    # -------------
+    # -----------------
+    # fine tune logging
+    # -----------------
+    # interal logging
     Path(dir,"04_validation",'validation.log').unlink(missing_ok=True)
-    handler = logging.handlers.RotatingFileHandler(str(Path(dir,"04_validation",'validation.log')), mode='wa', maxBytes=1000, backupCount=10, encoding='utf-8', delay=0)
+    handler = logging.handlers.RotatingFileHandler(str(Path(dir,"04_validation",'validation.log')), mode='w', backupCount=10, encoding='utf-8', delay=0)
     handler.setFormatter(logging.Formatter("{levelname} \t {name} \t {message}", 
                                            style="{",))
-    # interal logging
-    logger = logging.getLogger(__name__+'-intern')
-    logger.setLevel(logging.DEBUG)
-    logger.propagate = False
     logger.addHandler(handler)
     # redirect cobrapy logging
     cobralogger = logging.getLogger("cobra")

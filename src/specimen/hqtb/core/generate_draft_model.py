@@ -7,11 +7,11 @@ __author__ = 'Carolin Brune'
 
 import cobra
 import importlib.metadata
+import logging
 import numpy as np
 import os.path
 import pandas as pd
 import time
-import warnings
 
 from pathlib import Path
 from typing import Literal,Union
@@ -25,7 +25,18 @@ from refinegems.utility.connections import run_memote
 from refinegems.analysis.growth import MIN_GROWTH_THRESHOLD
 
 # further required programs:
-#        - MEMOTE, tested with version 0.13.0
+#        - MEMOTE, tested with version 0.13.0+
+
+################################################################################
+# setup logging
+################################################################################
+# general logging
+genlogger = logging.getLogger(__name__)
+# internal logger with logging file
+
+logger = logging.getLogger(__name__+'-intern')
+logger.setLevel(logging.DEBUG)
+logger.propagate = False
 
 ################################################################################
 # functions
@@ -44,10 +55,13 @@ def pid_filter(data: pd.DataFrame, pid: float) -> pd.DataFrame:
         pd.DataFrame: 
             The filtered data.
     """
+     # get logger
+    logger = logging.getLogger(__name__+'-intern')
 
+    # filter data
     data['homolog_found'] = np.where(data['PID'] > pid, 1, 0)
     counts = data['homolog_found'].value_counts()
-    print(F'\t{counts[1]} set as 1 (= homologs), {counts[0]} set as 0 ')
+    logger.info(F'\t{counts[1]} set as 1 (= homologs), {counts[0]} set as 0 ')
 
     return data
 
@@ -67,8 +81,9 @@ def edit_template_identifiers(data:pd.DataFrame, edit:Literal['no','dot-to-under
         pd.DataFrame: 
             The (un)edited DataFrame.
     """
+     # get logger
+    logger = logging.getLogger(__name__+'-intern')
     
-
     match edit:
         case 'no':
             return data
@@ -77,7 +92,7 @@ def edit_template_identifiers(data:pd.DataFrame, edit:Literal['no','dot-to-under
             return data
         case _:
             mes = 'Unknown option for parameter edit. Nothing will be edited.'
-            warnings.warn(mes)
+            logger.warning(mes)
             return data
         # ...........
         # @TODO
@@ -100,9 +115,11 @@ def remove_absent_genes(model:cobra.Model, genes:list[str]) -> cobra.Model:
         cobra.Model: 
             A new model with the given genes deleted, if found in the original model.
     """
+     # get logger
+    logger = logging.getLogger(__name__+'-intern')
 
-    print('\tremove absent (low PID) genes')
-    print('\t...................................................................')
+    logger.info('\tremove absent (low PID) genes')
+    logger.info('\t...................................................................')
 
     genes_to_delete = 0
     essential = 0
@@ -132,10 +149,10 @@ def remove_absent_genes(model:cobra.Model, genes:list[str]) -> cobra.Model:
         except KeyError:
             not_found += 1
 
-    print(F'\tnumber of deleted genes: {genes_to_delete}')
-    print(F'\tnumber of essential genes (not deleted): {essential}')
-    print(F'\tnumber of genes not found in the model: {not_found}')
-    print('\t...................................................................')
+    logger.info(F'\tnumber of deleted genes: {genes_to_delete}')
+    logger.info(F'\tnumber of essential genes (not deleted): {essential}')
+    logger.info(F'\tnumber of genes not found in the model: {not_found}')
+    logger.info('\t...................................................................')
 
     return modelCopy
 
@@ -153,20 +170,22 @@ def rename_found_homologs(draft:cobra.Model, bbh:pd.DataFrame) -> cobra.Model:
         cobra.Model: 
             The draft model with renamed genes.
     """
+     # get logger
+    logger = logging.getLogger(__name__+'-intern')
 
-    print('\trename found homologs')
-    print('\t...................................................................')
+    logger.info('\trename found homologs')
+    logger.info('\t...................................................................')
     # extract found homologs
     present_s = bbh[bbh['homolog_found'] == 1]['subject_ID'].tolist()
     present_q = bbh[bbh['homolog_found'] == 1]['query_ID'].tolist()
 
-    print(F'\ttotal number of found homologs: {len(present_q)}')
+    logger.info(F'\ttotal number of found homologs: {len(present_q)}')
 
     # map the new names to the model, if the original gene is found
     name_mapping = dict(zip(present_s, present_q))
     cobra.manipulation.modify.rename_genes(draft, name_mapping)
     renamed = len([x for x in present_q if x in draft.genes])
-    print(F'\tnumber of homologs found and renamed in model: {renamed}')
+    logger.info(F'\tnumber of homologs found and renamed in model: {renamed}')
 
     # identify skipped genes of the query
     skipped_genes = [_ for _ in present_q if _ not in name_mapping.values()]
@@ -190,9 +209,9 @@ def rename_found_homologs(draft:cobra.Model, bbh:pd.DataFrame) -> cobra.Model:
                 # copy the annotations of the homologous one for better model quality
                 draft.genes.get_by_id(ident).annotation = draft.genes.get_by_id(k).annotation
 
-    print(F'\tnumber of additional homologs found and added to model: {skp_counter}')
+    logger.info(F'\tnumber of additional homologs found and added to model: {skp_counter}')
 
-    print('\t...................................................................')
+    logger.info('\t...................................................................')
 
     return draft
 
@@ -211,13 +230,15 @@ def check_unchanged(draft:cobra.Model, bbh:pd.DataFrame) -> cobra.Model:
         cobra.Model: 
             The model after the check and possible removal of genes.
     """
+     # get logger
+    logger = logging.getLogger(__name__+'-intern')
 
-    print('\tcheck not renamed genes')
-    print('\t...................................................................')
+    logger.info('\tcheck not renamed genes')
+    logger.info('\t...................................................................')
 
     query_ids = bbh['query_ID'].tolist()
     not_renamed = [x for x in draft.genes if not x.id in query_ids]
-    print(F'\tnumber of not renamed genes: {len(not_renamed)}')
+    logger.info(F'\tnumber of not renamed genes: {len(not_renamed)}')
 
     to_delete = 0
     essential_counter = 0
@@ -245,9 +266,9 @@ def check_unchanged(draft:cobra.Model, bbh:pd.DataFrame) -> cobra.Model:
             cobra.manipulation.delete.remove_genes(draft, [g], remove_reactions=True)
             remove = False
 
-    print(F'\tremoved {to_delete} non-essential genes')
-    print(F'\tkept {essential_counter} essential genes')
-    print('\t...................................................................')
+    logger.info(F'\tremoved {to_delete} non-essential genes')
+    logger.info(F'\tkept {essential_counter} essential genes')
+    logger.info('\t...................................................................')
     
     return draft
 
@@ -282,7 +303,8 @@ def gen_draft_model(model:cobra.Model, bbh:pd.DataFrame,
         cobra.Model: 
             The generated draft model.
     """
-    
+     # get logger
+    logger = logging.getLogger(__name__+'-intern')
 
     match medium:
         # use the medium from the template
@@ -297,7 +319,7 @@ def gen_draft_model(model:cobra.Model, bbh:pd.DataFrame,
             new_m = load_medium_from_db(medium)
             medium_to_model(model, new_m, namespace, double_o2=False, add=True)
         case _:
-            warnings.warn('Unknown or incomplete input for setting the medium. Using the one from the template.')
+            logger.warning('Unknown or incomplete input for setting the medium. Using the one from the template.')
 
     # delete absent genes, including associated reactions
     bbh = edit_template_identifiers(bbh, edit)
@@ -371,8 +393,35 @@ def run(template:str, bpbbh:str, dir:str,
     Raises:
         - ValueError: 'Edit_names value {edit_names} not in list of allowed values: no, dot-to-underscore'
     """
-    
     total_time_s = time.time()
+    
+    # -----------------------
+    # create output directory
+    # -----------------------
+    
+    try:
+        Path(dir).mkdir(parents=True, exist_ok=False)
+        genlogger.info(F'Creating new directory {dir}')
+    except FileExistsError:
+        genlogger.info(F'Given directory already exists: {dir}')
+        
+    # -----------------
+    # fine tune logging
+    # -----------------
+    # interal logging
+    Path(dir,'generate_draft_model.log').unlink(missing_ok=True)
+    handler = logging.handlers.RotatingFileHandler(str(Path(dir,'generate_draft_model.log')), 
+                                                   mode='w', 
+                                                   backupCount=10, 
+                                                   encoding='utf-8', 
+                                                   delay=0)
+    handler.setFormatter(logging.Formatter("{levelname} \t {name} \t {message}", 
+                                           style="{",))
+    logger.addHandler(handler)
+    # redirect cobrapy logging
+    cobralogger = logging.getLogger("cobra")
+    cobralogger.addHandler(handler)
+    cobralogger.propagate = False
 
     # -----------
     # check input
@@ -387,13 +436,7 @@ def run(template:str, bpbbh:str, dir:str,
     # start program
     # -------------
 
-    print('\ngenerate draft model\n################################################################################\n')
-
-    try:
-        Path(dir).mkdir(parents=True, exist_ok=False)
-        print(F'Creating new directory {dir}')
-    except FileExistsError:
-        print('Given directory already exists.')
+    logger.info('\ngenerate draft model\n################################################################################\n')
 
     bbh_data = pd.read_csv(bpbbh, sep='\t')
     template_model = load_model(template,'cobra')
@@ -403,31 +446,31 @@ def run(template:str, bpbbh:str, dir:str,
         template_model.objective = growth_objfunc[0]
     elif len(growth_objfunc) > 1:
         mes = f'Multiple BOF detected. Choosing the following: {growth_objfunc[0]}'
-        warnings.warn(mes, category=UserWarning)
+        logger.warning(mes, category=UserWarning)
         template_model.objective = growth_objfunc[0]
     else:
         mes = f'No BOF detected. Can lead to problems downstream the SPECIMEN pipeline.'
-        warnings.warn(mes, category=UserWarning)
+        logger.warning(mes, category=UserWarning)
 
     # -----------------------------
     # determine presence or absence
     # -----------------------------
 
-    print('\n# ------------------\n# filter by PID\n# ------------------')
+    logger.info('\n# ------------------\n# filter by PID\n# ------------------')
     start = time.time()
     pid_filter(bbh_data, pid)
     end = time.time()
-    print(F'\ttotal time: {end - start}s')
+    logger.info(F'\ttotal time: {end - start}s')
 
     # --------------------
     # generate draft model
     # --------------------
 
-    print('\n# --------------------\n# generate draft model\n# --------------------')
+    logger.info('\n# --------------------\n# generate draft model\n# --------------------')
     start = time.time()
     draft = gen_draft_model(template_model, bbh_data, name, dir, edit_names, medium=medium, namespace=namespace)
     end = time.time()
-    print(F'\ttotal time: {end - start}s')
+    logger.info(F'\ttotal time: {end - start}s')
 
     # -------------------
     # analyse with MEMOTE
@@ -438,5 +481,9 @@ def run(template:str, bpbbh:str, dir:str,
         run_memote(draft, 'html', return_res=False, save_res=memote_path, verbose=True)
 
     total_time_e = time.time()
-    print(F'total runtime: {total_time_e-total_time_s}')
+    logger.info(F'total runtime: {total_time_e-total_time_s}')
+    
+    # restore cobrapy logging behaviour
+    cobralogger.handlers.clear()
+    cobralogger.propagate = False
 
