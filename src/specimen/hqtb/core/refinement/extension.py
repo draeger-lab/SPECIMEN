@@ -105,7 +105,7 @@ def find_best_diamond_hits(file:str, pid:float) -> pd.DataFrame:
     # get best hit for each gene in list
     # ...............................................
     # @TODO
-    # NOTE: best hit = FIRST best hit for a locus_tag
+    # @NOTE: best hit = FIRST best hit for a locus_tag
     #       mainly a runtime optimisation
     #       however can lead to information loss
     # ...............................................
@@ -464,7 +464,7 @@ def map_BiGG_reactions_row(row:pd.Series, namespace:pd.DataFrame) -> pd.Series:
 
 
 # @TEST : fitted to refinegems
-# @CHECK : connections, e.g. input is now a param short 
+# @TEST : connections, e.g. input is now a param short 
 def map_BiGG_reactions(table_file:str) -> pd.DataFrame:
     """Map the output of :py:func:`~specimen.hqtb.core.refinement.extension.map_to_KEGG`
     to a BiGG namespace file (rewritten-type, see auxilliaries).

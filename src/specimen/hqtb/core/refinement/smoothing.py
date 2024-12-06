@@ -119,15 +119,13 @@ def run(genome:str,model:str,dir:str,mcc='skip',
     # ----------------------------------
     # check for energy generating cycles
     # ----------------------------------
-    # check if some exist
-    # not implemented: solve them, as it is heavily dependant on biology (hard to perform automated)
     print('\n# ---------------------------------------------\n# # check for energy generating cycles\n# ---------------------------------------------')
     start = time.time()
 
     match egc_solver:
         # greedy solver
         case 'greedy':
-            print('GreedyEGCSolver:')
+            print('Using GreedyEGCSolver...')
             solver = egcs.GreedyEGCSolver()
             results = solver.solve_egcs(model,namespace=namespace) # @NOTE automatically uses c,p as compartments 
             if results:
