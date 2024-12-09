@@ -34,8 +34,15 @@ from refinegems.curation.polish import polish
 from refinegems.utility.connections import run_memote, perform_mcc, adjust_BOF, run_SBOannotator
 from refinegems.utility.io import load_model, write_model_to_file
 from refinegems.developement.decorators import implement
+from refinegems.classes import egcs
 
 from ..util.set_up import save_cmpb_user_input, validate_config
+
+################################################################################
+# setup logging
+################################################################################
+# general logging
+logger = logging.getLogger(__name__)
 
 ################################################################################
 # functions
@@ -149,6 +156,14 @@ def run(configpath:Union[str,None]=None):
     # ----------
     today = date.today().strftime("%Y%m%d")
     log_file = Path(dir, 'cmpb_out', 'logs', f'specimen_cmpb_{str(today)}.log')
+    handler = logging.handlers.RotatingFileHandler(log_file, 
+                                                    mode='w', 
+                                                    backupCount=10, 
+                                                    encoding='utf-8', 
+                                                    delay=0)
+    handler.setFormatter(logging.Formatter("{levelname} \t {name} \t {message}", 
+                                           style="{",))
+    logger.addHandler(handler)
 
     # CarveMe
     #########
@@ -409,7 +424,27 @@ def run(configpath:Union[str,None]=None):
     # in-between testing
     between_growth_test(current_model,config,step='after_duplicate_removal')
     between_analysis(current_model,config,step='after_duplicate_removal')
-
+    
+    # find and solve energy generating cycles
+    # ---------------------------------------
+    current_model = load_model(str(current_modelpath),'cobra')
+    match config['EGCs']['solver']:
+        # greedy solver
+        case 'greedy':
+            print('Using GreedyEGCSolver...')
+            solver = egcs.GreedyEGCSolver()
+            results = solver.solve_egcs(current_model,namespace=config['general']['namespace']) # @NOTE automatically uses c,p as compartments 
+            if results:
+                logger.info('results:')
+                for k,v in results.items():
+                    logger.info(f'\t{k}: {v}')
+        
+        # no solver = EGCs will only be reported
+        case _:
+            solver = egcs.EGCSolver()
+            logger.info(f'\tFound EGCs:\n')
+            logger.info(f'\t{solver.find_egcs(current_model,with_reacs=True,namespace=config['general']['namespace'])}') # @NOTE automatically uses c,p as compartments 
+            
     # BOF
     # ---
     # BOFdat - optional

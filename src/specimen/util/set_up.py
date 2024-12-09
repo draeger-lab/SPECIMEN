@@ -619,6 +619,11 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
             config['duplicates']['remove_unused_metabs'] = True
         case 'n':
             config['duplicates']['remove_unused_metabs'] = False
+            
+    # handling EGCs
+    egc_solver = click.prompt('Choose a solver (or none) for handling energy generating cycles.', type=click.Choice(['none','greedy']), show_choices=True)
+    if egc_solver == 'none':
+        egc_solver = None
 
     # @TODO: Ask for any biomass correction
     # BOF

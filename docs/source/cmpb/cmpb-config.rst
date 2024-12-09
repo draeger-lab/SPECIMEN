@@ -130,6 +130,13 @@ Below, the configuration file with the underlying defaults, is displayed.
     # Additionally, remove unused metabolites (possibly reduces knowledge-base)
     remove_unused_metabs: False
 
+    # Finding and solvong Energy Generating Cycles (EGCs)
+    # ---------------------------------------------------
+    EGCs:
+    solver: NULL # solver gives the algorithm to use for solving EGCs
+                # if NULL, only searches for EGCs without trying to solve them
+                # options include: greedy
+
     # BOFdat / Biomass objective function
     # -----------------------------------
     BOF:
