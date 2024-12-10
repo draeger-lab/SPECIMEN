@@ -383,7 +383,6 @@ def cmpb():
     """Workflow for GEM curation based (mainly) 
     on CarveMe and ModelPolisher."""
 
-#  @TODO allow command line input as well
 @cmpb.command()
 @click.argument('config',type=click.Path(exists=True))
 def run(config):
