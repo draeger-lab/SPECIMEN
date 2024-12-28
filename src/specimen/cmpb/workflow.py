@@ -8,10 +8,11 @@ __author__ = "Tobias Fehrenbach, Famke Baeuerle, Gwendolyn O. Döbel and Carolin
 # requirements
 ################################################################################
 
-import logging
-import pandas as pd
 from datetime import date
+import logging
 import model_polisher as mp
+import os
+import pandas as pd
 from pathlib import Path
 from typing import Union
 
@@ -19,7 +20,6 @@ import warnings
 
 from cobra import Reaction,Model
 from libsbml import readSBML
-import subprocess
 
 from refinegems.analysis import growth
 from refinegems.analysis.investigate import plot_rea_sbo_single
@@ -130,11 +130,16 @@ def run(configpath:Union[str,None]=None):
     if not configpath:
         config = save_cmpb_user_input()
     else:
-        config = validate_config(configpath, 'cmpb') 
+        config = validate_config(configpath, 'cmpb')
+
+    if not config['carveme']['modelname']:
+        modelname = 'i'+config['general']['organism']+config['general']['strainid']+config['general']['authorinitials']+str(date.today().year).removeprefix('20')
+    else:
+        modelname = config['carveme']['modelname']
 
     dir = config['general']['dir']
     if not config['general']['save_all_models']:
-        only_modelpath = Path(dir,'cmpb_out','model.xml') 
+        only_modelpath = Path(dir,'cmpb_out',f'{modelname}.xml') 
 
     # create directory structure
     # --------------------------
@@ -169,10 +174,18 @@ def run(configpath:Union[str,None]=None):
     #########
     if not config['input']['modelpath']:
         if config['carveme']['gram'] == "grampos" or config['carveme']['gram'] == "gramneg":
-            subprocess.run(["carve", config['general']['protein_fasta'], "--solver", "scip", '-u', config['carveme']['gram'], "-o", dir+r"\cmpb_out\models\Draft.xml"])
+            os.system(f"carve {config['general']['protein_fasta']} --solver scip -u {config['carveme']['gram']} -o {dir}\cmpb_out\models\{modelname}.xml")
+            # try:
+            #     subprocess.run(["carve", config['general']['protein_fasta'], "--solver", "scip", '-u', config['carveme']['gram'], "-o", dir+f"\cmpb_out\models\{modelname}.xml"], shell=True, check=True, text=True)
+            # except subprocess.CalledSystemError as e:
+            #     print(f"Error with the execution of CarveMe: {e}")
         else: 
-            subprocess.run(["carve", config['general']['protein_fasta'], "--solver", "scip", "-o", dir+r"\cmpb_out\models\Draft.xml"])
-        config['input']['modelpath'] = dir+r'\cmpb_out\models\Draft.xml'
+            os.system(f"carve {config['general']['protein_fasta']} --solver scip -o {dir}\cmpb_out\models\{modelname}.xml")
+            # try:
+            #     subprocess.run(["carve", config['general']['protein_fasta'], "--solver", "scip", "-o", dir+f"\cmpb_out\models\{modelname}.xml"], shell=True, check=True, text=True)
+            # except subprocess.CalledSystemError as e:
+            #     print(f"Error with the execution of CarveMe: {e}")
+        config['input']['modelpath'] = dir+fr'\cmpb_out\models\{modelname}.xml'
     current_modelpath = config['input']['modelpath']
 
     # CarveMe correction
@@ -443,7 +456,7 @@ def run(configpath:Union[str,None]=None):
         case _:
             solver = egcs.EGCSolver()
             logger.info(f'\tFound EGCs:\n')
-            logger.info(f'\t{solver.find_egcs(current_model,with_reacs=True,namespace=config['general']['namespace'])}') # @NOTE automatically uses c,p as compartments 
+            logger.info(f'\t{solver.find_egcs(current_model,with_reacs=True,namespace=config["general"]["namespace"])}') # @NOTE automatically uses c,p as compartments 
             
     # BOF
     # ---

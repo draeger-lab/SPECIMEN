@@ -22,6 +22,9 @@ input:
 # ---------------
 general:
   dir: './'                  # Path/Name of a directory to save output to
+  authorinitials: USER       # Intials or Abbreviation of the author for naming the model
+  strainid: USER             # ID of the strain 
+  organism: USER             # Abbreviation for the organism
   colours: 'YlGn'            # Set the colour scheme for the plots
                              # should be a valid matplotlib continuous color palette
   namespace: BiGG            # Namespace to use for the model
@@ -53,8 +56,9 @@ carveme:
   # CarveMe requires protein_fasta under general to be set instead of modelpath
   # if CarveMe should be run, 
   # fill out the params below
+  modelname: USER      # Name of the model
   gram: USER           # Choose either grampos or gramneg, depending on the Gram-test
-                       # resilts of your organism
+                       # results of your organism
 
 # Polish a CarveMe model
 #    Only neccessary, if the model will or has been build with CarveMe
@@ -100,7 +104,7 @@ gapfilling:
     swissprot-dmnd: USER          # Path to the SwissProt DIAMOND database file.
     swissprot-mapping: USER       # Path to the SwissProt mapping file (against EC / BRENDA)
     check-NCBI: False             # Enable checking NCBI accession numbers for EC numbers - time costly.
-    sensitivity: 'more-sensitiv'  # Sensitivity option for the DIAMOND run.
+    sensitivity: 'more-sensitive' # Sensitivity option for the DIAMOND run.
     coverage: 90.0                # Coverage (parameter for DIAMOND).
     percentage identity: 90.0     # Percentage identity threshold value for accepting
                                   # matches found by DIAMOND as homologous.

@@ -384,6 +384,10 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
     else:
         dict_recursive_check(combined_config, key=None, pipeline=pipeline)
 
+    if pipeline=='cmpb':
+        if combined_config['carveme']['modelname'] is None and (combined_config['general']['authorinitials'] is None or combined_config['general']['organism'] is None or combined_config['general']['strainid'] is None):
+            raise ValueError(f'Either the model name or all of the following parameters must be stated: authorinitials, organism and strainID')
+
     return combined_config
 
 
@@ -435,6 +439,16 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
 
     # output directory
     config['general']['dir'] = click.prompt('Enter your desired output directory path', type=click.Path())
+
+    # name for the model
+    modelname = click.prompt('Do you have a specific name for your model?', type=click.Choice(['y','n']), show_choices=True)
+    match modelname:
+        case 'y':
+            config['carveme']['modelname'] = click.prompt('Please enter your desired name for the model', type=str)
+        case 'n':
+            config['general']['authorinitials'] = click.prompt('An automated name based on the pattern iOrganismStrainAuthorYear will be created. \n Please enter your intials.', type=str)
+            config['general']['organism'] = click.prompt('Please enter an abbreviation for your organism.', type=str)
+            config['general']['strainid'] = click.prompt('Please enter the ID for your strain.', type=str)
     
     # colour 
     set_col = click.prompt('Do you want to use the default colour map YlGn for the visualisation?', type=click.Choice(['y','n']), show_choices=True)
@@ -471,7 +485,7 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
 
     # some additional, sometimes required, sometimes optional files
     refseq = click.prompt('If you want to run a gap analysis with KEGG or have a CarveMe model, please enter the path to your refseq gff file', type=click.Path())
-    config['general']['refseq_organism_id'] = refseq
+    config['general']['gff'] = refseq
 
     kegg_org_id = click.prompt('If you want to run a gap analysis with KEGG, please enter the KEGG organism ID')
     config['general']['kegg_organism_id'] = kegg_org_id
