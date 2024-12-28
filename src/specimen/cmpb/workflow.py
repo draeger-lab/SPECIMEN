@@ -132,10 +132,10 @@ def run(configpath:Union[str,None]=None):
     else:
         config = validate_config(configpath, 'cmpb')
 
-    if not config['carveme']['modelname']:
+    if not config['general']['modelname']:
         modelname = 'i'+config['general']['organism']+config['general']['strainid']+config['general']['authorinitials']+str(date.today().year).removeprefix('20')
     else:
-        modelname = config['carveme']['modelname']
+        modelname = config['general']['modelname']
 
     dir = config['general']['dir']
     if not config['general']['save_all_models']:

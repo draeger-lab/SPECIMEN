@@ -384,9 +384,8 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
     else:
         dict_recursive_check(combined_config, key=None, pipeline=pipeline)
 
-    if pipeline=='cmpb':
-        if combined_config['carveme']['modelname'] is None and (combined_config['general']['authorinitials'] is None or combined_config['general']['organism'] is None or combined_config['general']['strainid'] is None):
-            raise ValueError(f'Either the model name or all of the following parameters must be stated: authorinitials, organism and strainID')
+    if combined_config['general']['modelname'] is None and (combined_config['general']['authorinitials'] is None or combined_config['general']['organism'] is None or combined_config['general']['strainid'] is None):
+        raise ValueError(f'Either the model name or all of the following parameters must be stated: authorinitials, organism and strainID')
 
     return combined_config
 

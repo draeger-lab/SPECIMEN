@@ -28,9 +28,12 @@ template:
     namespace: BiGG
 
 # information about the output
-out:
+general:
     dir: ./specimen_run/
-    name: specimen_model
+    modelname: USER
+    authorinitials: USER       # Intials or Abbreviation of the author for naming the model
+    strainid: USER             # ID of the strain 
+    organism: USER             # Abbreviation for the organism
     memote: False
 
 # data(bases) required to run the program

@@ -446,11 +446,11 @@ def run(template:str, bpbbh:str, dir:str,
         template_model.objective = growth_objfunc[0]
     elif len(growth_objfunc) > 1:
         mes = f'Multiple BOF detected. Choosing the following: {growth_objfunc[0]}'
-        logger.warning(mes, category=UserWarning)
+        logger.warning(mes)
         template_model.objective = growth_objfunc[0]
     else:
         mes = f'No BOF detected. Can lead to problems downstream the SPECIMEN pipeline.'
-        logger.warning(mes, category=UserWarning)
+        logger.warning(mes)
 
     # -----------------------------
     # determine presence or absence
