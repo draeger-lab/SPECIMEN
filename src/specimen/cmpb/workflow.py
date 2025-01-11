@@ -132,10 +132,13 @@ def run(configpath:Union[str,None]=None):
     else:
         config = validate_config(configpath, 'cmpb')
 
-    if not config['general']['modelname']:
-        modelname = 'i'+config['general']['organism']+config['general']['strainid']+config['general']['authorinitials']+str(date.today().year).removeprefix('20')
-    else:
+    if config['general']['authorinitials'] is not None and config['general']['organism'] is not None and config['general']['strainid'] is not None:
+        modelname = 'i'+config['general']['organism']+str(config['general']['strainid'])+config['general']['authorinitials']+str(date.today().year).removeprefix('20')
+    elif config['general']['modelname'] is not None:
         modelname = config['general']['modelname']
+    else:
+        print("No values given for the standard name for a model. Default name will be used.")
+        modelname = "model_"+str(date.today().year).removeprefix('20')
 
     dir = config['general']['dir']
     if not config['general']['save_all_models']:

@@ -57,7 +57,6 @@ carveme:
   # CarveMe requires protein_fasta under general to be set instead of modelpath
   # if CarveMe should be run, 
   # fill out the params below
-  modelname: USER      # Name of the model
   gram: USER           # Choose either grampos or gramneg, depending on the Gram-test
                        # results of your organism
 
