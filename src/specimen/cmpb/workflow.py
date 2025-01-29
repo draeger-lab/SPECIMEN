@@ -31,6 +31,7 @@ from refinegems.curation.curate import resolve_duplicates
 from refinegems.classes.gapfill import KEGGapFiller, BioCycGapFiller, GeneGapFiller
 from refinegems.curation.pathways import kegg_pathways, kegg_pathway_analysis
 from refinegems.curation.polish import polish
+from refinegems.utility.entities import resolve_compartment_names
 from refinegems.utility.connections import run_memote, perform_mcc, adjust_BOF, run_SBOannotator
 from refinegems.utility.io import load_model, write_model_to_file
 from refinegems.developement.decorators import implement
@@ -223,7 +224,7 @@ def run(configpath:Union[str,None]=None):
     current_model = load_model(str(current_modelpath),'cobra')
     between_growth_test(current_model,config,step='after_draft')
     between_analysis(current_model, config, step='after_draft')
-
+    resolve_compartment_names(current_model)
 
     # gapfilling
     ############
@@ -313,8 +314,6 @@ def run(configpath:Union[str,None]=None):
         else:
             write_model_to_file(current_libmodel, str(only_modelpath))
             current_modelpath = only_modelpath
-            
-    current_model = load_model(str(current_modelpath),'cobra')
 
     # testing
     if run_gapfill:
@@ -469,7 +468,7 @@ def run(configpath:Union[str,None]=None):
         check_bof = test_biomass_presence(current_model)
         if check_bof:
             current_model.reactions.get_by_id(check_bof[0]).reaction = adjust_BOF(config['BOF']['bofdat_params']['full_genome_sequence'], 
-                                current_modelpath,
+                                str(current_modelpath),
                                 current_model, 
                                 dna_weight_fraction = config['BOF']['bofdat_params']['dna_weight_fraction'], 
                                 weight_frac = config['BOF']['bofdat_params']['weight_fraction']) 
@@ -479,7 +478,7 @@ def run(configpath:Union[str,None]=None):
             bof_reac.name = 'Biomass objective function created by BOFdat'
             current_model.add_reactions([bof_reac])
             current_model.reactions.get_by_id(bof_reac).reaction = adjust_BOF(config['BOF']['bofdat_params']['full_genome_sequence'], 
-                                current_modelpath,
+                                str(current_modelpath),
                                 current_model, 
                                 dna_weight_fraction = config['BOF']['bofdat_params']['dna_weight_fraction'], 
                                 weight_frac = config['BOF']['bofdat_params']['weight_fraction'])
@@ -558,6 +557,6 @@ def run(configpath:Union[str,None]=None):
 # run for multiple models
 @implement
 def wrapper():
-    """Run given settings for the CarveMe-ModelPolisher-based (CMPB) workflow on multuple models.
+    """Run given settings for the CarveMe-ModelPolisher-based (CMPB) workflow on multiple models.
     """
     pass
