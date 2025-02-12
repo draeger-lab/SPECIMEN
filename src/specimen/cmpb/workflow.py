@@ -179,17 +179,9 @@ def run(configpath:Union[str,None]=None):
     if not config['input']['modelpath']:
         if config['carveme']['gram'] == "grampos" or config['carveme']['gram'] == "gramneg":
             os.system(f"carve {config['general']['protein_fasta']} --solver scip -u {config['carveme']['gram']} -o {dir}\cmpb_out\models\{modelname}.xml")
-            # try:
-            #     subprocess.run(["carve", config['general']['protein_fasta'], "--solver", "scip", '-u', config['carveme']['gram'], "-o", dir+f"\cmpb_out\models\{modelname}.xml"], shell=True, check=True, text=True)
-            # except subprocess.CalledSystemError as e:
-            #     print(f"Error with the execution of CarveMe: {e}")
         else: 
             os.system(f"carve {config['general']['protein_fasta']} --solver scip -o {dir}\cmpb_out\models\{modelname}.xml")
-            # try:
-            #     subprocess.run(["carve", config['general']['protein_fasta'], "--solver", "scip", "-o", dir+f"\cmpb_out\models\{modelname}.xml"], shell=True, check=True, text=True)
-            # except subprocess.CalledSystemError as e:
-            #     print(f"Error with the execution of CarveMe: {e}")
-        config['input']['modelpath'] = dir+fr'\cmpb_out\models\{modelname}.xml'
+        config['input']['modelpath'] = dir+f'\cmpb_out\models\{modelname}.xml'
     current_modelpath = config['input']['modelpath']
 
     # CarveMe correction
@@ -314,11 +306,21 @@ def run(configpath:Union[str,None]=None):
         else:
             write_model_to_file(current_libmodel, str(only_modelpath))
             current_modelpath = only_modelpath
+    current_model = load_model(str(current_modelpath),'cobra')
 
     # testing
     if run_gapfill:
         between_growth_test(current_model,config,step='after_gapfill')
         between_analysis(current_model, config, step='after_gapfill')
+
+    # save model to resolve compartments
+    resolve_compartment_names(current_model)
+    if config['general']['save_all_models']:
+            write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_resolved.xml')))     
+            current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_resolved.xml')
+    else:
+        write_model_to_file(current_libmodel, str(only_modelpath))
+        current_modelpath = only_modelpath
 
     # ModelPolisher
     ###############
