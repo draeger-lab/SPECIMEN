@@ -31,7 +31,7 @@ from refinegems.curation.curate import resolve_duplicates
 from refinegems.classes.gapfill import KEGGapFiller, BioCycGapFiller, GeneGapFiller
 from refinegems.curation.pathways import kegg_pathways, kegg_pathway_analysis
 from refinegems.curation.polish import polish
-from refinegems.utility.entities import resolve_compartment_names
+from refinegems.utility.entities import resolve_compartment_names, are_compartment_names_valid
 from refinegems.utility.connections import run_memote, perform_mcc, adjust_BOF, run_SBOannotator
 from refinegems.utility.io import load_model, write_model_to_file
 from refinegems.developement.decorators import implement
@@ -185,10 +185,29 @@ def run(configpath:Union[str,None]=None):
             os.system(f"carve {config['general']['protein_fasta']} --solver scip -o {dir}\cmpb_out\models\{modelname}.xml")
         config['input']['modelpath'] = dir+f'\cmpb_out\models\{modelname}.xml'
     current_modelpath = config['input']['modelpath']
+    
+    
+    # validate compartments of the loaded model
+    ###########################################
+    current_model = load_model(str(current_modelpath),'cobra')
+    # check, if compartment names are valid
+    if not are_compartment_names_valid(current_model):
+        # if not, attempt to fix them
+        resolve_compartment_names(current_model)
+        # save validated model
+        if config['general']['save_all_models']:
+            write_model_to_file(current_model, str(Path(dir,'cmpb_out','models',f'{current_model.id}_validated_comps.xml')))
+            current_modelpath = Path(dir,'cmpb_out','models',f'{current_model.id}_validated_comps.xml')
+        else:
+            write_model_to_file(current_model, str(only_modelpath))
+            current_modelpath = only_modelpath
+    # reload into libsbml
+    current_libmodel = load_model(str(current_modelpath),'libsbml')    
+    
 
     # CarveMe correction
     ####################
-    current_libmodel = load_model(str(current_modelpath),'libsbml')
+    
     # check, if input is a CarveMe model
     if 'CarveMe' in current_libmodel.getAnnotationString():
         Path(dir,"cmpb_out",'misc', 'wrong_annotations').mkdir(parents=True, exist_ok=False)
@@ -218,7 +237,6 @@ def run(configpath:Union[str,None]=None):
     current_model = load_model(str(current_modelpath),'cobra')
     between_growth_test(current_model,config,step='after_draft')
     between_analysis(current_model, config, step='after_draft')
-    resolve_compartment_names(current_model)
 
     # gapfilling
     ############
@@ -314,15 +332,7 @@ def run(configpath:Union[str,None]=None):
     if run_gapfill:
         between_growth_test(current_model,config,step='after_gapfill')
         between_analysis(current_model, config, step='after_gapfill')
-
-    # save model to resolve compartments
-    resolve_compartment_names(current_model)
-    if config['general']['save_all_models']:
-            write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_resolved.xml')))     
-            current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_resolved.xml')
-    else:
-        write_model_to_file(current_libmodel, str(only_modelpath))
-        current_modelpath = only_modelpath
+        
 
     # ModelPolisher
     ###############
