@@ -22,7 +22,7 @@ input:
 # ---------------
 general:
   dir: './'                  # Path/Name of a directory to save output to
-  modelname: USER            # Name of the model
+  modelname: NULL            # Name of the model, if the three values below are not set
   authorinitials: USER       # Intials or Abbreviation of the author for naming the model
   strainid: USER             # ID of the strain 
   organism: USER             # Abbreviation for the organism

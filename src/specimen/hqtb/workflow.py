@@ -65,6 +65,8 @@ def run(config_file:str = 'test_config.yaml'):
     except FileExistsError:
         warnings.warn('Given directory already exists. High possibility of files being overwritten.')
 
+    # set up model name
+    # -----------------
     if config['general']['authorinitials'] is not None and config['general']['organism'] is not None and config['general']['strainid'] is not None:
         modelname = 'i'+config['general']['organism']+str(config['general']['strainid'])+config['general']['authorinitials']+str(date.today().year).removeprefix('20')
     elif config['general']['modelname'] is not None:

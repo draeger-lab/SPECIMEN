@@ -133,6 +133,8 @@ def run(configpath:Union[str,None]=None):
     else:
         config = validate_config(configpath, 'cmpb')
 
+    # set up model name
+    # -----------------
     if config['general']['authorinitials'] is not None and config['general']['organism'] is not None and config['general']['strainid'] is not None:
         modelname = 'i'+config['general']['organism']+str(config['general']['strainid'])+config['general']['authorinitials']+str(date.today().year).removeprefix('20')
     elif config['general']['modelname'] is not None:
