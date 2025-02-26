@@ -109,9 +109,11 @@ def build_data_directories(pipeline: Literal['hqtb','high-quality template based
     """
 
     match pipeline:
+        # HQTB setup
         case 'hqtb' | 'high-quality template based':
             # create the data directory structure
             print('Creating directory structure...')
+            # @DEPRECATE METANETX will be probably obsolete after cleaning extension module
             DATA_DIRECTORIES = ['annotated_genomes', 'BioCyc', 'RefSeqs',
                                 'medium', 'MetaNetX', 'pan-core-models', 'template-models',
                                 'universal-models']
@@ -126,10 +128,23 @@ def build_data_directories(pipeline: Literal['hqtb','high-quality template based
             # download data for those directories where this is possible
             print('Downloading MetaNetX...')
             download_mnx(Path(dir,'MetaNetX'), chunk_size=chunk_size)
+        
+        # CMPB output    
         case 'cmpb' | 'carveme modelpolisher based':
-            # @TODO
-            #    add part for the cmpb pipeline
-            pass
+            Path(dir,"cmpb_out").mkdir(parents=True, exist_ok=False)                          # cmpb_out
+            Path(dir,"cmpb_out",'models').mkdir(parents=True, exist_ok=False)                 #   |- models
+            Path(dir,"cmpb_out",'logs').mkdir(parents=True, exist_ok=False)                   #   |- logs
+            Path(dir,"cmpb_out",'misc').mkdir(parents=True, exist_ok=False)                   #   |- misc
+            Path(dir,"cmpb_out",'misc', 'memote').mkdir(parents=True, exist_ok=False)         #      |- memote
+            Path(dir,"cmpb_out",'misc', 'mcc').mkdir(parents=True, exist_ok=False)            #      |- mcc
+            Path(dir,"cmpb_out",'misc', 'gapfill').mkdir(parents=True, exist_ok=False)        #      |- gapfill
+            Path(dir,"cmpb_out",'misc', 'growth').mkdir(parents=True, exist_ok=False)         #      |- growth
+            Path(dir,"cmpb_out",'misc', 'stats').mkdir(parents=True, exist_ok=False)          #      |- stats
+            Path(dir,"cmpb_out",'misc', 'modelpolisher').mkdir(parents=True, exist_ok=False)  #      |- modelpolisher
+            Path(dir,"cmpb_out",'misc', 'kegg_pathway').mkdir(parents=True, exist_ok=False)   #      |- kegg_pathways
+            Path(dir,"cmpb_out",'misc', 'auxotrophy').mkdir(parents=True, exist_ok=False)     #      |- auxothrophy
+
+        # default case
         case _:
             message = f'Unknown input for parameter pipeline: {pipeline}'
             raise ValueError(message)

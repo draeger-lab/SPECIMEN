@@ -37,7 +37,7 @@ from refinegems.utility.io import load_model, write_model_to_file
 from refinegems.developement.decorators import implement
 from refinegems.classes import egcs
 
-from ..util.set_up import save_cmpb_user_input, validate_config
+from ..util.set_up import save_cmpb_user_input, validate_config, build_data_directories
 
 ################################################################################
 # setup logging
@@ -149,20 +149,8 @@ def run(configpath:Union[str,None]=None):
 
     # create directory structure
     # --------------------------
-
-    Path(dir,"cmpb_out").mkdir(parents=True, exist_ok=False)                          # cmpb_out
-    Path(dir,"cmpb_out",'models').mkdir(parents=True, exist_ok=False)                 #   |- models
-    Path(dir,"cmpb_out",'logs').mkdir(parents=True, exist_ok=False)                   #   |- logs
-    Path(dir,"cmpb_out",'misc').mkdir(parents=True, exist_ok=False)                   #   |- misc
-    Path(dir,"cmpb_out",'misc', 'memote').mkdir(parents=True, exist_ok=False)         #      |- memote
-    Path(dir,"cmpb_out",'misc', 'mcc').mkdir(parents=True, exist_ok=False)            #      |- mcc
-    Path(dir,"cmpb_out",'misc', 'gapfill').mkdir(parents=True, exist_ok=False)        #      |- gapfill
-    Path(dir,"cmpb_out",'misc', 'growth').mkdir(parents=True, exist_ok=False)         #      |- growth
-    Path(dir,"cmpb_out",'misc', 'stats').mkdir(parents=True, exist_ok=False)          #      |- stats
-    Path(dir,"cmpb_out",'misc', 'modelpolisher').mkdir(parents=True, exist_ok=False)  #      |- modelpolisher
-    Path(dir,"cmpb_out",'misc', 'kegg_pathway').mkdir(parents=True, exist_ok=False)   #      |- kegg_pathways
-    Path(dir,"cmpb_out",'misc', 'auxotrophy').mkdir(parents=True, exist_ok=False)     #      |- auxothrophy
-
+    build_data_directories('cmpb',dir)
+    
     # create log
     # ----------
     today = date.today().strftime("%Y%m%d")
