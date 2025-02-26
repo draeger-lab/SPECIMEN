@@ -62,7 +62,6 @@ MNX_URL_DICT = {'chem_prop.tsv':MNX_CHEM_PROP_URL, 'chem_xref.tsv':MNX_CHEM_XREF
 # ----------------------
 # setup data (structure)
 # ----------------------
-# @TEST : deleted BiGG part, since its already covered with refinegems
 # @DEPRECATE: MNX now coverend in refinegems - change extension after cleaning gapfill module in refinegems
 def download_mnx(dir:str='MetaNetX', chunk_size:int=1024):
     """Download the data needed from the MetaNetX database.
@@ -91,8 +90,6 @@ def download_mnx(dir:str='MetaNetX', chunk_size:int=1024):
                 bar.update(size)
 
 
-# @TODO
-#    add part for the cmpb pipeline
 def build_data_directories(pipeline: Literal['hqtb','high-quality template based', 
                                          'cmpb', 'carveme modelpolisher based'], 
                            dir:str, chunk_size:int=2048):
@@ -131,6 +128,7 @@ def build_data_directories(pipeline: Literal['hqtb','high-quality template based
             download_mnx(Path(dir,'MetaNetX'), chunk_size=chunk_size)
         case 'cmpb' | 'carveme modelpolisher based':
             # @TODO
+            #    add part for the cmpb pipeline
             pass
         case _:
             message = f'Unknown input for parameter pipeline: {pipeline}'
@@ -204,7 +202,6 @@ def download_config(filename:str='my_basic_config.yaml', type:Literal['hqtb-basi
 # ----
 
 # @TODO improve & cleanup
-# @TEST changes
 def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
     """Validate a user hqtb config file for use in the pipeline.
 
@@ -277,7 +274,6 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
 
 
     # @TODO: extent - include more checks
-    # @TEST: does the current version work correctly? (or even work at all) 
     def dict_recursive_check(dictA:dict, key:str=None, 
                              pipeline:Literal['hqtb','cmpb']='hqtb'):
         """Helper-function for :py:func:`~specimen.util.set_up.validate_config` 
@@ -393,7 +389,6 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
 # cmpb
 # ----
 
-# @TEST
 def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
     """Guide the user step by step through the creation of the configuration for a cmpb pipeline run
     (via commandline).
@@ -406,7 +401,6 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
         dict: 
             The configuration in dictionary format.
     """
-
         
     print('No config or no valid config given, you will be asked for input')
 
@@ -638,7 +632,6 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
     if egc_solver == 'none':
         egc_solver = None
 
-    # @TODO: Ask for any biomass correction
     # BOF
     do_bofdat = click.prompt('Do you want do run BOFdat?', type=click.Choice(['y','n']), show_choices=True)
     match do_bofdat:

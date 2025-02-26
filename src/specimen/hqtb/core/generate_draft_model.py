@@ -65,7 +65,7 @@ def pid_filter(data: pd.DataFrame, pid: float) -> pd.DataFrame:
 
     return data
 
-# @TODO
+
 def edit_template_identifiers(data:pd.DataFrame, edit:Literal['no','dot-to-underscore']) -> pd.DataFrame:
     """Edit the subject IDs to fit the gene IDs of the template model.
     Requires further extention, if needed edits are not included.
@@ -96,7 +96,7 @@ def edit_template_identifiers(data:pd.DataFrame, edit:Literal['no','dot-to-under
             return data
         # ...........
         # @TODO
-        # extendable
+        # extend with further options
         # ...........
 
 
@@ -215,7 +215,7 @@ def rename_found_homologs(draft:cobra.Model, bbh:pd.DataFrame) -> cobra.Model:
 
     return draft
 
-# @TODO
+
 def check_unchanged(draft:cobra.Model, bbh:pd.DataFrame) -> cobra.Model:
     """Check the genes names (more correctly, the IDs) for still existing original col_names.
     Depending on the case, decide if to keep or remove them.
