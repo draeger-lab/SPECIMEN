@@ -85,6 +85,9 @@ gapfilling:
                               # from being added to the model.
   exclude-rna: True           # Exclude reactions containing 'RNA' in their name
                               # from being added to the model.
+  threshold_add_reacs: 5      # Threshold values. If the mapping of an EC against reactions
+                              # exceeds this value, the reactions will not be added, due to 
+                              # the high probability of false positives. 
 
   ########## enable algorithms ##########
   # via KEGG ...................

@@ -542,6 +542,7 @@ def save_cmpb_user_input(configpath:Union[str,None]=None) -> dict:
         config['gapfilling']['exclude-dna'] = exclude_dna
         exclude_rna = click.prompt('Do you want to exlude reactions containing \'RNA\' in their name?', type=click.Choice(['y','n']), show_choices=True)
         config['gapfilling']['exclude-rna'] = exclude_rna
+        config['gapfilling']['threshold_add_reacs'] = click.prompt('Enter the threshold for adding reactions (max. allowed matches of an EC number).', type=int, default=5)
         
         algorithm = click.prompt('Which algorithm do you want to use for gapfilling?', type=click.Choice(['KEGGapFiller','BioCycGapFiller','GeneGapFiller']), show_choices=True)
         another_gapfiller = True

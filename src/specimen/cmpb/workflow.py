@@ -240,6 +240,7 @@ def run(configpath:Union[str,None]=None):
 
     # gapfilling
     ############
+    threshold_add_reacs = config['gapfilling']['threshold_add_reacs']
     run_gapfill = False
     # KEGGapFiller
     if config['gapfilling']['KEGGapFiller']:
@@ -248,7 +249,7 @@ def run(configpath:Union[str,None]=None):
             # gapfilling with KEGG via KEGG organism ID
             kgf = KEGGapFiller(config['general']['kegg_organism_id'])
             kgf.find_missing_genes(current_libmodel)
-            kgf.find_missing_reactions(current_model)
+            kgf.find_missing_reactions(current_model, threshold_add_reacs)
             current_libmodel = kgf.fill_model(current_libmodel, 
                                               namespace = config['general']['namespace'],
                                               idprefix = config['gapfilling']['idprefix'],
@@ -277,7 +278,7 @@ def run(configpath:Union[str,None]=None):
                                )
         # @TEST if it works
         bcgf.find_missing_genes(current_libmodel)
-        bcgf.find_missing_reactions(current_model)
+        bcgf.find_missing_reactions(current_model, threshold_add_reacs)
         current_libmodel = kgf.fill_model(current_libmodel, 
                                           namespace = config['general']['namespace'],
                                           idprefix = config['gapfilling']['idprefix'],
@@ -306,6 +307,7 @@ def run(configpath:Union[str,None]=None):
                                fasta = config['general']['protein_fasta'],
                                dmnd_db = config['gapfilling']['GeneGapFiller parameters']['swissprot-dmnd'],
                                swissprot_map = config['gapfilling']['GeneGapFiller parameters']['swissprot-mapping'],
+                               threshold_add_reacs = threshold_add_reacs,
                                outdir = Path(dir,"cmpb_out",'misc', 'gapfill'), # @DISCUSSION or would a subfolder be better?
                                sens = config['gapfilling']['GeneGapFiller parameters']['sensitivity'],
                                cov = config['gapfilling']['GeneGapFiller parameters']['coverage'],
