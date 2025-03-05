@@ -264,7 +264,7 @@ def run(configpath:Union[str,None]=None):
                                config['gapfilling']['BioCycGapFiller parameters']['reacs-table'],
                                config['gapfilling']['BioCycGapFiller parameters']['gff']
                                )
-        # @TEST if it works
+
         bcgf.find_missing_genes(current_libmodel)
         bcgf.find_missing_reactions(current_model, threshold_add_reacs)
         current_libmodel = kgf.fill_model(current_libmodel, 
@@ -447,6 +447,7 @@ def run(configpath:Union[str,None]=None):
     # find and solve energy generating cycles
     # ---------------------------------------
     current_model = load_model(str(current_modelpath),'cobra')
+    results = None
     match config['EGCs']['solver']:
         # greedy solver
         case 'greedy':
@@ -463,6 +464,11 @@ def run(configpath:Union[str,None]=None):
             solver = egcs.EGCSolver()
             logger.info(f'\tFound EGCs:\n')
             logger.info(f'\t{solver.find_egcs(current_model,with_reacs=True,namespace=config["general"]["namespace"])}') # @NOTE automatically uses c,p as compartments 
+       
+    if results:
+        # in-between testing
+        between_growth_test(current_model,config,step='after_egcs')
+        between_analysis(current_model,config,step='after_egcs')
             
     # BOF
     # ---

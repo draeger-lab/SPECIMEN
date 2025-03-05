@@ -19,6 +19,7 @@
 # information about the genome to be used to generate the new model
 subject:
     annotated_genome: __USER__
+    gff: __USER___
     full_sequence: __USER__
 
 # information about the template model/genome
@@ -47,7 +48,7 @@ data:
     diamond: __USER__
     # optional, but speed up the program by a large margin
     ncbi_map: null
-    ncbi_dat: null
+
     # optional for directionality control
     biocyc: null
     # optional:
@@ -61,6 +62,10 @@ data:
 
 # paramters for the single steps of the pipeline
 parameters:
+    general:
+        namespace: 'BiGG'
+        email: USER         # email address. Required for queries against NCBI
+
     bidirectional_blast:
         # set the sensitivity for DIAMOND
         sensitivity: more-sensitive
@@ -76,7 +81,10 @@ parameters:
         sensitivity: more-sensitive
         coverage: 95.0
         pid: 90.0
-        email: USER
+        formula-check: 'existence'  # When checking, if a metabolite can be added to the model
+                              # also check the formula. For more information about
+                              # available options, please refer to the docs of 
+                              # the function isreaction_comlete().
 
     refinement_cleanup:
         # current default means no gapfilling

@@ -115,37 +115,29 @@ def run(config_file:str = 'test_config.yaml'):
 
         with contextlib.redirect_stdout(log):
 
-            extension = os.path.splitext(os.path.basename(config['subject']['annotated_genome']))[1]
-            match extension:
-                case '.gbff':
-                    fasta = Path(config["general"]["dir"],'01_bidirectional_blast','FASTA',os.path.splitext(os.path.basename(config["subject"]["annotated_genome"]))[0] + '_prot.fa')
-                    header = 'protein_id'
-                case '.faa':
-                    fasta = config['subject']['annotated_genome']
-                    header = 'locus_tag'
-                case _:
-                    raise ValueError(F'Unkown file extension {extension} for file {config["subject"]["annotated_genome"]}.')
-
-            core.refinement.extension.run(Path(config["general"]["dir"],'02_generate_draft_model',modelname+'_draft.xml'),
-                                          Path(config["general"]["dir"],'01_bidirectional_blast',os.path.splitext(os.path.basename(config["subject"]["annotated_genome"]))[0]+'_info.csv'),
-                                          fasta,
-                                          config['data']['diamond'],
-                                          Path(config["general"]["dir"]+'03_refinement'),
-                                          config['data']['mnx_chem_prop'],
-                                          config['data']['mnx_chem_xref'],
-                                          config['data']['mnx_reac_prop'],
-                                          config['data']['mnx_reac_xref'],
-                                          config['data']['ncbi_map'],
-                                          config['data']['ncbi_dat'],
-                                          email=config['parameters']['refinement_extension']['email'],
-                                          id=header,
+            core.refinement.extension.run(draft=Path(config["general"]["dir"],'02_generate_draft_model',modelname+'_draft.xml'),
+                                          gff=config['subject']['gff'],                # @TODO check, if this setup works
+                                          fasta=config['subject']['annotated_genome'], # with all - expected - input
+                                          db=config['data']['diamond'],
+                                          dir=Path(config["general"]["dir"]+'03_refinement'),
+                                          
+                                          ncbi_mapping=config['data']['ncbi_map'],
+                                          email=config['parameters']['general']['email'], 
+                                          
                                           sensitivity=config['parameters']['refinement_extension']['sensitivity'],
                                           coverage=config['parameters']['refinement_extension']['coverage'],
                                           pid=config['parameters']['refinement_extension']['pid'],
                                           threads=config['performance']['threads'],
+                                          
+                                          threshold_add_reacs=config['parameters']['refinement_extension']['threshold_add_reacs'],
+                                          prefix=config['parameters']['general']['idprefix'],
+                                          namespace=config['parameters']['general']['namespace'],
+                                          formula_check=config['parameters']['refinement_extension']['formula_check'],
                                           exclude_dna=config['parameters']['refinement_extension']['exclude_dna'],
                                           exclude_rna=config['parameters']['refinement_extension']['exclude_rna'],
+                                          
                                           memote=config['general']['memote'])
+            
             if config['data']['universal']:
                 universal = config['data']['universal']
             elif config['data']['pan-core']:

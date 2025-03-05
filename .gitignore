@@ -9,3 +9,5 @@ docs/_build/
 build/*
 specimen.egg-info
 **/specimen.egg-info/* 
+
+dev/test_hqtb/*

@@ -18,6 +18,7 @@
 # information about the genome to be used to generate the new model
 subject:
     annotated_genome: __USER__
+    gff: __USER___
     full_sequence: __USER__
 
 # information about the template model/genome
@@ -42,14 +43,10 @@ data:
     data_direc: null
     # required
     diamond: __USER__
-    # required but can be downloaded using setup
-    mnx_chem_prop: MetaNetX/chem_prop.tsv
-    mnx_chem_xref: MetaNetX/chem_xref.tsv
-    mnx_reac_prop: MetaNetX/reac_prop.tsv
-    mnx_reac_xref: MetaNetX/reac_xref.tsv
+
     # optional, but good and manual
     ncbi_map: null
-    ncbi_dat: null
+
     # optional for directionality control
     biocyc: null
     # optional:
@@ -63,6 +60,12 @@ data:
 
 # paramters for the single steps of the pipeline
 parameters:
+    eneral:
+        idprefix: 'HQTB'    # prefix to use for fantasy IDs, if IDs for 
+                            # the namespace do not exist.
+        namespace: 'BiGG'
+        email: USER         # email address. Required for queries against NCBI
+
     bidirectional_blast:
         # options for giveng customised names and setting a header
         # -> default uses information from the models/files directly
@@ -83,17 +86,22 @@ parameters:
         medium: default
 
     refinement_extension:
-        # Id to use for checking (change not advised)
-        id: null
-        # change the sensitivity of DIAMOND
-        sensitivity: more-sensitive
-        coverage: 95.0
-        pid: 90.0
-        # Ex/Include RNA and DNA genes (excluded for purely metabolic model,
-        # include for knowledge-based model)
-        exclude_dna: True
-        exclude_rna: True
-        email: USER
+        # params for DIAMOND
+        sensitivity: more-sensitive # change the sensitivity of DIAMOND
+        coverage: 95.0              # Set the min. coverage 
+        pid: 90.0                   # set the minimal percentage identify value for valid hits
+        # params for adding entities during 
+        formula-check: 'existence'  # When checking, if a metabolite can be added to the model
+                              # also check the formula. For more information about
+                              # available options, please refer to the docs of 
+                              # the function isreaction_comlete().
+        exclude-dna: True           # Exclude reactions containing 'DNA' in their name
+                                    # from being added to the model.
+        exclude-rna: True           # Exclude reactions containing 'RNA' in their name
+                                    # from being added to the model.
+        threshold_add_reacs: 5      # Threshold values. If the mapping of an EC against reactions
+                                    # exceeds this value, the reactions will not be added, due to 
+                                    # the high probability of false positives. 
 
     refinement_cleanup:
         # Options for duplicate checking/removal
