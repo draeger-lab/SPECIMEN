@@ -50,7 +50,8 @@ logger = logging.getLogger(__name__)
 ################################################################################
 
     # ....................................................
-    # @TODO / @IDEAS
+    # @TODO / 
+    # @IDEA
     # use temp folder or report all model/in-between steps
     # what to write in the log file
     # e.g. runtimes, warnings, hints and more
@@ -69,6 +70,7 @@ def run(configpath:Union[str,None]=None):
             information step by step.
             Defaults to None.
     """
+    # @IDEA: We could add a funcion to save the models in between steps/not instead of having redundant code for that
 
     def between_growth_test(model: Model, cfg:dict, step:str):
         """Helper function for :py:func:`~specimen.cmpb.workflow.run`. 
