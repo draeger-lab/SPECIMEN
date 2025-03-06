@@ -30,7 +30,7 @@ from refinegems.curation.charges import correct_charges_modelseed
 from refinegems.curation.curate import resolve_duplicates
 from refinegems.classes.gapfill import KEGGapFiller, BioCycGapFiller, GeneGapFiller
 from refinegems.curation.pathways import kegg_pathways, kegg_pathway_analysis
-from refinegems.curation.polish import polish
+from refinegems.curation.polish import polish, check_direction
 from refinegems.utility.entities import resolve_compartment_names, are_compartment_names_valid
 from refinegems.utility.connections import run_memote, perform_mcc, adjust_BOF, run_SBOannotator
 from refinegems.utility.io import load_model, write_model_to_file
@@ -50,8 +50,7 @@ logger = logging.getLogger(__name__)
 ################################################################################
 
     # ....................................................
-    # @TODO / 
-    # @IDEA
+    # @TODO / @IDEA
     # use temp folder or report all model/in-between steps
     # what to write in the log file
     # e.g. runtimes, warnings, hints and more
@@ -445,6 +444,21 @@ def run(configpath:Union[str,None]=None):
     # in-between testing
     between_growth_test(current_model,config,step='after_duplicate_removal')
     between_analysis(current_model,config,step='after_duplicate_removal')
+
+    # reaction direction
+    # ------------------
+    if config['reaction_direction']:
+        current_model = load_model(str(current_modelpath),'cobra')
+        current_model = check_direction(current_model, config['general']['namespace'])
+
+    # @TODO Recheck model saving
+    # save model
+    if config['general']['save_all_models']:
+        write_model_to_file(current_model, str(Path(dir,'cmpb_out','models',f'{current_model.id}_after_reac_direction_change.xml')))
+        current_modelpath = Path(dir,'cmpb_out','models',f'{current_model.id}_after_reac_direction_change.xml')
+    else:
+        write_model_to_file(current_model, str(only_modelpath))
+        current_modelpath = only_modelpath
     
     # find and solve energy generating cycles
     # ---------------------------------------
@@ -456,7 +470,7 @@ def run(configpath:Union[str,None]=None):
             print('Using GreedyEGCSolver...')
             solver = egcs.GreedyEGCSolver()
             results = solver.solve_egcs(current_model,namespace=config['general']['namespace']) # @NOTE automatically uses c,p as compartments 
-            if results:
+            if results: # @TODO model needs to be written to file somewhere here
                 logger.info('results:')
                 for k,v in results.items():
                     logger.info(f'\t{k}: {v}')
