@@ -200,6 +200,7 @@ def run(draft:str, gff:str, fasta:str,
         # ---------------------------------
 
         if memote:
+            print('\nRunning memote ...\n------------------\n')
             memote_path = str(Path(dir,'step1-extension',name+'.html'))
             run_memote(draft, 'html', return_res=False, save_res=memote_path, verbose=True)
     else:

@@ -7,6 +7,8 @@ __author__ = 'Carolin Brune'
 # requirements
 ################################################################################
 
+from pathlib import Path
+
 import specimen
 import click
 
@@ -65,6 +67,16 @@ def data_structure(workflow, dir, chunk_size):
     WORKFLOW is the type of workflow for which the data structure should be build.
     """
     specimen.util.set_up.build_data_directories(workflow, dir, chunk_size)
+    
+# create NCBi mapping for HQTB
+# ----------------------------
+@setup.command()
+@click.argument('folder', type=click.Path(exists=True, dir_okay=True, file_okay=False), help='Path to a directory containing annotated genome files')
+@click.option('--out', '-o', type=click.Path(exists=True, dir_okay=True, file_okay=False), default=Path('.'), show_default=True, help='Path to the output directory')
+@click.option('--extension', '-e', type=click.Choice(['gbff']), default='gbff', show_default=True, help='Extension of the annotated genome files. Defaults to gbff.')
+def make_NCBI_mapping(folder, out, extension):
+    specimen.util.util.create_NCBIinfo_mapping(folder, out, extension)
+
 
 #################
 # hqtb workflow #

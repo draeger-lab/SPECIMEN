@@ -11,8 +11,6 @@ __author__ = 'Carolin Brune'
 
 import os
 import os.path
-import pandas as pd
-import re
 import subprocess
 import sys
 
@@ -20,8 +18,8 @@ from Bio import SeqIO
 from pathlib import Path
 from typing import Literal
 
-# further required programs:
-#        - DIAMOND, tested with version 0.9.14+
+from refinegems.utility.io import parse_gff_for_cds, parse_gbff_for_cds
+
 
 ################################################################################
 # variables
@@ -101,43 +99,6 @@ def create_DIAMOND_db_from_folder(dir:str, out:str, name:str='database',
 # create a NCBI mapping file for the database
 # -------------------------------------------
 
-# @DISCUSSION can be merge or replaced with the one in refineGEMs?
-# @DEPRECATE if the answer to the question above is yes
-def get_info_GenBank_Record(file_path:str) -> pd.DataFrame:
-    """Retrieves a table containg information about the following qualifiers from a
-    Genbank file: ['protein_id','locus_tag','db_xref','old_locus_tag','EC_number'].
-
-    Args:
-        - file_path (str): 
-            Path to the Genbank (.gbff) file.
-
-    Returns:
-        pd.DataFrame: 
-            A table containing the information above.
-            Has the following  columns= ['ncbi_accession_version', 'locus_tag_ref','old_locus_tag','GeneID','EC number'].
-    """
-
-    temp_table = pd.DataFrame(columns=['ncbi_accession_version', 'locus_tag_ref','old_locus_tag','GeneID','EC number'])
-    attributes = ['protein_id','locus_tag','old_locus_tag','db_xref','EC_number']
-
-    for record in SeqIO.parse(file_path,"genbank"):
-        if record.features:
-            for feature in record.features:
-                if feature.type == 'CDS':
-                    temp_list = []
-                    for a in attributes:
-                        if a in feature.qualifiers.keys():
-                            temp_list.append(feature.qualifiers[a][0])
-                        else:
-                            temp_list.append('-')
-                    temp_table.loc[len(temp_table)] = temp_list
-
-    # reformat
-    pat = re.compile(r'\D')
-    temp_table['GeneID'] = [pat.sub('', x) for x in temp_table['GeneID']]
-
-    return temp_table
-
 
 def create_NCBIinfo_mapping(dir:str, out:str, extension:Literal['gbff']='gbff'):
     """Create a NCBI information mapping file from a folder containing e.g. gbff files.
@@ -154,8 +115,8 @@ def create_NCBIinfo_mapping(dir:str, out:str, extension:Literal['gbff']='gbff'):
     """
 
     # get gbff file names
-    gbff_files = Path(dir).rglob(F'*.{extension}')
-    gbff_num = len(list(Path(dir).rglob(F'*.{extension}')))
+    list_files = Path(dir).rglob(F'*.{extension}')
+    file_no = len(list(Path(dir).rglob(F'*.{extension}')))
 
     # -----------------------------------------------
     # extract information and create the mapping file
@@ -165,11 +126,21 @@ def create_NCBIinfo_mapping(dir:str, out:str, extension:Literal['gbff']='gbff'):
 
         file_counter = 1
 
-        for gbff_name in gbff_files:
+        for file_name in list_files:
 
-            print(F'Parsing {file_counter}/{gbff_num}: {gbff_name}')
+            print(F'Parsing {file_counter}/{file_no}: {file_name}')
+            
             # retrieve information
-            info = get_info_GenBank_Record(gbff_name)
+            match extension:
+                case 'gbff':
+                    info = parse_gbff_for_cds(file_name)
+                case 'gff':
+                    # @DISCUSSION would this option be useful?
+                    raise NotImplementedError('This options is under discussion and has yet to be implemented.')
+                    
+                case _:
+                    raise ValueError(f'Unknown file extension {extension}')
+            
             # save
             info.to_csv(out_file, header=True, index=False)
             # go to next
