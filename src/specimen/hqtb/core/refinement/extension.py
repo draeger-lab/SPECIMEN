@@ -161,10 +161,10 @@ def run(draft:str, gff:str, fasta:str,
     # start = time.time() # @DISCUSSION maybe add this functionality to param / report of the gapfiller
     
     # load model
-    draft_libsbml = load_model(draft, 'libmodel')
+    draft_libsbml = load_model(draft, 'libsbml')
     draft_cobra = load_model(draft, 'cobra')
     
-    name = F'{draft_cobra.id}_extended'
+    name = f'{draft_cobra.id}_extended'
     
     # set up GapFiller
     gp = GeneGapFiller()
@@ -172,7 +172,7 @@ def run(draft:str, gff:str, fasta:str,
     # identify missing genes
     gp.find_missing_genes(gff, draft_libsbml) 
 
-    if gp.missing_genes and len(gp.missing_genes) >= 1:
+    if hasattr(gp,'missing_genes') and len(gp.missing_genes) >= 1:
         
         # --------------------------
         # identify missing reactions
@@ -200,6 +200,7 @@ def run(draft:str, gff:str, fasta:str,
         # ---------------------------------
 
         if memote:
+            print('\nRunning memote ...\n------------------\n')
             memote_path = str(Path(dir,'step1-extension',name+'.html'))
             run_memote(draft, 'html', return_res=False, save_res=memote_path, verbose=True)
     else:

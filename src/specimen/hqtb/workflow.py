@@ -18,6 +18,8 @@ import tempfile
 import warnings
 import yaml
 
+import sys
+
 from datetime import date
 from pathlib import Path
 
@@ -132,11 +134,12 @@ def run(config_file:str = 'test_config.yaml'):
                                           threshold_add_reacs=config['parameters']['refinement_extension']['threshold_add_reacs'],
                                           prefix=config['parameters']['general']['idprefix'],
                                           namespace=config['parameters']['general']['namespace'],
-                                          formula_check=config['parameters']['refinement_extension']['formula_check'],
-                                          exclude_dna=config['parameters']['refinement_extension']['exclude_dna'],
-                                          exclude_rna=config['parameters']['refinement_extension']['exclude_rna'],
+                                          formula_check=config['parameters']['refinement_extension']['formula-check'],
+                                          exclude_dna=config['parameters']['refinement_extension']['exclude-dna'],
+                                          exclude_rna=config['parameters']['refinement_extension']['exclude-rna'],
                                           
                                           memote=config['general']['memote'])
+            
             
             if config['data']['universal']:
                 universal = config['data']['universal']
