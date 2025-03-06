@@ -8,21 +8,17 @@ __author__ = 'Carolin Brune'
 ################################################################################
 
 import cobra
-import math
-import numpy as np
 import pandas as pd
-import sys
 import time
-import warnings
 
 from pathlib import Path
-from typing import Literal,Union
+from typing import Literal
 
 from refinegems.utility.io import load_model
-from refinegems.classes.medium import medium_to_model, Medium
+from refinegems.classes.gapfill import multiple_cobra_gapfill
 from refinegems.analysis.growth import read_media_config
 from refinegems.utility.connections import run_memote
-from refinegems.curation.curate import resolve_duplicates, complete_BioMetaCyc
+from refinegems.curation.curate import resolve_duplicates
 
 ################################################################################
 # variables
@@ -125,182 +121,9 @@ def check_direction(model:cobra.Model,data_file:str) -> cobra.Model:
     return model
 
 
-# gap filling
-# -----------
-
-def single_cobra_gapfill(model:cobra.Model, 
-                         universal:cobra.Model, medium:Medium, 
-                         namespace:Literal['BiGG']='BiGG', 
-                         growth_threshold:float = 0.05) -> Union[list[str],bool]:
-    """Attempt gapfilling (with COBRApy) for a given model to allow growth on a given
-    medium.
-
-    Args:
-        - model (cobra.Model): 
-            The model to perform gapfilling on.
-        - universal (cobra.Model):  
-            A model with reactions to be potentially used for the gapfilling.
-        - medium (Medium): 
-            A medium the model should grow on.
-        - namespace (Literal['BiGG'], optional): Namespace to use for the model. 
-            Defaults to 'BiGG'.
-        - growth_threshold (float, optional):  Minimal rate for the model to be considered growing.
-            Defaults to 0.05.
-
-    Returns:
-        Union[list[str],True]: 
-            List of reactions to be added to the model to allow growth
-            or True, if the model already grows.
-    """
-    
-    # perform the gapfilling
-    solution = []
-    with model as model_copy:
-        # set medium model should grow on
-        medium_to_model(model_copy, medium, namespace, double_o2=False) 
-        # if model does not show growth (depending on threshold), perform gapfilling
-        if model_copy.optimize().objective_value < growth_threshold:
-            try:
-                solution = cobra.flux_analysis.gapfill(model_copy, universal,
-                                                       lower_bound = growth_threshold,
-                                                       demand_reactions=False)
-            except cobra.exceptions.Infeasible:
-                warnings.warn(F'Gapfilling for medium {medium.name} failed. Manual curation required.')
-        else:
-            print(F'Model already grows on medium {medium.name} with objective value of {model_copy.optimize().objective_value}')
-            return True
-
-    return solution
-
-
-def cobra_gapfill_wrapper(model:cobra.Model, universal:cobra.Model, 
-                          medium:Medium, namespace:Literal['BiGG']='BiGG',
-                          growth_threshold:float = 0.05,
-                          iterations:int=3, chunk_size:int=10000) -> cobra.Model:
-    """Wrapper for :py:func:`~specimen.core.refinement.cleanup.single_cobra_gapfill`.
-
-    Either use the full set of reactions in universal model by setting iteration to
-    0 or None or use them in randomized chunks for faster runtime (useful
-    on laptops). Note: when using the second option, be aware that this does not
-    test all reaction combinations exhaustively (heuristic approach!!!).
-
-    Args:
-        - model (cobra.Model): 
-            he model to perform gapfilling on.
-        - universal (cobra.Model): 
-            A model with reactions to be potentially used for the gapfilling.
-        - medium (Medium): 
-            A medium the model should grow on.
-        - namespace (Literal['BiGG'], optional): 
-            Namespace to use for the model. 
-            Options include 'BiGG'.
-            Defaults to 'BiGG'.
-        - growth_threshold (float, optional): 
-            Growth threshold for the gapfilling. 
-            Defaults to 0.05.
-        - iterations (int, optional): 
-            Number of iterations for the heuristic version of the gapfilling.
-            If 0 or None is given, uses full set of reactions.
-            Defaults to 3. 
-        - chunk_size (int, optional): 
-            Number of reactions to be used for gapfilling at the same time. 
-            If None or 0 is given, use full set, not heuristic.
-            Defaults to 10000.
-
-    Returns:
-        cobra.Model: 
-            The gapfilled model, if a solution was found.
-    """
-
-    solution = []
-
-    # run a heuristic approach:
-    #     for a given number of iterations, use a subset (chunk_size) of
-    #     reactions for the gapfilling
-    if (iterations and iterations > 0) and (chunk_size and chunk_size > 0):
-
-        num_reac = len(model.reactions)
-        # for each iteration
-        for i in range(iterations):
-            not_used = [_ for _ in range(0,num_reac)]
-
-            # divide reactions in random subsets
-            for chunk in range(math.ceil(num_reac/chunk_size)):
-                if len(not_used) > chunk_size:
-                    rng = np.random.default_rng()
-                    reac_set = rng.choice(not_used, size=chunk_size, replace=False, shuffle=False)
-                    not_used = [_ for _ in not_used if _ not in reac_set]
-                else:
-                    reac_set = not_used
-
-                # get subset of reactions
-                subset_reac = cobra.Model('subset_reac')
-                for n in reac_set:
-                    subset_reac.add_reactions([universal.reactions[n].copy()])
-
-                # gapfilling
-                solution = single_cobra_gapfill(model, subset_reac, medium, namespace, growth_threshold)
-
-                if (isinstance(solution,bool) and solution) or (isinstance(solution, list) and len(solution) > 0):
-                    break
-
-            if (isinstance(solution,bool) and solution) or (isinstance(solution, list) and len(solution) > 0):
-                break
-
-    # use the whole reactions content of the universal model at once
-    #     not advised for Laptops and PCs with small computing power
-    #     may take a long time
-    else:
-        solution = single_cobra_gapfill(model, universal, medium, namespace, growth_threshold)
-
-    # if solution is found add new reactions to model
-    if isinstance(solution, list) and len(solution) > 0:
-        for reac in solution[0]:
-            reac.notes['creation'] = 'via gapfilling'
-        print(F'Adding {len(solution[0])} reactions to model to ensure growth on medium {medium.name}.')
-        model.add_reactions(solution[0])
-
-    return model
-
-
-def multiple_cobra_gapfill(model: cobra.Model, universal:cobra.Model, 
-                           media_list:list[Medium], 
-                           namespace:Literal['BiGG']='BiGG', 
-                           growth_threshold:float = 0.05, iterations:int=3, chunk_size:int=10000) -> cobra.Model:
-    """Perform :py:func:`~specimen.core.refinement.cleanup.single_cobra_gapfill` on a list of media.
-
-    Args:
-        - model (cobra.Model): 
-            The model to be gapfilled.
-        - universal (cobra.Model): 
-            The model to use reactions for gapfilling from.
-        - media_list (list[Medium]): 
-            List ofmedia the model is supposed to grow on.
-        - growth_threshold (float, optional): 
-            Growth threshold for the gapfilling. 
-            Defaults to 0.05.
-        - iterations (int, optional): 
-            Number of iterations for the heuristic version of the gapfilling.
-            If 0 or None is given, uses full set of reactions.
-            Defaults to 3. 
-        - chunk_size (int, optional): 
-            Number of reactions to be used for gapfilling at the same time. 
-            If None or 0 is given, use full set, not heuristic.
-            Defaults to 10000.
-    Returns:
-        cobra.Model: 
-            The gapfilled model, if a solution was found.
-    """
-    
-
-    for medium in media_list:
-        model = cobra_gapfill_wrapper(model,universal,medium, namespace, iterations, chunk_size, growth_threshold)
-
-    return model
-
-
 # run
 # ---
+# @TEST
 # @TODO add gapfilling from refinegems and more
 # @TODO maybe a new / different way to save/store/add the params for gapfilling, e.g. a config?
 def run(model:str, dir:str, 
@@ -321,9 +144,8 @@ def run(model:str, dir:str,
     The second refinement step resolves the following issues:
 
     (1) (optional) checking direction of reactions with BioCyc
-    (2) resolve BioCyc/MetaCyc annotation inconsistencies
+    (2) gapfilling using cobra + universal model with reactions + a set of media (@TODO: under developement)
     (3) find and/or resolve duplicates (reactions and metabolites)
-    (4) gapfilling using cobra + universal model with reactions + a set of media (@TODO: under developement)
 
     Args:
         - model (str): 
@@ -414,39 +236,10 @@ def run(model:str, dir:str,
         start = time.time()
 
         # check direction
-        # @TODO : check namespace independency
         model = check_direction(model,biocyc_db)
 
         end = time.time()
         print(F'\ttime: {end - start}s')
-
-    # ----------------------------------
-    # complete BioCyc/MetaCyc annotation
-    # ----------------------------------
-
-    print('\n# ----------------------------------\n# complete BioCyc/MetaCyc annotation\n# ----------------------------------')
-    start = time.time()
-
-    model = complete_BioMetaCyc(model)
-
-    end = time.time()
-    print(F'\ttime: {end - start}s')
-
-    # -----------------
-    # resove duplicates
-    # -----------------
-    print('\n# -----------------\n# resolve duplicates\n# -----------------')
-    start = time.time()
-
-    model = resolve_duplicates(model,
-                               check_reac = check_dupl_reac,
-                               check_meta = check_dupl_meta,
-                               remove_unused_meta = remove_unused_meta,
-                               remove_dupl_reac = remove_dupl_reac,
-                               replace_dupl_meta = remove_dupl_meta)
-
-    end = time.time()
-    print(F'\ttime: {end - start}s')
 
     # ----------
     # gapfilling
@@ -481,12 +274,28 @@ def run(model:str, dir:str,
     end = time.time()
     print(F'\ttime: {end - start}s')
 
+    # -----------------
+    # resove duplicates
+    # -----------------
+    print('\n# -----------------\n# resolve duplicates\n# -----------------')
+    start = time.time()
+
+    model = resolve_duplicates(model,
+                               check_reac = check_dupl_reac,
+                               check_meta = check_dupl_meta,
+                               remove_unused_meta = remove_unused_meta,
+                               remove_dupl_reac = remove_dupl_reac,
+                               replace_dupl_meta = remove_dupl_meta)
+
+    end = time.time()
+    print(F'\ttime: {end - start}s')
+
     # ---------------------
     # dead ends and orphans
     # ---------------------
-    # @TODO
-    # currently no removal of dead ends and orphans as they may be interesting
-    # for manual curation
+    # @DISCUSSION About what to do with/how to handle dead-ends & orphans
+    # (currently no removal of dead ends and orphans as they may be interesting
+    # for manual curation)
 
     # ----------
     # save model
