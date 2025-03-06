@@ -10,14 +10,10 @@ __author__ = 'Carolin Brune'
 import click
 import logging
 import os
-import requests
-import warnings
 import yaml
 
-from datetime import date
 from importlib.resources import files
 from pathlib import Path
-from tqdm import tqdm
 from typing import Literal,Union
 
 from refinegems.utility.set_up import download_config as rg_config
@@ -30,9 +26,8 @@ from refinegems.utility.set_up import download_config as rg_config
 # -----------
 
 # config keys for pipeline files
-HQTB_CONFIG_PATH_OPTIONAL = ['media_gap', 'ncbi_map', 'ncbi_dat','biocyc','universal','pan-core'] #: :meta: 
-HQTB_CONFIG_PATH_REQUIRED = ['annotated_genome','full_sequence','model','diamond',
-                             'mnx_chem_prop', 'mnx_chem_xref','mnx_reac_prop','mnx_reac_xref',
+HQTB_CONFIG_PATH_OPTIONAL = ['media_gap', 'ncbi_map','biocyc','universal','pan-core'] #: :meta: 
+HQTB_CONFIG_PATH_REQUIRED = ['annotated_genome','gff','full_sequence','model','diamond',
                              'media_analysis'] #: :meta: 
 CMPB_CONFIG_PATHS_REQUIRED = ['mediapath'] #: :meta:
 CMPB_CONFIG_PATHS_OPTIONAL = ['modelpath','full_genome_sequence','gff', 'protein_fasta',
@@ -45,16 +40,6 @@ PIPELINE_PATHS_REQUIRED = {'hqtb':HQTB_CONFIG_PATH_REQUIRED,
 # config keys for pipelines directories
 PIPELINE_DIR_PATHS = ['dir']
 
-
-# external databases
-# ------------------
-MNX_CHEM_XREF_URL = 'https://www.metanetx.org/cgi-bin/mnxget/mnxref/chem_xref.tsv' #: :meta: 
-MNX_CHEM_PROP_URL = 'https://www.metanetx.org/cgi-bin/mnxget/mnxref/chem_prop.tsv' #: :meta: 
-MNX_REAC_XREF_URL = 'https://www.metanetx.org/cgi-bin/mnxget/mnxref/reac_xref.tsv' #: :meta: 
-MNX_REAC_PROP_URL = 'https://www.metanetx.org/cgi-bin/mnxget/mnxref/reac_prop.tsv' #: :meta: 
-MNX_URL_DICT = {'chem_prop.tsv':MNX_CHEM_PROP_URL, 'chem_xref.tsv':MNX_CHEM_XREF_URL,
-                'reac_prop.tsv':MNX_REAC_PROP_URL, 'reac_xref.tsv':MNX_REAC_XREF_URL} #: :meta: 
-
 ################################################################################
 # functions
 ################################################################################
@@ -62,37 +47,10 @@ MNX_URL_DICT = {'chem_prop.tsv':MNX_CHEM_PROP_URL, 'chem_xref.tsv':MNX_CHEM_XREF
 # ----------------------
 # setup data (structure)
 # ----------------------
-# @DEPRECATE: MNX now coverend in refinegems - change extension after cleaning gapfill module in refinegems
-def download_mnx(dir:str='MetaNetX', chunk_size:int=1024):
-    """Download the data needed from the MetaNetX database.
-    
-    .. warning::
-        This function will be deprecated soon.
-
-    Args:
-        - dir (str, optional): 
-            Directory to write the downloaded files to. 
-            Defaults to 'MetaNetX'.
-        - chunk_size (int, optional): 
-            Size of the chunk of data that is loaded into memory during download. 
-            Defaults to 1024.
-    """
-    mes = f'This function will be deprecated soon. Functionality has been moved to refineGEMs.'
-    warnings.warn(mes, FutureWarning)
-
-    for mnx_name,mnx_url in MNX_URL_DICT.items():
-        r = requests.get(mnx_url, stream=True)
-        total = int(r.headers.get('content-length', 0))
-        with open(Path(dir,mnx_name), 'wb') as f, tqdm(desc=str(Path(dir,mnx_name)), total=total,
-            unit='iB', unit_scale=True, unit_divisor=1024,) as bar:
-            for data in r.iter_content(chunk_size=chunk_size):
-                size = f.write(data)
-                bar.update(size)
-
 
 def build_data_directories(pipeline: Literal['hqtb','high-quality template based', 
                                          'cmpb', 'carveme modelpolisher based'], 
-                           dir:str, chunk_size:int=2048):
+                           dir:str):
     """Set up the necessary directory structure and download files if possible
     for the given pipeline.
 
@@ -101,8 +59,6 @@ def build_data_directories(pipeline: Literal['hqtb','high-quality template based
             For which pipeline the structure should be.
         - dir (str): 
             Parent directory/ Path to write the structure to.
-        - chunk_size (int, optional): 
-            Chunk size for the download. Defaults to 2048.
 
     Raises:
         - ValueError: Unknown input for parameter pipeline
@@ -113,9 +69,8 @@ def build_data_directories(pipeline: Literal['hqtb','high-quality template based
         case 'hqtb' | 'high-quality template based':
             # create the data directory structure
             print('Creating directory structure...')
-            # @DEPRECATE METANETX will be probably obsolete after cleaning extension module
             DATA_DIRECTORIES = ['annotated_genomes', 'BioCyc', 'RefSeqs',
-                                'medium', 'MetaNetX', 'pan-core-models', 'template-models',
+                                'medium', 'pan-core-models', 'template-models',
                                 'universal-models']
             for sub_dir in DATA_DIRECTORIES:
                 new_dir = Path(dir,sub_dir)
@@ -124,10 +79,6 @@ def build_data_directories(pipeline: Literal['hqtb','high-quality template based
                     print(F'Creating new directory {new_dir}')
                 except FileExistsError:
                     print(F'Directory {new_dir} already exists.')
-
-            # download data for those directories where this is possible
-            print('Downloading MetaNetX...')
-            download_mnx(Path(dir,'MetaNetX'), chunk_size=chunk_size)
         
         # CMPB output    
         case 'cmpb' | 'carveme modelpolisher based':
