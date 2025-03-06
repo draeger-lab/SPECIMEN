@@ -20,11 +20,12 @@ import urllib.error
 from refinegems.utility.io import load_model, write_model_to_file
 from refinegems.utility.connections import run_memote, run_SBOannotator
 from refinegems.utility.db_access import kegg_reaction_parser
+from refinegems.curation.polish import polish_annotations
 
 ################################################################################
 # functions
 ################################################################################
-
+# @TODO merge with refineGEMs.curation.pathways.kegg_pathways
 def kegg_reaction_to_kegg_pathway(model:cobra.Model, viaEC:bool=False, viaRC:bool=False):
     """Retrieve the KEGG pathways for existing KEGG reaction IDs, if
     they have yet to be added. Depending on the given options, only the
@@ -128,7 +129,7 @@ def kegg_reaction_to_kegg_pathway(model:cobra.Model, viaEC:bool=False, viaRC:boo
             if len(pathways) != 0:
                 reac.annotation['kegg.pathway'] = pathways
 
-
+# @TEST
 def run(model:str, dir:str, kegg_viaEC:bool=False, 
         kegg_viaRC:bool=False, memote:bool=False):
     """Further annotate a given model.
@@ -169,6 +170,24 @@ def run(model:str, dir:str, kegg_viaEC:bool=False,
     except FileExistsError:
         print('Given directory already has required structure.')
 
+    # --------------
+    # Load the model
+    # --------------
+
+    model = load_model(model, 'libsbml')
+
+    # ------------------
+    # Polish annotations
+    # ------------------
+
+    print('\n# ----------------------------------\n# polish annotations\n# ----------------------------------')
+    start = time.time()
+
+    model = polish_annotations(model, True, str(Path(dir,'step3-annotation',model.getId()+'_annotations_polished.xml')))
+
+    end = time.time()
+    print(F'\ttime: {end - start}s')
+
     # ------------------
     # add SBO annotation
     # ------------------
@@ -177,17 +196,14 @@ def run(model:str, dir:str, kegg_viaEC:bool=False,
 
     start = time.time()
 
-    libsbml_doc = readSBML(model)
-    libsbml_model = libsbml_doc.getModel()
-
-    libsbml_model = run_SBOannotator(libsbml_model)
-    write_model_to_file(libsbml_model, str(Path(dir,'step3-annotation',libsbml_model.getId()+'_SBOannotated.xml')))
+    model = run_SBOannotator(model)
+    write_model_to_file(model, str(Path(dir,'step3-annotation',model.getId()+'_SBOannotated.xml')))
 
     end = time.time()
     print(F'\ttime: {end - start}s')
 
     # reload model
-    model = load_model(str(Path(dir,'step3-annotation',libsbml_model.getId()+'_SBOannotated.xml')), 'cobra')
+    model = load_model(str(Path(dir,'step3-annotation',model.getId()+'_SBOannotated.xml')), 'cobra')
 
     # ................................................................
     # @EXTENDABLE
@@ -202,6 +218,7 @@ def run(model:str, dir:str, kegg_viaEC:bool=False,
 
     start = time.time()
 
+    # @TODO Compare to pathways.kegg_pathways in refineGEMs
     kegg_reaction_to_kegg_pathway(model, viaEC=kegg_viaEC, viaRC=kegg_viaRC)
 
     end = time.time()
