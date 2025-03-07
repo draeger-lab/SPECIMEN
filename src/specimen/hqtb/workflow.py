@@ -116,6 +116,9 @@ def run(config_file:str = 'test_config.yaml'):
     with open(Path(config["general"]["dir"],'logs','log_03_refinement.txt'),'w') as log:
 
         with contextlib.redirect_stdout(log):
+            
+            # step 3.1: extension
+            # ...................
 
             core.refinement.extension.run(draft=Path(config["general"]["dir"],'02_generate_draft_model',modelname+'_draft.xml'),
                                           gff=config['subject']['gff'],                # @TODO check, if this setup works
@@ -139,7 +142,8 @@ def run(config_file:str = 'test_config.yaml'):
                                           exclude_rna=config['parameters']['refinement_extension']['exclude-rna'],
                                           
                                           memote=config['general']['memote'])
-            
+            # step 3.2: cleanup
+            # .................
             
             if config['data']['universal']:
                 universal = config['data']['universal']
@@ -147,8 +151,30 @@ def run(config_file:str = 'test_config.yaml'):
                 universal = config['data']['pan-core']
             else:
                 universal = None
+                
+            if config['parameters']['refinement_cleanup']['GeneGapFiller']:
+                gene_gapfiller_params = {'prefix':config['parameters']['refinement_cleanup']['idprefix'], 
+                                         'type_db': config['parameters']['refinement_cleanup']['GeneGapFiller parameters']['type'], 
+                                         'fasta': config['parameters']['refinement-cleanup']['GeneGapFiller parameters']['fasta'], 
+                                         'dmnd_db': config['parameters']['refinement_cleanup']['GeneGapFiller parameters']['dmnd-database'], 
+                                         'map_db': config['parameters']['refinement_cleanup']['GeneGapFiller parameters']['database-mapping'], 
+                                         'mail': config['parameters']['general']['email'], 
+                                         'check_NCBI': config['parameters']['refinement_cleanup']['GeneGapFiller parameters']['check-NCBI'],
+                                         'threshold_add_reacs': config['parameters']['refinement_cleanup']['threshold_add_reacs'], 
+                                         'sens': config['parameters']['refinement_cleanup']['GeneGapFiller parameters']['ensitivity'], 
+                                         'cov': config['parameters']['refinement_cleanup']['GeneGapFiller parameters']['coverage'], 
+                                         't': config['performance']['threads'], 
+                                         'pid': config['parameters']['refinement_cleanup']['GeneGapFiller parameters']['percentage identity'], 
+                                         'formula_check': config['parameters']['refinement_cleanup']['formula-check'],
+                                         'exclude_dna': config['parameters']['refinement_cleanup']['exclude-dna'],
+                                         'exclude_rna': config['parameters']['refinement_cleanup']['exclude-rna'],
+                                         'gff': config['parameters']['refinement_cleanup']['GeneGapFiller parameters']['gff']}
+            else:
+                gene_gapfiller_params = None
+                
             core.refinement.cleanup.run(Path(config["general"]["dir"],'03_refinement','step1-extension',modelname+'_extended.xml'),
                                         Path(config["general"]["dir"],'03_refinement'),
+                                        run_gene_gapfiller=gene_gapfiller_params,
                                         biocyc_db=config['data']['biocyc'],
                                         check_dupl_reac = config['parameters']['refinement_cleanup']['check_dupl_reac'],
                                         check_dupl_meta = config['parameters']['refinement_cleanup']['check_dupl_meta'],
@@ -162,11 +188,21 @@ def run(config_file:str = 'test_config.yaml'):
                                         chunk_size=config['performance']['gapfilling']['chunk_size'],
                                         growth_threshold = config['parameters']['refinement_cleanup']['growth_threshold'],
                                         memote = config['general']['memote'])
+            
+            sys.exit('End of Testrun')
+            
+            # step 3.3: annotation
+            # ....................
+            
             core.refinement.annotation.run(Path(config["general"]["dir"],'03_refinement','step2-clean-up',modelname+'_clean.xml'),
                                            Path(config["general"]["dir"],'03_refinement'),
                                            kegg_viaEC=config['parameters']['refinement_annotation']['viaEC'],
                                            kegg_viaRC=config['parameters']['refinement_annotation']['viaRC'],
                                            memote=config['general']['memote'])
+            
+            # step 3.4: smoothing
+            # ...................
+            
             core.refinement.smoothing.run(config['subject']['full_sequence'],
                                           Path(config["general"]["dir"],'03_refinement','step3-annotation',modelname+'_annotated.xml'),
                                           Path(config["general"]["dir"],'03_refinement'),

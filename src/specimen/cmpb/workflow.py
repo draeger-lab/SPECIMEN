@@ -291,17 +291,19 @@ def run(configpath:Union[str,None]=None):
         ggf.find_missing_genes(config['gapfilling']['GeneGapFiller parameters']['gff'],
                                current_libmodel)
         ggf.find_missing_reactions(current_model,
-                               mail = config['tech-resources']['email'],
-                               check_NCBI = config['gapfilling']['GeneGapFiller parameters']['check-NCBI'],
-                               fasta = config['general']['protein_fasta'],
-                               dmnd_db = config['gapfilling']['GeneGapFiller parameters']['swissprot-dmnd'],
-                               swissprot_map = config['gapfilling']['GeneGapFiller parameters']['swissprot-mapping'],
-                               threshold_add_reacs = threshold_add_reacs,
-                               outdir = Path(dir,"cmpb_out",'misc', 'gapfill'), # @DISCUSSION or would a subfolder be better?
-                               sens = config['gapfilling']['GeneGapFiller parameters']['sensitivity'],
-                               cov = config['gapfilling']['GeneGapFiller parameters']['coverage'],
-                               t = config['tech-resources']['threads'],
-                               pid = config['gapfilling']['GeneGapFiller parameters']['percentage identity'] 
+                                   prefix=config['gapfilling']['idprefix'],
+                                   type_db=config['gapfilling']['GeneGapFiller parameters']['type'],
+                                   fasta = config['general']['protein_fasta'],
+                                   dmnd_db = config['gapfilling']['GeneGapFiller parameters']['dmnd-database'],
+                                   map_db = config['gapfilling']['GeneGapFiller parameters']['database-mapping'],
+                                   mail = config['tech-resources']['email'],
+                                   check_NCBI = config['gapfilling']['GeneGapFiller parameters']['check-NCBI'],
+                                   threshold_add_reacs = threshold_add_reacs,
+                                   outdir = Path(dir,"cmpb_out",'misc', 'gapfill'), # @DISCUSSION or would a subfolder be better?
+                                   sens = config['gapfilling']['GeneGapFiller parameters']['sensitivity'],
+                                   cov = config['gapfilling']['GeneGapFiller parameters']['coverage'],
+                                   t = config['tech-resources']['threads'],
+                                   pid = config['gapfilling']['GeneGapFiller parameters']['percentage identity'] 
                                )
         current_libmodel = ggf.fill_model(current_libmodel, 
                                           namespace = config['general']['namespace'],

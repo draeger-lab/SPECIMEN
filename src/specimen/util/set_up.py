@@ -26,8 +26,9 @@ from refinegems.utility.set_up import download_config as rg_config
 # -----------
 
 # config keys for pipeline files
-HQTB_CONFIG_PATH_OPTIONAL = ['media_gap', 'ncbi_map','biocyc','universal','pan-core'] #: :meta: 
-HQTB_CONFIG_PATH_REQUIRED = ['annotated_genome','gff','full_sequence','model','diamond',
+HQTB_CONFIG_PATH_OPTIONAL = ['media_gap', 'ncbi_map','biocyc','universal','pan-core',
+                             'fasta','gff','dmnd-database','database-mapping'] #: :meta: # @WARNING gff is both in optional and required params - dows this cause issues here? 
+HQTB_CONFIG_PATH_REQUIRED = ['annotated_genome','full_sequence','model','diamond',
                              'media_analysis'] #: :meta: 
 CMPB_CONFIG_PATHS_REQUIRED = ['mediapath'] #: :meta:
 CMPB_CONFIG_PATHS_OPTIONAL = ['modelpath','full_genome_sequence','gff', 'protein_fasta',

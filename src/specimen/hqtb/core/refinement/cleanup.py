@@ -8,14 +8,16 @@ __author__ = 'Carolin Brune'
 ################################################################################
 
 import cobra
+import os
 import pandas as pd
 import time
 
 from pathlib import Path
-from typing import Literal
+from tempfile import NamedTemporaryFile
+from typing import Literal,Union
 
-from refinegems.utility.io import load_model
-from refinegems.classes.gapfill import multiple_cobra_gapfill
+from refinegems.utility.io import load_model, write_model_to_file
+from refinegems.classes.gapfill import multiple_cobra_gapfill, GeneGapFiller
 from refinegems.analysis.growth import read_media_config
 from refinegems.utility.connections import run_memote
 from refinegems.curation.curate import resolve_duplicates
@@ -23,6 +25,10 @@ from refinegems.curation.curate import resolve_duplicates
 ################################################################################
 # variables
 ################################################################################
+
+GGF_REQS = {'prefix', 'type_db', 'fasta', 'dmnd_db', 'map_db', 'mail', 'check_NCBI',
+            'threshold_add_reacs', 'sens', 'cov', 't', 'pid', 'formula_check',
+            'exclude_dna','exclude_rna','gff'}
 
 ################################################################################
 # functions
@@ -124,10 +130,11 @@ def check_direction(model:cobra.Model,data_file:str) -> cobra.Model:
 # run
 # ---
 # @TEST
-# @TODO add gapfilling from refinegems and more
-# @TODO maybe a new / different way to save/store/add the params for gapfilling, e.g. a config?
+# @TODO add BioCyc and KEGG gap-filling option
+# @IDEA maybe a new / different way to save/store/add the params for gapfilling, e.g. a config?
 def run(model:str, dir:str, 
         biocyc_db:str=None, 
+        run_gene_gapfiller:Union[None,dict]=None,
         check_dupl_reac:bool = False,
         check_dupl_meta:bool = 'default',
         remove_unused_meta:bool = False, 
@@ -144,7 +151,9 @@ def run(model:str, dir:str,
     The second refinement step resolves the following issues:
 
     (1) (optional) checking direction of reactions with BioCyc
-    (2) gapfilling using cobra + universal model with reactions + a set of media (@TODO: under developement)
+    (2) (optional) gapfilling 
+        (a) using refineGEMs GeneGapFiller
+        (b) using cobra + universal model with reactions + a set of media 
     (3) find and/or resolve duplicates (reactions and metabolites)
 
     Args:
@@ -155,6 +164,11 @@ def run(model:str, dir:str,
         - biocyc_db (str, optional): 
             Path to the BioCyc/MetaCyc reaction database file. 
             Defaults to None, which leads to skipping the direction check.
+        - run_gene_gapfiller (Union[None,dict], optional):
+            If a dictionary is given, tries to run the GeneGapFiller. 
+            If set to None, the gap-filling will be skipped
+            The dictionary needs to contain the keys saved in :py:data:`~specimen.hqtb.core.refinement.cleanup.GGF_REQS`.
+            Defaults to None.
         - check_dupl_reac (bool, optional): 
             Option to check for duplicate reactions. 
             Defaults to False.
@@ -200,6 +214,7 @@ def run(model:str, dir:str,
 
     Raises:
         - ValueError: Unknown option for check_dupl_meta
+        - KeyError: Missing parameter for GeneGapFiller
     """
 
     # -------------------
@@ -207,6 +222,10 @@ def run(model:str, dir:str,
     # -------------------
     if not check_dupl_meta in ['default','skip','exhaustive']:
         raise ValueError('Unknown option {check_dupl_meta} for checking duplicate metabolite. Use one of: default, skip, exhaustive')
+    
+    if run_gene_gapfiller:
+        if not GGF_REQS.isubset(run_gene_gapfiller.keys()):
+            raise KeyError('At least one parameter for the GeneGapFiller is missing. Re-check your input for run_gene_gapfiller')
 
     # -------------
     # start program
@@ -247,29 +266,68 @@ def run(model:str, dir:str,
 
     print('\n# ----------\n# gapfilling\n# ----------')
     start = time.time()
+    
+    # gapfilling
+    ############
+        
+    # GeneGapFiller 
+    # -------------
+    if run_gene_gapfiller:
+        # load model with libsbml
+        libmodel = None
+        with NamedTemporaryFile(suffix='.xml', delete=False) as tmp:
+            write_model_to_file(model,tmp.name)
+            libmodel = load_model(tmp.name,'libsbml')
+        os.remove(tmp.name)
+        # run the gene gap filler
+        ggf = GeneGapFiller()
+        ggf.find_missing_genes(run_gene_gapfiller['gff'],
+                               libmodel)
+        ggf.find_missing_reactions(model,
+                                   prefix=run_gene_gapfiller['prefix'],
+                                   type_db=run_gene_gapfiller['type_db'],
+                                   fasta = run_gene_gapfiller['fasta'],
+                                   dmnd_db = run_gene_gapfiller['dmnd_db'],
+                                   map_db = run_gene_gapfiller['map_db'],
+                                   mail = run_gene_gapfiller['mail'],
+                                   check_NCBI = run_gene_gapfiller['check_NCBI'],
+                                   threshold_add_reacs = run_gene_gapfiller['threshold_add_reacs'],
+                                   outdir = Path(dir,"step2-clean-up"),
+                                   sens = run_gene_gapfiller['sens'],
+                                   cov = run_gene_gapfiller['cov'],
+                                   t = run_gene_gapfiller['t'],
+                                   pid = run_gene_gapfiller['pid'] 
+                               )
+        libmodel = ggf.fill_model(libmodel, 
+                                  namespace = namespace,
+                                  idprefix = run_gene_gapfiller['prefix'],
+                                  formula_check = run_gene_gapfiller['formula_check'],
+                                  exclude_dna = run_gene_gapfiller['exclude_dna'],
+                                  exclude_rna = run_gene_gapfiller['exclude_rna']
+                                )
+        
+        # re-load model with cobrapy
+        with NamedTemporaryFile(suffix='.xml', delete=False) as tmp:
+            write_model_to_file(libmodel,tmp.name)
+            model = load_model(tmp.name,'cobra')
+        os.remove(tmp.name)
 
+    # gap-filling via COBRApy medium
+    # ------------------------------
+    
     # construct a list of media
-    # -------------------------
-
     media_list = []
 
     # load media from config file
     if media_path:
         media_list = read_media_config(media_path)
-
-    # perform gapfilling
-    # -----------------
         
-    # ..........................................
-    # @TODO 
-    #   add an option for refinegems gapfilling
     #   separate option for cobra gapfilling 
     if len(media_list) > 0:
         # load universal model
         universal_model = load_model(universal,'cobra')
         # run gapfilling
         model = multiple_cobra_gapfill(model,universal_model,media_list,namespace,iterations=iterations, chunk_size=chunk_size, growth_threshold=growth_threshold)
-    # ..........................................
 
     end = time.time()
     print(F'\ttime: {end - start}s')
