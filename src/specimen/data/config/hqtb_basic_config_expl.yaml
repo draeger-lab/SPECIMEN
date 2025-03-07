@@ -13,8 +13,12 @@
 #    date:      USER
 #    author:    USER
 
+##################################################################################
 # Input for the pipeline
-# ----------------------
+##################################################################################
+
+# basic input files
+# -----------------
 
 # information about the genome to be used to generate the new model
 subject:
@@ -29,6 +33,7 @@ template:
     namespace: BiGG
 
 # information about the output
+# ----------------------------
 general:
     dir: ./specimen_run/
     modelname: NULL            # Name of the model, if the three values below are not set
@@ -36,6 +41,9 @@ general:
     strainid: USER             # ID of the strain 
     organism: USER             # Abbreviation for the organism
     memote: False
+
+# database information
+# --------------------
 
 # data(bases) required to run the program
 data:
@@ -60,44 +68,83 @@ data:
     universal: null
     pan-core: null
 
-# paramters for the single steps of the pipeline
+# parameters for the single steps of the pipeline
+# -----------------------------------------------
+
 parameters:
+    ########## general ##########
     general:
+        idprefix: 'HQTB'    # prefix to use for fantasy IDs, if IDs for 
+                            # the namespace do not exist.
         namespace: 'BiGG'
         email: USER         # email address. Required for queries against NCBI
 
+    ########## step 1: bidirectional blast ##########
     bidirectional_blast:
         # set the sensitivity for DIAMOND
         sensitivity: more-sensitive
 
+    ########## step 2: generaft draft model ##########
     generate_draft_model:
         # if the gene ids of the template model do not match the
         # identifiers of the annotated genome file, use this option to edit them
         edit_names: "no"
         pid: 80.0
 
+    ########## step 3: refinement ###########
+    ########## step 3.1: extension ##########
     refinement_extension:
-        # set the sensitivity for DIAMOND
-        sensitivity: more-sensitive
-        coverage: 95.0
-        pid: 90.0
+        # params for DIAMOND
+        sensitivity: more-sensitive # change the sensitivity of DIAMOND
+        coverage: 95.0              # Set the min. coverage 
+        pid: 90.0                   # set the minimal percentage identify value for valid hits
+        # params for adding entities during 
         formula-check: 'existence'  # When checking, if a metabolite can be added to the model
                               # also check the formula. For more information about
                               # available options, please refer to the docs of 
                               # the function isreaction_comlete().
 
+    ########## step 3.2: cleanup ##########
     refinement_cleanup:
-        # current default means no gapfilling
-        media_gap: null
 
+        # gap-filling
+        # """""""""""
+        
+        # general options _________________________________________
+        # parameters, that apply to all the gap filling algorithms
+        # current default means no gapfilling
+        formula-check: 'existence'  # When checking, if a metabolite can be added to the model
+                                    # also check the formula. For more information about
+                                    # available options, please refer to the docs of 
+                                    # the function isreaction_comlete().
+        
+        # enable algorithms ________________________________________
+        GeneGapFiller: False              # Activate gap filling via GFF
+        GeneGapFiller parameters: 
+            fasta: USER                   # FASTA (containing CDS) for the GeneGapFiller. 
+                                          # Depending on the case, might be the same as annotated genome.
+            gff: USER                     # Path to a gff file (does not have to be the RefSeq).
+                                          # Needs to be from the same genome the model was build on.
+            type: 'swissprot'             # Type of database. Can either be 'swissprot' or 'user'.
+            dmnd-database: USER           # Path to the SwissProt/User DIAMOND database file.
+            database-mapping: USER        # Path to the SwissProt/User mapping file (against EC / BRENDA in case of SwissProt)
+            check-NCBI: False             # Enable checking NCBI accession numbers for EC numbers - time costly.
+            sensitivity: 'more-sensitive' # Sensitivity option for the DIAMOND run.
+            coverage: 90.0                # Coverage (parameter for DIAMOND).
+            percentage identity: 90.0     # Percentage identity threshold value for accepting
+                                          # matches found by DIAMOND as homologous.
+        # via COBRApy - medium ........
+        media_gap: null             # path to a medium config file. Set it to null to skip this gapfiller
+
+    ########## step 3.4: smoothing ##########
     refinement_smoothing:
-        # skip, apply or extra for MassChargeCuration
-        mcc: skip
+        mcc: skip # skip, apply or extra for MassChargeCuration
         # ECG correction
         egc: null
         # BOFdat weight fractions: depend on organism (current: Klebsiella )
         dna_weight_frac: 0.023
         ion_weight_frac: 0.05
 
+    ########## step 5: analysis ##########   
     analysis:
         media_analysis: __USER__

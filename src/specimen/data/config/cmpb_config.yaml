@@ -104,8 +104,9 @@ gapfilling:
   GeneGapFiller parameters: 
     gff: USER                     # Path to a gff file (does not have to be the RefSeq).
                                   # Needs to be from the same genome the model was build on.
-    swissprot-dmnd: USER          # Path to the SwissProt DIAMOND database file.
-    swissprot-mapping: USER       # Path to the SwissProt mapping file (against EC / BRENDA)
+    type: 'swissprot'             # Type of database. Can either be 'swissprot' or 'user'.
+    dmnd-database: USER           # Path to the SwissProt/User DIAMOND database file.
+    database-mapping: USER        # Path to the SwissProt/User mapping file (against EC / BRENDA in case of SwissProt)
     check-NCBI: False             # Enable checking NCBI accession numbers for EC numbers - time costly.
     sensitivity: 'more-sensitive' # Sensitivity option for the DIAMOND run.
     coverage: 90.0                # Coverage (parameter for DIAMOND).

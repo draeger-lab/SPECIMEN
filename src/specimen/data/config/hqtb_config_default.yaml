@@ -10,8 +10,12 @@
 #    date:      USER
 #    author:    USER
 
+##################################################################################
 # Input for the pipeline
-# ----------------------
+##################################################################################
+
+# basic input files
+# -----------------
 
 # information about the genome to be used to generate the new model
 subject:
@@ -26,6 +30,7 @@ template:
     namespace: BiGG
 
 # information about the output
+# ----------------------------
 general:
     dir: ./specimen_run/
     modelname: NULL            # Name of the model, if the three values below are not set
@@ -33,6 +38,9 @@ general:
     strainid: USER             # ID of the strain 
     organism: USER             # Abbreviation for the organism
     memote: False
+
+# database information
+# --------------------
 
 # data(bases) required to run the program
 data:
@@ -57,14 +65,18 @@ data:
     universal: null
     pan-core: null
 
-# paramters for the single steps of the pipeline
+# parameters for the single steps of the pipeline
+# -----------------------------------------------
+
 parameters:
+    ########## general ##########
     general:
         idprefix: 'HQTB'    # prefix to use for fantasy IDs, if IDs for 
                             # the namespace do not exist.
         namespace: 'BiGG'
         email: USER         # email address. Required for queries against NCBI
 
+    ########## step 1: bidirectional blast ##########
     bidirectional_blast:
         # default should suffice except special cases
         template_name: null
@@ -74,11 +86,16 @@ parameters:
         # can be set by user if wanted, but not necessary
         sensitivity: more-sensitive
 
+    ########## step 2: generaft draft model ##########
     generate_draft_model:
+        # if the gene ids of the template model do not match the
+        # identifiers of the annotated genome file, use this option to edit them
         edit_names: "no"
         pid: 80.0
-        medium: default
+        medium: default # @TODO explaination 
 
+    ########## step 3: refinement ###########
+    ########## step 3.1: extension ##########
     refinement_extension:
         # params for DIAMOND
         sensitivity: more-sensitive # change the sensitivity of DIAMOND
@@ -97,44 +114,93 @@ parameters:
                                     # exceeds this value, the reactions will not be added, due to 
                                     # the high probability of false positives. 
 
+    ########## step 3.2: cleanup ##########
     refinement_cleanup:
-        # default as standard
+        
+        # gap-filling
+        # """""""""""
+        
+        # general options _________________________________________
+        # parameters, that apply to all the gap filling algorithms
+        idprefix: 'HQTB'            # prefix to use for fantasy IDs, if IDs for 
+                                    # the namespace do not exist.
+        formula-check: 'existence'  # When checking, if a metabolite can be added to the model
+                                    # also check the formula. For more information about
+                                    # available options, please refer to the docs of 
+                                    # the function isreaction_comlete().
+        exclude-dna: True           # Exclude reactions containing 'DNA' in their name
+                                    # from being added to the model.
+        exclude-rna: True           # Exclude reactions containing 'RNA' in their name
+                                    # from being added to the model.
+        threshold_add_reacs: 5      # Threshold values. If the mapping of an EC against reactions
+                                    # exceeds this value, the reactions will not be added, due to 
+                                    # the high probability of false positives. 
+        
+        # enable algorithms ________________________________________
+        # via KEGG ..................
+        # @IDEA
+        # via BioCyc .................
+        # @IDEA
+        # via GFF ....................
+        GeneGapFiller: False              # Activate gap filling via GFF
+        GeneGapFiller parameters: 
+            fasta: USER                   # FASTA (containing CDS) for the GeneGapFiller. 
+                                          # Depending on the case, might be the same as annotated genome.
+            gff: USER                     # Path to a gff file (does not have to be the RefSeq).
+                                          # Needs to be from the same genome the model was build on.
+            type: 'swissprot'             # Type of database. Can either be 'swissprot' or 'user'.
+            dmnd-database: USER           # Path to the SwissProt/User DIAMOND database file.
+            database-mapping: USER        # Path to the SwissProt/User mapping file (against EC / BRENDA in case of SwissProt)
+            check-NCBI: False             # Enable checking NCBI accession numbers for EC numbers - time costly.
+            sensitivity: 'more-sensitive' # Sensitivity option for the DIAMOND run.
+            coverage: 90.0                # Coverage (parameter for DIAMOND).
+            percentage identity: 90.0     # Percentage identity threshold value for accepting
+                                          # matches found by DIAMOND as homologous.
+        # via COBRApy - medium ........
+        media_gap: null             # path to a medium config file. Set it to null to skip this gapfiller
+        growth_threshold: 0.05      # Threshold value for minimal growth, that is required for the media.
+
+
+        # duplicate handling 
+        # """"""""""""""""""
+        
         check_dupl_reac: True
         check_dupl_meta: default
         remove_unused_meta: False
         remove_dupl_reac: True
         remove_dupl_meta: True
-        # current default means no gapfilling
-        media_gap: null
-        growth_threshold: 0.05
 
+
+    ########## step 3.3: annotation ##########
     refinement_annotation:
         # for KEGG pathway annotation
         viaEC: False
         viaRC: False
 
+    ########## step 3.4: smoothing ##########
     refinement_smoothing:
-        # useful
-        mcc: skip
+        mcc: skip # skip, apply or extra for MassChargeCuration
         # ECG correction
         egc: null
-        # depend on organism (current: Klebsiella )
+        # BOFdat weight fractions: depend on organism (current: Klebsiella )
         dna_weight_frac: 0.023
         ion_weight_frac: 0.05
 
-    # validation:
-        # default should suffice
+    ########## step 4: validation ##########
+        # currrently no params available
 
+    ########## step 5: analysis ##########
     analysis:
-        # default is currently only option
+        # How to compare to pan-core model (current option only id)
         pc_based_on: id
-        # can be default but useful to edit
-        media_analysis: __USER__ # edit to fit a default media config file
+        # simulate growth on different media (media config file (refineGEMs) required)
+        media_analysis: __USER__ # @IDEA edit to fit a default media config file
+        # test for amino acid auxotrophies
         test_aa_auxotrophies: True
         # perform pathway analysis with KEGG
         pathway: True
 
-# options for performance
+########## technical params ##########
 performance:
     threads: 2
     # for the gapfilling, if iterations and chunk_size are set (not null)
