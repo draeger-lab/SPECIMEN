@@ -224,7 +224,7 @@ def run(model:str, dir:str,
         raise ValueError('Unknown option {check_dupl_meta} for checking duplicate metabolite. Use one of: default, skip, exhaustive')
     
     if run_gene_gapfiller:
-        if not GGF_REQS.isubset(run_gene_gapfiller.keys()):
+        if not GGF_REQS.issubset(run_gene_gapfiller.keys()):
             raise KeyError('At least one parameter for the GeneGapFiller is missing. Re-check your input for run_gene_gapfiller')
 
     # -------------
