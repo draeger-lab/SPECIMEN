@@ -19,7 +19,7 @@ from typing import Union
 import warnings
 
 from cobra import Reaction,Model
-from libsbml import readSBML
+from libsbml import Model as libModel
 
 from refinegems.analysis import growth
 from refinegems.analysis.investigate import plot_rea_sbo_single
@@ -59,7 +59,7 @@ logger = logging.getLogger(__name__)
 # dev notes
 #   in the run function: current_model means the cobrapy model, 
 #   while current_libmodel means the libsbml model
-
+# @TEST
 def run(configpath:Union[str,None]=None):
     """Run the CarveMe-ModelPolisher-based (CMPB) workflow.
 
@@ -69,7 +69,37 @@ def run(configpath:Union[str,None]=None):
             information step by step.
             Defaults to None.
     """
-    # @IDEA: We could add a funcion to save the models in between steps/not instead of having redundant code for that
+
+    def between_save(model:Union[Model,libModel], dir:Union[None,str]=None, 
+                     label:Union[None,str]=None, 
+                     only_modelpath:Union[None,str]=None) -> str:
+        """Helper function to save the model in between the different steps of the workflow
+
+        Args:
+            - model (Union[Model,libModel]): 
+                The current model, either loaded with libsbml or COBRApy.
+            - dir (Union[None,str], optional): 
+                Output directory. Defaults to None.
+            - label (Union[None,str], optional): 
+                Name of the step. Defaults to None.
+            - only_modelpath (Union[None,str], optional): 
+                Path to save the model to, if only one model will be saved. 
+                If set, ignores dir and label.
+                Defaults to None.
+
+        Returns:
+            str: 
+                The current model path.
+        """
+
+        name = model.id if isinstance(model, Model) else model.getId()
+        if not only_modelpath:
+            write_model_to_file(model, str(Path(dir,'cmpb_out','models',f'{name}_{label}.xml')))     
+            return Path(dir,'cmpb_out','models',f'{name}_{label}.xml')
+        else:
+            write_model_to_file(model, str(only_modelpath))
+            return only_modelpath
+        
 
     def between_growth_test(model: Model, cfg:dict, step:str):
         """Helper function for :py:func:`~specimen.cmpb.workflow.run`. 
@@ -145,6 +175,7 @@ def run(configpath:Union[str,None]=None):
         modelname = "model_"+str(date.today().year).removeprefix('20')
 
     dir = config['general']['dir']
+    only_modelpath = None
     if not config['general']['save_all_models']:
         only_modelpath = Path(dir,'cmpb_out',f'{modelname}.xml') 
 
@@ -184,12 +215,8 @@ def run(configpath:Union[str,None]=None):
         # if not, attempt to fix them
         resolve_compartment_names(current_model)
         # save validated model
-        if config['general']['save_all_models']:
-            write_model_to_file(current_model, str(Path(dir,'cmpb_out','models',f'{current_model.id}_validated_comps.xml')))
-            current_modelpath = Path(dir,'cmpb_out','models',f'{current_model.id}_validated_comps.xml')
-        else:
-            write_model_to_file(current_model, str(only_modelpath))
-            current_modelpath = only_modelpath
+        current_modelpath = between_save(current_model, dir, 'validated_comps',only_modelpath)
+            
     # reload into libsbml
     current_libmodel = load_model(str(current_modelpath),'libsbml')    
     
@@ -214,12 +241,8 @@ def run(configpath:Union[str,None]=None):
         mult_charges_tab.to_csv(Path(dir,'cmpb_out','misc','reac_with_mult_charges.tsv'), sep='\t')
         
         # save model
-        if config['general']['save_all_models']:
-            write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_CarveMe_correction.xml')))     
-            current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_CarveMe_correction.xml')
-        else:
-            write_model_to_file(current_libmodel, str(only_modelpath))
-            current_modelpath = only_modelpath
+        current_modelpath = between_save(current_libmodel, dir, 'after_CarveMe_correction',only_modelpath)
+        
 
     # growth test
     # -----------
@@ -247,13 +270,9 @@ def run(configpath:Union[str,None]=None):
                                               exclude_rna = config['gapfilling']['exclude-rna']
                                               )
             # save model
-            if config['general']['save_all_models']:
-                write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_KEGG_gapfill.xml')))     
-                current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_KEGG_gapfill.xml')
-            else:
-                write_model_to_file(current_libmodel, str(only_modelpath))
-                current_modelpath = only_modelpath
+            current_modelpath = between_save(current_libmodel, dir, 'after_KEGG_gapfill',only_modelpath)
             current_model = load_model(str(current_modelpath),'cobra')
+            
         else:
             mes = f'No KEGG organism ID provided. Gapfilling with KEGG will be skipped.'
             raise warnings.warn(mes,UserWarning)
@@ -276,12 +295,7 @@ def run(configpath:Union[str,None]=None):
                                           exclude_rna = config['gapfilling']['exclude-rna']
                                          )
         # save model
-        if config['general']['save_all_models']:
-            write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_BioCyc_gapfill.xml')))     
-            current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_BioCyc_gapfill.xml')
-        else:
-            write_model_to_file(current_libmodel, str(only_modelpath))
-            current_modelpath = only_modelpath
+        current_modelpath = between_save(current_libmodel, dir, 'after_BioCyc_gapfill',only_modelpath)
         current_model = load_model(str(current_modelpath),'cobra')
         
     # GeneGapFiller
@@ -312,13 +326,9 @@ def run(configpath:Union[str,None]=None):
                                           exclude_dna = config['gapfilling']['formula-check'],
                                           exclude_rna = config['gapfilling']['exclude-rna']
                                          )
-        # save model
-        if config['general']['save_all_models']:
-            write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_Gene_gapfill.xml')))     
-            current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_Gene_gapfill.xml')
-        else:
-            write_model_to_file(current_libmodel, str(only_modelpath))
-            current_modelpath = only_modelpath
+        # save model            
+        current_modelpath = between_save(current_libmodel, dir, 'after_Gene_gapfill',only_modelpath)
+        
     current_model = load_model(str(current_modelpath),'cobra')
 
     # testing
@@ -343,12 +353,7 @@ def run(configpath:Union[str,None]=None):
         pd.DataFrame(result['post_validation']).to_csv(Path(dir,'cmpb_out','misc','modelpolisher','post_validation.csv'), sep=';', header=True)
 
         # save model
-        if config['general']['save_all_models']:
-            write_model_to_file(result["polished_document"].getModel(), str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_ModelPolisher.xml')))     
-            current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_after_ModelPolisher.xml')
-        else:
-            write_model_to_file(result["polished_document"].getModel(), str(only_modelpath))
-            current_modelpath = only_modelpath
+        current_modelpath = between_save(current_libmodel, dir, 'after_ModelPolisher',only_modelpath)
 
         current_model = load_model(str(current_modelpath),'cobra')
 
@@ -367,33 +372,21 @@ def run(configpath:Union[str,None]=None):
             for line in missing_list:
                 outfile.write(f'{line}\n')
         # save model
-        if config['general']['save_all_models']:
-            write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_added_KeggPathwayGroups.xml')))
-            current_modelpath = Path(dir,'cmpb_out','models',f'{current_libmodel.getId()}_added_KeggPathwayGroups.xml')
-        else:
-            write_model_to_file(current_libmodel, str(only_modelpath))
-            current_modelpath = only_modelpath
+        current_modelpath = between_save(current_libmodel, dir, 'added_KeggPathwayGroups',only_modelpath)
+
 
     # SBOannotator
     # ------------
     current_libmodel = load_model(str(current_modelpath),'libsbml')
-    
-    if config['general']['save_all_models']:
-        current_libmodel = run_SBOannotator(current_libmodel)
-        write_model_to_file(current_libmodel, str(Path(dir,'cmpb_out','models', f'{current_libmodel.getId()}_SBOannotated.xml')))
-        current_modelpath = Path(dir,'cmpb_out','models', f'{current_libmodel.getId()}_SBOannotated.xml')
-    else:
-        current_libmodel = run_SBOannotator(current_libmodel)
-        write_model_to_file(current_libmodel, str(only_modelpath))
-        current_modelpath = only_modelpath
+    current_libmodel = run_SBOannotator(current_libmodel)
+    current_modelpath = between_save(current_libmodel, dir, 'SBOannotated',only_modelpath)
+
 
     current_model = load_model(str(current_modelpath),'cobra')
     between_analysis(current_model,config,step='after_annotation')
     
-
     # model cleanup
     ###############
-    current_model = load_model(str(current_modelpath), 'cobra')
     
     # duplicates
     # ----------
@@ -436,12 +429,7 @@ def run(configpath:Union[str,None]=None):
                        remove_dupl_reac=remove_dupl_reac)
 
     # save model
-    if config['general']['save_all_models']:
-        write_model_to_file(current_model, str(Path(dir,'cmpb_out','models',f'{current_model.id}_after_duplicate_removal.xml')))
-        current_modelpath = Path(dir,'cmpb_out','models',f'{current_model.id}_after_duplicate_removal.xml')
-    else:
-        write_model_to_file(current_model, str(only_modelpath))
-        current_modelpath = only_modelpath
+    current_modelpath = between_save(current_model, dir, 'after_duplicate_removal',only_modelpath)
     
     # in-between testing
     between_growth_test(current_model,config,step='after_duplicate_removal')
@@ -453,14 +441,8 @@ def run(configpath:Union[str,None]=None):
         current_model = load_model(str(current_modelpath),'cobra')
         current_model = check_direction(current_model, config['general']['namespace'])
 
-    # @TODO Recheck model saving
     # save model
-    if config['general']['save_all_models']:
-        write_model_to_file(current_model, str(Path(dir,'cmpb_out','models',f'{current_model.id}_after_reac_direction_change.xml')))
-        current_modelpath = Path(dir,'cmpb_out','models',f'{current_model.id}_after_reac_direction_change.xml')
-    else:
-        write_model_to_file(current_model, str(only_modelpath))
-        current_modelpath = only_modelpath
+    current_modelpath = between_save(current_model, dir, 'after_reac_direction_change',only_modelpath)
     
     # find and solve energy generating cycles
     # ---------------------------------------
@@ -472,7 +454,7 @@ def run(configpath:Union[str,None]=None):
             print('Using GreedyEGCSolver...')
             solver = egcs.GreedyEGCSolver()
             results = solver.solve_egcs(current_model,namespace=config['general']['namespace']) # @NOTE automatically uses c,p as compartments 
-            if results: # @TODO model needs to be written to file somewhere here
+            if results: 
                 logger.info('results:')
                 for k,v in results.items():
                     logger.info(f'\t{k}: {v}')
@@ -484,6 +466,8 @@ def run(configpath:Union[str,None]=None):
             logger.info(f'\t{solver.find_egcs(current_model,with_reacs=True,namespace=config["general"]["namespace"])}') # @NOTE automatically uses c,p as compartments 
        
     if results:
+        current_modelpath = between_save(current_model, dir, 'after_egc_fix',only_modelpath)
+        current_libmodel = load_model(str(current_modelpath),'libsbml')
         # in-between testing
         between_growth_test(current_model,config,step='after_egcs')
         between_analysis(current_model,config,step='after_egcs')
@@ -491,7 +475,6 @@ def run(configpath:Union[str,None]=None):
     # BOF
     # ---
     # BOFdat - optional
-    current_model = load_model(str(current_modelpath),'cobra')
     if config['BOF']['run_bofdat']:
         check_bof = test_biomass_presence(current_model)
         if check_bof:
@@ -516,24 +499,14 @@ def run(configpath:Union[str,None]=None):
         current_model = check_normalise_biomass(current_model)
 
     # save model
-    if config['general']['save_all_models']:
-        write_model_to_file(current_model, str(Path(dir,'cmpb_out','models',f'{current_model.id}_after_BOF.xml')))
-        current_modelpath = Path(dir,'cmpb_out','models',f'{current_model.id}_after_BOF.xml')
-    else:
-        write_model_to_file(current_model, str(only_modelpath))
-        current_modelpath = only_modelpath
+    current_modelpath = between_save(current_model, dir, 'after_BOF',only_modelpath)
     
     # MCC
     # ---
     current_model = perform_mcc(current_model, Path(dir,'cmpb_out','misc','mcc'),apply=True)
 
     # save the final model
-    if config['general']['save_all_models']:
-        write_model_to_file(current_model, str(Path(dir,'cmpb_out','models',f'{current_model.id}_final_model.xml')))
-        current_modelpath = Path(dir,'cmpb_out','models',f'{current_model.id}_final_model.xml')
-    else:
-        write_model_to_file(current_model, str(only_modelpath))
-        current_modelpath = only_modelpath
+    current_modelpath = between_save(current_model, dir, 'final_model',only_modelpath)
 
     # analysis
     ##########
