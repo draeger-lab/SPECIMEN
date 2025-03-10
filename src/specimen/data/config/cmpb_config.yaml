@@ -141,6 +141,11 @@ duplicates:
   # Additionally, remove unused metabolites (possibly reduces knowledge-base)
   remove_unused_metabs: False
 
+# optionally check reaction direction 
+# -----------------------------------
+reaction_direction: USER # Path to a Biocyc table containing information about reactions and their usual directionality
+
+
 # Finding and solvong Energy Generating Cycles (EGCs)
 # ---------------------------------------------------
 EGCs:

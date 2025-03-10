@@ -437,9 +437,10 @@ def run(configpath:Union[str,None]=None):
 
     # reaction direction
     # ------------------
+    # @TEST enabling this 
     if config['reaction_direction']:
         current_model = load_model(str(current_modelpath),'cobra')
-        current_model = check_direction(current_model, config['general']['namespace'])
+        current_model = check_direction(current_model, config['reaction_direction'])
 
     # save model
     current_modelpath = between_save(current_model, dir, 'after_reac_direction_change',only_modelpath)

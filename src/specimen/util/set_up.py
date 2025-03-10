@@ -32,8 +32,8 @@ HQTB_CONFIG_PATH_REQUIRED = ['annotated_genome','full_sequence','model','diamond
                              'media_analysis'] #: :meta: 
 CMPB_CONFIG_PATHS_REQUIRED = ['mediapath'] #: :meta:
 CMPB_CONFIG_PATHS_OPTIONAL = ['modelpath','full_genome_sequence','gff', 'protein_fasta',
-                              'gene-table','reacs-table','gff','swissprot-dmnd',
-                              'swissprot-mapping'] # :meta:
+                              'gene-table','reacs-table','gff','dmnd-database',
+                              'database-mapping', 'reaction_direction'] # :meta:
 PIPELINE_PATHS_OPTIONAL = {'hqtb':HQTB_CONFIG_PATH_OPTIONAL,
                   'cmpb':CMPB_CONFIG_PATHS_OPTIONAL} #: :meta: 
 PIPELINE_PATHS_REQUIRED = {'hqtb':HQTB_CONFIG_PATH_REQUIRED,
