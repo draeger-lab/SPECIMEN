@@ -49,17 +49,9 @@ logger = logging.getLogger(__name__)
 # functions
 ################################################################################
 
-    # ....................................................
-    # @TODO / @IDEA
-    # use temp folder or report all model/in-between steps
-    # what to write in the log file
-    # e.g. runtimes, warnings, hints and more
-    # ....................................................
-
-# dev notes
+# @NOTE
 #   in the run function: current_model means the cobrapy model, 
 #   while current_libmodel means the libsbml model
-# @TEST
 def run(configpath:Union[str,None]=None):
     """Run the CarveMe-ModelPolisher-based (CMPB) workflow.
 

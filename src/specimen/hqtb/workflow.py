@@ -18,8 +18,6 @@ import tempfile
 import warnings
 import yaml
 
-import sys
-
 from datetime import date
 from pathlib import Path
 
@@ -40,7 +38,6 @@ from .. import util
 # functions
 ################################################################################
 
-# @TODO rewrite gap filling to fit refineGEMs
 # @TODO add more annotation/cleanup stuff from refineGEMs
 # @TEST
 def run(config_file:str = 'test_config.yaml'):
@@ -121,7 +118,7 @@ def run(config_file:str = 'test_config.yaml'):
             # ...................
 
             core.refinement.extension.run(draft=Path(config["general"]["dir"],'02_generate_draft_model',modelname+'_draft.xml'),
-                                          gff=config['subject']['gff'],                # @TODO check, if this setup works
+                                          gff=config['subject']['gff'],                
                                           fasta=config['subject']['annotated_genome'], # with all - expected - input
                                           db=config['data']['diamond'],
                                           dir=Path(config["general"]["dir"]+'03_refinement'),
@@ -188,8 +185,6 @@ def run(config_file:str = 'test_config.yaml'):
                                         chunk_size=config['performance']['gapfilling']['chunk_size'],
                                         growth_threshold = config['parameters']['refinement_cleanup']['growth_threshold'],
                                         memote = config['general']['memote'])
-            
-            sys.exit('End of Testrun')
             
             # step 3.3: annotation
             # ....................
