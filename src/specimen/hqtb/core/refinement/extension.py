@@ -148,12 +148,6 @@ def run(draft:str, gff:str, fasta:str,
     except FileExistsError:
         print('Given directory already has required structure.')
 
-    try:
-        Path(dir,"manual_curation").mkdir(parents=True, exist_ok=False)
-        print(F'Creating new directory {str(Path(dir,"manual_curation"))}')
-    except FileExistsError:
-        print('Given directory already has required structure.')
-
     # ----------------------
     # identify missing genes
     # ----------------------
@@ -191,6 +185,9 @@ def run(draft:str, gff:str, fasta:str,
         kwargs = {'namespace': namespace, 'idprefix': prefix, 'formula_check': formula_check, 
                   'exclude_dna': exclude_dna, 'exclude_rna': exclude_rna} 
         extended_model = gp.fill_model(draft_libsbml, **kwargs)
+        
+        # save GapFiller report
+        gp.report(Path(dir,"step1-extension"))
         
         # save model
         write_model_to_file(extended_model, Path(dir,'step1-extension',name+'.xml'))

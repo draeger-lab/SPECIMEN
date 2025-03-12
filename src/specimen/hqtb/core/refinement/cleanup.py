@@ -21,6 +21,7 @@ from refinegems.classes.gapfill import multiple_cobra_gapfill, GeneGapFiller
 from refinegems.analysis.growth import read_media_config
 from refinegems.utility.connections import run_memote
 from refinegems.curation.curate import resolve_duplicates
+from refinegems.curation.polish import cv_ncbiprotein, polish
 
 ################################################################################
 # variables
@@ -279,6 +280,15 @@ def run(model:str, dir:str,
             write_model_to_file(model,tmp.name)
             libmodel = load_model(tmp.name,'libsbml')
         os.remove(tmp.name)
+        
+        # @BUG 
+        # need to run polish here as COBRApy 
+        # - in its current version -
+        # does not support labels
+        polish(libmodel, run_gene_gapfiller['mail'], 
+               'BiGG', run_gene_gapfiller['gff'],
+               path=Path(dir,"step2-clean-up"))
+        
         # run the gene gap filler
         ggf = GeneGapFiller()
         ggf.find_missing_genes(run_gene_gapfiller['gff'],
@@ -311,6 +321,8 @@ def run(model:str, dir:str,
             write_model_to_file(libmodel,tmp.name)
             model = load_model(tmp.name,'cobra')
         os.remove(tmp.name)
+        
+        ggf.report(Path(dir,"step2-cleanup"))
 
     # gap-filling via COBRApy medium
     # ------------------------------
