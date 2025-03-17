@@ -40,14 +40,13 @@ class SpecimenModelInfoReport(ModelInfoReport):
         super().__init__(model)
 
         # find out the origin of the reactions
-        reac_origin_counts = {'via template':0, 'via MetaNetX':0, 'via KEGG':0, 'via gapfilling':0, 'else':0}
+        reac_origin_counts = {'via template':0, 'refineGEMs based on MetaNetX':0, 'refineGEMs based on KEGG':0, 'refineGEMs based on BiGG':0, 'else':0}
         for reac in model.reactions:
             # get origin of reaction (based on workflow notation)
             if 'creation' in reac.notes.keys():
-                if reac.notes['creation'] in reac_origin_counts.keys():
-                    reac_origin_counts[reac.notes['creation']] += 1
-                else:
-                    reac_origin_counts['else'] += 1
+                reac_origin_counts['via template'] += 1
+            elif 'created with' in reac.notes.keys():
+                reac_origin_counts[reac.notes['created with']] += 1
             else:
                 reac_origin_counts['else'] += 1
         

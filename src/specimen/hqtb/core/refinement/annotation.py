@@ -59,11 +59,17 @@ def kegg_reaction_to_kegg_pathway(model:cobra.Model, viaEC:bool=False, viaRC:boo
                     for annotation in reac.annotation['kegg.reaction']:
                         reaction = kegg_reaction_parser(annotation)
                         if reaction is not None and 'db' in reaction and 'kegg.pathway' in reaction['db']:
-                           pathways.append(reaction['db']['kegg.pathway'])
+                            if isinstance(reaction['db']['kegg.pathway'],list):
+                                pathways.extend(reaction['db']['kegg.pathway'])
+                            else:
+                                pathways.append(reaction['db']['kegg.pathway'])
                 else:
                     reaction = kegg_reaction_parser(reac.annotation['kegg.reaction'])
                     if reaction is not None and 'db' in reaction and 'kegg.pathway' in reaction['db']:
-                        pathways = reaction['db']['kegg.pathway']
+                        if isinstance(reaction['db']['kegg.pathway'],list):
+                                pathways.extend(reaction['db']['kegg.pathway'])
+                        else:
+                            pathways.append(reaction['db']['kegg.pathway'])
             except urllib.error.HTTPError:
                 print(F'HTTPError: {reac.id}, {reac.annotation["kegg.reaction"]}')
             except ConnectionResetError:

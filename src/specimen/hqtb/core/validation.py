@@ -60,7 +60,7 @@ def run(dir:str, model_path:str, tests:None|Literal['cobra']=None, run_all:bool=
 
     try:
         Path(dir,"04_validation").mkdir(parents=True, exist_ok=False)
-        genlogger.info(F'Creating new directory {str(Path(dir,"04_validation"))}', file='validation.log')
+        genlogger.info(F'Creating new directory {str(Path(dir,"04_validation"))}')
     except FileExistsError:
         genlogger.info('Given directory already has required structure.')
 

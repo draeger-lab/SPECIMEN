@@ -38,8 +38,6 @@ from .. import util
 # functions
 ################################################################################
 
-# @TODO add more annotation/cleanup stuff from refineGEMs
-# @TEST
 def run(config_file:str = 'test_config.yaml'):
     """Run the complete workflow for creating a strain-specific model.
 
@@ -106,7 +104,7 @@ def run(config_file:str = 'test_config.yaml'):
                                           namespace=config['template']['namespace'],
                                           memote=config['general']['memote'])
 
-
+    
     # step 3: refinement
     # ------------------
     print('step 3/5: refinement\n\tprogress in logs->log_03_refinement.txt')
@@ -152,13 +150,13 @@ def run(config_file:str = 'test_config.yaml'):
             if config['parameters']['refinement_cleanup']['GeneGapFiller']:
                 gene_gapfiller_params = {'prefix':config['parameters']['refinement_cleanup']['idprefix'], 
                                          'type_db': config['parameters']['refinement_cleanup']['GeneGapFiller parameters']['type'], 
-                                         'fasta': config['parameters']['refinement-cleanup']['GeneGapFiller parameters']['fasta'], 
+                                         'fasta': config['parameters']['refinement_cleanup']['GeneGapFiller parameters']['fasta'], 
                                          'dmnd_db': config['parameters']['refinement_cleanup']['GeneGapFiller parameters']['dmnd-database'], 
                                          'map_db': config['parameters']['refinement_cleanup']['GeneGapFiller parameters']['database-mapping'], 
                                          'mail': config['parameters']['general']['email'], 
                                          'check_NCBI': config['parameters']['refinement_cleanup']['GeneGapFiller parameters']['check-NCBI'],
                                          'threshold_add_reacs': config['parameters']['refinement_cleanup']['threshold_add_reacs'], 
-                                         'sens': config['parameters']['refinement_cleanup']['GeneGapFiller parameters']['ensitivity'], 
+                                         'sens': config['parameters']['refinement_cleanup']['GeneGapFiller parameters']['sensitivity'], 
                                          'cov': config['parameters']['refinement_cleanup']['GeneGapFiller parameters']['coverage'], 
                                          't': config['performance']['threads'], 
                                          'pid': config['parameters']['refinement_cleanup']['GeneGapFiller parameters']['percentage identity'], 
@@ -185,6 +183,7 @@ def run(config_file:str = 'test_config.yaml'):
                                         chunk_size=config['performance']['gapfilling']['chunk_size'],
                                         growth_threshold = config['parameters']['refinement_cleanup']['growth_threshold'],
                                         memote = config['general']['memote'])
+            
             
             # step 3.3: annotation
             # ....................

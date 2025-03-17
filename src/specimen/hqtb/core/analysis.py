@@ -13,6 +13,7 @@ import warnings
 from pathlib import Path
 from typing import Literal
 
+from refinegems.classes.medium import load_media
 from refinegems.analysis import growth
 from refinegems.utility.io import load_model
 from refinegems.analysis.core_pan import compare_to_core_pan
@@ -125,7 +126,7 @@ def run(model_path:str, dir:str,
 
         # test auxotrophies
         if test_aa_auxotrophies:
-            media_list = growth.read_media_config(media_path)
+            media_list = load_media(media_path)
             auxo_report = growth.test_auxotrophies(model, media_list[0], media_list[1], namespace)
             auxo_report.save(Path(dir,'05_analysis'))
 

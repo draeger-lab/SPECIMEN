@@ -18,10 +18,9 @@ from typing import Literal,Union
 
 from refinegems.utility.io import load_model, write_model_to_file
 from refinegems.classes.gapfill import multiple_cobra_gapfill, GeneGapFiller
-from refinegems.analysis.growth import read_media_config
+from refinegems.analysis.growth import load_media
 from refinegems.utility.connections import run_memote
 from refinegems.curation.curate import resolve_duplicates
-from refinegems.curation.polish import cv_ncbiprotein, polish
 
 ################################################################################
 # variables
@@ -281,14 +280,6 @@ def run(model:str, dir:str,
             libmodel = load_model(tmp.name,'libsbml')
         os.remove(tmp.name)
         
-        # @BUG 
-        # need to run polish here as COBRApy 
-        # - in its current version -
-        # does not support labels
-        polish(libmodel, run_gene_gapfiller['mail'], 
-               'BiGG', run_gene_gapfiller['gff'],
-               path=Path(dir,"step2-clean-up"))
-        
         # run the gene gap filler
         ggf = GeneGapFiller()
         ggf.find_missing_genes(run_gene_gapfiller['gff'],
@@ -316,6 +307,8 @@ def run(model:str, dir:str,
                                   exclude_rna = run_gene_gapfiller['exclude_rna']
                                 )
         
+        write_model_to_file(libmodel,Path(dir,"step2-clean-up",'after_2ndGF_nogff.xml'))
+        
         # re-load model with cobrapy
         with NamedTemporaryFile(suffix='.xml', delete=False) as tmp:
             write_model_to_file(libmodel,tmp.name)
@@ -332,7 +325,7 @@ def run(model:str, dir:str,
 
     # load media from config file
     if media_path:
-        media_list = read_media_config(media_path)
+        media_list = load_media(media_path)
         
     #   separate option for cobra gapfilling 
     if len(media_list) > 0:
