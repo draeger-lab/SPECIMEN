@@ -135,8 +135,7 @@ def create_NCBIinfo_mapping(dir:str, out:str, extension:Literal['gbff']='gbff'):
                 case 'gbff':
                     info = parse_gbff_for_cds(file_name)
                 case 'gff':
-                    # @DISCUSSION would this option be useful?
-                    raise NotImplementedError('This options is under discussion and has yet to be implemented.')
+                    raise NotImplementedError('This option is under discussion and has yet to be implemented.')
                     
                 case _:
                     raise ValueError(f'Unknown file extension {extension}')

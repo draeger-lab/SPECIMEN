@@ -115,28 +115,28 @@ def run(config_file:str = 'test_config.yaml'):
             # step 3.1: extension
             # ...................
 
-            core.refinement.extension.run(draft=Path(config["general"]["dir"],'02_generate_draft_model',modelname+'_draft.xml'),
-                                          gff=config['subject']['gff'],                
-                                          fasta=config['subject']['annotated_genome'], # with all - expected - input
-                                          db=config['data']['diamond'],
-                                          dir=Path(config["general"]["dir"]+'03_refinement'),
-                                          
-                                          ncbi_mapping=config['data']['ncbi_map'],
-                                          email=config['parameters']['general']['email'], 
-                                          
-                                          sensitivity=config['parameters']['refinement_extension']['sensitivity'],
-                                          coverage=config['parameters']['refinement_extension']['coverage'],
-                                          pid=config['parameters']['refinement_extension']['pid'],
-                                          threads=config['performance']['threads'],
-                                          
-                                          threshold_add_reacs=config['parameters']['refinement_extension']['threshold_add_reacs'],
-                                          prefix=config['parameters']['general']['idprefix'],
-                                          namespace=config['parameters']['general']['namespace'],
-                                          formula_check=config['parameters']['refinement_extension']['formula-check'],
-                                          exclude_dna=config['parameters']['refinement_extension']['exclude-dna'],
-                                          exclude_rna=config['parameters']['refinement_extension']['exclude-rna'],
-                                          
-                                          memote=config['general']['memote'])
+            core.refinement.extend(draft=Path(config["general"]["dir"],'02_generate_draft_model',modelname+'_draft.xml'),
+                                   gff=config['subject']['gff'],                
+                                   fasta=config['subject']['annotated_genome'], # with all - expected - input
+                                   db=config['data']['diamond'],
+                                   dir=Path(config["general"]["dir"]+'03_refinement'),
+                                   
+                                   ncbi_mapping=config['data']['ncbi_map'],
+                                   email=config['parameters']['general']['email'], 
+                                   
+                                   sensitivity=config['parameters']['refinement_extension']['sensitivity'],
+                                   coverage=config['parameters']['refinement_extension']['coverage'],
+                                   pid=config['parameters']['refinement_extension']['pid'],
+                                   threads=config['performance']['threads'],
+                                   
+                                   threshold_add_reacs=config['parameters']['refinement_extension']['threshold_add_reacs'],
+                                   prefix=config['parameters']['general']['idprefix'],
+                                   namespace=config['parameters']['general']['namespace'],
+                                   formula_check=config['parameters']['refinement_extension']['formula-check'],
+                                   exclude_dna=config['parameters']['refinement_extension']['exclude-dna'],
+                                   exclude_rna=config['parameters']['refinement_extension']['exclude-rna'],
+                                   
+                                   memote=config['general']['memote'])
             # step 3.2: cleanup
             # .................
             
@@ -167,45 +167,45 @@ def run(config_file:str = 'test_config.yaml'):
             else:
                 gene_gapfiller_params = None
                 
-            core.refinement.cleanup.run(Path(config["general"]["dir"],'03_refinement','step1-extension',modelname+'_extended.xml'),
-                                        Path(config["general"]["dir"],'03_refinement'),
-                                        run_gene_gapfiller=gene_gapfiller_params,
-                                        biocyc_db=config['data']['biocyc'],
-                                        check_dupl_reac = config['parameters']['refinement_cleanup']['check_dupl_reac'],
-                                        check_dupl_meta = config['parameters']['refinement_cleanup']['check_dupl_meta'],
-                                        remove_unused_meta = config['parameters']['refinement_cleanup']['remove_unused_meta'],
-                                        remove_dupl_reac = config['parameters']['refinement_cleanup']['remove_dupl_reac'],
-                                        remove_dupl_meta = config['parameters']['refinement_cleanup']['remove_dupl_meta'],
-                                        universal = universal,
-                                        media_path = config['parameters']['refinement_cleanup']['media_gap'],
-                                        namespace = config['template']['namespace'],
-                                        iterations=config['performance']['gapfilling']['iterations'],
-                                        chunk_size=config['performance']['gapfilling']['chunk_size'],
-                                        growth_threshold = config['parameters']['refinement_cleanup']['growth_threshold'],
-                                        memote = config['general']['memote'])
+            core.refinement.cleanup(Path(config["general"]["dir"],'03_refinement','step1-extension',modelname+'_extended.xml'),
+                                    Path(config["general"]["dir"],'03_refinement'),
+                                    run_gene_gapfiller=gene_gapfiller_params,
+                                    biocyc_db=config['data']['biocyc'],
+                                    check_dupl_reac = config['parameters']['refinement_cleanup']['check_dupl_reac'],
+                                    check_dupl_meta = config['parameters']['refinement_cleanup']['check_dupl_meta'],
+                                    remove_unused_meta = config['parameters']['refinement_cleanup']['remove_unused_meta'],
+                                    remove_dupl_reac = config['parameters']['refinement_cleanup']['remove_dupl_reac'],
+                                    remove_dupl_meta = config['parameters']['refinement_cleanup']['remove_dupl_meta'],
+                                    universal = universal,
+                                    media_path = config['parameters']['refinement_cleanup']['media_gap'],
+                                    namespace = config['template']['namespace'],
+                                    iterations=config['performance']['gapfilling']['iterations'],
+                                    chunk_size=config['performance']['gapfilling']['chunk_size'],
+                                    growth_threshold = config['parameters']['refinement_cleanup']['growth_threshold'],
+                                    memote = config['general']['memote'])
             
             
             # step 3.3: annotation
             # ....................
             
-            core.refinement.annotation.run(Path(config["general"]["dir"],'03_refinement','step2-clean-up',modelname+'_clean.xml'),
-                                           Path(config["general"]["dir"],'03_refinement'),
-                                           kegg_viaEC=config['parameters']['refinement_annotation']['viaEC'],
-                                           kegg_viaRC=config['parameters']['refinement_annotation']['viaRC'],
-                                           memote=config['general']['memote'])
+            core.refinement.annotate(Path(config["general"]["dir"],'03_refinement','step2-clean-up',modelname+'_clean.xml'),
+                                     Path(config["general"]["dir"],'03_refinement'),
+                                     kegg_viaEC=config['parameters']['refinement_annotation']['viaEC'],
+                                     kegg_viaRC=config['parameters']['refinement_annotation']['viaRC'],
+                                     memote=config['general']['memote'])
             
             # step 3.4: smoothing
             # ...................
             
-            core.refinement.smoothing.run(config['subject']['full_sequence'],
-                                          Path(config["general"]["dir"],'03_refinement','step3-annotation',modelname+'_annotated.xml'),
-                                          Path(config["general"]["dir"],'03_refinement'),
-                                          mcc=config['parameters']['refinement_smoothing']['mcc'],
-                                          egc_solver = config['parameters']['refinement_smoothing']['egc'],
-                                          namespace = config['template']['namespace'],
-                                          dna_weight_frac=config['parameters']['refinement_smoothing']['dna_weight_frac'],
-                                          ion_weight_frac=config['parameters']['refinement_smoothing']['ion_weight_frac'],
-                                          memote=config['general']['memote'])
+            core.refinement.smooth(config['subject']['full_sequence'],
+                                   Path(config["general"]["dir"],'03_refinement','step3-annotation',modelname+'_annotated.xml'),
+                                   Path(config["general"]["dir"],'03_refinement'),
+                                   mcc=config['parameters']['refinement_smoothing']['mcc'],
+                                   egc_solver = config['parameters']['refinement_smoothing']['egc'],
+                                   namespace = config['template']['namespace'],
+                                   dna_weight_frac=config['parameters']['refinement_smoothing']['dna_weight_frac'],
+                                   ion_weight_frac=config['parameters']['refinement_smoothing']['ion_weight_frac'],
+                                   memote=config['general']['memote'])
 
     # step 4: validation
     # ------------------

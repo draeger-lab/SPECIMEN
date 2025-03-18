@@ -91,13 +91,9 @@ def edit_template_identifiers(data:pd.DataFrame, edit:Literal['no','dot-to-under
             data['subject_ID'] = [x.replace('.','_') for x in data['subject_ID']]
             return data
         case _:
-            mes = 'Unknown option for parameter edit. Nothing will be edited.'
+            mes = 'Unknown option for parameter edit. Nothing will be edited. If you need another option, contact the developers.'
             logger.warning(mes)
             return data
-        # ...........
-        # @TODO
-        # extend with further options
-        # ...........
 
 
 def remove_absent_genes(model:cobra.Model, genes:list[str]) -> cobra.Model:
@@ -312,7 +308,7 @@ def gen_draft_model(model:cobra.Model, bbh:pd.DataFrame,
             pass
         # set all exchanges open + as medium
         case 'exchanges':
-            # @NOTE: gapfilling using cobra becomes not feasible using this option
+            logger.warning('Medium set to exchanges. If gap filling with COBRApy is enabled, there is a high possibility, the program will crash with an infeasible error.')
             model.medium = {_.id:1000.0 for _ in model.exchanges}
         # use a medium from the refinegems database
         case str():

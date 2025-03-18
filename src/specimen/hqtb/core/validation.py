@@ -33,8 +33,6 @@ logger.propagate = False
 # functions
 ################################################################################
 
-# @TODO: add more validation options.
-
 def run(dir:str, model_path:str, tests:None|Literal['cobra']=None, run_all:bool=True):
     """SPECIMEN Step 4: Validate the model.
 
