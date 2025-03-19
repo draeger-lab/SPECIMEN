@@ -595,7 +595,6 @@ def annotate(model:str, dir:str, kegg_viaEC:bool=False,
             Optionally run memote after the annotation. 
             Defaults to False.
     """
-    
 
     print('\nrefinement step 3: annotation\n################################################################################\n')
 
@@ -641,15 +640,6 @@ def annotate(model:str, dir:str, kegg_viaEC:bool=False,
     end = time.time()
     print(F'\ttime: {end - start}s')
 
-    # reload model
-    model = load_model(str(Path(dir,'step3-annotation',model.getId()+'_SBOannotated.xml')), 'cobra')
-
-    # ................................................................
-    # @EXTENDABLE
-    #    possible to add more functions using model as in- and output
-    #    to further annotated the model
-    # ................................................................
-
     # ----------------
     # add KEGG pathway
     # ----------------
@@ -657,15 +647,16 @@ def annotate(model:str, dir:str, kegg_viaEC:bool=False,
 
     start = time.time()
 
-    set_kegg_pathways() # @TODO adjust for parameters in refinegems
-
+    libmodel, nokegg = set_kegg_pathways(str(Path(dir,'step3-annotation',model.getId()+'_SBOannotated.xml')),
+                                         viaEC=kegg_viaEC,
+                                         viaRC=kegg_viaRC) 
+    write_model_to_file(libmodel, str(Path(dir,'step3-annotation',model.getId()+'_keggpathways.xml')))
+    with open(str(Path(dir,'step3-annotation','reac_no_keggORec')), 'w') as f:
+        for line in nokegg:
+            f.write(f'{line}\n')
+    
     end = time.time()
     print(F'\ttime: {end - start}s')
-
-    # ----------
-    # save model
-    # ----------
-    cobra.io.write_sbml_model(model, Path(dir,'step3-annotation',model.id+'_annotated.xml'))
 
     # ---------------------------------
     # assess model quality using memote
@@ -673,6 +664,7 @@ def annotate(model:str, dir:str, kegg_viaEC:bool=False,
 
     if memote:
         start = time.time()
+        model = load_model(str(Path(dir,'step3-annotation',model.getId()+'_keggpathways.xml'),'cobra'))
         name = model.id
         memote_path = str(Path(dir,'step3-annotation',name+'_annotated.html'))
         run_memote(model, 'html', return_res=False, save_res=memote_path, verbose=True)
