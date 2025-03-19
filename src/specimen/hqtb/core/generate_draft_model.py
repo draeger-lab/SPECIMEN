@@ -18,7 +18,7 @@ from typing import Literal,Union
 
 from refinegems.classes.medium import load_medium_from_db, medium_to_model
 from refinegems.utility.io import load_model
-from refinegems.utility.entities import resolve_compartment_names
+from refinegems.utility.entities import resolve_compartment_names, remove_non_essential_genes
 from refinegems.utility.util import test_biomass_presence
 from refinegems.utility.connections import run_memote
 
@@ -236,31 +236,7 @@ def check_unchanged(draft:cobra.Model, bbh:pd.DataFrame) -> cobra.Model:
     not_renamed = [x for x in draft.genes if not x.id in query_ids]
     logger.info(F'\tnumber of not renamed genes: {len(not_renamed)}')
 
-    to_delete = 0
-    essential_counter = 0
-    remove = False
-
-    # ..........................................................
-    # @TODO: 
-    # -- faster
-    # -- what about double etc. deletions or combined deletions?
-    # ..........................................................
-    for g in not_renamed:
-        with draft as model:
-            g.knock_out()
-            res = model.optimize()
-            if res.objective_value > MIN_GROWTH_THRESHOLD:
-                # set for deletion
-                remove = True
-                to_delete += 1
-            else:
-                # keep
-                essential_counter += 1
-
-        # delete gene
-        if remove:
-            cobra.manipulation.delete.remove_genes(draft, [g], remove_reactions=True)
-            remove = False
+    to_delete, essential_counter = remove_non_essential_genes(draft, genes_to_check=not_renamed)
 
     logger.info(F'\tremoved {to_delete} non-essential genes')
     logger.info(F'\tkept {essential_counter} essential genes')

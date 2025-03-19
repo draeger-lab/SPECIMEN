@@ -157,9 +157,6 @@ def extend(draft:str, gff:str, fasta:str,
         - ValueError: Unknown sensitivity mode.
     """
     
-    # @DISCUSSION : add more print-out / logging about which step is currently running?
-    
-
     if not sensitivity in ['sensitive','more-sensitive','very-sensitive','ultra-sensitive']:
         raise ValueError(F'Unknown sensitivity mode {sensitivity}. Choose from: sensitive, more-sensitive, very-sensitive, ultra-sensitive')
 
@@ -178,9 +175,7 @@ def extend(draft:str, gff:str, fasta:str,
     # ----------------------
     # identify missing genes
     # ----------------------
-    
-    # start = time.time() # @DISCUSSION maybe add this functionality to param / report of the gapfiller
-    
+
     # load model
     draft_libsbml = load_model(draft, 'libsbml')
     draft_cobra = load_model(draft, 'cobra')
@@ -244,7 +239,10 @@ def check_direction(model:cobra.Model,data_file:str) -> cobra.Model:
     database table (need to contain at least the following columns:
     Reactions (MetaCyc ID),EC-Number,KEGG reaction,METANETX,Reaction-Direction.
 
-    @NOTE: checks only creations that do not contain the notes['creation'] == 'via template'
+    ..note::
+
+        Checks only creations that do not contain the notes['creation'] == 'via template',
+        assuming the template was well curated.
 
     Args:
         - model (cobra.Model): 
@@ -550,7 +548,6 @@ def cleanup(model:str, dir:str,
     # ---------------------
     # dead ends and orphans
     # ---------------------
-    # @DISCUSSION About what to do with/how to handle dead-ends & orphans
     # (currently no removal of dead ends and orphans as they may be interesting
     # for manual curation)
 

@@ -169,7 +169,6 @@ def refinement():
     """Step 3 of the workflow: Refinement of the model
     """
 
-# @TEST reworked after fixing extension
 @refinement.command()
 @click.option('--draft', type=str, required=True, help='Path to the draft model.')
 @click.option('--gff', type=str, required=True, help='Path to the gff file of the draft model.')
@@ -203,7 +202,7 @@ def extension(draft, gff, fasta, db, dir,
     draft, fasta, db, dir,
 
     """
-    specimen.hqtb.core.refinement.extension.run(draft, gff, fasta, db, dir,
+    specimen.hqtb.core.refinement.extend(draft, gff, fasta, db, dir,
         ncbi_map, mail,
         sensitivity,
         coverage, pid, threads,
@@ -212,73 +211,10 @@ def extension(draft, gff, fasta, db, dir,
         memote)
 
 
-# @DISCUSSION with the current amount of params, command line access is not feasible
-#  @IDEA: use config, promts etc.
-#  @NOTE: the current version DOES NOT work - its for an older cleanup function!!!
 # @refinement.command()
-# @click.argument('model', type=str)
-# @click.option('--dir','-d', type=str, default='./refinement/', help='Path to the directory for the output (directories)')
-# # check directionality
-# @click.option('--biocyc_db', type=str, required=False, help='Path to the BioCyc (MetaCyc) database information file (for reactions). Optional, but recommended. Necessary for checking directionality')
-# # check duplicates
-# @click.option('--check_dupl_reac', '--cdr', is_flag=True, default=False, help='Check for duplicate reactions.')
-# @click.option('--check_dupl_meta', '--cdm', default='default', type=click.Choice(['default', 'skip', 'exhaustive']), help='Check for duplicate metabolites. Can "default" (starting point MetaNetX), exhaustive (iterate over all annotations as starting points) or "skip".')
-# @click.option('--objective_function', '--of', type=str, default='Growth', help='Name, ID of the objective function of the model. Default is "Growth".')
-# @click.option('--remove_dupl_meta', '--rdm', is_flag=True, default=False, help='Option for removing/replacing duplicate metabolites.')
-# @click.option('--remove_unused_meta', '--rum', is_flag=True, default=False, help='Option for removing unused metabolites from the model. Only used when cdm is not skipped.')
-# @click.option('--remove_dupl_reac', '--rdr', is_flag=True, default=False, help='Option for removing duplicate reaction from the model.')
-# # perform gapfilling
-# @click.option('--universal', '-u', required=False, type=str, help='Path to a universal model containing reactions used for gapfilling.')
-# @click.option('--media-path', '--mp', required=False, type=str, default=None, help='Path to a media config to use for gapfilling.')
-# @click.option('--namespace','--nsp', required=False, type=click.Choice(['BiGG']), help='Namespace to use for the model.')
-# @click.option('--growth_threshold', '-gt', default=0.05, show_default=True, type=float, help='Threshold value for a model to be considered growing.')
-# @click.option('--iterations', '-i', type=int, default=3, show_default=True, help='Number of iterations for the gapfilling. If 0 is passed, uses full set of reactions instead of heuristic.')
-# @click.option('--chunk_size', type=int, default=10000, show_default=True, help='Number of reactions to be tested simultaniously if using the heuristic version of gapfilling. If this is 0, heuristic will not be applied.')
-# # evaluate with memote
-# @click.option('--memote', is_flag=True, default=False, help='Use memote on the extended model.')
-# def cleanup(model,
-#     dir,
-#     biocyc_db,
-#     check_dupl_reac,
-#     check_dupl_meta,
-#     objective_function,
-#     remove_unused_meta,
-#     remove_dupl_reac,
-#     remove_dupl_meta,
-#     universal,
-#     mp,
-#     nsp,
-#     growth_threshold,
-#     iterations,
-#     chunk_size,
-#     memote):
-#     """Refinement step 2: cleanup
-
-#     Includes (all steps are optional):\n
-#     - directionality check,\n
-#     - completetion of BioCyc/MetaCyc annotations,\n
-#     - duplicate removal,\n
-#     - gapfilling
-
-#     MODEL is the path to the model to perform the this refinement step on.
-#     Ideally in the format of this workflow or the results might differ.
-#     """
-#     specimen.hqtb.core.refinement.cleanup.run(model,
-#         dir,
-#         biocyc_db,
-#         check_dupl_reac,
-#         check_dupl_meta,
-#         objective_function,
-#         remove_unused_meta,
-#         remove_dupl_reac,
-#         remove_dupl_meta,
-#         universal,
-#         mp,
-#         nsp,
-#         growth_threshold,
-#         iterations,
-#         chunk_size,
-#         memote)
+# ...
+# def cleanup():
+#    pass
     
 
 @refinement.command()
@@ -297,11 +233,11 @@ def annotation(model,dir,kegg_via_ec,kegg_via_rc,memote):
 
     MODEL is the path to the model to be annotated.
     """
-    specimen.hqtb.core.refinement.annotation.run(model,
-                                            dir,
-                                            kegg_viaEC=kegg_via_ec,
-                                            kegg_viaRC=kegg_via_rc,
-                                            memote=memote)
+    specimen.hqtb.core.refinement.annotate(model,
+                                           dir,
+                                           kegg_viaEC=kegg_via_ec,
+                                           kegg_viaRC=kegg_via_rc,
+                                           memote=memote)
 
 
 
@@ -328,12 +264,11 @@ def smoothing(model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, egc, na
     MODEL is the path to the model that is to b refined.\n
     Further required is a genome FASTA file of the genome the model was build on.
     """
-    specimen.hqtb.core.refinement.smoothing.run(genome, model, dir, mcc, 
-                                           egc,
-                                           namespace,
-                                           dna_weight_frac, ion_weight_frac, 
-                                           memote)
-
+    specimen.hqtb.core.refinement.smooth(genome, model, dir, mcc, 
+                                         egc,
+                                         namespace,
+                                         dna_weight_frac, ion_weight_frac, 
+                                         memote) 
 
 # validation
 # ----------

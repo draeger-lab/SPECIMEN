@@ -66,9 +66,7 @@ class SpecimenModelInfoReport(ModelInfoReport):
         table['#reaction origin'] = str(self.reac_origin_c).replace('{',r'').replace('}',r'').replace('\'',r'')
         return table
     
-    # depending on the implementation, save and make html 
-    # can be inherited or need to be overwritten 
-    # @TODO
+
     def visualise(self, color_palette: str = 'YlGn') -> tuple[matplotlib.figure.Figure]:
         """Extend the visualisation function to include a graph for the creation type.
 
@@ -84,7 +82,6 @@ class SpecimenModelInfoReport(ModelInfoReport):
                 (2) matplotlib.figure.Figure: Report for the creation origin.
         """
 
-        # @DISCUSSION maybe change plot type, as with small numbers its barely visible
         def plot_origin(data, color_palette):
 
             # create colour gradient

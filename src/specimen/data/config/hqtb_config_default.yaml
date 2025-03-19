@@ -92,7 +92,7 @@ parameters:
         # identifiers of the annotated genome file, use this option to edit them
         edit_names: "no"
         pid: 80.0
-        medium: default # @TODO explaination 
+        medium: default 
 
     ########## step 3: refinement ###########
     ########## step 3.1: extension ##########
@@ -138,9 +138,9 @@ parameters:
         
         # enable algorithms ________________________________________
         # via KEGG ..................
-        # @IDEA
+        # ...
         # via BioCyc .................
-        # @IDEA
+        # ...
         # via GFF ....................
         GeneGapFiller: False              # Activate gap filling via GFF
         GeneGapFiller parameters: 
@@ -194,7 +194,7 @@ parameters:
         # How to compare to pan-core model (current option only id)
         pc_based_on: id
         # simulate growth on different media (media config file (refineGEMs) required)
-        media_analysis: __USER__ # @IDEA edit to fit a default media config file
+        media_analysis: __USER__ 
         # test for amino acid auxotrophies
         test_aa_auxotrophies: True
         # perform pathway analysis with KEGG

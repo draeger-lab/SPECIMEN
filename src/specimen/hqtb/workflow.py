@@ -28,12 +28,6 @@ from .. import util
 #        - DIAMOND, tested with version 0.9.14 (sensitivity options fail), >2.0.4 (everything works)
 #        - MEMOTE,  tested with version 0.13.0
 
-# @NOTE: logging has been changes in (some) submodules
-# @DISCUSSION : or change the other modules logging to use stdout again instead of files
-# @TODO: adjust logging 
-# -> remove setting a log folder and the logs on this level
-# -> make a logging file for this module using logging
-
 ################################################################################
 # functions
 ################################################################################

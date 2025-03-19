@@ -27,7 +27,7 @@ from refinegems.utility.set_up import download_config as rg_config
 
 # config keys for pipeline files
 HQTB_CONFIG_PATH_OPTIONAL = ['media_gap', 'ncbi_map','biocyc','universal','pan-core',
-                             'fasta','gff','dmnd-database','database-mapping'] #: :meta: # @WARNING gff is both in optional and required params - dows this cause issues here? 
+                             'fasta','gff','dmnd-database','database-mapping'] #: :meta: 
 HQTB_CONFIG_PATH_REQUIRED = ['annotated_genome','full_sequence','model','diamond',
                              'media_analysis'] #: :meta: 
 CMPB_CONFIG_PATHS_REQUIRED = ['mediapath'] #: :meta:
@@ -168,7 +168,6 @@ def download_config(filename:str='my_basic_config.yaml', type:Literal['hqtb-basi
 # hqtb
 # ----
 
-# @TODO improve & cleanup
 def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
     """Validate a user hqtb config file for use in the pipeline.
 
@@ -228,7 +227,6 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
             if dictA == '__USER__':
                 raise TypeError(F'Missing a required argument in the config file ({key}).')
             elif dictA == 'USER':
-                # @TODO 
                 mes = F'Keyword USER detected in config ({key}). Either due to skipped options or missing required information.\nReminder: This may lead to downstream problems.'
                 logging.warning(mes)
                 return None
@@ -240,7 +238,6 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
         return dictA
 
 
-    # @TODO: extent - include more checks
     def dict_recursive_check(dictA:dict, key:str=None, 
                              pipeline:Literal['hqtb','cmpb']='hqtb'):
         """Helper-function for :py:func:`~specimen.util.set_up.validate_config` 
@@ -300,7 +297,6 @@ def validate_config(userc:str, pipeline:Literal['hqtb','cmpb']='hqtb') -> dict:
                     raise FileNotFoundError(F'Directory does not exist: {dictA}')
             # not found or missing
             else:
-                # @TODO
                 pass
                 
             return

@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
 # functions
 ################################################################################
 
-# @NOTE
+# dev notes:
 #   in the run function: current_model means the cobrapy model, 
 #   while current_libmodel means the libsbml model
 def run(configpath:Union[str,None]=None):
@@ -305,7 +305,7 @@ def run(configpath:Union[str,None]=None):
                                    mail = config['tech-resources']['email'],
                                    check_NCBI = config['gapfilling']['GeneGapFiller parameters']['check-NCBI'],
                                    threshold_add_reacs = threshold_add_reacs,
-                                   outdir = Path(dir,"cmpb_out",'misc', 'gapfill'), # @DISCUSSION or would a subfolder be better?
+                                   outdir = Path(dir,"cmpb_out",'misc', 'gapfill'), 
                                    sens = config['gapfilling']['GeneGapFiller parameters']['sensitivity'],
                                    cov = config['gapfilling']['GeneGapFiller parameters']['coverage'],
                                    t = config['tech-resources']['threads'],
@@ -339,7 +339,7 @@ def run(configpath:Union[str,None]=None):
         
         result = mp.polish_model_file(current_modelpath, config_mp)
         
-        # @DISCUSSION Should the run-id be saved somewhere for debugging purposes? result['run_id']
+        # @DEBUG Should the run-id be saved somewhere for debugging purposes? result['run_id']
         pd.DataFrame(result['diff']).to_csv(Path(dir,'cmpb_out','misc','modelpolisher','diff_mp.csv'), sep=';', header=False)
         pd.DataFrame(result['pre_validation']).to_csv(Path(dir,'cmpb_out','misc','modelpolisher','pre_validation.csv'), sep=';', header=True)
         pd.DataFrame(result['post_validation']).to_csv(Path(dir,'cmpb_out','misc','modelpolisher','post_validation.csv'), sep=';', header=True)
@@ -429,7 +429,6 @@ def run(configpath:Union[str,None]=None):
 
     # reaction direction
     # ------------------
-    # @TEST enabling this 
     if config['reaction_direction']:
         current_model = load_model(str(current_modelpath),'cobra')
         current_model = check_direction(current_model, config['reaction_direction'])
@@ -446,7 +445,8 @@ def run(configpath:Union[str,None]=None):
         case 'greedy':
             print('Using GreedyEGCSolver...')
             solver = egcs.GreedyEGCSolver()
-            results = solver.solve_egcs(current_model,namespace=config['general']['namespace']) # @NOTE automatically uses c,p as compartments 
+            # automatically uses c,e as compartments 
+            results = solver.solve_egcs(current_model,namespace=config['general']['namespace']) 
             if results: 
                 logger.info('results:')
                 for k,v in results.items():
@@ -456,7 +456,8 @@ def run(configpath:Union[str,None]=None):
         case _:
             solver = egcs.EGCSolver()
             logger.info(f'\tFound EGCs:\n')
-            logger.info(f'\t{solver.find_egcs(current_model,with_reacs=True,namespace=config["general"]["namespace"])}') # @NOTE automatically uses c,p as compartments 
+            # automatically uses c,e as compartments 
+            logger.info(f'\t{solver.find_egcs(current_model,with_reacs=True,namespace=config["general"]["namespace"])}') 
        
     if results:
         current_modelpath = between_save(current_model, dir, 'after_egc_fix',only_modelpath)
@@ -540,17 +541,13 @@ def run(configpath:Union[str,None]=None):
                      color_palette=config['general']['colours']) 
 
 
-####### IDEAS below ####
-
-# @TODO 
-# - Add option to have specific colour list per model for plots
-    # for the comparison when runnin this on multiple models
-# - Maybe get models at first and then add model IDs to every save filename?
-# - Add optional FROG report at end of pipeline
 
 # run for multiple models
 @implement
 def wrapper():
     """Run given settings for the CarveMe-ModelPolisher-based (CMPB) workflow on multiple models.
     """
+    # - Add option to have specific colour list per model for plots
+    # for the comparison when runnin this on multiple models
+    # - Maybe get models at first and then add model IDs to every save filename?
     pass

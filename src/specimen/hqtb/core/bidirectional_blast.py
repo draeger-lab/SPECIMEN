@@ -401,11 +401,6 @@ def run(template:str, input:str, dir:str,
     if sensitivity not in ['sensitive','more-sensitive','very-sensitive','ultra-sensitive']:
         raise ValueError(F'Unknown sensitive mode {sensitivity}. Please choose one of the following: sensitive, more-sensitive, very-sensitive, ultra-sensitive')
 
-    # ......................
-    # @DISCUSSION
-    #    when to use protein_id and when to use locus_tag as default (prokka vs ncbi)? 
-    # ......................
-
     # -------------
     # start program
     # -------------
