@@ -127,7 +127,10 @@ mp:
 
 # Add KEGG pathways as groups, optional
 # -------------------------------------
-kegg_pathway_groups: True
+kegg_pathway_groups: 
+  add: True     # enable checking and setting kegg pathways (groups)
+  viaRC: False  # enable checking for kegg.pathway via reaction class (increases run time)
+  viaEC: False  # enable checking for kegg.pathway via ec number (increases run time)
 
 # Resolve duplicates
 # ------------------

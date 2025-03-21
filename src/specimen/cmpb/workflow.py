@@ -22,15 +22,13 @@ from cobra import Reaction,Model
 from libsbml import Model as libModel
 
 from refinegems.analysis import growth
-from refinegems.analysis.investigate import plot_rea_sbo_single
-from refinegems.classes.reports import ModelInfoReport
+from refinegems.classes.reports import ModelInfoReport, SBOTermReport
 from refinegems.utility.util import test_biomass_presence
 from refinegems.curation.biomass import check_normalise_biomass
 from refinegems.curation.charges import correct_charges_modelseed
-from refinegems.curation.curate import resolve_duplicates
+from refinegems.curation.curate import resolve_duplicates, check_direction, polish_model
 from refinegems.classes.gapfill import KEGGapFiller, BioCycGapFiller, GeneGapFiller
-from refinegems.curation.pathways import kegg_pathways, kegg_pathway_analysis
-from refinegems.curation.polish import polish, check_direction
+from refinegems.curation.pathways import set_kegg_pathways, kegg_pathway_analysis
 from refinegems.utility.entities import resolve_compartment_names, are_compartment_names_valid
 from refinegems.utility.connections import run_memote, perform_mcc, adjust_BOF, run_SBOannotator
 from refinegems.utility.io import load_model, write_model_to_file
@@ -219,14 +217,14 @@ def run(configpath:Union[str,None]=None):
     # check, if input is a CarveMe model
     if 'CarveMe' in current_libmodel.getAnnotationString():
         Path(dir,"cmpb_out",'misc', 'wrong_annotations').mkdir(parents=True, exist_ok=False)
-        current_libmodel = polish(current_libmodel, 
-                                  email = config['tech-resources']['email'],
-                                  id_db = config['general']['namespace'],
-                                  gff = config['general']['gff'],
-                                  protein_fasta = config['general']['protein_fasta'],
-                                  lab_strain = config['cm-polish']['is_lab_strain'],
-                                  kegg_organism_id = config['general']['kegg_organism_id'],
-                                  path = Path(dir,'cmpb_out','misc','wrong_annotations'))
+        current_libmodel = polish_model(current_libmodel, 
+                                        email = config['tech-resources']['email'],
+                                        id_db = config['general']['namespace'],
+                                        gff = config['general']['gff'],
+                                        protein_fasta = config['general']['protein_fasta'],
+                                        lab_strain = config['cm-polish']['is_lab_strain'],
+                                        kegg_organism_id = config['general']['kegg_organism_id'],
+                                        path = Path(dir,'cmpb_out','misc','wrong_annotations'))
         # rg correct charges
         current_libmodel, mult_charges_dict = correct_charges_modelseed(current_libmodel)
         mult_charges_tab = pd.DataFrame.from_dict(mult_charges_dict, orient='index')
@@ -358,8 +356,9 @@ def run(configpath:Union[str,None]=None):
 
     # KEGGPathwayGroups
     # -----------------
-    if config['kegg_pathway_groups']:
-        current_libmodel, missing_list = kegg_pathways(current_modelpath)
+    if config['kegg_pathway_groups']['add']:
+        current_libmodel, missing_list = set_kegg_pathways(current_modelpath, viaEC=config['kegg_pathway_groups']['viaEC'], 
+                                                           viaRC=config['kegg_pathway_groups']['viaRC']) 
         with open(Path(dir, 'cmpb_out', 'misc', 'kegg_pathway', 'reac_wo_kegg_pathway_groups.txt'), 'w') as outfile:
             for line in missing_list:
                 outfile.write(f'{line}\n')
@@ -522,8 +521,8 @@ def run(configpath:Union[str,None]=None):
     
     # sbo term
     # --------
-    fig = plot_rea_sbo_single(current_libmodel)
-    fig.savefig(Path(dir,'cmpb_out','misc','sbo_gene.png'), dpi=400)
+    sboreport = SBOTermReport(current_libmodel)
+    sboreport.save(str(Path(dir,'cmpb_out','misc')))
 
     # memote
     # ------
