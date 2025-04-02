@@ -32,7 +32,7 @@ classifiers = [
 dependencies = [
     # 'refinegems>=2.0', # has all other needed dependancies
     # "refinegems>=2.0.0a0",
-    "refinegems@git+https://github.com/draeger-lab/refinegems#egg=dev",
+    "refinegems@git+https://github.com/draeger-lab/refinegems@dev",
     # @NOTE
     # need to installed but install does not work with PyPi that way
     "bofdat@git+https://github.com/draeger-lab/BOFdat", # our fork with hot fix(es)
