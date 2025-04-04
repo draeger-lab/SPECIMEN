@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-"""Utility functions.
-"""
+"""Utility functions."""
 
-__author__ = 'Carolin Brune'
+__author__ = "Carolin Brune"
 
 ################################################################################
 # requirements
@@ -32,116 +31,127 @@ from refinegems.utility.io import parse_gff_for_cds, parse_gbff_for_cds
 # create a DIAMOND reference database
 # -----------------------------------
 
-def create_DIAMOND_db_from_folder(dir:str, out:str, name:str='database',
-                                  extension:str='faa', threads:int=2):
+
+def create_DIAMOND_db_from_folder(
+    dir: str, out: str, name: str = "database", extension: str = "faa", threads: int = 2
+):
     """Build a DIAMOND database from a folder containing FASTA files.
 
     Args:
-        - dir (str): 
-            Path to the directory to search for FASTA files for 
+        - dir (str):
+            Path to the directory to search for FASTA files for
             the database (recursive file search).
-        - out (str): 
+        - out (str):
             Path of the directory of the output.
-        - name (str, optional): 
-            Name of the created database. 
+        - name (str, optional):
+            Name of the created database.
             Defaults to 'database'.
-        - extension (str, optional): 
-            File extension of the FASTA files 
-            (to determine which files to search for). 
+        - extension (str, optional):
+            File extension of the FASTA files
+            (to determine which files to search for).
             Defaults to 'faa'.
-        - threads (int, optional): 
-            Number of threads to use for DIAMOND. 
+        - threads (int, optional):
+            Number of threads to use for DIAMOND.
             Defaults to 2.
     """
 
     # get fasta file names
-    fasta_files = Path(dir).rglob(F'*.{extension}')
+    fasta_files = Path(dir).rglob(f"*.{extension}")
 
     # -----------------------
     # combine to 1 FASTA file
     # -----------------------
 
     # check if folder already has a combined FASTA
-    outname_fasta = Path(out,'combinded.faa')
+    outname_fasta = Path(out, "combinded.faa")
     save = True
     if os.path.isfile(outname_fasta):
-        print('A combined.faa files already exists in the given folder.')
+        print("A combined.faa files already exists in the given folder.")
         answer = None
-        while answer not in ('overwrite','use','end'):
-            answer = input('Do you want to [overwrite] or [use] the file or [end] the programm?: ')
-            if answer == 'use':
+        while answer not in ("overwrite", "use", "end"):
+            answer = input(
+                "Do you want to [overwrite] or [use] the file or [end] the programm?: "
+            )
+            if answer == "use":
                 save = False
-            elif answer == 'end':
+            elif answer == "end":
                 sys.exit()
-            elif answer == 'overwrite':
+            elif answer == "overwrite":
                 save = True
             else:
-                print('Enter [overwrite] or [use] or [end] (without brackets)')
-
+                print("Enter [overwrite] or [use] or [end] (without brackets)")
 
     # save all in new (combined) FASTA
     if save:
-        with open(outname_fasta, 'w') as out:
+        with open(outname_fasta, "w") as out:
             for f in fasta_files:
-                SeqIO.write(SeqIO.parse(f, 'fasta'), out,'fasta')
+                SeqIO.write(SeqIO.parse(f, "fasta"), out, "fasta")
 
     # -------------------------
     # generate DIAMOND database
     # -------------------------
 
-    outname_dnmd = Path(out,name)
+    outname_dnmd = Path(out, name)
     bl = "\\ "
-    print(F'running the following command:\ndiamond makedb --in {outname_fasta.replace(" ",bl)} -d {outname_dnmd.replace(" ",bl)} -p {threads}')
-    subprocess.run([F'diamond makedb --in {outname_fasta.replace(" ",bl)} -d {outname_dnmd.replace(" ",bl)} -p {threads}'], shell=True)
-    print('finished')
+    print(
+        f'running the following command:\ndiamond makedb --in {outname_fasta.replace(" ",bl)} -d {outname_dnmd.replace(" ",bl)} -p {threads}'
+    )
+    subprocess.run(
+        [
+            f'diamond makedb --in {outname_fasta.replace(" ",bl)} -d {outname_dnmd.replace(" ",bl)} -p {threads}'
+        ],
+        shell=True,
+    )
+    print("finished")
 
 
 # create a NCBI mapping file for the database
 # -------------------------------------------
 
 
-def create_NCBIinfo_mapping(dir:str, out:str, extension:Literal['gbff']='gbff'):
+def create_NCBIinfo_mapping(dir: str, out: str, extension: Literal["gbff"] = "gbff"):
     """Create a NCBI information mapping file from a folder containing e.g. gbff files.
 
     Args:
-        - dir (str): 
+        - dir (str):
             Path to the directory for the recursive file search for the mapping.
-        - out (str): 
+        - out (str):
             Path of the directory for the output.
-        - extension (Literal['gbff'], optional): 
+        - extension (Literal['gbff'], optional):
             Name of the file extension to be searched.
             Default is gbff, and currently it is advised to leave it at that.
             Defaults to 'gbff'.
     """
 
     # get gbff file names
-    list_files = Path(dir).rglob(F'*.{extension}')
-    file_no = len(list(Path(dir).rglob(F'*.{extension}')))
+    list_files = Path(dir).rglob(f"*.{extension}")
+    file_no = len(list(Path(dir).rglob(f"*.{extension}")))
 
     # -----------------------------------------------
     # extract information and create the mapping file
     # -----------------------------------------------
 
-    with open(out, 'w') as out_file:
+    with open(out, "w") as out_file:
 
         file_counter = 1
 
         for file_name in list_files:
 
-            print(F'Parsing {file_counter}/{file_no}: {file_name}')
-            
+            print(f"Parsing {file_counter}/{file_no}: {file_name}")
+
             # retrieve information
             match extension:
-                case 'gbff':
+                case "gbff":
                     info = parse_gbff_for_cds(file_name)
-                case 'gff':
-                    raise NotImplementedError('This option is under discussion and has yet to be implemented.')
-                    
+                case "gff":
+                    raise NotImplementedError(
+                        "This option is under discussion and has yet to be implemented."
+                    )
+
                 case _:
-                    raise ValueError(f'Unknown file extension {extension}')
-            
+                    raise ValueError(f"Unknown file extension {extension}")
+
             # save
             info.to_csv(out_file, header=True, index=False)
             # go to next
             file_counter += 1
-

@@ -1,4 +1,4 @@
-__all__ = ['workflow', 'core']
+__all__ = ["workflow", "core"]
 
 from . import workflow
 from . import core

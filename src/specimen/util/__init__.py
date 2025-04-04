@@ -1,3 +1,3 @@
-__all__ = ['util', 'set_up']
+__all__ = ["util", "set_up"]
 
 from . import util, set_up

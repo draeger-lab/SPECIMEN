@@ -1,3 +1,3 @@
-__all__ = ['reports']
+__all__ = ["reports"]
 
 from . import reports
