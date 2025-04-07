@@ -398,8 +398,8 @@ def run(
     dir: str,
     template_name: str = None,
     input_name: str = None,
-    temp_header: str = "protein_id",
-    in_header: str = "locus_tag",
+    temp_header: str = None,
+    in_header: str = None,
     threads: int = 2,
     extra_info: list[str] = ["locus_tag", "product", "protein_id"],
     sensitivity: Literal[
