@@ -25,7 +25,7 @@ from refinegems.utility.entities import (
 from refinegems.utility.util import test_biomass_presence
 from refinegems.utility.connections import run_memote
 
-from refinegems.analysis.growth import MIN_GROWTH_THRESHOLD
+from refinegems.utility.util import MIN_GROWTH_THRESHOLD
 
 # further required programs:
 #        - MEMOTE, tested with version 0.13.0+
