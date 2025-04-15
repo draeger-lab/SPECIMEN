@@ -37,7 +37,7 @@ from refinegems.classes.gapfill import multiple_cobra_gapfill, GeneGapFiller
 from refinegems.curation.curate import resolve_duplicates
 from refinegems.curation.biomass import check_normalise_biomass
 from refinegems.curation.pathways import set_kegg_pathways
-from refinegems.curation.polish import polish_annotations
+from refinegems.curation.miriam import polish_annotations
 from refinegems.utility.connections import (
     adjust_BOF,
     perform_mcc,
