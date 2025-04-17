@@ -249,7 +249,7 @@ def bdb(
     )
 
 
-# generafte draft
+# generate draft
 # ---------------
 @hqtb.command()
 @click.argument("template", type=str)
@@ -299,14 +299,14 @@ def bdb(
     default=False,
     help="Run Memote on the generated draft model.",
 )
-def draft(template, bpbbh, dir, edit_names, pid, name, medium, nsp, memote):
+def draft(template, bpbbh, dir, edit_names, pid, name, medium, namespace, memote):
     """Step 2 of the workflow: Generate a draft model from a blastp best hits tsv file and a template model.
 
     TEMPLATE is the path (string) to the template model.\n
     BPBBH is the path (string) to the BLASTp bidirectional best hits (step 1).
     """
     specimen.hqtb.core.generate_draft_model.run(
-        template, bpbbh, dir, edit_names, pid, name, medium, nsp, memote
+        template, bpbbh, dir, edit_names, pid, name, medium, namespace, memote
     )
 
 
