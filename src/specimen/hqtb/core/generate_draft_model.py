@@ -130,8 +130,9 @@ def remove_absent_genes(model: cobra.Model, genes: list[str]) -> cobra.Model:
     remove = False
 
     # @NOTE
-    # modelCopy = model.copy() # currently not compatible with 3.13
-    modelCopy = copy.deepcopy(model)
+    modelCopy = model.copy() # currently not compatible with 3.13
+    # modelCopy = copy.deepcopy(model) # also not working with 3.13 
+    # there is a - supposed - fix on cobrapy, but not yet released
     for g in genes:
         try:
             test = modelCopy.genes.get_by_id(g)

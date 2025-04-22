@@ -232,13 +232,13 @@ def run(configpath: Union[str, None] = None):
             or config["carveme"]["gram"] == "gramneg"
         ):
             os.system(
-                f"carve {config['general']['protein_fasta']} --solver scip -u {config['carveme']['gram']} -o {dir}\cmpb_out\models\{modelname}.xml"
+                f"carve {config['general']['protein_fasta']} --solver scip -u {config['carveme']['gram']} -o {Path(dir, 'cmpb_out', 'models', modelname+'.xml')}"
             )
         else:
             os.system(
-                f"carve {config['general']['protein_fasta']} --solver scip -o {dir}\cmpb_out\models\{modelname}.xml"
+                f"carve {config['general']['protein_fasta']} --solver scip -o {Path(dir, 'cmpb_out','models', modelname+'.xml')}"
             )
-        config["input"]["modelpath"] = dir + f"\cmpb_out\models\{modelname}.xml"
+        config["input"]["modelpath"] = Path(dir, "cmpb_out", "models", modelname+".xml")
     current_modelpath = config["input"]["modelpath"]
 
     # validate compartments of the loaded model
