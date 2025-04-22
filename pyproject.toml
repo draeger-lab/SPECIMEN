@@ -21,7 +21,7 @@ keywords = ['Systems Biology', 'GEM', 'Metabolic Modelling', 'Python Package', '
 
 classifiers = [
     'Operating System :: MacOS',
-    "Operating System :: Unix", # @TODO make it OS independant?
+    "Operating System :: Unix", # @TODO make it OS independant? - DIAMOND läuft nicht wirklich auf Windows
     # 'Operating System :: OS Independent'
     'Programming Language :: Python',
     'Topic :: Software Development :: Libraries :: Python Modules',

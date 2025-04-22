@@ -6,6 +6,7 @@ __author__ = "Carolin Brune"
 ################################################################################
 
 import cobra
+import copy
 import importlib.metadata
 import logging
 import numpy as np
@@ -128,7 +129,9 @@ def remove_absent_genes(model: cobra.Model, genes: list[str]) -> cobra.Model:
     not_found = 0
     remove = False
 
-    modelCopy = model.copy()
+    # @NOTE
+    # modelCopy = model.copy() # currently not compatible with 3.13
+    modelCopy = copy.deepcopy(model)
     for g in genes:
         try:
             test = modelCopy.genes.get_by_id(g)
