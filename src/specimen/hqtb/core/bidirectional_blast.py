@@ -127,7 +127,7 @@ def extract_cds(
                 info_df.to_csv(Path(dir, name + "_info.csv"), index=False)
             return fasta_name
 
-        case ".faa":
+        case ".faa": # @TODO some bits still too rigid + better mapping? to allow more input handling
             # no CDS extraction needed, only the info-file
             logger.info("faa extension detected. Assuming no CDS extraction is needed.")
             info_df = pd.DataFrame(
