@@ -9,7 +9,7 @@
 project = 'SPECIMEN'
 copyright = '2024, Carolin Brune and Gwendolyn O. Döbel'
 author = 'Carolin Brune and Gwendolyn O. Döbel'
-release = '0.0.dev1'
+release = '0.0.dev2'
 
 # -- Path setup --------------------------------------------------------------
 
