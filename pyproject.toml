@@ -20,9 +20,9 @@ license = {text = "GPL-3.0"}
 keywords = ['Systems Biology', 'GEM', 'Metabolic Modelling', 'Python Package', 'Workflow']
 
 classifiers = [
-    'Operating System :: MacOS',
-    "Operating System :: Unix", # @TODO make it OS independant? - DIAMOND läuft nicht wirklich auf Windows
-    # 'Operating System :: OS Independent'
+    # 'Operating System :: MacOS',
+    # "Operating System :: Unix", 
+    'Operating System :: OS Independent',
     'Programming Language :: Python',
     'Topic :: Software Development :: Libraries :: Python Modules',
     "Topic :: Scientific/Engineering :: Bio-Informatics",
