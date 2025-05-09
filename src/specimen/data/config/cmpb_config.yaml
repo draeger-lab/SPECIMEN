@@ -22,6 +22,10 @@ input:
 # ---------------
 general:
   dir: './'                  # Path/Name of a directory to save output to
+  modelname: NULL            # Name of the model, if the three values below are not set
+  authorinitials: USER       # Intials or Abbreviation of the author for naming the model
+  strainid: USER             # ID of the strain 
+  organism: USER             # Abbreviation for the organism
   colours: 'YlGn'            # Set the colour scheme for the plots
                              # should be a valid matplotlib continuous color palette
   namespace: BiGG            # Namespace to use for the model
@@ -31,7 +35,7 @@ general:
   stats_always_on: False     # Calculate the model statistics after every step
 
   # Options used by multiple steps of the workflow
-  refseq_gff: USER           # Path to RefSeq GFF file: 
+  gff: USER                  # Path to RefSeq/Genbank GFF file:
                              # Can be optionally provided for cm-polish.
   kegg_organism_id: USER     # KEGG ID of the organism: Required for gap analysis with 'KEGG'.
                              # Can be optionally provided for cm-polish.
@@ -54,7 +58,7 @@ carveme:
   # if CarveMe should be run, 
   # fill out the params below
   gram: USER           # Choose either grampos or gramneg, depending on the Gram-test
-                       # resilts of your organism
+                       # results of your organism
 
 # Polish a CarveMe model
 #    Only neccessary, if the model will or has been build with CarveMe
@@ -81,6 +85,9 @@ gapfilling:
                               # from being added to the model.
   exclude-rna: True           # Exclude reactions containing 'RNA' in their name
                               # from being added to the model.
+  threshold_add_reacs: 5      # Threshold values. If the mapping of an EC against reactions
+                              # exceeds this value, the reactions will not be added, due to 
+                              # the high probability of false positives. 
 
   ########## enable algorithms ##########
   # via KEGG ...................
@@ -97,18 +104,33 @@ gapfilling:
   GeneGapFiller parameters: 
     gff: USER                     # Path to a gff file (does not have to be the RefSeq).
                                   # Needs to be from the same genome the model was build on.
-    swissprot-dmnd: USER          # Path to the SwissProt DIAMOND database file.
-    swissprot-mapping: USER       # Path to the SwissProt mapping file (against EC / BRENDA)
+    type: 'swissprot'             # Type of database. Can either be 'swissprot' or 'user'.
+    dmnd-database: USER           # Path to the SwissProt/User DIAMOND database file.
+    database-mapping: USER        # Path to the SwissProt/User mapping file (against EC / BRENDA in case of SwissProt)
     check-NCBI: False             # Enable checking NCBI accession numbers for EC numbers - time costly.
-    sensitivity: 'more-sensitiv'  # Sensitivity option for the DIAMOND run.
+    sensitivity: 'more-sensitive' # Sensitivity option for the DIAMOND run.
     coverage: 90.0                # Coverage (parameter for DIAMOND).
     percentage identity: 90.0     # Percentage identity threshold value for accepting
                                   # matches found by DIAMOND as homologous.
 
+# Polish the model using ModelPolisher
+# ------------------------------------
+modelpolisher: True                         # Activate ModelPolisher
+mp:
+  allow-model-to-be-saved-on-server: False  # Enable saving the model on the server
+  fixing:
+    dont-fix: False                         # Sets unset default values that are mandatory
+  annotation:
+    bigg:
+      annotate-with-bigg: True              # Enable annotation with BiGG
+      include-any-uri: True                 # Enable adding annotations that are not MIRIAM-compliant
 
 # Add KEGG pathways as groups, optional
 # -------------------------------------
-kegg_pathway_groups: True
+kegg_pathway_groups: 
+  add: True     # enable checking and setting kegg pathways (groups)
+  viaRC: False  # enable checking for kegg.pathway via reaction class (increases run time)
+  viaEC: False  # enable checking for kegg.pathway via ec number (increases run time)
 
 # Resolve duplicates
 # ------------------
@@ -121,6 +143,18 @@ duplicates:
   metabolites: remove
   # Additionally, remove unused metabolites (possibly reduces knowledge-base)
   remove_unused_metabs: False
+
+# optionally check reaction direction 
+# -----------------------------------
+reaction_direction: USER # Path to a Biocyc table containing information about reactions and their usual directionality
+
+
+# Finding and solvong Energy Generating Cycles (EGCs)
+# ---------------------------------------------------
+EGCs:
+  solver: NULL # solver gives the algorithm to use for solving EGCs
+               # if NULL, only searches for EGCs without trying to solve them
+               # options include: greedy
 
 # BOFdat / Biomass objective function
 # -----------------------------------

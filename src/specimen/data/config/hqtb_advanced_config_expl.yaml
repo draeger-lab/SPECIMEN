@@ -13,11 +13,17 @@
 #    date:      USER
 #    author:    USER
 
+##################################################################################
 # Input for the pipeline
-# ----------------------
+##################################################################################
+
+# basic input files
+# -----------------
+
 # information about the genome to be used to generate the new model
 subject:
     annotated_genome: __USER__
+    gff: __USER___
     full_sequence: __USER__
 
 # information about the template model/genome
@@ -26,10 +32,17 @@ template:
     model: __USER__
 
 # information about the output
-out:
+# ----------------------------
+general:
     dir: ./specimen_run/
-    name: specimen_model
+    modelname: NULL            # Name of the model, if the three values below are not set
+    authorinitials: USER       # Intials or Abbreviation of the author for naming the model
+    strainid: USER             # ID of the strain 
+    organism: USER             # Abbreviation for the organism
     memote: False
+
+# database information
+# --------------------
 
 # data(bases) required to run the program
 data:
@@ -39,14 +52,10 @@ data:
     data_direc: null
     # required
     diamond: __USER__
-    # required but can be downloaded using setup
-    mnx_chem_prop: MetaNetX/chem_prop.tsv
-    mnx_chem_xref: MetaNetX/chem_xref.tsv
-    mnx_reac_prop: MetaNetX/reac_prop.tsv
-    mnx_reac_xref: MetaNetX/reac_xref.tsv
+
     # optional, but good and manual
     ncbi_map: null
-    ncbi_dat: null
+
     # optional for directionality control
     biocyc: null
     # optional:
@@ -58,8 +67,19 @@ data:
     universal: null
     pan-core: null
 
-# paramters for the single steps of the pipeline
+# parameters for the single steps of the pipeline
+# -----------------------------------------------
+
 parameters:
+
+    ########## general ##########
+    general:
+        idprefix: 'HQTB'    # prefix to use for fantasy IDs, if IDs for 
+                            # the namespace do not exist.
+        namespace: 'BiGG'
+        email: USER         # email address. Required for queries against NCBI
+
+    ########## step 1: bidirectional blast ##########
     bidirectional_blast:
         # options for giveng customised names and setting a header
         # -> default uses information from the models/files directly
@@ -70,6 +90,7 @@ parameters:
         # change the sensitivity of DIAMOND
         sensitivity: more-sensitive
 
+    ########## step 2: generaft draft model ##########
     generate_draft_model:
         # if the gene ids of the template model do not match the
         # identifiers of the annotated genome file, use this option to edit them
@@ -79,44 +100,91 @@ parameters:
         # Which medium to save the model with.
         medium: default
 
+    ########## step 3: refinement ###########
+    ########## step 3.1: extension ##########
     refinement_extension:
-        # Id to use for checking (change not advised)
-        id: null
-        # change the sensitivity of DIAMOND
-        sensitivity: more-sensitive
-        coverage: 95.0
-        pid: 90.0
-        # Ex/Include RNA and DNA genes (excluded for purely metabolic model,
-        # include for knowledge-based model)
-        exclude_dna: True
-        exclude_rna: True
-        email: USER
+        # params for DIAMOND
+        sensitivity: more-sensitive # change the sensitivity of DIAMOND
+        coverage: 95.0              # Set the min. coverage 
+        pid: 90.0                   # set the minimal percentage identify value for valid hits
+        # params for adding entities during 
+        formula-check: 'existence'  # When checking, if a metabolite can be added to the model
+                              # also check the formula. For more information about
+                              # available options, please refer to the docs of 
+                              # the function isreaction_comlete().
+        exclude-dna: True           # Exclude reactions containing 'DNA' in their name
+                                    # from being added to the model.
+        exclude-rna: True           # Exclude reactions containing 'RNA' in their name
+                                    # from being added to the model.
+        threshold_add_reacs: 5      # Threshold values. If the mapping of an EC against reactions
+                                    # exceeds this value, the reactions will not be added, due to 
+                                    # the high probability of false positives. 
 
+    ########## step 3.2: cleanup ##########
     refinement_cleanup:
-        # Options for duplicate checking/removal
+        
+        # general options _________________________________________
+        # parameters, that apply to all the gap filling algorithms
+        idprefix: 'HQTB'            # prefix to use for fantasy IDs, if IDs for 
+                                    # the namespace do not exist.
+        formula-check: 'existence'  # When checking, if a metabolite can be added to the model
+                                    # also check the formula. For more information about
+                                    # available options, please refer to the docs of 
+                                    # the function isreaction_comlete().
+        exclude-dna: True           # Exclude reactions containing 'DNA' in their name
+                                    # from being added to the model.
+        exclude-rna: True           # Exclude reactions containing 'RNA' in their name
+                                    # from being added to the model.
+        threshold_add_reacs: 5      # Threshold values. If the mapping of an EC against reactions
+                                    # exceeds this value, the reactions will not be added, due to 
+                                    # the high probability of false positives. 
+        
+        # enable algorithms ________________________________________
+
+        # via GFF ....................
+        GeneGapFiller: False              # Activate gap filling via GFF
+        GeneGapFiller parameters: 
+            fasta: USER                   # FASTA (containing CDS) for the GeneGapFiller. 
+                                          # Depending on the case, might be the same as annotated genome.
+            gff: USER                     # Path to a gff file (does not have to be the RefSeq).
+                                          # Needs to be from the same genome the model was build on.
+            type: 'swissprot'             # Type of database. Can either be 'swissprot' or 'user'.
+            dmnd-database: USER           # Path to the SwissProt/User DIAMOND database file.
+            database-mapping: USER        # Path to the SwissProt/User mapping file (against EC / BRENDA in case of SwissProt)
+            check-NCBI: False             # Enable checking NCBI accession numbers for EC numbers - time costly.
+            sensitivity: 'more-sensitive' # Sensitivity option for the DIAMOND run.
+            coverage: 90.0                # Coverage (parameter for DIAMOND).
+            percentage identity: 90.0     # Percentage identity threshold value for accepting
+                                          # matches found by DIAMOND as homologous.
+        # via COBRApy - medium ........
+        media_gap: null             # path to a medium config file. Set it to null to skip this gapfiller
+        growth_threshold: 0.05      # Threshold value for minimal growth, that is required for the media.
+
+        # duplicate handling 
+        # """"""""""""""""""
+        
         check_dupl_reac: True
         check_dupl_meta: default
         remove_unused_meta: False
         remove_dupl_reac: True
         remove_dupl_meta: True
-        # Optional for gapfilling (input is a media config file, refineGEMs standart)
-        media_gap: null
-        growth_threshold: 0.05
 
+    ########## step 3.3: annotation ##########
     refinement_annotation:
         # for KEGG pathway annotation
         viaEC: False
         viaRC: False
 
+    ########## step 3.4: smoothing ##########
     refinement_smoothing:
-        # apply, skip or extra: Usage of MassChargeCuration
-        mcc: skip
-        # Option to include a solver for possible EGCs
-        egc: greedy
+        mcc: skip # skip, apply or extra for MassChargeCuration
+        # ECG correction
+        egc: null
         # BOFdat weight fractions: depend on organism (current: Klebsiella )
         dna_weight_frac: 0.023
         ion_weight_frac: 0.05
 
+    ########## step 5: analysis ##########
     analysis:
         # How to compare to pan-core model (current option only id)
         pc_based_on: id
@@ -127,7 +195,7 @@ parameters:
         # perform pathway analysis with KEGG
         pathway: True
 
-# options for performance
+########## technical params ##########
 performance:
     threads: 2
     # for the gapfilling, if iterations and chunk_size are set (not null)

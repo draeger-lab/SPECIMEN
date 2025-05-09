@@ -1,4 +1,5 @@
 [![GitHub License](https://img.shields.io/github/license/draeger-lab/specimen)](https://opensource.org/license/GPL-3.0)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 ![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Fdraeger-lab%2Fspecimen%2Fmain%2Fpyproject.toml)
 [![Documentation Status](https://readthedocs.org/projects/specimen/badge/?version=latest)](https://specimen.readthedocs.io/en/latest/?badge=latest)
 ![GitHub release (with filter)](https://img.shields.io/github/v/release/draeger-lab/specimen?logo=github&label=SPECIMEN&color=B4A069&style=flat-square&include_prereleases)

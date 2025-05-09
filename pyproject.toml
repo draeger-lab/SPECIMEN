@@ -14,15 +14,15 @@ maintainers = [
 
 description = "SPECIMEN: A collection of workflows for strain-specific metabolic modelling."
 readme = "README.md"
-version = "0.0.dev1"
+version = "0.0.dev2"
 requires-python = ">=3.10"
 license = {text = "GPL-3.0"}
 keywords = ['Systems Biology', 'GEM', 'Metabolic Modelling', 'Python Package', 'Workflow']
 
 classifiers = [
-    'Operating System :: MacOS',
-    "Operating System :: Unix", # @TODO make it OS independant?
-    # 'Operating System :: OS Independent'
+    # 'Operating System :: MacOS',
+    # "Operating System :: Unix", 
+    'Operating System :: OS Independent',
     'Programming Language :: Python',
     'Topic :: Software Development :: Libraries :: Python Modules',
     "Topic :: Scientific/Engineering :: Bio-Informatics",
@@ -31,16 +31,15 @@ classifiers = [
 
 dependencies = [
     # 'refinegems>=2.0', # has all other needed dependancies
-    "refinegems>=2.0.0a0",
+    # "refinegems>=2.0.0a0",
+    "refinegems@git+https://github.com/draeger-lab/refinegems@dev",
     # @NOTE
     # need to installed but install does not work with PyPi that way
     "bofdat@git+https://github.com/draeger-lab/BOFdat", # our fork with hot fix(es)
-    "masschargecuration@git+https://github.com/Biomathsys/MassChargeCuration"
+    "masschargecuration@git+https://github.com/Biomathsys/MassChargeCuration",
+    "model-polisher@git+https://github.com/draeger-lab/MPClient.git"
 ]
-# @TODO: some kind of installation file / help?
-# additional missing tools:
-#    EntrezDirect -> maybe change to Bio.Entrez or use refineGEMs functions?
-#    DIAMOND
+
 
 [project.optional-dependencies]
 # developer/docs installation dependancies
