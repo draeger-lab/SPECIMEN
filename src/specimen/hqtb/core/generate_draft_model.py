@@ -126,6 +126,7 @@ def remove_absent_genes(model: cobra.Model, genes: list[str]) -> cobra.Model:
 
     genes_to_delete = 0
     essential = 0
+    incomplex = 0
     not_found = 0
     remove = False
 
@@ -142,24 +143,40 @@ def remove_absent_genes(model: cobra.Model, genes: list[str]) -> cobra.Model:
                 variant.optimize()
                 # set gene for deletion if model still works without it
                 if variant.objective.value > MIN_GROWTH_THRESHOLD:
-                    remove = True
-                    genes_to_delete += 1
+                    complexctr = False
+                    # check if gene is part of a partially remapped complex 
+                    # if yes, keep it regardless of essentiality
+                    for r in modelCopy.reactions:
+                        reac_genes = [_.id for _ in list(r.genes)]
+                        if reac_genes != 0 and ('and '+g in r.gene_reaction_rule or g+' and' in r.gene_reaction_rule) and not set(reac_genes).issubset(genes):
+                            logger.info(f'Keeping gene {g}, as it is part of a complex, where not all genes should be deleted.')
+                            complexctr = True 
+                            break
+                    if complexctr:
+                        incomplex += 1
+                    else:
+                        remove = True
+                        genes_to_delete += 1
+                    
                 # keep gene, if model stops growing
                 else:
                     essential += 1
                     continue
+                
             # remove gene
             if remove:
                 cobra.manipulation.delete.remove_genes(
                     modelCopy, [g], remove_reactions=True
                 )
                 remove = False
-        except KeyError:
+        except KeyError as e:
+            logger.warning(f"Gene {g} could not be found.")
             not_found += 1
 
     logger.info(f"\tnumber of deleted genes: {genes_to_delete}")
     logger.info(f"\tnumber of essential genes (not deleted): {essential}")
     logger.info(f"\tnumber of genes not found in the model: {not_found}")
+    logger.info(f"\tnumber of genes not deleted due to them being part of a complex: {incomplex}")
     logger.info("\t...................................................................")
 
     return modelCopy
@@ -198,6 +215,7 @@ def rename_found_homologs(draft: cobra.Model, bbh: pd.DataFrame) -> cobra.Model:
     # identify skipped genes of the query
     skipped_genes = [_ for _ in present_q if _ not in name_mapping.values()]
     remap_skipped = {}
+    
     for skp in skipped_genes:
         key = name_mapping[bbh.loc[bbh["query_ID"] == skp, "subject_ID"].values[0]]
         if key in remap_skipped.keys():
@@ -213,11 +231,13 @@ def rename_found_homologs(draft: cobra.Model, bbh: pd.DataFrame) -> cobra.Model:
                 skp_counter += 1
                 # add the gene as an alternative in the gene reaction rules of the model
                 for r in draft.genes.get_by_id(k).reactions:
-                    r.gene_reaction_rule += f" or {ident}"
-                # copy the annotations of the homologous one for better model quality
-                draft.genes.get_by_id(ident).annotation = draft.genes.get_by_id(
-                    k
-                ).annotation
+                    rgpr = r.gene_reaction_rule
+                    if k+' and' in rgpr or 'and '+k in  rgpr:
+                        r.gene_reaction_rule = rgpr.replace(k,f'({k} or {ident})') 
+                    else:
+                        r.gene_reaction_rule = rgpr.replace(k,f'{k} or {ident}') 
+                    # copy the annotations of the homologous one for better model quality
+                    draft.genes.get_by_id(ident).annotation = draft.genes.get_by_id(k).annotation
 
     logger.info(
         f"\tnumber of additional homologs found and added to model: {skp_counter}"
@@ -252,12 +272,13 @@ def check_unchanged(draft: cobra.Model, bbh: pd.DataFrame) -> cobra.Model:
     not_renamed = [x for x in draft.genes if not x.id in query_ids]
     logger.info(f"\tnumber of not renamed genes: {len(not_renamed)}")
 
-    to_delete, essential_counter = remove_non_essential_genes(
+    to_delete, essential_counter, in_complex = remove_non_essential_genes(
         draft, genes_to_check=not_renamed
     )
 
     logger.info(f"\tremoved {to_delete} non-essential genes")
     logger.info(f"\tkept {essential_counter} essential genes")
+    logger.info(f"\tkept {in_complex} (non-essential) genes found in complexes")
     logger.info("\t...................................................................")
 
     return draft

@@ -12,3 +12,4 @@ specimen.egg-info
 
 dev/test_hqtb/*
 dev/test_cmpb/*
+dev/bugfix/*
