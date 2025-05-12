@@ -103,7 +103,7 @@ def data_structure(workflow, dir, chunk_size):
     specimen.util.set_up.build_data_directories(workflow, dir, chunk_size)
 
 
-# create NCBi mapping for HQTB
+# create NCBI mapping for HQTB
 # ----------------------------
 @setup.command()
 @click.argument("folder", type=click.Path(exists=True, dir_okay=True, file_okay=False))
