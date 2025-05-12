@@ -27,11 +27,6 @@ information to be run on its base settings.
 However, additional information can be added from 
 e.g. KEGG or BioCyc to perform an automated gap filling using `refineGEMs <https://github.com/draeger-lab/refinegems/tree/dev-2>`__ :footcite:p:`bauerle2023genome`.
 
-.. note::
-
-    Currently, the ModelPolisher connection is still under construction, but the workflow
-    can already be run.
-
 .. toctree::
     :maxdepth: 2
     :caption: Further Information 
@@ -44,10 +39,6 @@ High-quality template based (``HQTB``) workflow
 -----------------------------------------------
 
 .. _HQTB Overview:
-
-.. warning:: 
-    Due to chances in ``refineGEMs``, this workflow is under heavy 
-    developement and may not work as expected.
 
 The ``HQTB`` workflow curates a new model from an annotated genome based on a high-quality template model 
 (plus corresponding annotated genome) and additional database information. 

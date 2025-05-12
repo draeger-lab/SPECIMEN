@@ -14,4 +14,9 @@ Current options include:
 
 A graphical overview of the in and outs of this step can be found below.
 
+.. warning:: 
+
+    The pan-core analysis is under heavy rework in its origin package, refinegems.
+    Use at your pwn discretion.
+
 .. image:: ../../images/modules/5_analysis.png

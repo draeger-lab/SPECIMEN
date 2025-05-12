@@ -41,7 +41,7 @@ To run the worfklow using the configuration file, use
 .. code-block:: bash
     :class: copyable
 
-    specimen hqtb run pipeline "config.yaml"
+    specimen hqtb run "config.yaml"
 
 on the command line or
 
@@ -55,7 +55,7 @@ from inside a Python script or Jupyter Notebook with "config.yaml" being the pat
 .. note::
 
     Additionally, the worfklow can be run with a wrapper to susequently build multiple models for different genomes using the same parameters.
-    The wrapper can be accessed using :code:`specimen hqtb run wrapper "config.yaml"` or :code:`specimen.workflow.wrapper_pipeline(config_file='/User/path/to/config.yaml', parent_dir="./")`.
+    The wrapper can be accessed using :code:`specimen hqtb wrapper "config.yaml"` or :code:`specimen.workflow.wrapper_pipeline(config_file='/User/path/to/config.yaml', parent_dir="./")`.
 
 
 ``HQTB``: Collecting Data

@@ -33,4 +33,10 @@ The draft model is constructed based on the idea of :footcite:t:`norsigian2020wo
 
     - remove them, if they are not essential for the growth of the model 
 
+    .. note::
+
+        Additionally, genes from the template model, which are part of a enzyme complex, where at least one 
+        gene was mapped successfully, are kept as well. They are, however, reported to provide extensive information 
+        for possible manual curation after running the workflow.
+
 .. footbibliography:: 

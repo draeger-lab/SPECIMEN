@@ -16,14 +16,25 @@ The version in this release has as of yet only be tested on prokaryote genomes.
 
 .. note::
 
-    The workflow has yet to be tested on different species and specifically Eukarya, if it works without problems on those as well.
+    The workflows have yet to be tested on more divers species and specifically Eukarya, if it works without problems on those as well.
+    (Due to the current limitations of the compartments, Eukarya will most likely not work in most cases.)
+
+``docs-update``: ONGOING
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Documentation branch.
+| Place to update, extend, etc. the documentation.
+| DO NOT use this branch to edit other folders except for docs! 
+
 
 ``dev``: ONGOING
 ^^^^^^^^^^^^^^^^
 
 | Development branch. 
-| Place to fix errors, chase bugs and polish the code.
+| Place to fix errors, chase bugs and polish the code for new releases.
 | Additionally, features marked as future update throughout the documentation are actively being worked on.
+| If an bug/error needs to be fixed on main, please create a hotfix-branch.
+
 
 Further branches
 ^^^^^^^^^^^^^^^^
