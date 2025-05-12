@@ -83,9 +83,9 @@ def create_DIAMOND_db_from_folder(
 
     # save all in new (combined) FASTA
     if save:
-        with open(outname_fasta, "w") as out:
+        with open(outname_fasta, "w") as outfile:
             for f in fasta_files:
-                SeqIO.write(SeqIO.parse(f, "fasta"), out, "fasta")
+                SeqIO.write(SeqIO.parse(f, "fasta"), outfile, "fasta")
 
     # -------------------------
     # generate DIAMOND database
