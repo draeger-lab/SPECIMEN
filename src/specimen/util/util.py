@@ -17,7 +17,7 @@ from Bio import SeqIO
 from pathlib import Path
 from typing import Literal
 
-from refinegems.utility.io import parse_gff_for_cds, parse_gbff_for_cds
+from refinegems.utility.io import parse_gbff_for_cds
 
 
 ################################################################################
