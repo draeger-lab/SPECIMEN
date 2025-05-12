@@ -94,11 +94,11 @@ def create_DIAMOND_db_from_folder(
     outname_dnmd = Path(out, name)
     bl = "\\ "
     print(
-        f'running the following command:\ndiamond makedb --in {outname_fasta.replace(" ",bl)} -d {outname_dnmd.replace(" ",bl)} -p {threads}'
+        f'running the following command:\ndiamond makedb --in {str(outname_fasta).replace(" ",bl)} -d {str(outname_dnmd).replace(" ",bl)} -p {threads}'
     )
     subprocess.run(
         [
-            f'diamond makedb --in {outname_fasta.replace(" ",bl)} -d {outname_dnmd.replace(" ",bl)} -p {threads}'
+            f'diamond makedb --in {str(outname_fasta).replace(" ",bl)} -d {str(outname_dnmd).replace(" ",bl)} -p {threads}'
         ],
         shell=True,
     )
