@@ -266,12 +266,12 @@ def run(configpath: Union[str, None] = None):
         )
         current_libmodel = polish_model(
             current_libmodel,
-            email=config["tech-resources"]["email"],
             id_db=config["general"]["namespace"],
-            gff=config["general"]["gff"],
-            protein_fasta=config["general"]["protein_fasta"],
+            gff_paths=[config["general"]["gff"]],
+            email=config["tech-resources"]["email"],
             lab_strain=config["cm-polish"]["is_lab_strain"],
             kegg_organism_id=config["general"]["kegg_organism_id"],
+            reaction_direction=config["reaction_direction"],
             path=Path(dir, "cmpb_out", "misc", "wrong_annotations"),
         )
         # rg correct charges

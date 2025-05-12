@@ -39,8 +39,7 @@ general:
                              # Can be optionally provided for cm-polish.
   kegg_organism_id: USER     # KEGG ID of the organism: Required for gap analysis with 'KEGG'.
                              # Can be optionally provided for cm-polish.
-  protein_fasta: USER        # Required, if used for CarveMe or GeneGapFiller. Optional
-                             # for cm-polish except for 'is_lab_strain: True'.
+  protein_fasta: USER        # Required, if used for CarveMe or GeneGapFiller.
                              # The path to the protein FASTA used to create the CarveMe model.
                              # For more information, please refer to the documentation.
 
@@ -68,6 +67,7 @@ cm-polish:
                            # Needs to be set to ensure that protein IDs get the 'bqbiol:isHomologTo' qualifier
                            # & to set the locus_tag to the ones obtained by the annotation
                            # (Warning: Might cause issues if annotatione was not performed with NCBI PGAP!)
+  
 
 # Filling gaps, optional
 # ----------------------
@@ -147,6 +147,7 @@ duplicates:
 # optionally check reaction direction 
 # -----------------------------------
 reaction_direction: USER # Path to a Biocyc table containing information about reactions and their usual directionality
+# If provided will also be used in the cm_polish step.
 
 
 # Finding and solvong Energy Generating Cycles (EGCs)
