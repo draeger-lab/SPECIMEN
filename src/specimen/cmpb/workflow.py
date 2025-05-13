@@ -272,7 +272,7 @@ def run(configpath: Union[str, None] = None):
             lab_strain=config["cm-polish"]["is_lab_strain"],
             kegg_organism_id=config["general"]["kegg_organism_id"],
             reaction_direction=config["reaction_direction"],
-            path=Path(dir, "cmpb_out", "misc", "wrong_annotations"),
+            outpath=str(Path(dir, "cmpb_out", "misc", "wrong_annotations")),
         )
         # rg correct charges
         current_libmodel, mult_charges_dict = correct_charges_modelseed(
