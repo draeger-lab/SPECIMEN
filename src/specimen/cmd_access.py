@@ -442,9 +442,10 @@ def extension(
     """Refinement step 1: Extend the model.
 
     The following options are required:
-    draft, fasta, db, dir,
+    draft, fasta, db, gff,
 
     """
+    # @TODO: check, if everythong is correct
     specimen.hqtb.core.refinement.extend(
         draft,
         gff,
@@ -466,6 +467,7 @@ def extension(
     )
 
 
+# @TODO: still implement?
 # @refinement.command()
 # ...
 # def cleanup():
