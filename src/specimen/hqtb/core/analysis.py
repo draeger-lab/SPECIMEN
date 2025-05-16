@@ -92,7 +92,7 @@ def run(
     except FileExistsError:
         genlogger.info("Given directory already has required structure.")
         
-     # set path for logging file
+    # set path for logging file
     Path(dir, "05_analysis", "analysis.log").unlink(missing_ok=True)
     handler = logging.handlers.RotatingFileHandler(
         str(Path(dir, "05_analysis", "analysis.log")),
@@ -119,9 +119,9 @@ def run(
     mpllogger.addHandler(handler)
     mpllogger.propagate = False
     # redirect refinegems logging
-    mpllogger = logging.getLogger("refinegems")
-    mpllogger.addHandler(handler)
-    mpllogger.propagate = False
+    rglogger = logging.getLogger("refinegems")
+    rglogger.addHandler(handler)
+    rglogger.propagate = False
 
     # load model
     model = load_model(str(model_path), "cobra")
