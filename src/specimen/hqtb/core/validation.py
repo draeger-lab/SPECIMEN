@@ -1,4 +1,4 @@
-"""Validate a model (part 4 of the workflow).
+"""Validate a model (step 4 of the workflow).
 
 Implemented tests in include:
 - cobra/sbml check using cobrapy

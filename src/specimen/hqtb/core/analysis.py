@@ -1,4 +1,4 @@
-"""Analyse a model (part 5 of the workflow)."""
+"""Analyse a model (step 5 of the workflow)."""
 
 __author__ = "Carolin Brune"
 

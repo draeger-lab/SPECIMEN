@@ -15,7 +15,6 @@ __author__ = "Carolin Brune"
 
 import cobra
 import os
-import pandas as pd
 import time
 import tempfile
 import warnings
@@ -73,7 +72,7 @@ GGF_REQS = {
     "exclude_dna",
     "exclude_rna",
     "gff",
-}
+} #: :meta:
 
 ################################################################################
 # functions

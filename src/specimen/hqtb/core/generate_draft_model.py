@@ -1,4 +1,7 @@
-"""Generate a draft model from a template."""
+"""Generate a draft model from a template model.
+
+The basic idea has been adapted from Norsigian et al. (2020).
+"""
 
 __author__ = "Carolin Brune"
 ################################################################################
@@ -6,7 +9,6 @@ __author__ = "Carolin Brune"
 ################################################################################
 
 import cobra
-import copy
 import importlib.metadata
 import logging
 import numpy as np
@@ -48,11 +50,13 @@ logger.propagate = False
 
 
 def pid_filter(data: pd.DataFrame, pid: float) -> pd.DataFrame:
-    """Filter the data based on PID threshold. Entries above the given value are kept.
+    """Filter the data based on PID threshold. Entries above the given value are 
+    retained.
 
     Args:
         - data (pd.DataFrame):
-            The data from bidirectional_blast.py containing at least a 'PID' column.
+            The data from teh previous step (see :py:mod:`~specimen.hqtb.core.bidirectional_blast`) 
+            containing at least a 'PID' column.
         - pid (float):
             PID threshold value, given in percentage e.g. 80.0.
 
@@ -105,7 +109,9 @@ def edit_template_identifiers(
 
 def remove_absent_genes(model: cobra.Model, genes: list[str]) -> cobra.Model:
     """Remove a list of genes from a given model.
-    Note: genes that are not found in the model are skipped.
+    
+    .. note:: 
+        Genes that are not found in the model are skipped.
 
     Args:
         - model (cobra.Model):
@@ -189,7 +195,8 @@ def rename_found_homologs(draft: cobra.Model, bbh: pd.DataFrame) -> cobra.Model:
         - draft (cobra.Model):
             The draft model with the to-be-renamed genes.
         - bbh (pd.DataFrame):
-            The table from the bidirectional_blast.py script containing the bidirectional blastp best hits information
+            The table from :py:func:`~specimen.hqtb.core.bidirectional_blast.run` containing 
+            the bidirectional blastp best hits information
 
     Returns:
         cobra.Model:
@@ -256,7 +263,8 @@ def check_unchanged(draft: cobra.Model, bbh: pd.DataFrame) -> cobra.Model:
         - draft (cobra.Model):
             The draft model currently in the making.
         - bbh (pd.DataFrame):
-            The table from the bidirectional_blast.py script containing the bidirectional blastp best hits information.
+            The table from :py:func:`~specimen.hqtb.core.bidirectional_blast.run` 
+            containing the bidirectional blastp best hits information.
 
     Returns:
         cobra.Model:
@@ -421,7 +429,7 @@ def run(
             Defaults to False.
 
     Raises:
-        - ValueError: 'Edit_names value {edit_names} not in list of allowed values: no, dot-to-underscore'
+        - ValueError: 'Edit_names value not in list of allowed values: no, dot-to-underscore'
     """
     total_time_s = time.time()
 

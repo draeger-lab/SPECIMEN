@@ -1,9 +1,4 @@
 """Functions to run the workflow to create a GEM based on a high-quality template model.
-
-.. warning::
-
-    This module is under heavy construction due to added content and
-    changes in refineGEMs.
 """
 
 __author__ = "Carolin Brune"
@@ -26,7 +21,7 @@ from .. import util
 
 # further required programs:
 #        - DIAMOND, tested with version 0.9.14 (sensitivity options fail), >2.0.4 (everything works)
-#        - MEMOTE,  tested with version 0.13.0
+#        - MEMOTE,  tested with version >=0.13.0
 
 ################################################################################
 # functions
@@ -42,7 +37,7 @@ def run(config_file: str = "test_config.yaml"):
             Defaults to 'test_config.yaml'.
 
     Raises:
-        - ValueError: Unkown file extension {extension} for file {config["subject"]["annotated_genome"]}.
+        - ValueError: Unkown file extension.
     """
 
     # read in the configuration file

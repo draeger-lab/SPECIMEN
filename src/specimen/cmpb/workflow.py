@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Workflow call for the CarveMe-ModelPolisher-based (CMPB) workflow."""
+"""Running the CarveMe-ModelPolisher-based (CMPB) workflow."""
 
 __author__ = "Tobias Fehrenbach, Famke Baeuerle, Gwendolyn O. Döbel and Carolin Brune"
 
@@ -683,7 +683,13 @@ def run(configpath: Union[str, None] = None):
 # run for multiple models
 @implement
 def wrapper():
-    """Run given settings for the CarveMe-ModelPolisher-based (CMPB) workflow on multiple models."""
+    """Run given settings for the CarveMe-ModelPolisher-based (CMPB) workflow on multiple models.
+    
+    .. note::
+    
+        This function is not yet implemented. It is a placeholder for future development.
+    """
+    # dev notes:
     # - Add option to have specific colour list per model for plots
     # for the comparison when runnin this on multiple models
     # - Maybe get models at first and then add model IDs to every save filename?
