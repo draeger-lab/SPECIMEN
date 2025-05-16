@@ -10,6 +10,7 @@ from pathlib import Path
 
 import specimen
 import click
+import cloup
 
 import specimen.hqtb
 
@@ -467,11 +468,147 @@ def extension(
     )
 
 
-# @TODO: still implement?
-# @refinement.command()
-# ...
-# def cleanup():
-#    pass
+# @TEST
+@refinement.command()
+@click.argument("model", type=click.Path(exists=True, dir_okay=False, file_okay=True))
+@click.argument("dir", type=click.Path(exists=True, dir_okay=True, file_okay=False))
+# options for checking teh reaction directtion with BioCyc 
+@click.option("--reac-direc", type=click.Path(exists=True, dir_okay=False, file_okay=True),
+              default=None, help="Path to the BioCyc SmartTable for checking the reaction direction.")
+# gapfilling options
+# @TODO: gene_gap_filler options
+@cloup.option_group(
+    "Gap-filling with COBRApy.",
+    "If none are set, skips this step, otherwise all have to be specified",
+    cloup.option(
+        "--universal",
+        "-u",
+        type=click.Path(exists=True, dir_okay=False, file_okay=True),
+        default=None,
+        help="Path to a universal model file for the COBRApy gap-filling. Not setting this skips this gap-filling part. Defaults to None.",
+    ),
+    cloup.option(
+        "--media-path",
+        "--mp",
+        type=click.Path(exists=True, dir_okay=False, file_okay=True),
+        default=None,
+        help="Path to a media config file. Enables growth analysis if given.",
+    ),
+    cloup.option(
+        "--growth-threshold",
+        "--gt",
+        type=float, 
+        default = 0.05, 
+        show_default=True,
+        help="Threshold for the growth rate to be considered as a growth reaction. Default is 0.05.",
+    ),
+    constraint=cloup.constraints.If(
+        cloup.constraints.AnySet('universal','media-path','growth-threshold'), then=cloup.constraints.require_all
+    ),
+)
+# duplicate handling options
+@click.option(
+    "--check-dupl-reac",
+    "--cdr",
+    is_flag=True,
+    default=False,
+    help="Check for duplicate reactions in the model. Default is False.",
+)
+@click.option(
+    "--check-dupl-meta",
+    "--cdm",
+    type=click.Choice(["default", "skip", "exhaustive"]),
+    default="default",
+    show_default=True,
+    help='Check for duplicate metabolites in the model. Choices are "default", "skip", or "exhaustive". Default is "default".',
+)
+@click.option(
+    "--remove-unused-meta",
+    "--rum",
+    is_flag=True,
+    default=False,
+    help="Remove unused metabolites from the model. Default is False.",
+)
+@click.option(
+    "--remove-dupl-reac",
+    "--rdr",
+    is_flag=True,
+    default=False,
+    help="Remove duplicate reactions from the model. Default is False.",
+)
+@click.option(
+    "--remove-dupl-meta",
+    "--rdm",
+    is_flag=True,
+    default=False,
+    help="Remove duplicate metabolites from the model. Default is False.",
+)
+# general options
+@click.option(
+    "--namespace",
+    "--nsp",
+    type=click.Choice(["BiGG"]),
+    default="BiGG",
+    show_default=True,
+    help="Namespace to use for the model IDs. Currently constricted to BiGG by refineGEMs"
+)
+@click.option(
+    "-i",
+    "--iterations",
+    type=int,
+    default=3,
+    show_default=True,
+    help="Number of iterations to perform. Default is 3.",
+)
+@click.option(
+    "-c",
+    "--chunk-size",
+    type=int,
+    default=10000,
+    show_default=True,
+    help="Chunk size to use during processing. Default is 10000.",
+)
+@click.option(
+    "--memote",
+    is_flag=True,
+    default=False,
+    help="Use memote on the processed model.",
+)
+def cleanup(
+    model,
+    dir,
+    reac_direc,
+    universal,
+    media_path,
+    growth_threshold,
+    check_dupl_reac,
+    check_dupl_meta,
+    remove_unused_meta,
+    remove_dupl_reac,
+    remove_dupl_meta,
+    namespace,
+    iterations,
+    chunk_size,
+    memote,
+):
+    specimen.hqtb.core.refinement.cleanup(
+        model=model,
+        dir=dir,
+        biocyc_db=reac_direc,
+        run_gene_gapfiller=None,  # @TODO add when implemented
+        check_dupl_reac=check_dupl_reac,
+        check_dupl_meta=check_dupl_meta,
+        remove_unused_meta=remove_unused_meta,
+        remove_dupl_reac=remove_dupl_reac,
+        remove_dupl_meta=remove_dupl_meta,
+        universal=universal,
+        media_path=media_path, 
+        namespace=namespace,
+        growth_threshold=growth_threshold,
+        iterations=iterations,
+        chunk_size=chunk_size,
+        memote=memote,
+    )
 
 
 @refinement.command()
