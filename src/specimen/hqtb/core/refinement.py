@@ -34,7 +34,7 @@ from typing import Literal, Union
 from refinegems.analysis.growth import load_media
 from refinegems.classes import egcs
 from refinegems.classes.gapfill import multiple_cobra_gapfill, GeneGapFiller
-from refinegems.curation.curate import resolve_duplicates
+from refinegems.curation.curate import resolve_duplicates, check_direction
 from refinegems.curation.biomass import check_normalise_biomass
 from refinegems.curation.pathways import set_kegg_pathways
 from refinegems.curation.miriam import polish_annotations
@@ -293,129 +293,6 @@ def extend(
 # Part 2: cleanup
 # ---------------
 
-
-# similar to the one in refineGEMs, but add an extra check to
-# skip reactions created using the template
-def check_direction(model: cobra.Model, data_file: str) -> cobra.Model:
-    """Check the direction of newly created reactions (01-extention) by searching for matching MetaCyc,
-    KEGG and MetaNetX IDs as well as EC number in a downloaded BioCyc (MetaCyc)
-    database table (need to contain at least the following columns:
-    Reactions (MetaCyc ID),EC-Number,KEGG reaction,METANETX,Reaction-Direction.
-
-    ..note::
-
-        Checks only creations that do not contain the notes['creation'] == 'via template',
-        assuming the template was well curated.
-
-    Args:
-        - model (cobra.Model):
-            The GEM containing the reactions to be check for direction.
-        - data_file (str):
-            Path to the MetabCyc (BioCyc) smart table.
-
-    Returns:
-        cobra.Model:
-            The updated model.
-    """
-
-    # create MetaCyc table
-    # --------------------
-    data = pd.read_csv(data_file, sep="\t")
-    # rewrite the columns into a better comparable/searchable format
-    data["KEGG reaction"] = data["KEGG reaction"].str.extract(r".*>(R\d*)<.*")
-    data["METANETX"] = data["METANETX"].str.extract(r".*>(MNXR\d*)<.*")
-    data["EC-Number"] = data["EC-Number"].str.extract(r"EC-(.*)")
-
-    # check direction
-    # --------------------
-    for r in model.reactions:
-        # entry from template, assumed to be already curated
-        if "creation" in r.notes and "via template" == r.notes["creation"]:
-            continue
-        # newly created entry, check direction with BioCyc
-        else:
-            direction = None
-            # easy case: metacyc is already (corretly) annotated
-            if (
-                "metacyc.reaction" in r.annotation
-                and len(data[data["Reactions"] == r.annotation["metacyc.reaction"]])
-                != 0
-            ):
-                direction = data[data["Reactions"] == r.annotation["metacyc.reaction"]][
-                    "Reaction-Direction"
-                ].iloc[0]
-                r.notes["BioCyc direction check"] = f"found {direction}"
-            # complicated case: no metacyc annotation
-            else:
-                annotations = []
-
-                # collect matches
-                if (
-                    "kegg.reaction" in r.annotation
-                    and r.annotation["kegg.reaction"] in data["KEGG reaction"].tolist()
-                ):
-                    annotations.append(
-                        data[data["KEGG reaction"] == r.annotation["kegg.reaction"]][
-                            "Reactions"
-                        ].tolist()
-                    )
-                if (
-                    "metanetx.reaction" in r.annotation
-                    and r.annotation["metanetx.reaction"] in data["METANETX"].tolist()
-                ):
-                    annotations.append(
-                        data[data["METANETX"] == r.annotation["metanetx.reaction"]][
-                            "Reactions"
-                        ].tolist()
-                    )
-                if (
-                    "ec-code" in r.annotation
-                    and r.annotation["ec-code"] in data["EC-Number"].tolist()
-                ):
-                    annotations.append(
-                        data[data["EC-Number"] == r.annotation["ec-code"]][
-                            "Reactions"
-                        ].tolist()
-                    )
-
-                # check results
-                # no matches
-                if len(annotations) == 0:
-                    r.notes["BioCyc direction check"] = "not found"
-
-                # matches found
-                else:
-                    # built intersection
-                    intersec = set(annotations[0]).intersection(*annotations)
-                    # case 1: exactly one match remains
-                    if len(intersec) == 1:
-                        entry = intersec.pop()
-                        direction = data[data["Reactions"] == entry][
-                            "Reaction-Direction"
-                        ].iloc[0]
-                        r.annotation["metacyc.reaction"] = entry
-                        r.notes["BioCyc direction check"] = f"found {direction}"
-
-                    # case 2: multiple matches found -> inconclusive
-                    else:
-                        r.notes["BioCyc direction check"] = f"found, but inconclusive"
-
-            # update direction if possible and needed
-            if not pd.isnull(direction):
-                if "REVERSIBLE" in direction:
-                    # set reaction as reversible by setting default values for upper and lower bounds
-                    r.lower_bound = -1000.0
-                elif "RIGHT-TO-LEFT" in direction:
-                    # invert the default values for the boundaries
-                    r.lower_bound = -1000.0
-                    r.upper_bound = 0.0
-                else:
-                    # left to right case is the standart for adding reactions
-                    # = nothing left to do
-                    continue
-    return model
-
-
 def cleanup(
     model: str,
     dir: str,
@@ -455,7 +332,7 @@ def cleanup(
         - run_gene_gapfiller (Union[None,dict], optional):
             If a dictionary is given, tries to run the GeneGapFiller.
             If set to None, the gap-filling will be skipped
-            The dictionary needs to contain the keys saved in :py:data:`~specimen.hqtb.core.refinement.cleanup.GGF_REQS`.
+            The dictionary needs to contain the keys saved in :py:data:`~specimen.hqtb.core.refinement.GGF_REQS`.
             Defaults to None.
         - check_dupl_reac (bool, optional):
             Option to check for duplicate reactions.
@@ -549,7 +426,7 @@ def cleanup(
         start = time.time()
 
         # check direction
-        model = check_direction(model, biocyc_db)
+        model = check_direction(model, biocyc_db, ('notes', 'creation', 'via template'))
 
         end = time.time()
         print(f"\ttime: {end - start}s")
