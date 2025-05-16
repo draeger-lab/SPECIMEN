@@ -39,7 +39,11 @@ The version in this release has as of yet only be tested on prokaryote genomes.
 Further branches
 ^^^^^^^^^^^^^^^^
 
-Currently, there are no more branches.
+.. Currently, there are no more branches.
+
+- ``pgab-dev``: Branch for the developement of the PGAB workflow 
+
+    - Status: Ongoing work (Master`s thesis)
 
 Developer Information
 ---------------------
