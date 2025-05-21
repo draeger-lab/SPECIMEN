@@ -143,6 +143,24 @@ def run(config_file: str = "test_config.yaml"):
 
             # step 3.1: extension
             # ...................
+            
+            # check, if annotated genome format can be used as the FASTA 
+            # @TEST the blocl below is untested 
+            if ".faa" == os.path.splitext()[1]:
+                fasta_path = config["subject"]["annotated_genome"]
+            # else, use the newly created FASTA file
+            elif ".gbff" == os.path.splitext()[1]:
+                # get filename 
+                if not config['parameters']['bidirectional_blast']['input_name']:
+                    fasta_path = Path(config["general"]["dir"], "FASTA", os.path.splitext(os.path.basename(input))[0] + '_prot.fa')
+                else:
+                    fasta_path = Path(config["general"]["dir"], "FASTA", config['parameters']['bidirectional_blast']['input_name'] + '_prot.fa')
+            else:
+                raise ValueError(
+                    "Unknown file extension for annotated genome. "
+                    "Please use either .faa or .gbff"
+                    "For further suggestions, opem an issue on GitHub."
+                )
 
             core.refinement.extend(
                 draft=Path(
@@ -151,9 +169,7 @@ def run(config_file: str = "test_config.yaml"):
                     modelname + "_draft.xml",
                 ),
                 gff=config["subject"]["gff"],
-                fasta=config["subject"][
-                    "annotated_genome"
-                ],  # with all - expected - input
+                fasta=fasta_path, 
                 db=config["data"]["diamond"],
                 dir=Path(config["general"]["dir"] + "03_refinement"),
                 ncbi_mapping=config["data"]["ncbi_map"],
