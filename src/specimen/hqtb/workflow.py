@@ -145,13 +145,14 @@ def run(config_file: str = "test_config.yaml"):
             # ...................
             
             # check, if annotated genome format can be used as the FASTA 
-            # @TEST the blocl below is untested 
-            if ".faa" == os.path.splitext()[1]:
+            # @TEST the block below is untested 
+            if ".faa" == os.path.splitext(config["subject"]["annotated_genome"])[1]:
                 fasta_path = config["subject"]["annotated_genome"]
             # else, use the newly created FASTA file
-            elif ".gbff" == os.path.splitext()[1]:
+            elif ".gbff" == os.path.splitext(config["subject"]["annotated_genome"])[1]:
                 # get filename 
                 if not config['parameters']['bidirectional_blast']['input_name']:
+                    input = config["subject"]["annotated_genome"]
                     fasta_path = Path(config["general"]["dir"], "FASTA", os.path.splitext(os.path.basename(input))[0] + '_prot.fa')
                 else:
                     fasta_path = Path(config["general"]["dir"], "FASTA", config['parameters']['bidirectional_blast']['input_name'] + '_prot.fa')
