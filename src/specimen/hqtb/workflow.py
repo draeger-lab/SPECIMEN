@@ -16,6 +16,8 @@ import yaml
 from datetime import date
 from pathlib import Path
 
+from refinegems.utility.io import mimic_genbank
+
 from . import core
 from .. import util
 
@@ -144,25 +146,10 @@ def run(config_file: str = "test_config.yaml"):
             # step 3.1: extension
             # ...................
             
-            # check, if annotated genome format can be used as the FASTA 
-            # @TEST the block below is untested 
-            if ".faa" == os.path.splitext(config["subject"]["annotated_genome"])[1]:
-                fasta_path = config["subject"]["annotated_genome"]
-            # else, use the newly created FASTA file
-            elif ".gbff" == os.path.splitext(config["subject"]["annotated_genome"])[1]:
-                # get filename 
-                if not config['parameters']['bidirectional_blast']['input_name']:
-                    input = config["subject"]["annotated_genome"]
-                    fasta_path = Path(config["general"]["dir"], "FASTA", os.path.splitext(os.path.basename(input))[0] + '_prot.fa')
-                else:
-                    fasta_path = Path(config["general"]["dir"], "FASTA", config['parameters']['bidirectional_blast']['input_name'] + '_prot.fa')
-            else:
-                raise ValueError(
-                    "Unknown file extension for annotated genome. "
-                    "Please use either .faa or .gbff"
-                    "For further suggestions, opem an issue on GitHub."
-                )
-
+            # create a GenBank format FASTA for the extension step (needed for the GapFiller)
+            fasta_path = mimic_genbank(config["subject"]["annotated_genome"], config["subject"]["gff"],
+                                       str(Path(config["general"]["dir"], "FASTA")))
+            
             core.refinement.extend(
                 draft=Path(
                     config["general"]["dir"],

@@ -131,6 +131,13 @@ def extend(
             GFF file of the organism of interest.
         - fasta (str):
             Path to the (protein) FASTA file containing the CDS sequences.
+            
+            .. warning:: 
+                This FASTA needs to be in the extended GenBank format.  
+                This can be downloaded from the NCBI FTB servers 
+                (name usually contains `_tranlated_CDS`) or use 
+                `mimic_genbank` from refineGEMs to create a similar format.
+            
         - db (str):
             Path to the database used for running DIAMOND.
         - dir (str):
