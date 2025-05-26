@@ -736,7 +736,7 @@ def annotate(
     model = polish_annotations(
         model,
         True,
-        str(Path(dir, "step3-annotation", model.getId() + "_annotations_polished.xml")),
+        str(Path(dir, "step3-annotation")),
     )
 
     end = time.time()
