@@ -148,7 +148,7 @@ def run(config_file: str = "test_config.yaml"):
             
             # create a GenBank format FASTA for the extension step (needed for the GapFiller)
             fasta_path = mimic_genbank(config["subject"]["annotated_genome"], config["subject"]["gff"],
-                                       str(Path(config["general"]["dir"], "FASTA")))
+                                       str(Path(config["general"]["dir"]))) # @ASK any ides for a better place for this file?
             
             core.refinement.extend(
                 draft=Path(
