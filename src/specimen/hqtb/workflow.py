@@ -297,7 +297,7 @@ def run(config_file: str = "test_config.yaml"):
                     config["general"]["dir"],
                     "03_refinement",
                     "step3-annotation",
-                    modelname + "_annotated.xml",
+                    modelname + "_keggpathways.xml",
                 ),
                 Path(config["general"]["dir"], "03_refinement"),
                 mcc=config["parameters"]["refinement_smoothing"]["mcc"],
