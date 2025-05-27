@@ -751,7 +751,7 @@ def smoothing(
     "-t",
     multiple=True,
     default=["all"],
-    help='define, which tests should be run. Current possibilities are "all" and "cobra"',
+    help='Define, which tests should be run. Current possibilities are "all", "cobra" or "modelpolisher"',
 )
 def validation(model, dir, run_test):
     """Step 4 of the workflow: Validate the model.

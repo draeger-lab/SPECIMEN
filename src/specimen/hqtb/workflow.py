@@ -327,8 +327,8 @@ def run(config_file: str = "test_config.yaml"):
                     "step4-smoothing",
                     modelname + "_smooth.xml",
                 ),
-                tests=None,
-                run_all=True,
+                tests=config["parameters"]["validation"]["tests"], 
+                run_all=config["parameters"]["validation"]["run_all"], 
             )
 
     # step 5: analysis
