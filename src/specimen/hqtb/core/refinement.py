@@ -42,9 +42,9 @@ from refinegems.utility.connections import (
     adjust_BOF,
     perform_mcc,
     run_memote,
-    run_SBOannotator,
+    run_SBOannotator
 )
-from refinegems.utility.io import load_model, write_model_to_file
+from refinegems.utility.io import load_model, write_model_to_file, parse_gff_for_cds, convert_cobra_to_libsbml
 from refinegems.utility.util import test_biomass_presence
 
 # further required programs:
@@ -257,14 +257,45 @@ def extend(
     rglogger = logging.getLogger("refinegems")
     rglogger.addHandler(handler)
     rglogger.propagate = False
+    
+    # -------------
+    # add locus tag
+    # -------------
+    
+    # get ncbiprotein + locus tag mapping
+    gfftable = parse_gff_for_cds(
+        gff, keep_attributes = {"locus_tag": "locus_tag", "protein_id": "ncbiprotein"}
+    )
+    
+    # load model 
+    draft_cobra = load_model(draft, "cobra")
+    
+    # identify, where locus tags are stored / can be stored
+    add_label_via = None
+    if len(set(g.id for g in draft_cobra.genes).union(set(gfftable['locus_tag']))) == 0:
+        # case 1: ncbiprotein as ID
+        # add locus tags as notes
+        if 'ncbiprotein' in gfftable.columns:
+            gfftable = gfftable.explode('ncbiprotein')
+            add_label_via = 'notes'
+            for g in draft_cobra.genes:
+                hit = list(gfftable[gfftable['ncbiprotein']==g.id]['locus_tag'])
+                if hit:
+                    g.notes['locus_tag'] =  hit[0]
+        else:
+            raise KeyError('No NCBIprotein column detected. Possibly an error GFF file or draft model IDs. Please re-check your input.')
 
+    else:
+        # case 2: locus tag as ID
+        add_label_via = 'id'
+    
+    # also generate libsbml instance
+    # with locus tag as labels
+    draft_libsbml = convert_cobra_to_libsbml(draft_cobra, add_label_via)
+    
     # ----------------------
     # identify missing genes
     # ----------------------
-
-    # load model
-    draft_libsbml = load_model(draft, "libsbml")
-    draft_cobra = load_model(draft, "cobra")
 
     name = f"{draft_cobra.id}_extended"
 
