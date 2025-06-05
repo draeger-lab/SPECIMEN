@@ -358,7 +358,7 @@ def extend(
             logger.info("\nRunning memote ...\n------------------\n")
             memote_path = str(Path(dir, "step1-extension", name + ".html"))
             run_memote(
-                draft, "html", return_res=False, save_res=memote_path, verbose=True
+                draft_cobra, "html", return_res=False, save_res=memote_path, verbose=True
             )
     else:
         logger.warning(
@@ -612,7 +612,7 @@ def cleanup(
         media_list = load_media(media_path)
 
     #   separate option for cobra gapfilling
-    if len(media_list) > 0:
+    if len(media_list) > 0 and universal:
         # load universal model
         universal_model = load_model(universal, "cobra")
         # run gapfilling
