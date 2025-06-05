@@ -272,7 +272,7 @@ def extend(
     
     # identify, where locus tags are stored / can be stored
     add_label_via = None
-    if len(set(g.id for g in draft_cobra.genes).union(set(gfftable['locus_tag']))) == 0:
+    if len(set(g.id for g in draft_cobra.genes).intersection(set(gfftable['locus_tag']))) == 0:
         # case 1: ncbiprotein as ID
         # add locus tags as notes
         if 'ncbiprotein' in gfftable.columns:
