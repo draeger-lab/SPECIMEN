@@ -541,6 +541,6 @@ def run(
     total_time_e = time.time()
     logger.info(f"total runtime: {total_time_e-total_time_s}")
 
-    # restore cobrapy logging behaviour
+    # restore logging behaviour
     cobralogger.handlers.clear()
-    cobralogger.propagate = False
+    cobralogger.propagate = False    

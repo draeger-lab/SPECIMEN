@@ -368,6 +368,14 @@ def extend(
         write_model_to_file(draft_libsbml, Path(dir, "step1-extension", name + ".xml"))
 
 
+    # restore logging behaviour 
+    cobralogger.handlers.clear()
+    cobralogger.propagate = False
+    mpllogger.handlers.clear()
+    mpllogger.propagate = False 
+    rglogger.handlers.clear()
+    rglogger.propagate = False 
+
 # Part 2: cleanup
 # ---------------
 
@@ -668,6 +676,14 @@ def cleanup(
         run_memote(model, "html", return_res=False, save_res=memote_path, verbose=True)
 
 
+    # restore logging behaviour 
+    cobralogger.handlers.clear()
+    cobralogger.propagate = False
+    mpllogger.handlers.clear()
+    mpllogger.propagate = False 
+    rglogger.handlers.clear()
+    rglogger.propagate = False 
+
 # Part 3: annotation
 # ------------------
 
@@ -829,6 +845,14 @@ def annotate(
         run_memote(model, "html", return_res=False, save_res=memote_path, verbose=True)
         end = time.time()
         logger.info(f"\ttotal time: {end - start}s")
+        
+    # restore logging behaviour 
+    cobralogger.handlers.clear()
+    cobralogger.propagate = False
+    mpllogger.handlers.clear()
+    mpllogger.propagate = False 
+    rglogger.handlers.clear()
+    rglogger.propagate = False 
 
 
 # Part 4: smoothing
@@ -1050,3 +1074,11 @@ def smooth(
     if memote:
         memote_path = str(Path(dir, "step4-smoothing", model_name + ".html"))
         run_memote(model, "html", return_res=False, save_res=memote_path, verbose=True)
+    
+    # restore logging behaviour 
+    cobralogger.handlers.clear()
+    cobralogger.propagate = False
+    mpllogger.handlers.clear()
+    mpllogger.propagate = False 
+    rglogger.handlers.clear()
+    rglogger.propagate = False 
