@@ -275,6 +275,7 @@ def extend(
     if len(set(g.id for g in draft_cobra.genes).intersection(set(gfftable['locus_tag']))) == 0:
         # case 1: ncbiprotein as ID
         # add locus tags as notes
+        add_label_via = 'notes'
         if 'ncbiprotein' in gfftable.columns:
             gfftable = gfftable.explode('ncbiprotein')
             add_label_via = 'notes'
@@ -283,11 +284,14 @@ def extend(
                 if hit:
                     g.notes['locus_tag'] =  hit[0]
         else:
-            raise KeyError('No NCBIprotein column detected. Possibly an error GFF file or draft model IDs. Please re-check your input.')
+            raise KeyError('No ncbiprotein column detected. Possibly an error GFF file or draft model IDs. Please re-check your input.')
 
     else:
         # case 2: locus tag as ID
         add_label_via = 'id'
+        # also add locus tags to notes
+        for g in draft_cobra.genes:
+            g.notes['locus_tag'] =  g.id
     
     # also generate libsbml instance
     # with locus tag as labels
@@ -563,11 +567,7 @@ def cleanup(
     # -------------
     if run_gene_gapfiller:
         # load model with libsbml
-        libmodel = None
-        with NamedTemporaryFile(suffix=".xml", delete=False) as tmp:
-            write_model_to_file(model, tmp.name)
-            libmodel = load_model(tmp.name, "libsbml")
-        os.remove(tmp.name)
+        libmodel = convert_cobra_to_libsbml(model, "notes")
 
         # run the gene gap filler
         ggf = GeneGapFiller()
