@@ -7,6 +7,8 @@ __author__ = "Tobias Fehrenbach, Famke Baeuerle, Gwendolyn O. Döbel and Carolin
 # requirements
 ################################################################################
 
+# @BUG Error thrown if subfolder already exists!
+
 from datetime import date
 import logging
 import model_polisher as mp
