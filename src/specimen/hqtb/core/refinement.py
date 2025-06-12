@@ -607,7 +607,7 @@ def cleanup(
             model = load_model(tmp.name, "cobra")
         os.remove(tmp.name)
 
-        ggf.report(Path(dir, "step2-cleanup"))
+        ggf.report(Path(dir, "step2-clean-up"))
 
     # gap-filling via COBRApy medium
     # ------------------------------
