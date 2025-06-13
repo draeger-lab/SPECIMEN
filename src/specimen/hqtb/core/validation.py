@@ -16,11 +16,12 @@ import pprint
 import time
 import warnings
 
-import model_polisher as mp
 import pandas as pd
 
 from pathlib import Path
 from typing import Union
+
+from ...util.util import run_ModelPolisher
 
 ################################################################################
 # setup logging
@@ -154,29 +155,31 @@ def run(
         }
 
         # running ModelPolisher
-        result = mp.polish_model_file(model_path, config_mp)
+        result = run_ModelPolisher(model_path, config_mp)
         
-        # saving results files
-        pd.DataFrame(result["diff"]).to_csv(
-            Path(dir, "04_validation", "modelpolisher", "diff_mp.csv"),
-            sep=";",
-            header=False,
-        )
-        pd.DataFrame(result["pre_validation"]).to_csv(
-            Path(dir, "04_validation", "modelpolisher", "pre_validation.csv"),
-            sep=";",
-            header=True,
-        )
-        pd.DataFrame(result["post_validation"]).to_csv(
-            Path(dir, "04_validation", "modelpolisher", "post_validation.csv"),
-            sep=";",
-            header=True,
-        )
+        if result:
+            # saving results files
+            pd.DataFrame(result["diff"]).to_csv(
+                Path(dir, "04_validation", "modelpolisher", "diff_mp.csv"),
+                sep=";",
+                header=False,
+            )
+            pd.DataFrame(result["pre_validation"]).to_csv(
+                Path(dir, "04_validation", "modelpolisher", "pre_validation.csv"),
+                sep=";",
+                header=True,
+            )
+            pd.DataFrame(result["post_validation"]).to_csv(
+                Path(dir, "04_validation", "modelpolisher", "post_validation.csv"),
+                sep=";",
+                header=True,
+            )
 
-        # save model
-        model_polisher_model_path = Path(dir, "04_validation", f"{Path(model_path).stem}_after_mp.xml")
-        
-        model_path = model_polisher_model_path
+            # save model
+            # @ASK does this truly work? Test as soon as MP is up and running
+            model_polisher_model_path = Path(dir, "04_validation", f"{Path(model_path).stem}_after_mp.xml")
+            
+            model_path = model_polisher_model_path
         
         end = time.time()
         logger.info(f"\ttime: {end - start}s")

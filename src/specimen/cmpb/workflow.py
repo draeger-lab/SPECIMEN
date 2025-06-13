@@ -46,6 +46,7 @@ from refinegems.developement.decorators import implement
 from refinegems.classes import egcs
 
 from ..util.set_up import save_cmpb_user_input, validate_config, build_data_directories
+from ..util.util import run_ModelPolisher
 
 ################################################################################
 # setup logging
@@ -412,24 +413,25 @@ def run(configpath: Union[str, None] = None):
             },
         }
 
-        result = mp.polish_model_document(current_libmodel.getSBMLDocument(), config_mp)
+        result = run_ModelPolisher(current_modelpath, config_mp)
 
         # @DEBUG Should the run-id be saved somewhere for debugging purposes? result['run_id']
-        pd.DataFrame(result["diff"]).to_csv(
-            Path(dir, "cmpb_out", "misc", "modelpolisher", "diff_mp.csv"),
-            sep=";",
-            header=False,
-        )
-        pd.DataFrame(result["pre_validation"]).to_csv(
-            Path(dir, "cmpb_out", "misc", "modelpolisher", "pre_validation.csv"),
-            sep=";",
-            header=True,
-        )
-        pd.DataFrame(result["post_validation"]).to_csv(
-            Path(dir, "cmpb_out", "misc", "modelpolisher", "post_validation.csv"),
-            sep=";",
-            header=True,
-        )
+        if result:
+            pd.DataFrame(result["diff"]).to_csv(
+                Path(dir, "cmpb_out", "misc", "modelpolisher", "diff_mp.csv"),
+                sep=";",
+                header=False,
+            )
+            pd.DataFrame(result["pre_validation"]).to_csv(
+                Path(dir, "cmpb_out", "misc", "modelpolisher", "pre_validation.csv"),
+                sep=";",
+                header=True,
+            )
+            pd.DataFrame(result["post_validation"]).to_csv(
+                Path(dir, "cmpb_out", "misc", "modelpolisher", "post_validation.csv"),
+                sep=";",
+                header=True,
+            )
 
         # save model
         current_libmodel = result["polished_document"].getModel()
@@ -439,9 +441,9 @@ def run(configpath: Union[str, None] = None):
         
         current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
 
-        # in-between testing
-        between_growth_test(current_model, config, step="after_ModelPolisher")
-        between_analysis(current_model, config, step="after_ModelPolisher")
+            # in-between testing
+            between_growth_test(current_model, config, step="after_ModelPolisher")
+            between_analysis(current_model, config, step="after_ModelPolisher")
 
     # @TEST
     # Annotations

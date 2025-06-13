@@ -389,7 +389,7 @@ def cleanup(
     biocyc_db: str = None,
     run_gene_gapfiller: Union[None, dict] = None,
     check_dupl_reac: bool = False,
-    check_dupl_meta: bool = "default",
+    check_dupl_meta: Literal["default", "exhaustive", "skip"] = "default",
     remove_unused_meta: bool = False,
     remove_dupl_reac: bool = False,
     remove_dupl_meta: bool = False,
@@ -607,7 +607,7 @@ def cleanup(
             model = load_model(tmp.name, "cobra")
         os.remove(tmp.name)
 
-        ggf.report(Path(dir, "step2-cleanup"))
+        ggf.report(Path(dir, "step2-clean-up"))
 
     # gap-filling via COBRApy medium
     # ------------------------------

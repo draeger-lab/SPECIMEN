@@ -7,15 +7,17 @@ __author__ = "Carolin Brune"
 # requirements
 ################################################################################
 
-
+import logging
 import os
 import os.path
 import subprocess
 import sys
 
+import model_polisher as mp
+
 from Bio import SeqIO
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Union
 
 from refinegems.utility.io import parse_gbff_for_cds
 
@@ -27,6 +29,21 @@ from refinegems.utility.io import parse_gbff_for_cds
 ################################################################################
 # functions
 ################################################################################
+
+# run ModelPolisher
+# -----------------
+
+def run_ModelPolisher(model_path:str, configuration:dict) -> Union[dict, None]:
+    
+    result = None
+    try:
+        result = mp.polish_model_file(model_path, configuration)
+    except:
+        logging.error(f"Something unexpected while running ModelPolisher. Skipping.")
+        
+    return result
+        
+
 
 # create a DIAMOND reference database
 # -----------------------------------
