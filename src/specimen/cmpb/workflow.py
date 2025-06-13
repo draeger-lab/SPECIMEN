@@ -413,7 +413,7 @@ def run(configpath: Union[str, None] = None):
             },
         }
 
-        result = run_ModelPolisher(current_modelpath, config_mp)
+        result = run_ModelPolisher(current_libmodel, config_mp)
 
         # @DEBUG Should the run-id be saved somewhere for debugging purposes? result['run_id']
         if result:
@@ -441,9 +441,9 @@ def run(configpath: Union[str, None] = None):
         
         current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
 
-            # in-between testing
-            between_growth_test(current_model, config, step="after_ModelPolisher")
-            between_analysis(current_model, config, step="after_ModelPolisher")
+        # in-between testing
+        between_growth_test(current_model, config, step="after_ModelPolisher")
+        between_analysis(current_model, config, step="after_ModelPolisher")
 
     # @TEST
     # Annotations
