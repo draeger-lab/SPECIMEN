@@ -8,6 +8,8 @@ __author__ = "Tobias Fehrenbach, Famke Baeuerle, Gwendolyn O. Döbel and Carolin
 ################################################################################
 
 # @BUG Error thrown if subfolder already exists!
+# @BUG Logs always empty
+# @BUG growth reports empty
 
 from datetime import date
 import logging
@@ -334,7 +336,7 @@ def run(configpath: Union[str, None] = None):
         )
 
         bcgf.find_missing_genes(current_libmodel)
-        bcgf.find_missing_reactions(current_model, threshold_add_reacs)
+        bcgf.find_missing_reactions(current_model)
         current_libmodel = kgf.fill_model(
             current_libmodel,
             namespace=config["general"]["namespace"],
@@ -392,7 +394,6 @@ def run(configpath: Union[str, None] = None):
         between_growth_test(current_model, config, step="after_gapfill")
         between_analysis(current_model, config, step="after_gapfill")
 
-    # @TEST
     # ModelPolisher
     ###############
     if config["modelpolisher"]:
@@ -433,17 +434,17 @@ def run(configpath: Union[str, None] = None):
                 header=True,
             )
 
-        # save model
-        current_libmodel = result["polished_document"].getModel()
-        between_save(
-            current_libmodel, dir, "after_ModelPolisher", only_modelpath
-        )
-        
-        current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
+            # save model
+            current_libmodel = result["polished_document"].getModel()
+            between_save(
+                current_libmodel, dir, "after_ModelPolisher", only_modelpath
+            )
 
-        # in-between testing
-        between_growth_test(current_model, config, step="after_ModelPolisher")
-        between_analysis(current_model, config, step="after_ModelPolisher")
+            current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
+
+            # in-between testing
+            between_growth_test(current_model, config, step="after_ModelPolisher")
+            between_analysis(current_model, config, step="after_ModelPolisher")
 
     # @TEST
     # Annotations
