@@ -389,7 +389,7 @@ def cleanup(
     biocyc_db: str = None,
     run_gene_gapfiller: Union[None, dict] = None,
     check_dupl_reac: bool = False,
-    check_dupl_meta: bool = "default",
+    check_dupl_meta: Literal["default", "exhaustive", "skip"] = "default",
     remove_unused_meta: bool = False,
     remove_dupl_reac: bool = False,
     remove_dupl_meta: bool = False,
