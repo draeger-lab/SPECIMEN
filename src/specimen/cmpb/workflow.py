@@ -22,6 +22,7 @@ import warnings
 from cobra import Reaction, Model
 from libsbml import Model as libModel
 
+from cobra.io.sbml import _sbml_to_model
 from refinegems.analysis import growth
 from refinegems.classes.reports import ModelInfoReport, SBOTermReport
 from refinegems.utility.util import test_biomass_presence
@@ -40,7 +41,7 @@ from refinegems.utility.connections import (
     adjust_BOF,
     run_SBOannotator,
 )
-from refinegems.utility.io import load_model, write_model_to_file
+from refinegems.utility.io import load_model, convert_cobra_to_libsbml, write_model_to_file
 from refinegems.developement.decorators import implement
 from refinegems.classes import egcs
 
@@ -74,8 +75,8 @@ def run(configpath: Union[str, None] = None):
         model: Union[Model, libModel],
         dir: Union[None, str] = None,
         label: Union[None, str] = None,
-        only_modelpath: Union[None, str] = None,
-    ) -> str:
+        only_modelpath: Union[None, str] = None
+    ): 
         """Helper function to save the model in between the different steps of the workflow
 
         Args:
@@ -89,21 +90,14 @@ def run(configpath: Union[str, None] = None):
                 Path to save the model to, if only one model will be saved.
                 If set, ignores dir and label.
                 Defaults to None.
-
-        Returns:
-            str:
-                The current model path.
         """
-
         name = model.id if isinstance(model, Model) else model.getId()
         if not only_modelpath:
             write_model_to_file(
                 model, str(Path(dir, "cmpb_out", "models", f"{name}_{label}.xml"))
             )
-            return Path(dir, "cmpb_out", "models", f"{name}_{label}.xml")
         else:
             write_model_to_file(model, str(only_modelpath))
-            return only_modelpath
 
     def between_growth_test(model: Model, cfg: dict, step: str):
         """Helper function for :py:func:`~specimen.cmpb.workflow.run`.
@@ -117,6 +111,8 @@ def run(configpath: Union[str, None] = None):
             - step (str):
                 Descriptive string for the current step of the pipeline (important for saving the output).
         """
+        # Get cobrapy_model
+        current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
         # try to set objective to growth
         growth_func_list = test_biomass_presence(model)
         if growth_func_list:
@@ -243,20 +239,21 @@ def run(configpath: Union[str, None] = None):
         config["input"]["modelpath"] = Path(dir, "cmpb_out", "models", modelname+".xml")
     current_modelpath = config["input"]["modelpath"]
 
-    # validate compartments of the loaded model
-    ###########################################
-    current_model = load_model(str(current_modelpath), "cobra")
+    # load & validate compartments of the loaded model
+    ##################################################
+    # load into libsbml
+    current_libmodel = load_model(str(current_modelpath), "libsbml")
+
+    # reload into cobrapy & validate compartments
+    current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
     # check, if compartment names are valid
     if not are_compartment_names_valid(current_model):
         # if not, attempt to fix them
         resolve_compartment_names(current_model)
         # save validated model
-        current_modelpath = between_save(
+        between_save(
             current_model, dir, "validated_comps", only_modelpath
         )
-
-    # reload into libsbml
-    current_libmodel = load_model(str(current_modelpath), "libsbml")
 
     # CarveMe correction
     ####################
@@ -286,13 +283,13 @@ def run(configpath: Union[str, None] = None):
         )
 
         # save model
-        current_modelpath = between_save(
+        between_save(
             current_libmodel, dir, "after_CarveMe_correction", only_modelpath
         )
 
     # growth test
     # -----------
-    current_model = load_model(str(current_modelpath), "cobra")
+    current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
     between_growth_test(current_model, config, step="after_draft")
     between_analysis(current_model, config, step="after_draft")
 
@@ -313,14 +310,14 @@ def run(configpath: Union[str, None] = None):
                 namespace=config["general"]["namespace"],
                 idprefix=config["gapfilling"]["idprefix"],
                 formula_check=config["gapfilling"]["formula-check"],
-                exclude_dna=config["gapfilling"]["formula-check"],
+                exclude_dna=config["gapfilling"]["exclude-dna"],
                 exclude_rna=config["gapfilling"]["exclude-rna"],
             )
             # save model
-            current_modelpath = between_save(
+            between_save(
                 current_libmodel, dir, "after_KEGG_gapfill", only_modelpath
             )
-            current_model = load_model(str(current_modelpath), "cobra")
+            current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
 
         else:
             mes = f"No KEGG organism ID provided. Gapfilling with KEGG will be skipped."
@@ -346,10 +343,10 @@ def run(configpath: Union[str, None] = None):
             exclude_rna=config["gapfilling"]["exclude-rna"],
         )
         # save model
-        current_modelpath = between_save(
+        between_save(
             current_libmodel, dir, "after_BioCyc_gapfill", only_modelpath
         )
-        current_model = load_model(str(current_modelpath), "cobra")
+        current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
 
     # GeneGapFiller
     if config["gapfilling"]["GeneGapFiller"]:
@@ -383,17 +380,18 @@ def run(configpath: Union[str, None] = None):
             exclude_rna=config["gapfilling"]["exclude-rna"],
         )
         # save model
-        current_modelpath = between_save(
+        between_save(
             current_libmodel, dir, "after_Gene_gapfill", only_modelpath
         )
 
-    current_model = load_model(str(current_modelpath), "cobra")
+    current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
 
     # testing
     if run_gapfill:
         between_growth_test(current_model, config, step="after_gapfill")
         between_analysis(current_model, config, step="after_gapfill")
 
+    # @TEST
     # ModelPolisher
     ###############
     if config["modelpolisher"]:
@@ -414,7 +412,7 @@ def run(configpath: Union[str, None] = None):
             },
         }
 
-        result = mp.polish_model_file(current_modelpath, config_mp)
+        result = mp.polish_model_document(current_libmodel.getSBMLDocument(), config_mp)
 
         # @DEBUG Should the run-id be saved somewhere for debugging purposes? result['run_id']
         pd.DataFrame(result["diff"]).to_csv(
@@ -434,16 +432,18 @@ def run(configpath: Union[str, None] = None):
         )
 
         # save model
-        current_modelpath = between_save(
+        current_libmodel = result["polished_document"].getModel()
+        between_save(
             current_libmodel, dir, "after_ModelPolisher", only_modelpath
         )
-
-        current_model = load_model(str(current_modelpath), "cobra")
+        
+        current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
 
         # in-between testing
         between_growth_test(current_model, config, step="after_ModelPolisher")
         between_analysis(current_model, config, step="after_ModelPolisher")
 
+    # @TEST
     # Annotations
     #############
 
@@ -451,7 +451,7 @@ def run(configpath: Union[str, None] = None):
     # -----------------
     if config["kegg_pathway_groups"]["add"]:
         current_libmodel, missing_list = set_kegg_pathways(
-            current_modelpath,
+            current_libmodel,
             viaEC=config["kegg_pathway_groups"]["viaEC"],
             viaRC=config["kegg_pathway_groups"]["viaRC"],
         )
@@ -468,19 +468,18 @@ def run(configpath: Union[str, None] = None):
             for line in missing_list:
                 outfile.write(f"{line}\n")
         # save model
-        current_modelpath = between_save(
+        between_save(
             current_libmodel, dir, "added_KeggPathwayGroups", only_modelpath
         )
 
     # SBOannotator
     # ------------
-    current_libmodel = load_model(str(current_modelpath), "libsbml")
     current_libmodel = run_SBOannotator(current_libmodel)
-    current_modelpath = between_save(
+    between_save(
         current_libmodel, dir, "SBOannotated", only_modelpath
     )
 
-    current_model = load_model(str(current_modelpath), "cobra")
+    current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
     between_analysis(current_model, config, step="after_annotation")
 
     # model cleanup
@@ -530,7 +529,7 @@ def run(configpath: Union[str, None] = None):
     )
 
     # save model
-    current_modelpath = between_save(
+    between_save(
         current_model, dir, "after_duplicate_removal", only_modelpath
     )
 
@@ -541,17 +540,15 @@ def run(configpath: Union[str, None] = None):
     # reaction direction
     # ------------------
     if config["reaction_direction"]:
-        current_model = load_model(str(current_modelpath), "cobra")
         current_model = check_direction(current_model, config["reaction_direction"])
 
     # save model
-    current_modelpath = between_save(
+    between_save(
         current_model, dir, "after_reac_direction_change", only_modelpath
     )
 
     # find and solve energy generating cycles
     # ---------------------------------------
-    current_model = load_model(str(current_modelpath), "cobra")
     results = None
     match config["EGCs"]["solver"]:
         # greedy solver
@@ -577,14 +574,15 @@ def run(configpath: Union[str, None] = None):
             )
 
     if results:
-        current_modelpath = between_save(
+        between_save(
             current_model, dir, "after_egc_fix", only_modelpath
         )
-        current_libmodel = load_model(str(current_modelpath), "libsbml")
+        current_libmodel = convert_cobra_to_libsbml(current_model, 'notes')
         # in-between testing
         between_growth_test(current_model, config, step="after_egcs")
         between_analysis(current_model, config, step="after_egcs")
 
+    # @TEST
     # BOF
     # ---
     # BOFdat - optional
@@ -593,34 +591,29 @@ def run(configpath: Union[str, None] = None):
         if check_bof:
             current_model.reactions.get_by_id(check_bof[0]).reaction = adjust_BOF(
                 config["BOF"]["bofdat_params"]["full_genome_sequence"],
-                str(current_modelpath),
                 current_model,
                 dna_weight_fraction=config["BOF"]["bofdat_params"][
                     "dna_weight_fraction"
                 ],
                 weight_frac=config["BOF"]["bofdat_params"]["weight_fraction"],
             )
-            current_model = check_normalise_biomass(current_model)
         else:
             bof_reac = Reaction("Biomass_BOFdat")
             bof_reac.name = "Biomass objective function created by BOFdat"
             current_model.add_reactions([bof_reac])
             current_model.reactions.get_by_id(bof_reac).reaction = adjust_BOF(
                 config["BOF"]["bofdat_params"]["full_genome_sequence"],
-                str(current_modelpath),
                 current_model,
                 dna_weight_fraction=config["BOF"]["bofdat_params"][
                     "dna_weight_fraction"
                 ],
                 weight_frac=config["BOF"]["bofdat_params"]["weight_fraction"],
             )
-            current_model = check_normalise_biomass(current_model)
     # check and normalise
-    else:
-        current_model = check_normalise_biomass(current_model)
+    current_model = check_normalise_biomass(current_model)
 
     # save model
-    current_modelpath = between_save(current_model, dir, "after_BOF", only_modelpath)
+    between_save(current_model, dir, "after_BOF", only_modelpath)
 
     # MCC
     # ---
@@ -629,12 +622,11 @@ def run(configpath: Union[str, None] = None):
     )
 
     # save the final model
-    current_modelpath = between_save(current_model, dir, "final_model", only_modelpath)
+    current_libmodel = convert_cobra_to_libsbml(current_model, 'notes')
+    between_save(current_libmodel, dir, "final_model", only_modelpath)
 
     # analysis
     ##########
-    current_model = load_model(str(current_modelpath), "cobra")
-    current_libmodel = load_model(str(current_modelpath), "libsbml")
 
     # stats
     # -----

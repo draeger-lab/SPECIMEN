@@ -812,8 +812,9 @@ def annotate(
 
     start = time.time()
 
+    # @TEST
     libmodel, nokegg = set_kegg_pathways(
-        str(Path(dir, "step3-annotation", model.getId() + "_SBOannotated.xml")),
+        model,
         viaEC=kegg_viaEC,
         viaRC=kegg_viaRC,
     )
@@ -1030,30 +1031,26 @@ def smooth(
 
     logger.info("\n# ----------\n# adjust BOF\n# ----------")
     start = time.time()
+    # @TEST
+    # update BOF
+    pos_bofs = test_biomass_presence(model)
+    if pos_bofs:
+        model.reactions.get_by_id(pos_bofs[0]).reaction = adjust_BOF(
+            genome, model, dna_weight_frac, ion_weight_frac
+        )
+        # optimise BOF(s)
+        model = check_normalise_biomass(model)
+    else:
+        # create new BOF
+        bof_reac = Reaction("Biomass_BOFdat")
+        bof_reac.name = "Biomass objective function created by BOFdat"
+        model.add_reactions([bof_reac])
+        model.reactions.get_by_id(bof_reac).reaction = adjust_BOF(
+            genome, model, dna_weight_frac, ion_weight_frac
+        )
 
-    with tempfile.NamedTemporaryFile(suffix=".xml", delete=False) as temp_model:
-        # generate an up-to-date model xml-file
-        cobra.io.write_sbml_model(model, temp_model.name)
-        # update BOF
-        pos_bofs = test_biomass_presence(model)
-        if pos_bofs:
-            model.reactions.get_by_id(pos_bofs[0]).reaction = adjust_BOF(
-                genome, temp_model.name, model, dna_weight_frac, ion_weight_frac
-            )
-            # optimise BOF(s)
-            model = check_normalise_biomass(model)
-        else:
-            # create new BOF
-            bof_reac = Reaction("Biomass_BOFdat")
-            bof_reac.name = "Biomass objective function created by BOFdat"
-            model.add_reactions([bof_reac])
-            model.reactions.get_by_id(bof_reac).reaction = adjust_BOF(
-                genome, temp_model.name, model, dna_weight_frac, ion_weight_frac
-            )
-
-            # optimise BOF(s)
-            model = check_normalise_biomass(model)
-    os.remove(temp_model.name)
+    # optimise BOF(s)
+    model = check_normalise_biomass(model)
 
     end = time.time()
     logger.info(f"\ttime: {end - start}s")
