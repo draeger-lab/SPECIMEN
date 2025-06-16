@@ -76,7 +76,7 @@ def run(configpath: Union[str, None] = None):
 
     def between_save(
         model: Union[Model, libModel],
-        dir: Union[None, str] = None,
+        model_dir: Union[None, str] = None,
         label: Union[None, str] = None,
         only_modelpath: Union[None, str] = None
     ): 
@@ -85,19 +85,19 @@ def run(configpath: Union[str, None] = None):
         Args:
             - model (Union[Model,libModel]):
                 The current model, either loaded with libsbml or COBRApy.
-            - dir (Union[None,str], optional):
-                Output directory. Defaults to None.
+            - model_dir (Union[None,str], optional):
+                Output model directory. Defaults to None.
             - label (Union[None,str], optional):
                 Name of the step. Defaults to None.
             - only_modelpath (Union[None,str], optional):
                 Path to save the model to, if only one model will be saved.
-                If set, ignores dir and label.
+                If set, ignores directory and label.
                 Defaults to None.
         """
         name = model.id if isinstance(model, Model) else model.getId()
         if not only_modelpath:
             write_model_to_file(
-                model, str(Path(dir, "cmpb_out", "models", f"{name}_{label}.xml"))
+                model, str(Path(model_dir, f"{name}_{label}.xml"))
             )
         else:
             write_model_to_file(model, str(only_modelpath))
@@ -128,8 +128,18 @@ def run(configpath: Union[str, None] = None):
                 namespace=cfg["general"]["namespace"],
                 retrieve="report",
             )
+
+            # Generate path for report
+            growth_dir = Path(cfg["general"]["dir"], "cmpb_out", "misc", "growth", step)
+            try:
+                Path(growth_dir).mkdir(parents=True, exist_ok=False)
+            except FileExistsError:
+                warnings.warn(
+                    f"Given directory {growth_dir} already exists. High possibility of files being overwritten."
+                )
+            
             growth_report.save(
-                Path(cfg["general"]["dir"], "cmpb_out", "misc", "growth", step),
+                growth_dir,
                 color_palette=config["general"]["colours"],
             )
         else:
@@ -161,11 +171,18 @@ def run(configpath: Union[str, None] = None):
             )
         if cfg["general"]["stats_always_on"]:
             report = ModelInfoReport(model)
-            Path(dir, "cmpb_out", "misc", "stats", step).mkdir(
-                parents=True, exist_ok=False
-            )
+
+            # Generate path for report
+            stats_dir = Path(cfg["general"]["dir"], "cmpb_out", "misc", "stats", step)
+            try:
+                Path(stats_dir).mkdir(parents=True, exist_ok=False)
+            except FileExistsError:
+                warnings.warn(
+                    f"Given directory {stats_dir} already exists. High possibility of files being overwritten."
+                )
+                
             report.save(
-                Path(cfg["general"]["dir"], "cmpb_out", "misc", "stats", step),
+                Path(stats_dir),
                 color_palette=config["general"]["colours"],
             )
 
@@ -201,19 +218,25 @@ def run(configpath: Union[str, None] = None):
         )
         modelname = "model_" + str(date.today().year).removeprefix("20")
 
-    dir = config["general"]["dir"]
+    # Set up directory structure names
+    PARENT_DIR = config["general"]["dir"]
+    CMPB_OUT_DIR = Path(PARENT_DIR, 'cmpb_out')
+    MODEL_DIR = Path(CMPB_OUT_DIR, 'models')
+    MISC_DIR = Path(CMPB_OUT_DIR, 'misc')
+
+    # Get cmodel path if only one model should be saved
     only_modelpath = None
     if not config["general"]["save_all_models"]:
-        only_modelpath = Path(dir, "cmpb_out", f"{modelname}.xml")
+        only_modelpath = Path(CMPB_OUT_DIR, f"{modelname}.xml")
 
     # create directory structure
     # --------------------------
-    build_data_directories("cmpb", dir)
+    build_data_directories("cmpb", PARENT_DIR)
 
     # create log
     # ----------
     today = date.today().strftime("%Y%m%d")
-    log_file = Path(dir, "cmpb_out", "logs", f"specimen_cmpb_{str(today)}.log")
+    log_file = Path(CMPB_OUT_DIR, "logs", f"specimen_cmpb_{str(today)}.log")
     handler = logging.handlers.RotatingFileHandler(
         log_file, mode="w", backupCount=10, encoding="utf-8", delay=0
     )
@@ -228,18 +251,21 @@ def run(configpath: Union[str, None] = None):
     # CarveMe
     #########
     if not config["input"]["modelpath"]:
+        out_modelpath = only_modelpath if only_modelpath else Path(MODEL_DIR, modelname+'.xml')
         if (
             config["carveme"]["gram"] == "grampos"
             or config["carveme"]["gram"] == "gramneg"
         ):
             os.system(
-                f"carve {config['general']['protein_fasta']} --solver scip -u {config['carveme']['gram']} -o {Path(dir, 'cmpb_out', 'models', modelname+'.xml')}"
+                f"carve {config['general']['protein_fasta']} --solver scip -u {config['carveme']['gram']} -o {out_modelpath}"
             )
         else:
             os.system(
-                f"carve {config['general']['protein_fasta']} --solver scip -o {Path(dir, 'cmpb_out','models', modelname+'.xml')}"
+                f"carve {config['general']['protein_fasta']} --solver scip -o {out_modelpath}"
             )
-        config["input"]["modelpath"] = Path(dir, "cmpb_out", "models", modelname+".xml")
+        config["input"]["modelpath"] = out_modelpath
+
+    # Set model path for pipeline
     current_modelpath = config["input"]["modelpath"]
 
     # load & validate compartments of the loaded model
@@ -255,17 +281,27 @@ def run(configpath: Union[str, None] = None):
         resolve_compartment_names(current_model)
         # save validated model
         between_save(
-            current_model, dir, "validated_comps", only_modelpath
+            current_model, MODEL_DIR, "validated_comps", only_modelpath
         )
+
+        # Transform model into libmodel for CarveMe correction
+        current_libmodel = convert_cobra_to_libsbml(current_model, 'notes')
 
     # CarveMe correction
     ####################
 
     # check, if input is a CarveMe model
     if "CarveMe" in current_libmodel.getAnnotationString():
-        Path(dir, "cmpb_out", "misc", "wrong_annotations").mkdir(
-            parents=True, exist_ok=False
-        )
+        # Set up directory for report output
+        current_sub_dir = Path(MISC_DIR, "wrong_annotations")
+        try:
+            Path(current_sub_dir).mkdir(parents=True, exist_ok=False)
+        except FileExistsError:
+            warnings.warn(
+                f"Given directory {current_sub_dir} already exists. High possibility of files being overwritten."
+            )
+
+        # Polish model
         current_libmodel = polish_model(
             current_libmodel,
             id_db=config["general"]["namespace"],
@@ -274,20 +310,21 @@ def run(configpath: Union[str, None] = None):
             lab_strain=config["cm-polish"]["is_lab_strain"],
             kegg_organism_id=config["general"]["kegg_organism_id"],
             reaction_direction=config["reaction_direction"],
-            outpath=str(Path(dir, "cmpb_out", "misc", "wrong_annotations")),
+            outpath=str(Path(MISC_DIR, "wrong_annotations")),
         )
         # rg correct charges
         current_libmodel, mult_charges_dict = correct_charges_modelseed(
             current_libmodel
         )
-        mult_charges_tab = pd.DataFrame.from_dict(mult_charges_dict, orient="index")
-        mult_charges_tab.to_csv(
-            Path(dir, "cmpb_out", "misc", "reac_with_mult_charges.tsv"), sep="\t"
-        )
+        if mult_charges_dict:
+            mult_charges_tab = pd.DataFrame.from_dict(mult_charges_dict, orient="index")
+            mult_charges_tab.to_csv(
+                Path(MISC_DIR, "reac_with_mult_charges.tsv"), sep="\t"
+            )
 
         # save model
         between_save(
-            current_libmodel, dir, "after_CarveMe_correction", only_modelpath
+            current_libmodel, MODEL_DIR, "after_CarveMe_correction", only_modelpath
         )
 
     # growth test
@@ -318,7 +355,7 @@ def run(configpath: Union[str, None] = None):
             )
             # save model
             between_save(
-                current_libmodel, dir, "after_KEGG_gapfill", only_modelpath
+                current_libmodel, MODEL_DIR, "after_KEGG_gapfill", only_modelpath
             )
             current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
 
@@ -347,7 +384,7 @@ def run(configpath: Union[str, None] = None):
         )
         # save model
         between_save(
-            current_libmodel, dir, "after_BioCyc_gapfill", only_modelpath
+            current_libmodel, MODEL_DIR, "after_BioCyc_gapfill", only_modelpath
         )
         current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
 
@@ -368,7 +405,7 @@ def run(configpath: Union[str, None] = None):
             mail=config["tech-resources"]["email"],
             check_NCBI=config["gapfilling"]["GeneGapFiller parameters"]["check-NCBI"],
             threshold_add_reacs=threshold_add_reacs,
-            outdir=Path(dir, "cmpb_out", "misc", "gapfill"),
+            outdir=Path(MISC_DIR, "gapfill"),
             sens=config["gapfilling"]["GeneGapFiller parameters"]["sensitivity"],
             cov=config["gapfilling"]["GeneGapFiller parameters"]["coverage"],
             t=config["tech-resources"]["threads"],
@@ -384,7 +421,7 @@ def run(configpath: Union[str, None] = None):
         )
         # save model
         between_save(
-            current_libmodel, dir, "after_Gene_gapfill", only_modelpath
+            current_libmodel, MODEL_DIR, "after_Gene_gapfill", only_modelpath
         )
 
     current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
@@ -419,17 +456,17 @@ def run(configpath: Union[str, None] = None):
         # @DEBUG Should the run-id be saved somewhere for debugging purposes? result['run_id']
         if result:
             pd.DataFrame(result["diff"]).to_csv(
-                Path(dir, "cmpb_out", "misc", "modelpolisher", "diff_mp.csv"),
+                Path(MISC_DIR, "modelpolisher", "diff_mp.csv"),
                 sep=";",
                 header=False,
             )
             pd.DataFrame(result["pre_validation"]).to_csv(
-                Path(dir, "cmpb_out", "misc", "modelpolisher", "pre_validation.csv"),
+                Path(MISC_DIR, "modelpolisher", "pre_validation.csv"),
                 sep=";",
                 header=True,
             )
             pd.DataFrame(result["post_validation"]).to_csv(
-                Path(dir, "cmpb_out", "misc", "modelpolisher", "post_validation.csv"),
+                Path(MISC_DIR, "modelpolisher", "post_validation.csv"),
                 sep=";",
                 header=True,
             )
@@ -437,7 +474,7 @@ def run(configpath: Union[str, None] = None):
             # save model
             current_libmodel = result["polished_document"].getModel()
             between_save(
-                current_libmodel, dir, "after_ModelPolisher", only_modelpath
+                current_libmodel, MODEL_DIR, "after_ModelPolisher", only_modelpath
             )
 
             current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
@@ -446,7 +483,6 @@ def run(configpath: Union[str, None] = None):
             between_growth_test(current_model, config, step="after_ModelPolisher")
             between_analysis(current_model, config, step="after_ModelPolisher")
 
-    # @TEST
     # Annotations
     #############
 
@@ -460,8 +496,7 @@ def run(configpath: Union[str, None] = None):
         )
         with open(
             Path(
-                dir,
-                "cmpb_out",
+                CMPB_OUT_DIR,
                 "misc",
                 "kegg_pathway",
                 "reac_wo_kegg_pathway_groups.txt",
@@ -472,14 +507,14 @@ def run(configpath: Union[str, None] = None):
                 outfile.write(f"{line}\n")
         # save model
         between_save(
-            current_libmodel, dir, "added_KeggPathwayGroups", only_modelpath
+            current_libmodel, MODEL_DIR, "added_KeggPathwayGroups", only_modelpath
         )
 
     # SBOannotator
     # ------------
     current_libmodel = run_SBOannotator(current_libmodel)
     between_save(
-        current_libmodel, dir, "SBOannotated", only_modelpath
+        current_libmodel, MODEL_DIR, "SBOannotated", only_modelpath
     )
 
     current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
@@ -533,7 +568,7 @@ def run(configpath: Union[str, None] = None):
 
     # save model
     between_save(
-        current_model, dir, "after_duplicate_removal", only_modelpath
+        current_model, MODEL_DIR, "after_duplicate_removal", only_modelpath
     )
 
     # in-between testing
@@ -547,7 +582,7 @@ def run(configpath: Union[str, None] = None):
 
     # save model
     between_save(
-        current_model, dir, "after_reac_direction_change", only_modelpath
+        current_model, MODEL_DIR, "after_reac_direction_change", only_modelpath
     )
 
     # find and solve energy generating cycles
@@ -578,7 +613,7 @@ def run(configpath: Union[str, None] = None):
 
     if results:
         between_save(
-            current_model, dir, "after_egc_fix", only_modelpath
+            current_model, MODEL_DIR, "after_egc_fix", only_modelpath
         )
         current_libmodel = convert_cobra_to_libsbml(current_model, 'notes')
         # in-between testing
@@ -616,17 +651,17 @@ def run(configpath: Union[str, None] = None):
     current_model = check_normalise_biomass(current_model)
 
     # save model
-    between_save(current_model, dir, "after_BOF", only_modelpath)
+    between_save(current_model, MODEL_DIR, "after_BOF", only_modelpath)
 
     # MCC
     # ---
     current_model = perform_mcc(
-        current_model, Path(dir, "cmpb_out", "misc", "mcc"), apply=True
+        current_model, Path(MISC_DIR, "mcc"), apply=True
     )
 
     # save the final model
     current_libmodel = convert_cobra_to_libsbml(current_model, 'notes')
-    between_save(current_libmodel, dir, "final_model", only_modelpath)
+    between_save(current_libmodel, MODEL_DIR, "final_model", only_modelpath)
 
     # analysis
     ##########
@@ -634,9 +669,15 @@ def run(configpath: Union[str, None] = None):
     # stats
     # -----
     stats_report = ModelInfoReport(current_model)
-    Path(dir, "cmpb_out", "misc", "stats", "final").mkdir(parents=True, exist_ok=False)
+    current_sub_dir = Path(MISC_DIR, "stats", "final")
+    try:
+        Path(current_sub_dir).mkdir(parents=True, exist_ok=False)
+    except FileExistsError:
+        warnings.warn(
+            f"Given directory {current_sub_dir} already exists. High possibility of files being overwritten."
+        )
     stats_report.save(
-        Path(dir, "cmpb_out", "misc", "stats", "final"),
+        Path(MISC_DIR, "stats", "final"),
         color_palette=config["general"]["colours"],
     )
 
@@ -644,21 +685,21 @@ def run(configpath: Union[str, None] = None):
     # ------------
     pathway_report = kegg_pathway_analysis(current_model)
     pathway_report.save(
-        Path(dir, "cmpb_out", "misc", "kegg_pathway"),
+        Path(MISC_DIR, "kegg_pathway"),
         colors=config["general"]["colours"],
     )
 
     # sbo term
     # --------
     sboreport = SBOTermReport(current_libmodel)
-    sboreport.save(str(Path(dir, "cmpb_out", "misc")))
+    sboreport.save(str(Path(MISC_DIR)))
 
     # memote
     # ------
     run_memote(
         current_model,
         "html",
-        save_res=Path(dir, "cmpb_out", "misc", "memote", "final_memote.html"),
+        save_res=Path(MISC_DIR, "memote", "final_memote.html"),
     )
 
     # growth
@@ -672,7 +713,7 @@ def run(configpath: Union[str, None] = None):
         current_model, media_list[0], media_list[1], config["general"]["namespace"]
     )
     auxo_report.save(
-        Path(dir, "cmpb_out", "misc", "auxotrophy"),
+        Path(MISC_DIR, "auxotrophy"),
         color_palette=config["general"]["colours"],
     )
 
