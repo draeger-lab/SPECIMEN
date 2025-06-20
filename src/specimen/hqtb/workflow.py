@@ -302,6 +302,8 @@ def run(config_file: str = "test_config.yaml"):
                 Path(config["general"]["dir"], "03_refinement"),
                 mcc=config["parameters"]["refinement_smoothing"]["mcc"],
                 egc_solver=config["parameters"]["refinement_smoothing"]["egc"],
+                limit=config["performance"]["egcs"]["limit"],
+                chunksize=config["performance"]["egcs"]["chunk_size"],
                 namespace=config["template"]["namespace"],
                 dna_weight_frac=config["parameters"]["refinement_smoothing"][
                     "dna_weight_frac"

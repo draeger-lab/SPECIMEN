@@ -866,6 +866,8 @@ def smooth(
     dir: str,
     mcc="skip",
     egc_solver: None | Literal["greedy"] = None,
+    limit: int = 2,
+    chunksize: int = 1,
     namespace: Literal["BiGG"] = "BiGG",
     dna_weight_frac=0.023,
     ion_weight_frac=0.05,
@@ -894,6 +896,12 @@ def smooth(
             If given, uses the option to solve EGCs.
             Current options include greedy (Greedy Solver).
             Defaults to 'greedy'.
+        - limit (int, optional):
+            Maximal number of cores to use during ECG solving step.
+            Defaults to 2.
+        - chunksize (int, optional):
+            Chunksize to use for parallel processing of EGCs during solving.
+            Defaults to 1.
         - namespace (Literal['BiGG'], optional):
             Namespace to use for the model.
             Defaults to 'BiGG'.
@@ -1005,7 +1013,7 @@ def smooth(
         # greedy solver
         case "greedy":
             logger.info("Using GreedyEGCSolver...")
-            solver = egcs.GreedyEGCSolver()
+            solver = egcs.GreedyEGCSolver(limit=limit, chunksize=chunksize)
             results = solver.solve_egcs(
                 model, namespace=namespace
             )  # automatically uses c,e as compartments
@@ -1015,7 +1023,7 @@ def smooth(
 
         # no solver = EGCs will only be reported
         case _:
-            solver = egcs.EGCSolver()
+            solver = egcs.EGCSolver(limit=limit, chunksize=chunksize)
             logger.info(f"\tFound EGCs:\n")
             logger.info(
                 f"\t{solver.find_egcs(model,with_reacs=True,namespace=namespace)}"

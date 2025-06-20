@@ -681,6 +681,21 @@ def annotation(model, dir, kegg_via_ec, kegg_via_rc, memote):
     help="String sets the type of solver to use to solve EGCs. Otherwise just reports existing EGCs.",
 )
 @click.option(
+    "--limit",
+    required=False,
+    type=int,
+    default=None,
+    help="Maximum number of cores to use for parallel processing of EGCs. Default uses all available cores.",
+)
+@click.option(
+    "--chunksize",
+    required=False,
+    type=int,
+    default=100,
+    show_default=True,
+    help="Size of the chunks during parallel processing of EGCs. Default is 100.",
+)
+@click.option(
     "--namespace",
     "--nsp",
     default="BiGG",
@@ -712,7 +727,7 @@ def annotation(model, dir, kegg_via_ec, kegg_via_rc, memote):
     "--memote", is_flag=True, default=False, help="Use memote on the extended model."
 )
 def smoothing(
-    model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, egc, namespace, memote
+    model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, egc, chunksize, limit, namespace, memote
 ):
     """Refinement step 4: Smoothing
 
@@ -728,6 +743,8 @@ def smoothing(
         dir,
         mcc,
         egc,
+        limit,
+        chunksize,
         namespace,
         dna_weight_frac,
         ion_weight_frac,

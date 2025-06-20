@@ -214,3 +214,6 @@ performance:
     gapfilling:
         iterations: 3
         chunk_size: 2000
+    egcs:
+        chunk_size: 10 # chunk soze for parallel processing during solving EGCs
+        limit: 2 # max numbers of cores to use while trying to solve EGCs
