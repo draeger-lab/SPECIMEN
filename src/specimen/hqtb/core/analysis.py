@@ -18,6 +18,7 @@ from refinegems.utility.io import load_model
 from refinegems.analysis.core_pan import compare_to_core_pan
 from refinegems.curation.pathways import kegg_pathway_analysis
 from refinegems.utility.util import test_biomass_presence
+from refinegems.developement.decorators import suppress_warning
 
 from ...classes.reports import SpecimenModelInfoReport
 
@@ -38,7 +39,7 @@ logger.propagate = False
 # run this part
 # -------------
 
-
+@suppress_warning("invalid character '*' found in formula")
 def run(
     model_path: str,
     dir: str,

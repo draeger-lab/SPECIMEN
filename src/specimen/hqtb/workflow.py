@@ -17,6 +17,7 @@ from datetime import date
 from pathlib import Path
 
 from refinegems.utility.io import mimic_genbank
+from refinegems.developement.decorators import suppress_warning
 
 from . import core
 from .. import util
@@ -29,7 +30,9 @@ from .. import util
 # functions
 ################################################################################
 
-
+# since * can be allowed by gapfiller and will be checked in validation, 
+# separate report is suppressed here
+@suppress_warning("invalid character '*' found in formula") 
 def run(config_file: str = "test_config.yaml"):
     """Run the complete workflow for creating a strain-specific model.
 

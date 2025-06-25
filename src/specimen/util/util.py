@@ -14,6 +14,7 @@ import sys
 
 from Bio import SeqIO
 from pathlib import Path
+from typing import Literal
 
 from refinegems.utility.io import parse_gbff_for_cds
 
