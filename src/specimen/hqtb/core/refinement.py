@@ -812,7 +812,6 @@ def annotate(
 
     start = time.time()
 
-    # @TEST
     libmodel, nokegg = set_kegg_pathways(
         model,
         viaEC=kegg_viaEC,
@@ -1039,7 +1038,7 @@ def smooth(
 
     logger.info("\n# ----------\n# adjust BOF\n# ----------")
     start = time.time()
-    # @TEST
+
     # update BOF
     pos_bofs = test_biomass_presence(model)
     if pos_bofs:

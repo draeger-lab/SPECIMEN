@@ -21,7 +21,7 @@ import pandas as pd
 from pathlib import Path
 from typing import Union
 
-from ...util.util import run_ModelPolisher
+from refinegems.utility.connections import run_ModelPolisher
 
 ################################################################################
 # setup logging
@@ -155,8 +155,8 @@ def run(
         }
 
         # running ModelPolisher
-        result = run_ModelPolisher(model_path, config_mp)
-        
+        result = run_ModelPolisher(str(model_path), config_mp)
+
         if result:
             # saving results files
             pd.DataFrame(result["diff"]).to_csv(

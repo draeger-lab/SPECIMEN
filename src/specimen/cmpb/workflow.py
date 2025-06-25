@@ -42,13 +42,13 @@ from refinegems.utility.connections import (
     perform_mcc,
     adjust_BOF,
     run_SBOannotator,
+    run_ModelPolisher
 )
 from refinegems.utility.io import load_model, convert_cobra_to_libsbml, write_model_to_file
 from refinegems.developement.decorators import implement
 from refinegems.classes import egcs
 
 from ..util.set_up import save_cmpb_user_input, validate_config, build_data_directories
-from ..util.util import run_ModelPolisher
 
 ################################################################################
 # setup logging

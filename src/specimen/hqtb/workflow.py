@@ -146,9 +146,12 @@ def run(config_file: str = "test_config.yaml"):
             # step 3.1: extension
             # ...................
             
-            # create a GenBank format FASTA for the extension step (needed for the GapFiller)
-            fasta_path = mimic_genbank(config["subject"]["annotated_genome"], config["subject"]["gff"],
-                                       str(Path(config["general"]["dir"]))) # @ASK any ides for a better place for this file?
+            # set a GenBank format FASTA for the extension step (needed for the GapFiller)
+            if config["parameters"]["refinement_cleanup"]["GeneGapFiller parameters"]["fasta"]:
+                fasta_path = config["parameters"]["refinement_cleanup"]["GeneGapFiller parameters"]["fasta"]
+            else:
+                fasta_path = mimic_genbank(config["subject"]["annotated_genome"], config["subject"]["gff"],
+                                       str(Path(config["general"]["dir"]))) 
             
             core.refinement.extend(
                 draft=Path(
@@ -159,7 +162,7 @@ def run(config_file: str = "test_config.yaml"):
                 gff=config["subject"]["gff"],
                 fasta=fasta_path, 
                 db=config["data"]["diamond"],
-                dir=Path(config["general"]["dir"] + "03_refinement"),
+                dir=Path(config["general"]["dir"], "03_refinement"),
                 ncbi_mapping=config["data"]["ncbi_map"],
                 email=config["parameters"]["general"]["email"],
                 sensitivity=config["parameters"]["refinement_extension"]["sensitivity"],

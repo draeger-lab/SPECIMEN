@@ -7,19 +7,13 @@ __author__ = "Carolin Brune"
 # requirements
 ################################################################################
 
-import logging
 import os
 import os.path
 import subprocess
 import sys
 
-#import libsbml
-import model_polisher as mp
-
 from Bio import SeqIO
-from libsbml import Model as libModel
 from pathlib import Path
-from typing import Literal, Union
 
 from refinegems.utility.io import parse_gbff_for_cds
 
@@ -31,42 +25,6 @@ from refinegems.utility.io import parse_gbff_for_cds
 ################################################################################
 # functions
 ################################################################################
-
-# run ModelPolisher
-# -----------------
-
-def run_ModelPolisher(model_or_path: Union[libModel, str], configuration:dict) -> Union[dict, None]:
-    """Wrapper around ModelPolisher
-
-    Args:
-        - model (libModel): 
-            Model loaded with libSBML
-        - configuration (dict): 
-            Configuration file for ModelPolisher
-
-    Returns:
-        Union[dict, None]: 
-            Result from ModelPolisher
-    """
-
-    # use correct function for input model/path to model
-    match model_or_path:
-        case libModel():
-            model_or_path = model_or_path.getSBMLDocument()
-            mp_polish = mp.polish_model_document
-        case str():
-            mp_polish = mp.polish_model_file
-        case _:
-            raise TypeError(f'Invalid input type: {type(model_or_path)}. Should be one of libSBML model object or str.')
-    
-    result = None
-    try:
-        result = mp_polish(model_or_path, configuration)
-    except:
-        logging.error(f"Something unexpected happened while running ModelPolisher. Skipping ModelPolisher.")
-        
-    return result
-
 
 # create a DIAMOND reference database
 # -----------------------------------
