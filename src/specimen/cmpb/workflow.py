@@ -489,7 +489,7 @@ def run(configpath: Union[str, None] = None):
     # KEGGPathwayGroups
     # -----------------
     if config["kegg_pathway_groups"]["add"]:
-        current_libmodel, missing_list = set_kegg_pathways(
+        missing_list = set_kegg_pathways(
             current_libmodel,
             viaEC=config["kegg_pathway_groups"]["viaEC"],
             viaRC=config["kegg_pathway_groups"]["viaRC"],

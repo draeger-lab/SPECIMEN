@@ -812,13 +812,13 @@ def annotate(
 
     start = time.time()
 
-    libmodel, nokegg = set_kegg_pathways(
+    nokegg = set_kegg_pathways(
         model,
         viaEC=kegg_viaEC,
         viaRC=kegg_viaRC,
     )
     write_model_to_file(
-        libmodel,
+        model,
         str(Path(dir, "step3-annotation", model.getId() + "_keggpathways.xml")),
     )
     with open(str(Path(dir, "step3-annotation", "reac_no_keggORec")), "w") as f:
