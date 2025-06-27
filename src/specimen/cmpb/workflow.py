@@ -7,25 +7,25 @@ __author__ = "Tobias Fehrenbach, Famke Baeuerle, Gwendolyn O. Döbel and Carolin
 # requirements
 ################################################################################
 
-# @BUG Error thrown if subfolder already exists!
-# @BUG Logs always empty
 # @BUG growth reports empty
+# @BUG Got "tb" compartment after gapfill?
+# @BUG Determine why Model ID in set_KEGG_pathways output file -> # @TEST Rerun! Might be due to old refineGEMs version
 
+# @TODO Add time measurements for submodules
 from datetime import date
 import logging
-import model_polisher as mp
 import os
 import pandas as pd
 from pathlib import Path
+import time
 from typing import Union
-
-import warnings
 
 from cobra import Reaction, Model
 from libsbml import Model as libModel
 
 from cobra.io.sbml import _sbml_to_model
 from refinegems.analysis import growth
+from refinegems.classes.medium import load_media
 from refinegems.classes.reports import ModelInfoReport, SBOTermReport
 from refinegems.utility.util import test_biomass_presence
 from refinegems.curation.biomass import check_normalise_biomass
@@ -134,7 +134,7 @@ def run(configpath: Union[str, None] = None):
             try:
                 Path(growth_dir).mkdir(parents=True, exist_ok=False)
             except FileExistsError:
-                warnings.warn(
+                logger.warning(
                     f"Given directory {growth_dir} already exists. High possibility of files being overwritten."
                 )
             
@@ -144,7 +144,7 @@ def run(configpath: Union[str, None] = None):
             )
         else:
             mes = f"No growth/biomass function detected, growth simulation for step {step} will be skipped."
-            warnings.warn(mes)
+            logger.warning(mes)
 
     def between_analysis(model: Model, cfg: dict, step: str):
         """Helper function for :py:func:`~specimen.cmpb.workflow.run`.
@@ -177,7 +177,7 @@ def run(configpath: Union[str, None] = None):
             try:
                 Path(stats_dir).mkdir(parents=True, exist_ok=False)
             except FileExistsError:
-                warnings.warn(
+                logger.warning(
                     f"Given directory {stats_dir} already exists. High possibility of files being overwritten."
                 )
                 
@@ -213,7 +213,7 @@ def run(configpath: Union[str, None] = None):
     elif config["general"]["modelname"] is not None:
         modelname = config["general"]["modelname"]
     else:
-        print(
+        logger.info(
             "No values given for the standard name for a model. Default name will be used."
         )
         modelname = "model_" + str(date.today().year).removeprefix("20")
@@ -237,6 +237,7 @@ def run(configpath: Union[str, None] = None):
     # ----------
     today = date.today().strftime("%Y%m%d")
     log_file = Path(CMPB_OUT_DIR, "logs", f"specimen_cmpb_{str(today)}.log")
+    log_file.unlink(missing_ok=True) # Remove file in case it already exists
     handler = logging.handlers.RotatingFileHandler(
         log_file, mode="w", backupCount=10, encoding="utf-8", delay=0
     )
@@ -248,6 +249,18 @@ def run(configpath: Union[str, None] = None):
     )
     logger.addHandler(handler)
 
+    # redirect cobrapy logging
+    cobralogger = logging.getLogger("cobra")
+    cobralogger.addHandler(handler)
+    cobralogger.propagate = False
+
+    # redirect refineGEMs logging
+    rglogger = logging.getLogger("refinegems")
+    rglogger.addHandler(handler)
+    rglogger.propagate = False
+
+    total_time_s = time.time()
+    
     # CarveMe
     #########
     if not config["input"]["modelpath"]:
@@ -291,13 +304,13 @@ def run(configpath: Union[str, None] = None):
     ####################
 
     # check, if input is a CarveMe model
-    if "CarveMe" in current_libmodel.getAnnotationString():
+    if ("CarveMe" in current_libmodel.getNotesString()) or ("CarveMe" in current_libmodel.getAnnotationString()):
         # Set up directory for report output
         current_sub_dir = Path(MISC_DIR, "wrong_annotations")
         try:
             Path(current_sub_dir).mkdir(parents=True, exist_ok=False)
         except FileExistsError:
-            warnings.warn(
+            logger.warning(
                 f"Given directory {current_sub_dir} already exists. High possibility of files being overwritten."
             )
 
@@ -361,7 +374,7 @@ def run(configpath: Union[str, None] = None):
 
         else:
             mes = f"No KEGG organism ID provided. Gapfilling with KEGG will be skipped."
-            raise warnings.warn(mes, UserWarning)
+            raise logger.warning(mes, UserWarning)
 
     # BioCycGapFiller
     if config["gapfilling"]["BioCycGapFiller"]:
@@ -455,11 +468,16 @@ def run(configpath: Union[str, None] = None):
 
         # @DEBUG Should the run-id be saved somewhere for debugging purposes? result['run_id']
         if result:
-            pd.DataFrame(result["diff"]).to_csv(
-                Path(MISC_DIR, "modelpolisher", "diff_mp.csv"),
-                sep=";",
-                header=False,
-            )
+            # @TEST Needs further testing but should work for now at least
+            if len(result['diff']) > 1:
+                pd.DataFrame(result["diff"]).to_csv(
+                    Path(MISC_DIR, "modelpolisher", "diff_mp.csv"),
+                    sep=";",
+                    header=False,
+                )
+            else:
+                logger.warning(f'{result['diff']}')
+            
             pd.DataFrame(result["pre_validation"]).to_csv(
                 Path(MISC_DIR, "modelpolisher", "pre_validation.csv"),
                 sep=";",
@@ -482,6 +500,8 @@ def run(configpath: Union[str, None] = None):
             # in-between testing
             between_growth_test(current_model, config, step="after_ModelPolisher")
             between_analysis(current_model, config, step="after_ModelPolisher")
+        else:
+            logger.warning('No result was produced with ModelPolisher. This step will be skipped.')
 
     # Annotations
     #############
@@ -494,17 +514,18 @@ def run(configpath: Union[str, None] = None):
             viaEC=config["kegg_pathway_groups"]["viaEC"],
             viaRC=config["kegg_pathway_groups"]["viaRC"],
         )
-        with open(
-            Path(
-                CMPB_OUT_DIR,
-                "misc",
-                "kegg_pathway",
-                "reac_wo_kegg_pathway_groups.txt",
-            ),
-            "w",
-        ) as outfile:
-            for line in missing_list:
-                outfile.write(f"{line}\n")
+        if missing_list:
+            with open(
+                Path(
+                    CMPB_OUT_DIR,
+                    "misc",
+                    "kegg_pathway",
+                    "reac_wo_kegg_pathway_groups.txt",
+                ),
+                "w",
+            ) as outfile:
+                for line in missing_list:
+                    outfile.write(f"{line}\n")
         # save model
         between_save(
             current_libmodel, MODEL_DIR, "added_KeggPathwayGroups", only_modelpath
@@ -537,7 +558,7 @@ def run(configpath: Union[str, None] = None):
             remove_dupl_reac = False
         case _:
             mes = "Unknown input for duplicates - reactions: will be skipped"
-            warnings.warn(mes)
+            logger.warning(mes)
             check_dupl_reac = False
             remove_dupl_reac = False
 
@@ -553,7 +574,7 @@ def run(configpath: Union[str, None] = None):
             remove_dupl_meta = False
         case _:
             mes = "Unknown input for duplicates - metabolites: will be skipped"
-            warnings.warn(mes)
+            logger.warning(mes)
             check_dupl_meta = "skip"
             remove_dupl_meta = False
 
@@ -591,7 +612,7 @@ def run(configpath: Union[str, None] = None):
     match config["EGCs"]["solver"]:
         # greedy solver
         case "greedy":
-            print("Using GreedyEGCSolver...")
+            logger.info("Using GreedyEGCSolver...")
             solver = egcs.GreedyEGCSolver()
             # automatically uses c,e as compartments
             results = solver.solve_egcs(
@@ -673,7 +694,7 @@ def run(configpath: Union[str, None] = None):
     try:
         Path(current_sub_dir).mkdir(parents=True, exist_ok=False)
     except FileExistsError:
-        warnings.warn(
+        logger.warning(
             f"Given directory {current_sub_dir} already exists. High possibility of files being overwritten."
         )
     stats_report.save(
@@ -708,14 +729,17 @@ def run(configpath: Union[str, None] = None):
 
     # auxotrophies
     # ------------
-    media_list = growth.read_media_config(config["input"]["mediapath"])
+    media_list, suppl_list = load_media(config["input"]["mediapath"])
     auxo_report = growth.test_auxotrophies(
-        current_model, media_list[0], media_list[1], config["general"]["namespace"]
+        current_model, media_list, suppl_list, config["general"]["namespace"]
     )
     auxo_report.save(
         Path(MISC_DIR, "auxotrophy"),
         color_palette=config["general"]["colours"],
     )
+
+    total_time_e = time.time()
+    logger.info(f'Total run time: {total_time_e - total_time_s}')
 
 
 # run for multiple models
