@@ -176,7 +176,7 @@ def run(
             )
 
             # save model
-            # @ASK does this truly work? Test as soon as MP is up and running
+            # @WARNING ModelPolisher is currently not maintained and might not work as expected
             # From result the model object can be extracted like, I think: result["polished_document"].getModel()
             model_polisher_model_path = Path(dir, "04_validation", f"{Path(model_path).stem}_after_mp.xml")
             
