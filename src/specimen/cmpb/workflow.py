@@ -9,7 +9,6 @@ __author__ = "Tobias Fehrenbach, Famke Baeuerle, Gwendolyn O. Döbel and Carolin
 
 # @BUG growth reports empty
 # @BUG Got "tb" compartment after gapfill?
-# @BUG Determine why Model ID in set_KEGG_pathways output file -> # @TEST Rerun! Might be due to old refineGEMs version
 
 # @TODO Add time measurements for submodules
 from datetime import date
