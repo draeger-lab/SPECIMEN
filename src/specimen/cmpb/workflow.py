@@ -10,7 +10,6 @@ __author__ = "Tobias Fehrenbach, Famke Baeuerle, Gwendolyn O. Döbel and Carolin
 # @BUG Got "tb" compartment after gapfill? -> As Compartment after ModelPolisher before that just part of a metabolite ID
 # @BUG No growth/minimal medium after CarveMe correction => Due to reaction_direction
 
-# @TODO Add time measurements for submodules
 from datetime import date
 import logging
 import os
@@ -263,6 +262,10 @@ def run(configpath: Union[str, None] = None):
     # CarveMe
     #########
     if not config["input"]["modelpath"]:
+        
+        logger.info("Creating a draft model with CarveMe ...")
+        step_start = time.time()
+        
         out_modelpath = only_modelpath if only_modelpath else Path(MODEL_DIR, modelname+'.xml')
         if (
             config["carveme"]["gram"] == "grampos"
@@ -276,12 +279,19 @@ def run(configpath: Union[str, None] = None):
                 f"carve {config['general']['protein_fasta']} --solver scip -o {out_modelpath}"
             )
         config["input"]["modelpath"] = out_modelpath
+        
+        step_end = time.time()
+        logger.info(f"\truntime: {step_end-step_start}s\n")
 
     # Set model path for pipeline
     current_modelpath = config["input"]["modelpath"]
 
     # load & validate compartments of the loaded model
     ##################################################
+    
+    logger.info("Validating compartments ...")
+    step_start = time.time()
+    
     # load into libsbml
     current_libmodel = load_model(str(current_modelpath), "libsbml")
 
@@ -298,12 +308,19 @@ def run(configpath: Union[str, None] = None):
 
         # Transform model into libmodel for CarveMe correction
         current_libmodel = convert_cobra_to_libsbml(current_model, 'notes')
+        
+    step_end = time.time()
+    logger.info(f"\truntime: {step_end-step_start}s\n")
 
     # CarveMe correction
     ####################
 
     # check, if input is a CarveMe model
     if ("CarveMe" in current_libmodel.getNotesString()) or ("CarveMe" in current_libmodel.getAnnotationString()):
+        
+        logger.info("Performing CarveMe correction ...")
+        step_start = time.time()
+        
         # Set up directory for report output
         current_sub_dir = Path(MISC_DIR, "wrong_annotations")
         try:
@@ -338,6 +355,9 @@ def run(configpath: Union[str, None] = None):
         between_save(
             current_libmodel, MODEL_DIR, "after_CarveMe_correction", only_modelpath
         )
+        
+        step_end = time.time()
+        logger.info(f"\truntime: {step_end-step_start}s\n")
 
     # growth test
     # -----------
@@ -351,6 +371,10 @@ def run(configpath: Union[str, None] = None):
     run_gapfill = False
     # KEGGapFiller
     if config["gapfilling"]["KEGGapFiller"]:
+        
+        logger.info("Filling gaps based on KEGG ...")
+        step_start = time.time()
+        
         if config["general"]["kegg_organism_id"]:
             run_gapfill = True
             # gapfilling with KEGG via KEGG organism ID
@@ -374,9 +398,16 @@ def run(configpath: Union[str, None] = None):
         else:
             mes = f"No KEGG organism ID provided. Gapfilling with KEGG will be skipped."
             raise logger.warning(mes, UserWarning)
+        
+        step_end = time.time()
+        logger.info(f"\truntime: {step_end-step_start}s\n")
 
     # BioCycGapFiller
     if config["gapfilling"]["BioCycGapFiller"]:
+        
+        logger.info("Filling gaps based on BioCyc ...")
+        step_start = time.time()
+        
         run_gapfill = True
         bcgf = BioCycGapFiller(
             config["gapfilling"]["BioCycGapFiller parameters"]["gene-table"],
@@ -399,9 +430,16 @@ def run(configpath: Union[str, None] = None):
             current_libmodel, MODEL_DIR, "after_BioCyc_gapfill", only_modelpath
         )
         current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
+        
+        step_end = time.time()
+        logger.info(f"\truntime: {step_end-step_start}s\n")
 
     # GeneGapFiller
     if config["gapfilling"]["GeneGapFiller"]:
+        
+        logger.info("Filling gaps based on genes ...")
+        step_start = time.time()
+        
         run_gapfill = True
         ggf = GeneGapFiller()
         ggf.find_missing_genes(
@@ -435,6 +473,9 @@ def run(configpath: Union[str, None] = None):
         between_save(
             current_libmodel, MODEL_DIR, "after_Gene_gapfill", only_modelpath
         )
+        
+        step_end = time.time()
+        logger.info(f"\truntime: {step_end-step_start}s\n")
 
     current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
 
@@ -447,6 +488,10 @@ def run(configpath: Union[str, None] = None):
     ###############
     if config["modelpolisher"]:
         logger.warning('ModelPolisher is currently not maintained and might not work as expected. Use at your own risk.')
+        
+        logger.info("Running ModelPolisher ...")
+        step_start = time.time()
+        
         config_mp = {
             "allow-model-to-be-saved-on-server": config["mp"][
                 "allow-model-to-be-saved-on-server"
@@ -501,6 +546,9 @@ def run(configpath: Union[str, None] = None):
             between_analysis(current_model, config, step="after_ModelPolisher")
         else:
             logger.warning('No result was produced with ModelPolisher. This step will be skipped.')
+            
+        step_end = time.time()
+        logger.info(f"\truntime: {step_end-step_start}s\n")
 
     # Annotations
     #############
@@ -508,6 +556,10 @@ def run(configpath: Union[str, None] = None):
     # KEGGPathwayGroups
     # -----------------
     if config["kegg_pathway_groups"]["add"]:
+        
+        logger.info("Adding KEGG pathway groups ...")
+        step_start = time.time()
+        
         missing_list = set_kegg_pathways(
             current_libmodel,
             viaEC=config["kegg_pathway_groups"]["viaEC"],
@@ -529,10 +581,20 @@ def run(configpath: Union[str, None] = None):
         between_save(
             current_libmodel, MODEL_DIR, "added_KeggPathwayGroups", only_modelpath
         )
+        
+        step_end = time.time()
+        logger.info(f"\truntime: {step_end-step_start}s\n")
 
     # SBOannotator
     # ------------
+    logger.info("Running SBOannotator ...")
+    step_start = time.time()
+    
     current_libmodel = run_SBOannotator(current_libmodel)
+    
+    step_end = time.time()
+    logger.info(f"\truntime: {step_end-step_start}s\n")
+    
     between_save(
         current_libmodel, MODEL_DIR, "SBOannotated", only_modelpath
     )
@@ -545,6 +607,10 @@ def run(configpath: Union[str, None] = None):
 
     # duplicates
     # ----------
+    
+    logger.info("Handling duplicates ...")
+    step_start = time.time()
+    
     match config["duplicates"]["reactions"]:
         case "remove":
             check_dupl_reac = True
@@ -585,6 +651,9 @@ def run(configpath: Union[str, None] = None):
         remove_unused_meta=config["duplicates"]["remove_unused_metabs"],
         remove_dupl_reac=remove_dupl_reac,
     )
+    
+    step_end = time.time()
+    logger.info(f"\truntime: {step_end-step_start}s\n")
 
     # save model
     between_save(
@@ -598,7 +667,13 @@ def run(configpath: Union[str, None] = None):
     # reaction direction
     # ------------------
     if config["reaction_direction"]:
+        logger.info("Checking reaction direction with BioCyc ...")
+        step_start = time.time()
+        
         current_model = check_direction(current_model, config["reaction_direction"])
+
+        step_end = time.time()
+        logger.info(f"\truntime: {step_end-step_start}s\n")
 
     # save model
     between_save(
@@ -607,6 +682,10 @@ def run(configpath: Union[str, None] = None):
 
     # find and solve energy generating cycles
     # ---------------------------------------
+    
+    logger.info("Finding (and resolving) EGCs ...")
+    step_start = time.time()
+    
     results = None
     match config["EGCs"]["solver"]:
         # greedy solver
@@ -630,6 +709,9 @@ def run(configpath: Union[str, None] = None):
             logger.info(
                 f'\t{solver.find_egcs(current_model,with_reacs=True,namespace=config["general"]["namespace"])}'
             )
+            
+    step_end = time.time()
+    logger.info(f"\truntime: {step_end-step_start}s\n")
 
     if results:
         between_save(
@@ -643,6 +725,10 @@ def run(configpath: Union[str, None] = None):
     # @TEST
     # BOF
     # ---
+    
+    logger.info("Improve biomass objective function ...")
+    step_start = time.time()
+    
     # BOFdat - optional
     if config["BOF"]["run_bofdat"]:
         check_bof = test_biomass_presence(current_model)
@@ -669,15 +755,24 @@ def run(configpath: Union[str, None] = None):
             )
     # check and normalise
     current_model = check_normalise_biomass(current_model)
+    
+    step_end = time.time()
+    logger.info(f"\truntime: {step_end-step_start}s\n")
 
     # save model
     between_save(current_model, MODEL_DIR, "after_BOF", only_modelpath)
 
     # MCC
     # ---
+    logger.info("Running CCC ...")
+    step_start = time.time()
+    
     current_model = perform_mcc(
         current_model, Path(MISC_DIR, "mcc"), apply=True
     )
+    
+    step_end = time.time()
+    logger.info(f"\truntime: {step_end-step_start}s\n")
 
     # save the final model
     current_libmodel = convert_cobra_to_libsbml(current_model, 'notes')
@@ -685,9 +780,13 @@ def run(configpath: Union[str, None] = None):
 
     # analysis
     ##########
+    
+    logger.info("Analysing the final model ...")
+    step_start = time.time()
 
     # stats
     # -----
+    logger.info("\tGenerating statistics report ...")
     stats_report = ModelInfoReport(current_model)
     current_sub_dir = Path(MISC_DIR, "stats", "final")
     try:
@@ -703,6 +802,7 @@ def run(configpath: Union[str, None] = None):
 
     # kegg pathway
     # ------------
+    logger.info("\tGenerating KEGG pathway report ...")
     pathway_report = kegg_pathway_analysis(current_model)
     pathway_report.save(
         Path(MISC_DIR, "kegg_pathway"),
@@ -711,11 +811,13 @@ def run(configpath: Union[str, None] = None):
 
     # sbo term
     # --------
+    logger.info("\tAnalysing SBO terms ...")
     sboreport = SBOTermReport(current_libmodel)
     sboreport.save(str(Path(MISC_DIR)))
 
     # memote
     # ------
+    logger.info("\tGenerating memote report ...")
     run_memote(
         current_model,
         "html",
@@ -724,10 +826,12 @@ def run(configpath: Union[str, None] = None):
 
     # growth
     # ------
+    logger.info("\t Performing final growth tests...")
     between_growth_test(current_model, config, step="final")
 
     # auxotrophies
     # ------------
+    logger.info("\tChecking for amino acids auxotrophies ...")
     media_list, suppl_list = load_media(config["input"]["mediapath"])
     auxo_report = growth.test_auxotrophies(
         current_model, media_list, suppl_list, config["general"]["namespace"]
@@ -736,6 +840,9 @@ def run(configpath: Union[str, None] = None):
         Path(MISC_DIR, "auxotrophy"),
         color_palette=config["general"]["colours"],
     )
+    
+    step_end = time.time()
+    logger.info(f"\truntime: {step_end-step_start}s\n")
 
     total_time_e = time.time()
     logger.info(f'Total run time: {total_time_e - total_time_s}')
