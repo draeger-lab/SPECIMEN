@@ -475,7 +475,7 @@ def run(configpath: Union[str, None] = None):
                     header=False,
                 )
             else:
-                logger.warning(f'{result['diff']}')
+                logger.warning(f'{result["diff"]}')
             
             pd.DataFrame(result["pre_validation"]).to_csv(
                 Path(MISC_DIR, "modelpolisher", "pre_validation.csv"),
