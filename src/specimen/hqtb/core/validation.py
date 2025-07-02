@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Union
 
 from refinegems.utility.connections import run_ModelPolisher
+from refinegems.utility.io import write_model_to_file
 
 ################################################################################
 # setup logging
@@ -133,6 +134,7 @@ def run(
             "# ModelPolisher\n"
             "# -------------"
         )
+        logger.warning('ModelPolisher is currently not maintained and might not work as expected. Use at your own risk.')
         start = time.time()
         
         # generate specific directory for ModelPolisher output
@@ -157,13 +159,18 @@ def run(
         # running ModelPolisher
         result = run_ModelPolisher(str(model_path), config_mp)
 
+        # @DEBUG Should the run-id be saved somewhere for debugging purposes? result['run_id']
+        # @WARNING ModelPolisher is currently not maintained and might not work as expected
         if result:
-            # saving results files
-            pd.DataFrame(result["diff"]).to_csv(
-                Path(dir, "04_validation", "modelpolisher", "diff_mp.csv"),
-                sep=";",
-                header=False,
-            )
+            if len(result['diff']) > 1:
+                pd.DataFrame(result["diff"]).to_csv(
+                    Path(dir, "04_validation", "modelpolisher", "diff_mp.csv"),
+                    sep=";",
+                    header=False,
+                )
+            else:
+                logger.warning(f'{result['diff']}')
+            
             pd.DataFrame(result["pre_validation"]).to_csv(
                 Path(dir, "04_validation", "modelpolisher", "pre_validation.csv"),
                 sep=";",
@@ -176,11 +183,12 @@ def run(
             )
 
             # save model
-            # @WARNING ModelPolisher is currently not maintained and might not work as expected
-            # From result the model object can be extracted like, I think: result["polished_document"].getModel()
             model_polisher_model_path = Path(dir, "04_validation", f"{Path(model_path).stem}_after_mp.xml")
-            
-            model_path = model_polisher_model_path
+            current_libmodel = result["polished_document"].getModel()
+            write_model_to_file(current_libmodel, model_polisher_model_path)
+
+        else:
+            logger.warning('No result was produced with ModelPolisher. This step will be skipped.')
         
         end = time.time()
         logger.info(f"\ttime: {end - start}s")

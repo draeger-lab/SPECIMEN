@@ -154,7 +154,7 @@ def run(config_file: str = "test_config.yaml"):
                 fasta_path = config["parameters"]["refinement_cleanup"]["GeneGapFiller parameters"]["fasta"]
             else:
                 fasta_path = mimic_genbank(config["subject"]["annotated_genome"], config["subject"]["gff"],
-                                       str(Path(config["general"]["dir"]))) 
+                                       str(Path(config["general"]["dir"])))
             
             core.refinement.extend(
                 draft=Path(

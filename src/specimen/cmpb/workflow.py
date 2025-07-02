@@ -7,8 +7,8 @@ __author__ = "Tobias Fehrenbach, Famke Baeuerle, Gwendolyn O. Döbel and Carolin
 # requirements
 ################################################################################
 
-# @BUG growth reports empty
-# @BUG Got "tb" compartment after gapfill?
+# @BUG Got "tb" compartment after gapfill? -> As Compartment after ModelPolisher before that just part of a metabolite ID
+# @BUG No growth/minimal medium after CarveMe correction => Due to reaction_direction
 
 # @TODO Add time measurements for submodules
 from datetime import date
@@ -321,7 +321,7 @@ def run(configpath: Union[str, None] = None):
             email=config["tech-resources"]["email"],
             lab_strain=config["cm-polish"]["is_lab_strain"],
             kegg_organism_id=config["general"]["kegg_organism_id"],
-            reaction_direction=config["reaction_direction"],
+            reaction_direction=None, # Currently disabled as underlying function generalises bad.
             outpath=str(Path(MISC_DIR, "wrong_annotations")),
         )
         # rg correct charges
@@ -446,6 +446,7 @@ def run(configpath: Union[str, None] = None):
     # ModelPolisher
     ###############
     if config["modelpolisher"]:
+        logger.warning('ModelPolisher is currently not maintained and might not work as expected. Use at your own risk.')
         config_mp = {
             "allow-model-to-be-saved-on-server": config["mp"][
                 "allow-model-to-be-saved-on-server"
@@ -467,7 +468,6 @@ def run(configpath: Union[str, None] = None):
 
         # @DEBUG Should the run-id be saved somewhere for debugging purposes? result['run_id']
         if result:
-            # @TEST Needs further testing but should work for now at least
             if len(result['diff']) > 1:
                 pd.DataFrame(result["diff"]).to_csv(
                     Path(MISC_DIR, "modelpolisher", "diff_mp.csv"),

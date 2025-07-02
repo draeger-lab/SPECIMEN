@@ -115,7 +115,8 @@ gapfilling:
 
 # Polish the model using ModelPolisher
 # ------------------------------------
-modelpolisher: True                         # Activate ModelPolisher
+# WARNING: ModelPolisher is currently not maintained and might not work as expected. Use at your own risk.
+modelpolisher: False                         # Activate ModelPolisher
 mp:
   allow-model-to-be-saved-on-server: False  # Enable saving the model on the server
   fixing:
