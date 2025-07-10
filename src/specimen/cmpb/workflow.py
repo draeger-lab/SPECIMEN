@@ -7,9 +7,6 @@ __author__ = "Tobias Fehrenbach, Famke Baeuerle, Gwendolyn O. Döbel and Carolin
 # requirements
 ################################################################################
 
-# @BUG Got "tb" compartment after gapfill? -> As Compartment after ModelPolisher before that just part of a metabolite ID
-# @BUG No growth/minimal medium after CarveMe correction => Due to reaction_direction
-
 from datetime import date
 import logging
 import os
