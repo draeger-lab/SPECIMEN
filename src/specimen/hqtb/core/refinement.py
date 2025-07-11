@@ -184,7 +184,7 @@ def extend(
                 it is advised to
 
         - formula_check (Literal['none','existence','wildcard','strict'], optional)
-            Level of chemical formula to be accespted for adding reactions.
+            Level of chemical formula to be accepted for adding reactions.
             For more information, refer to the refineGems documentation.
             Defaults to 'existence'.
 

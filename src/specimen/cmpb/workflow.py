@@ -719,7 +719,6 @@ def run(configpath: Union[str, None] = None):
         between_growth_test(current_model, config, step="after_egcs")
         between_analysis(current_model, config, step="after_egcs")
 
-    # @TEST
     # BOF
     # ---
     

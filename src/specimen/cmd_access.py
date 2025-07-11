@@ -407,6 +407,12 @@ def refinement():
     help="Namespace to use for the model IDs. Currently constricted to BiGG by refineGEMs",
 )
 @click.option(
+    "--formula-check",
+    type=click.Choice(["none", "existence", "wildcard", "strict"]),
+    default = "existence",
+    help = "Level of chemical formula to be accepted for adding reactions. Defaults to existence."
+)
+@click.option(
     "--include-dna",
     is_flag=True,
     default=False,
@@ -436,6 +442,7 @@ def extension(
     threshold_add_reacs,
     prefix,
     namespace,
+    formula_check,
     include_dna,
     include_rna,
     memote,
@@ -446,25 +453,27 @@ def extension(
     draft, fasta, db, gff,
 
     """
-    # @TODO: check, if everythong is correct
+    # @TEST
     specimen.hqtb.core.refinement.extend(
-        draft,
-        gff,
-        fasta,
-        db,
-        dir,
-        ncbi_map,
-        mail,
-        sensitivity,
-        coverage,
-        pid,
-        threads,
-        threshold_add_reacs,
-        prefix,
-        namespace,
-        not include_dna,
-        not include_rna,
-        memote,
+        draft = draft,
+        gff = gff,
+        fasta = fasta,
+        db = db,
+        dir = dir,
+        ncbi_mapping = ncbi_map,
+        email = mail,
+        sensitivity = sensitivity,
+        coverage = coverage,
+        pid = pid,
+        threads = threads,
+        threshold_add_reacs = threshold_add_reacs,
+        prefix = prefix,
+        namespace = namespace,
+        # formula_check
+        formula_check=formula_check,
+        exclude_dna = not include_dna,
+        exclude_rna = not include_rna,
+        memote = memote,
     )
 
 
@@ -476,7 +485,7 @@ def extension(
 @click.option("--reac-direc", type=click.Path(exists=True, dir_okay=False, file_okay=True),
               default=None, help="Path to the BioCyc SmartTable for checking the reaction direction.")
 # gapfilling options
-# @TODO: gene_gap_filler options
+# @DISCUSSION: add gene_gap_filler options in the future?
 @cloup.option_group(
     "Gap-filling with COBRApy.",
     "If none are set, skips this step, otherwise all have to be specified",
@@ -595,7 +604,7 @@ def cleanup(
         model=model,
         dir=dir,
         biocyc_db=reac_direc,
-        run_gene_gapfiller=None,  # @TODO add when implemented
+        run_gene_gapfiller=None,  # @NOTE add to input params when implemented
         check_dupl_reac=check_dupl_reac,
         check_dupl_meta=check_dupl_meta,
         remove_unused_meta=remove_unused_meta,

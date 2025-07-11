@@ -169,7 +169,7 @@ def run(
                     header=False,
                 )
             else:
-                logger.warning(f'{result['diff']}')
+                logger.warning(f"{result['diff']}")
             
             pd.DataFrame(result["pre_validation"]).to_csv(
                 Path(dir, "04_validation", "modelpolisher", "pre_validation.csv"),
