@@ -318,6 +318,7 @@ def refinement():
     """Step 3 of the workflow: Refinement of the model"""
 
 
+# @IDEA use cloup for grouping of params - easier usage
 @refinement.command()
 @click.option("--draft", type=str, required=True, help="Path to the draft model.")
 @click.option(
@@ -453,7 +454,6 @@ def extension(
     draft, fasta, db, gff,
 
     """
-    # @TEST
     specimen.hqtb.core.refinement.extend(
         draft = draft,
         gff = gff,
@@ -477,7 +477,7 @@ def extension(
     )
 
 
-# @TEST
+# @IDEA use cloup for grouping of params - easier usage
 @refinement.command()
 @click.argument("model", type=click.Path(exists=True, dir_okay=False, file_okay=True))
 @click.argument("dir", type=click.Path(exists=True, dir_okay=True, file_okay=False))
