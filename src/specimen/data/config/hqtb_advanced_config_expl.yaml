@@ -184,6 +184,15 @@ parameters:
         dna_weight_frac: 0.023
         ion_weight_frac: 0.05
 
+    ########## step 4: validation ##########
+    validation: 
+        run_all: True # run all validation tests
+                      # if set to True, overwrites the following option 
+        tests:        # list of tests to run 
+                      # currently available: modelpolisher, cobra
+            - "modelpolisher"
+            - "cobra"
+
     ########## step 5: analysis ##########
     analysis:
         # How to compare to pan-core model (current option only id)
@@ -205,3 +214,6 @@ performance:
     gapfilling:
         iterations: 3
         chunk_size: 2000
+    egcs:
+        chunk_size: 10 # chunk soze for parallel processing during solving EGCs
+        limit: 2 # max numbers of cores to use while trying to solve EGCs

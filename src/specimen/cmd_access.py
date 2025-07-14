@@ -10,6 +10,7 @@ from pathlib import Path
 
 import specimen
 import click
+import cloup
 
 import specimen.hqtb
 
@@ -103,7 +104,7 @@ def data_structure(workflow, dir, chunk_size):
     specimen.util.set_up.build_data_directories(workflow, dir, chunk_size)
 
 
-# create NCBi mapping for HQTB
+# create NCBI mapping for HQTB
 # ----------------------------
 @setup.command()
 @click.argument("folder", type=click.Path(exists=True, dir_okay=True, file_okay=False))
@@ -317,6 +318,7 @@ def refinement():
     """Step 3 of the workflow: Refinement of the model"""
 
 
+# @IDEA use cloup for grouping of params - easier usage
 @refinement.command()
 @click.option("--draft", type=str, required=True, help="Path to the draft model.")
 @click.option(
@@ -406,6 +408,12 @@ def refinement():
     help="Namespace to use for the model IDs. Currently constricted to BiGG by refineGEMs",
 )
 @click.option(
+    "--formula-check",
+    type=click.Choice(["none", "existence", "wildcard", "strict"]),
+    default = "existence",
+    help = "Level of chemical formula to be accepted for adding reactions. Defaults to existence."
+)
+@click.option(
     "--include-dna",
     is_flag=True,
     default=False,
@@ -435,6 +443,7 @@ def extension(
     threshold_add_reacs,
     prefix,
     namespace,
+    formula_check,
     include_dna,
     include_rna,
     memote,
@@ -442,34 +451,173 @@ def extension(
     """Refinement step 1: Extend the model.
 
     The following options are required:
-    draft, fasta, db, dir,
+    draft, fasta, db, gff,
 
     """
     specimen.hqtb.core.refinement.extend(
-        draft,
-        gff,
-        fasta,
-        db,
-        dir,
-        ncbi_map,
-        mail,
-        sensitivity,
-        coverage,
-        pid,
-        threads,
-        threshold_add_reacs,
-        prefix,
-        namespace,
-        not include_dna,
-        not include_rna,
-        memote,
+        draft = draft,
+        gff = gff,
+        fasta = fasta,
+        db = db,
+        dir = dir,
+        ncbi_mapping = ncbi_map,
+        email = mail,
+        sensitivity = sensitivity,
+        coverage = coverage,
+        pid = pid,
+        threads = threads,
+        threshold_add_reacs = threshold_add_reacs,
+        prefix = prefix,
+        namespace = namespace,
+        # formula_check
+        formula_check=formula_check,
+        exclude_dna = not include_dna,
+        exclude_rna = not include_rna,
+        memote = memote,
     )
 
 
-# @refinement.command()
-# ...
-# def cleanup():
-#    pass
+# @IDEA use cloup for grouping of params - easier usage
+@refinement.command()
+@click.argument("model", type=click.Path(exists=True, dir_okay=False, file_okay=True))
+@click.argument("dir", type=click.Path(exists=True, dir_okay=True, file_okay=False))
+# options for checking teh reaction directtion with BioCyc 
+@click.option("--reac-direc", type=click.Path(exists=True, dir_okay=False, file_okay=True),
+              default=None, help="Path to the BioCyc SmartTable for checking the reaction direction.")
+# gapfilling options
+# @DISCUSSION: add gene_gap_filler options in the future?
+@cloup.option_group(
+    "Gap-filling with COBRApy.",
+    "If none are set, skips this step, otherwise all have to be specified",
+    cloup.option(
+        "--universal",
+        "-u",
+        type=click.Path(exists=True, dir_okay=False, file_okay=True),
+        default=None,
+        help="Path to a universal model file for the COBRApy gap-filling. Not setting this skips this gap-filling part. Defaults to None.",
+    ),
+    cloup.option(
+        "--media-path",
+        "--mp",
+        type=click.Path(exists=True, dir_okay=False, file_okay=True),
+        default=None,
+        help="Path to a media config file. Enables growth analysis if given.",
+    ),
+    cloup.option(
+        "--growth-threshold",
+        "--gt",
+        type=float, 
+        default = 0.05, 
+        show_default=True,
+        help="Threshold for the growth rate to be considered as a growth reaction. Default is 0.05.",
+    ),
+    constraint=cloup.constraints.If(
+        cloup.constraints.AnySet('universal','media-path','growth-threshold'), then=cloup.constraints.require_all
+    ),
+)
+# duplicate handling options
+@click.option(
+    "--check-dupl-reac",
+    "--cdr",
+    is_flag=True,
+    default=False,
+    help="Check for duplicate reactions in the model. Default is False.",
+)
+@click.option(
+    "--check-dupl-meta",
+    "--cdm",
+    type=click.Choice(["default", "skip", "exhaustive"]),
+    default="default",
+    show_default=True,
+    help='Check for duplicate metabolites in the model. Choices are "default", "skip", or "exhaustive". Default is "default".',
+)
+@click.option(
+    "--remove-unused-meta",
+    "--rum",
+    is_flag=True,
+    default=False,
+    help="Remove unused metabolites from the model. Default is False.",
+)
+@click.option(
+    "--remove-dupl-reac",
+    "--rdr",
+    is_flag=True,
+    default=False,
+    help="Remove duplicate reactions from the model. Default is False.",
+)
+@click.option(
+    "--remove-dupl-meta",
+    "--rdm",
+    is_flag=True,
+    default=False,
+    help="Remove duplicate metabolites from the model. Default is False.",
+)
+# general options
+@click.option(
+    "--namespace",
+    "--nsp",
+    type=click.Choice(["BiGG"]),
+    default="BiGG",
+    show_default=True,
+    help="Namespace to use for the model IDs. Currently constricted to BiGG by refineGEMs"
+)
+@click.option(
+    "-i",
+    "--iterations",
+    type=int,
+    default=3,
+    show_default=True,
+    help="Number of iterations to perform. Default is 3.",
+)
+@click.option(
+    "-c",
+    "--chunk-size",
+    type=int,
+    default=10000,
+    show_default=True,
+    help="Chunk size to use during processing. Default is 10000.",
+)
+@click.option(
+    "--memote",
+    is_flag=True,
+    default=False,
+    help="Use memote on the processed model.",
+)
+def cleanup(
+    model,
+    dir,
+    reac_direc,
+    universal,
+    media_path,
+    growth_threshold,
+    check_dupl_reac,
+    check_dupl_meta,
+    remove_unused_meta,
+    remove_dupl_reac,
+    remove_dupl_meta,
+    namespace,
+    iterations,
+    chunk_size,
+    memote,
+):
+    specimen.hqtb.core.refinement.cleanup(
+        model=model,
+        dir=dir,
+        biocyc_db=reac_direc,
+        run_gene_gapfiller=None,  # @NOTE add to input params when implemented
+        check_dupl_reac=check_dupl_reac,
+        check_dupl_meta=check_dupl_meta,
+        remove_unused_meta=remove_unused_meta,
+        remove_dupl_reac=remove_dupl_reac,
+        remove_dupl_meta=remove_dupl_meta,
+        universal=universal,
+        media_path=media_path, 
+        namespace=namespace,
+        growth_threshold=growth_threshold,
+        iterations=iterations,
+        chunk_size=chunk_size,
+        memote=memote,
+    )
 
 
 @refinement.command()
@@ -542,6 +690,21 @@ def annotation(model, dir, kegg_via_ec, kegg_via_rc, memote):
     help="String sets the type of solver to use to solve EGCs. Otherwise just reports existing EGCs.",
 )
 @click.option(
+    "--limit",
+    required=False,
+    type=int,
+    default=None,
+    help="Maximum number of cores to use for parallel processing of EGCs. Default uses all available cores.",
+)
+@click.option(
+    "--chunksize",
+    required=False,
+    type=int,
+    default=100,
+    show_default=True,
+    help="Size of the chunks during parallel processing of EGCs. Default is 100.",
+)
+@click.option(
     "--namespace",
     "--nsp",
     default="BiGG",
@@ -573,7 +736,7 @@ def annotation(model, dir, kegg_via_ec, kegg_via_rc, memote):
     "--memote", is_flag=True, default=False, help="Use memote on the extended model."
 )
 def smoothing(
-    model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, egc, namespace, memote
+    model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, egc, chunksize, limit, namespace, memote
 ):
     """Refinement step 4: Smoothing
 
@@ -589,6 +752,8 @@ def smoothing(
         dir,
         mcc,
         egc,
+        limit,
+        chunksize,
         namespace,
         dna_weight_frac,
         ion_weight_frac,
@@ -612,7 +777,7 @@ def smoothing(
     "-t",
     multiple=True,
     default=["all"],
-    help='define, which tests should be run. Current possibilities are "all" and "cobra"',
+    help='Define, which tests should be run. Current possibilities are "all", "cobra" or "modelpolisher"',
 )
 def validation(model, dir, run_test):
     """Step 4 of the workflow: Validate the model.

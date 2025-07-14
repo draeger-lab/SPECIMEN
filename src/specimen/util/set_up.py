@@ -9,6 +9,7 @@ __author__ = "Carolin Brune"
 import click
 import logging
 import os
+import warnings
 import yaml
 
 from importlib.resources import files
@@ -80,7 +81,7 @@ def build_data_directories(
     pipeline: Literal[
         "hqtb", "high-quality template based", "cmpb", "carveme modelpolisher based"
     ],
-    dir: str,
+    parent_dir: str,
 ):
     """Set up the necessary directory structure and download files if possible
     for the given pipeline.
@@ -88,7 +89,7 @@ def build_data_directories(
     Args:
         - pipeline (Literal['hqtb','high'):
             For which pipeline the structure should be.
-        - dir (str):
+        - parent_dir (str):
             Parent directory/ Path to write the structure to.
 
     Raises:
@@ -110,7 +111,7 @@ def build_data_directories(
                 "universal-models",
             ]
             for sub_dir in DATA_DIRECTORIES:
-                new_dir = Path(dir, sub_dir)
+                new_dir = Path(parent_dir, sub_dir)
                 try:
                     Path(new_dir).mkdir(parents=True, exist_ok=False)
                     print(f"Creating new directory {new_dir}")
@@ -119,40 +120,89 @@ def build_data_directories(
 
         # CMPB output
         case "cmpb" | "carveme modelpolisher based":
-            Path(dir, "cmpb_out").mkdir(parents=True, exist_ok=False)  # cmpb_out
-            Path(dir, "cmpb_out", "models").mkdir(
-                parents=True, exist_ok=False
-            )  #   |- models
-            Path(dir, "cmpb_out", "logs").mkdir(
-                parents=True, exist_ok=False
-            )  #   |- logs
-            Path(dir, "cmpb_out", "misc").mkdir(
-                parents=True, exist_ok=False
-            )  #   |- misc
-            Path(dir, "cmpb_out", "misc", "memote").mkdir(
-                parents=True, exist_ok=False
-            )  #      |- memote
-            Path(dir, "cmpb_out", "misc", "mcc").mkdir(
-                parents=True, exist_ok=False
-            )  #      |- mcc
-            Path(dir, "cmpb_out", "misc", "gapfill").mkdir(
-                parents=True, exist_ok=False
-            )  #      |- gapfill
-            Path(dir, "cmpb_out", "misc", "growth").mkdir(
-                parents=True, exist_ok=False
-            )  #      |- growth
-            Path(dir, "cmpb_out", "misc", "stats").mkdir(
-                parents=True, exist_ok=False
-            )  #      |- stats
-            Path(dir, "cmpb_out", "misc", "modelpolisher").mkdir(
-                parents=True, exist_ok=False
-            )  #      |- modelpolisher
-            Path(dir, "cmpb_out", "misc", "kegg_pathway").mkdir(
-                parents=True, exist_ok=False
-            )  #      |- kegg_pathways
-            Path(dir, "cmpb_out", "misc", "auxotrophy").mkdir(
-                parents=True, exist_ok=False
-            )  #      |- auxothrophy
+            # create the data directory structure
+            print("Creating directory structure...")
+            DATA_DIRECTORIES = {
+                "logs": [],
+                "misc": [
+                    'auxotrophy',
+                    'gapfill',
+                    'growth',
+                    'kegg_pathway',
+                    'mcc',
+                    'memote',
+                    'modelpolisher',
+                    'stats',
+                    ],
+                "models": [],
+             } # Subfolders & subsubfolders of parent_dir
+
+            # Create parent_dir for cmpb
+            parent_dir = Path(parent_dir, "cmpb_out")
+            
+            # Generate subdirectories & subsubdirectories
+            for sub_dir in DATA_DIRECTORIES.keys():
+                new_dir = Path(parent_dir, sub_dir)
+
+                # Try to create sub directories: if exist, overwrite & warn user
+                try:
+                    Path(new_dir).mkdir(parents=True, exist_ok=False)
+                    print(f"Creating new directory {new_dir}")
+                except FileExistsError:
+                    warnings.warn(
+                        f"Given directory {new_dir} already exists. High possibility of files being overwritten."
+                    )
+
+                # Generate sub sub directories
+                if DATA_DIRECTORIES[sub_dir]:
+                    for ssdir in DATA_DIRECTORIES[sub_dir]:
+                        new_sub_dir = Path(new_dir, ssdir)
+
+                    # Try to create sub sub directories: if exist, overwrite & warn user
+                    try:
+                        Path(new_sub_dir).mkdir(parents=True, exist_ok=False)
+                        print(f"Creating new sub directory {new_sub_dir}")
+                    except FileExistsError:
+                        warnings.warn(
+                            f"Given sub directory {new_sub_dir} already exists. High possibility of files being overwritten."
+                        )
+
+            # Path(parent_dir, "cmpb_out").mkdir(parents=True, exist_ok=False)  # cmpb_out
+            
+            # Path(parent_dir, "cmpb_out", "models").mkdir(
+            #     parents=True, exist_ok=False
+            # )  #   |- models
+            # Path(parent_dir, "cmpb_out", "logs").mkdir(
+            #     parents=True, exist_ok=False
+            # )  #   |- logs
+            # Path(parent_dir, "cmpb_out", "misc").mkdir(
+            #     parents=True, exist_ok=False
+            # )  #   |- misc
+            
+            # Path(parent_dir, "cmpb_out", "misc", "memote").mkdir(
+            #     parents=True, exist_ok=False
+            # )  #      |- memote
+            # Path(parent_dir, "cmpb_out", "misc", "mcc").mkdir(
+            #     parents=True, exist_ok=False
+            # )  #      |- mcc
+            # Path(parent_dir, "cmpb_out", "misc", "gapfill").mkdir(
+            #     parents=True, exist_ok=False
+            # )  #      |- gapfill
+            # Path(parent_dir, "cmpb_out", "misc", "growth").mkdir(
+            #     parents=True, exist_ok=False
+            # )  #      |- growth
+            # Path(parent_dir, "cmpb_out", "misc", "stats").mkdir(
+            #     parents=True, exist_ok=False
+            # )  #      |- stats
+            # Path(parent_dir, "cmpb_out", "misc", "modelpolisher").mkdir(
+            #     parents=True, exist_ok=False
+            # )  #      |- modelpolisher
+            # Path(parent_dir, "cmpb_out", "misc", "kegg_pathway").mkdir(
+            #     parents=True, exist_ok=False
+            # )  #      |- kegg_pathways
+            # Path(parent_dir, "cmpb_out", "misc", "auxotrophy").mkdir(
+            #     parents=True, exist_ok=False
+            # )  #      |- auxothrophy
 
         # default case
         case _:

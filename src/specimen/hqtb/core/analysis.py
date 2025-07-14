@@ -1,4 +1,4 @@
-"""Analyse a model (part 5 of the workflow)."""
+"""Analyse a model (step 5 of the workflow)."""
 
 __author__ = "Carolin Brune"
 
@@ -6,8 +6,8 @@ __author__ = "Carolin Brune"
 # requirements
 ################################################################################
 
+import logging
 import time
-import warnings
 
 from pathlib import Path
 from typing import Literal
@@ -18,8 +18,19 @@ from refinegems.utility.io import load_model
 from refinegems.analysis.core_pan import compare_to_core_pan
 from refinegems.curation.pathways import kegg_pathway_analysis
 from refinegems.utility.util import test_biomass_presence
+from refinegems.developement.decorators import suppress_warning
 
 from ...classes.reports import SpecimenModelInfoReport
+
+################################################################################
+# setup logging
+################################################################################
+# general logging
+genlogger = logging.getLogger(__name__)
+# internal logger with logging file
+logger = logging.getLogger(__name__ + "-intern")
+logger.setLevel(logging.DEBUG)
+logger.propagate = False
 
 ################################################################################
 # functions
@@ -28,7 +39,7 @@ from ...classes.reports import SpecimenModelInfoReport
 # run this part
 # -------------
 
-
+@suppress_warning("invalid character '*' found in formula")
 def run(
     model_path: str,
     dir: str,
@@ -68,7 +79,7 @@ def run(
 
     total_time_s = time.time()
 
-    print(
+    genlogger.info(
         "\nanalysis\n################################################################################\n"
     )
 
@@ -78,9 +89,40 @@ def run(
 
     try:
         Path(dir, "05_analysis").mkdir(parents=True, exist_ok=False)
-        print(f'Creating new directory {Path(dir,"05_analysis")}')
+        genlogger.info(f'Creating new directory {Path(dir,"05_analysis")}')
     except FileExistsError:
-        print("Given directory already has required structure.")
+        genlogger.info("Given directory already has required structure.")
+        
+    # set path for logging file
+    Path(dir, "05_analysis", "analysis.log").unlink(missing_ok=True)
+    handler = logging.handlers.RotatingFileHandler(
+        str(Path(dir, "05_analysis", "analysis.log")),
+        mode="w",
+        # maxBytes=1000,
+        backupCount=10,
+        encoding="utf-8",
+        delay=0,
+    )
+    handler.setFormatter(
+        logging.Formatter(
+            "{levelname} \t {name} \t {message}",
+            style="{",
+        )
+    )
+    logger.addHandler(handler)
+    
+    # redirect cobrapy logging
+    cobralogger = logging.getLogger("cobra")
+    cobralogger.addHandler(handler)
+    cobralogger.propagate = False
+    # redirect matplotlib logging
+    mpllogger = logging.getLogger("matplotlib")
+    mpllogger.addHandler(handler)
+    mpllogger.propagate = False
+    # redirect refinegems logging
+    rglogger = logging.getLogger("refinegems")
+    rglogger.addHandler(handler)
+    rglogger.propagate = False
 
     # load model
     model = load_model(str(model_path), "cobra")
@@ -89,7 +131,7 @@ def run(
     # general statistics
     # ------------------
 
-    print("\n# ------------------\n# general statistics\n# ------------------")
+    logger.info("\n# ------------------\n# general statistics\n# ------------------")
 
     statistics_report = SpecimenModelInfoReport(model)
     statistics_report.save(Path(dir, "05_analysis"))
@@ -99,7 +141,7 @@ def run(
     # -----------------
 
     if pc_model_path:
-        print("\n# ------------------\n# pan-core analysis\n# ------------------")
+        logger.info("\n# ------------------\n# pan-core analysis\n# ------------------")
         pc_model = load_model(pc_model_path, "cobra")
         pan_core_report = compare_to_core_pan(model, pc_model, pc_based_on)
         pan_core_report.save(Path(dir, "05_analysis"))
@@ -109,7 +151,7 @@ def run(
     # ----------------
 
     if pathway:
-        print("\n# -----------------\n# pathway analysis\n# -----------------")
+        logger.info("\n# -----------------\n# pathway analysis\n# -----------------")
         pathway_report = kegg_pathway_analysis(model)
         pathway_report.save(Path(dir, "05_analysis"))
 
@@ -118,7 +160,7 @@ def run(
     # ---------------
 
     if media_path:
-        print("\n# ---------------\n# growth analysis\n# ---------------")
+        logger.info("\n# ---------------\n# growth analysis\n# ---------------")
 
         # try to set objective to growth
         growth_func_list = test_biomass_presence(model)
@@ -132,7 +174,7 @@ def run(
             growth_report.save(Path(dir, "05_analysis"))
 
         else:
-            warnings.warn(
+            logger.warning(
                 "No growth/biomass function detected, growth simulation will be skipped."
             )
 
@@ -145,4 +187,4 @@ def run(
             auxo_report.save(Path(dir, "05_analysis"))
 
     total_time_e = time.time()
-    print(f"total runtime: {total_time_e-total_time_s}")
+    logger.info(f"total runtime: {total_time_e-total_time_s}")
