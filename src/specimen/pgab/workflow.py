@@ -1,73 +1,31 @@
 #!/usr/bin/env python3
 """Functions to run the workflow based on the Prokaryotic Genome Annotation Pipeline (PGAP). """
 
-from typing import Union, Literal
-from pathlib import Path
-import yaml
-import logging
-import os
-import subprocess
-import xml.etree.ElementTree as ET
-import pandas as pd
-from Bio import SeqIO
-from tqdm.auto import tqdm
-import matplotlib
-import matplotlib.pyplot as plt
-import numpy as np
 import datetime
-from datetime import date
+import gzip
+import logging
+import matplotlib
+import numpy as np
+import os
+import pandas as pd
+import requests
+import shutil
+import subprocess
+import warnings
+import yaml
+
+from Bio import SeqIO
 from importlib.resources import files
+import matplotlib.pyplot as plt
+from pathlib import Path
+from tqdm.auto import tqdm
+from typing import Union, Literal
+import xml.etree.ElementTree as ET
+
+from ..classes.reports import DIAMONDReport
 from ..cmpb.workflow import run as run_cmpb
 from ..hqtb.workflow import run as run_hqtb
-import warnings
-import requests
-import gzip
-import shutil
-
-# config keys for pipeline files
-HQTB_CONFIG_PATH_OPTIONAL = [
-    "media_gap",
-    "ncbi_map",
-    "biocyc",
-    "universal",
-    "pan-core",
-    "fasta",
-    "gff",
-    "dmnd-database",
-    "database-mapping",
-]  #: :meta:
-HQTB_CONFIG_PATH_REQUIRED = [
-    "annotated_genome",
-    "full_sequence",
-    "model",
-    "diamond",
-    "media_analysis",
-]  #: :meta:
-CMPB_CONFIG_PATHS_REQUIRED = ["mediapath"]  #: :meta:
-CMPB_CONFIG_PATHS_OPTIONAL = [
-    "modelpath",
-    "full_genome_sequence",
-    "gff",
-    "protein_fasta",
-    "gene-table",
-    "reacs-table",
-    "gff",
-    "dmnd-database",
-    "database-mapping",
-    "reaction_direction",
-]  # :meta:
-PIPELINE_PATHS_OPTIONAL = {
-    "hqtb": HQTB_CONFIG_PATH_OPTIONAL,
-    "cmpb": CMPB_CONFIG_PATHS_OPTIONAL,
-    "pgab": ["configpath","db"]
-}  #: :meta:
-PIPELINE_PATHS_REQUIRED = {
-    "hqtb": HQTB_CONFIG_PATH_REQUIRED,
-    "cmpb": CMPB_CONFIG_PATHS_REQUIRED,
-    "pgab": ["fasta"]
-}  #: :meta:
-# config keys for pipelines directories
-PIPELINE_DIR_PATHS = ["dir"]
+from ..util.set_up import build_data_directories, validate_config
 
 # TODO: look into warnings instead of print/return
 # TODO: improve variable names
@@ -75,6 +33,15 @@ PIPELINE_DIR_PATHS = ["dir"]
 # TODO: log-file?
 # TODO: information for each of the methods
 def run(configpath: Union[str, None] = None):
+    """Run the PGAP-based (PGAB) workflow.
+
+    Args:
+        - configpath (Union[str,None]):
+            The Path to a configuration file. If none given, prompts the user to 
+            enter the needed information step by step.
+            Defaults to None.
+    """
+    
     # load config
     # -----------
     if not configpath:
@@ -103,7 +70,7 @@ def run(configpath: Union[str, None] = None):
             + config["general"]["organism"]
             + str(config["general"]["strainid"])
             + config["general"]["authorinitials"]
-            + str(date.today().year).removeprefix("20")
+            + str(datetime.date.today().year).removeprefix("20")
         )
     elif config["general"]["modelname"] is not None:
         modelname = config["general"]["modelname"]
@@ -111,7 +78,7 @@ def run(configpath: Union[str, None] = None):
         print(
             "No values given for the standard name for a model. Default name will be used."
         )
-        modelname = "model_" + str(date.today().year).removeprefix("20")
+        modelname = "model_" + str(datetime.date.today().year).removeprefix("20")
 
     # run PGAP
     # --------
@@ -134,7 +101,7 @@ def run(configpath: Union[str, None] = None):
             
             # TODO: default cutoff?
             if taxid:
-                if config['pgap']['skip_diamond']=='yes':
+                if config['pgap']['diamond']=='run':
                     print(f'The taxid(s) which will be used for the taxonomy specific DIAMOND run are {taxid}.')
             else:
                 print('There was no taxid found above the cutoff. You will have to decide on a taxid manually.')
@@ -148,7 +115,7 @@ def run(configpath: Union[str, None] = None):
             raise ValueError(f"Unknown input for taxonomy check: {config['pgap']['tax-check']}")
 
     # option to skip DIAMOND if a 100% match is found
-    if match_100 and config['pgap']['skip_diamond']!='no':
+    if match_100 and config['pgap']['diamond']!='run':
         # TODO: maybe revise the structure?
         print(f'DIAMOND will be skipped because of a found organism with 100% identity. As a next step, the {config['polish']['next_step']} workflow will be started.')
 
@@ -165,7 +132,7 @@ def run(configpath: Union[str, None] = None):
             
             # run next workflow with the RefSeq accession
             # QUESTION: why is the directory for HQTB ./specimen_run/?
-            match config['polish']['next_step']:
+            match config['polish']['next_step'].lower():
                 case 'cmpb':
                     polish_config = adapt_config(config['polish'], dir, modelname, refseq=refseq)
                     run_cmpb(polish_config)
@@ -203,21 +170,25 @@ def run(configpath: Union[str, None] = None):
             return
         else: 
             print('There was no matching RefSeq-ID found and CarveMe could not be performed.')
-            if config['pgap']['skip_diamond']=='maybe':
+            if config['pgap']['diamond']=='maybe':
                 print(f'Because of this, DIAMOND will run with the following taxonomy id(s): {taxid}')
             else: return
 
-    # first save of FASTA with "right" file name
+    # data structures for nr BLAST
     fasta_nr = str(Path(dir,'pgap','output','annot_translated_cds.faa'))
+    mapping_nr = []
+    # Information for the DIAMONDReport
+    duplicates_nr = {}
+    below_cutoff_nr = {}
+    statistics_nr = {}
+    
+    # Data structures for SwissProt BLAST
     fasta_sp = str(Path(dir,'pgap','output','annot_translated_cds.faa'))
-    mapping_nr = []        # mapping table between locus tag and protein id (just one, gets appended) [1. output]
-    duplicates_nr = {}     # removed duplicates (list for each run) [3. output]
-    below_cutoff_nr = {}   # bad identity (list for each run) [4. output]
-    statistics_nr = {}     # statistics for every DIAMOND run (dictionary) [2. output]
-    mapping_sp = []        # mapping table between locus tag and protein id (just one, gets appended) [1. output]
-    duplicates_sp = {}     # removed duplicates (list for each run) [3. output]
-    below_cutoff_sp = {}   # bad identity (list for each run) [4. output]
-    statistics_sp = {}     # statistics for every DIAMOND run (dictionary) [2. output]
+    mapping_sp = []
+    # Information for the DIAMONDReport
+    duplicates_sp = {}
+    below_cutoff_sp = {}
+    statistics_sp = {}
 
     if taxid is not None:
         for id in taxid:
@@ -268,7 +239,7 @@ def run(configpath: Union[str, None] = None):
         below_cutoff_nr['no_tax_restriction'] = cutoff_notax
         
         # DIAMOND report
-        report = DiamondReport(statistics_nr, duplicates_nr, below_cutoff_nr)
+        report = DIAMONDReport(statistics_nr, duplicates_nr, below_cutoff_nr)
         report.save(str(Path(dir,'nr_blast')))
         
     if config['swissprot_blast']['run']:
@@ -286,22 +257,22 @@ def run(configpath: Union[str, None] = None):
         below_cutoff_sp['no_tax_restriction'] = cutoff_notax
         
         # DIAMOND report
-        report = DiamondReport(statistics_sp, duplicates_sp, below_cutoff_sp)
+        report = DIAMONDReport(statistics_sp, duplicates_sp, below_cutoff_sp)
         report.save(str(Path(dir,'swissprot_blast')))
         
     # save mapping tables (even if empty)
-    mapping_nr = pd.DataFrame(mapping_nr, columns=['model_id','NCBI'])
-    mapping_nr.to_csv(str(Path(dir, 'mapping_table_nr.csv')), header=True, index=False, sep='\t')
-    # QUESTION: UniProt instead of DECLASSIFIED?
-    mapping_sp = pd.DataFrame(mapping_sp, columns=['model_id','UNIPROT'])
-    mapping_sp.to_csv(str(Path(dir, 'mapping_table_swissprot.csv')), header=True, index=False, sep='\t')
+    # mapping_nr = pd.DataFrame(mapping_nr, columns=['model_id','NCBI'])
+    # mapping_nr.to_csv(str(Path(dir, 'mapping_table_nr.csv')), header=True, index=False, sep='\t')
+    # # QUESTION: UniProt instead of DECLASSIFIED?
+    # mapping_sp = pd.DataFrame(mapping_sp, columns=['model_id','UNIPROT'])
+    # mapping_sp.to_csv(str(Path(dir, 'mapping_table_swissprot.csv')), header=True, index=False, sep='\t')
 
     # TODO: extra BLAST manually, user input?
-
-    # QUESTION: Why doesnt CarveMe add specific proteins into the model?
+    # DIAMOND files in the folder are remaining proteins without BLAST results
+    # write note in logging file?
         
     polish_config = adapt_config(config['polish'], dir, modelname, genome=config['pgap']['generic']['fasta']['location'])
-    match config['polish']['next_step']:
+    match config['polish']['next_step'].lower():
         case 'cmpb':
             run_cmpb(polish_config)
             # print('work in progress...')
@@ -314,231 +285,26 @@ def run(configpath: Union[str, None] = None):
 
     # QUESTION: What exactly belongs in the header of the mapping table? 'NCBI' for protein_tag and 'UNIPROT' for UniProt?
     
+# TODO
 def save_pgab_user_input() -> dict[str, str]:
     """method adapted from SPECIMEN.util.set_up
     !under construction!
     """
 
-def validate_config(userc: str, pipeline: Literal["hqtb", "cmpb", "pgab"] = "hqtb") -> dict:
-    """method adapted from SPECIMEN.util.set_up"""
-
-    def dict_recursive_combine(dictA: dict, dictB: dict) -> dict:
-        if not isinstance(dictB, dict):
-            return dictB
-        for key in dictA.keys():
-            if key in dictB.keys():
-                dictA[key] = dict_recursive_combine(dictA[key], dictB[key])
-        return dictA
-
-    def dict_recursive_overwrite(dictA: dict, key: str = None) -> dict:
-        if not isinstance(dictA, dict):
-            # check for missing input
-            if dictA == "__USER__":
-                raise TypeError(
-                    f"Missing a required argument in the config file ({key})."
-                )
-            elif dictA == "USER":
-                mes = f"Keyword USER detected in config ({key}). Either due to skipped options or missing required information.\nReminder: This may lead to downstream problems."
-                logging.warning(mes)
-                return None
-            else:
-                return dictA
-
-        for key in dictA.keys():
-            dictA[key] = dict_recursive_overwrite(dictA[key], key)
-        return dictA
-
-    def dict_recursive_check(dictA: dict, key: str = None, pipeline: Literal["hqtb", "cmpb", "pgab"] = "hqtb"):
-        if not isinstance(dictA, dict):
-            # required file paths
-            if key in PIPELINE_PATHS_REQUIRED[pipeline]:
-                if isinstance(dictA, list):
-                    for entry in dictA:
-                        if os.path.isfile(entry):
-                            continue
-                        else:
-                            raise FileNotFoundError(f"Path does not exist: {dictA}")
-                elif dictA and os.path.isfile(dictA):
-                    return
-                else:
-                    raise FileNotFoundError(f"Path does not exist: {dictA}")
-            # optional file paths
-            elif key in PIPELINE_PATHS_OPTIONAL[pipeline]:
-                if isinstance(dictA, str):
-                    if os.path.isfile(dictA):
-                        return
-                    elif not os.path.isfile(dictA):
-                        mes = f"Path does not exist: {dictA}. \nReminder: It is optional, but it may lead to downstream problems."
-                        logging.warning(mes)
-                        pass
-                    else:
-                        raise FileNotFoundError(f"Path does not exist: {dictA}")
-                if isinstance(dictA, list):
-                    for entry in dictA:
-                        if entry and os.path.isfile(entry):
-                            return
-                        elif not os.path.isfile(entry):
-                            mes = f"Path does not exist: {entry}. \nReminder: It is optional, but it may lead to downstream problems."
-                            logging.warning(mes)
-                            pass
-                        else:
-                            raise FileNotFoundError(f"Path does not exist: {entry}")
-            elif key in PIPELINE_DIR_PATHS:
-                if dictA and os.path.exists(dictA):
-                    return
-                else:
-                    raise FileNotFoundError(f"Directory does not exist: {dictA}")
-            # not found or missing
-            else:
-                pass
-
-            return
-
-        else:
-            for key in dictA.keys():
-                dict_recursive_check(dictA[key], key, pipeline)
-        return
-
-    # validate a user config file by checking for missing input
-    # by combining it with a default config
-
-    # load both files
-    match pipeline:
-        case "hqtb":
-            defaultc_path = files("specimen.data.config").joinpath("hqtb_config_default.yaml")
-        case "cmpb":
-            defaultc_path = files("specimen.data.config").joinpath("cmpb_config.yaml")
-        case "pgab":
-            defaultc_path = files("specimen.data.config").joinpath("pgab_config.yaml")
-            # defaultc_path = "/vol/pgap_data/pgab_config.yaml"
-        case _:
-            raise ValueError(f"Unknown input for pipeline: {pipeline}")
-
-    with open(defaultc_path, "r") as cfg_def, open(userc, "r") as cfg_usr:
-        config_d = yaml.load(cfg_def, Loader=yaml.loader.FullLoader)
-        config_u = yaml.load(cfg_usr, Loader=yaml.loader.FullLoader)
-
-    # combine
-    combined_config = dict_recursive_combine(config_d, config_u)
-
-    # overwrite __USER__ and USER
-    combined_config = dict_recursive_overwrite(combined_config)
-
-    # check for missing or problematic values
-    # special case for HQTB pipeline with relative paths
-    if (
-        "data" in combined_config.keys()
-        and "data_direc" in combined_config["data"].keys()
-        and combined_config["data"]["data_direc"]
-    ):
-        if os.path.isdir(combined_config["data"]["data_direc"]):
-            for key in combined_config["data"]:
-                if combined_config["data"][key] and key != "data_direc":
-                    combined_config["data"][key] = (
-                        combined_config["data"]["data_direc"]
-                        + combined_config["data"][key]
-                    )
-            dict_recursive_check(combined_config, key=None, pipeline=pipeline)
-        else:
-            raise FileNotFoundError(
-                "Directory set for config:data:data_direc does not exist."
-            )
-    # normal recursion for validation
-    else:
-        dict_recursive_check(combined_config, key=None, pipeline=pipeline)
-
-    if combined_config["general"]["modelname"] is None and (
-        combined_config["general"]["authorinitials"] is None
-        or combined_config["general"]["organism"] is None
-        or combined_config["general"]["strainid"] is None
-    ):
-        raise ValueError(
-            f"Either the model name or all of the following parameters must be stated: authorinitials, organism and strainID"
-        )
-
-    return combined_config
-
-def build_data_directories(pipeline: Literal["hqtb", "high-quality template based", "cmpb", "carveme modelpolisher based", "pgab", "PGAP based"], dir: str):
-    """method adapted from SPECIMEN.util.set_up"""
-
-    match pipeline:
-        # HQTB setup
-        case "hqtb" | "high-quality template based":
-            # create the data directory structure
-            print("Creating directory structure...")
-            DATA_DIRECTORIES = [
-                "annotated_genomes",
-                "BioCyc",
-                "RefSeqs",
-                "medium",
-                "pan-core-models",
-                "template-models",
-                "universal-models",
-            ]
-            for sub_dir in DATA_DIRECTORIES:
-                new_dir = Path(dir, sub_dir)
-                try:
-                    Path(new_dir).mkdir(parents=True, exist_ok=False)
-                    print(f"Creating new directory {new_dir}")
-                except FileExistsError:
-                    print(f"Directory {new_dir} already exists.")
-
-        # CMPB output
-        case "cmpb" | "carveme modelpolisher based":
-            Path(dir, "cmpb_out").mkdir(parents=True, exist_ok=False)  # cmpb_out
-            Path(dir, "cmpb_out", "models").mkdir(
-                parents=True, exist_ok=False
-            )  #   |- models
-            Path(dir, "cmpb_out", "logs").mkdir(
-                parents=True, exist_ok=False
-            )  #   |- logs
-            Path(dir, "cmpb_out", "misc").mkdir(
-                parents=True, exist_ok=False
-            )  #   |- misc
-            Path(dir, "cmpb_out", "misc", "memote").mkdir(
-                parents=True, exist_ok=False
-            )  #      |- memote
-            Path(dir, "cmpb_out", "misc", "mcc").mkdir(
-                parents=True, exist_ok=False
-            )  #      |- mcc
-            Path(dir, "cmpb_out", "misc", "gapfill").mkdir(
-                parents=True, exist_ok=False
-            )  #      |- gapfill
-            Path(dir, "cmpb_out", "misc", "growth").mkdir(
-                parents=True, exist_ok=False
-            )  #      |- growth
-            Path(dir, "cmpb_out", "misc", "stats").mkdir(
-                parents=True, exist_ok=False
-            )  #      |- stats
-            Path(dir, "cmpb_out", "misc", "modelpolisher").mkdir(
-                parents=True, exist_ok=False
-            )  #      |- modelpolisher
-            Path(dir, "cmpb_out", "misc", "kegg_pathway").mkdir(
-                parents=True, exist_ok=False
-            )  #      |- kegg_pathways
-            Path(dir, "cmpb_out", "misc", "auxotrophy").mkdir(
-                parents=True, exist_ok=False
-            )  #      |- auxothrophy
-
-        case "pgab" | "PGAP based":
-            print("Creating directory structure...")
-            Path(dir, "pgab_out").mkdir(parents=True, exist_ok=False)  # pgab_out
-            Path(dir, "pgab_out", "pgap").mkdir(
-                parents=True, exist_ok=False
-            )  #   |- yaml files + PGAP output
-            Path(dir, "pgab_out", "nr_blast").mkdir(
-                parents=True, exist_ok=False
-            )  #   |- DIAMOND nr output
-            Path(dir, "pgab_out", "swissprot_blast").mkdir(
-                parents=True, exist_ok=False
-            )  #   |- DIAMOND swissprot output
-
-        # default case
-        case _:
-            message = f"Unknown input for parameter pipeline: {pipeline}"
-            raise ValueError(message)
-
 def run_pgap(config: dict, dir: str):
+    """Run PGAP on the command line. Saves the results in a folder called 'output'.
+
+    Args:
+        - config (dict):
+            Dictionary with input parameters for PGAP.
+            Needs to have the keys 'generic' and 'metadata'.
+        - dir (str):
+            Path to the directory where the results are saved to.
+
+    Raises:
+        ValueError: Unknown input for taxonomy check parameter.
+    """
+    
     logfile = str(Path(dir,'log_pgap.txt'))
 
     prepare_pgap_input(config['generic'], config['metadata'], dir)
@@ -560,6 +326,18 @@ def run_pgap(config: dict, dir: str):
         f.write(completed_pgap.stderr)
 
 def prepare_pgap_input(generic: dict, metadata: str, dir: str):
+    """Function to convert PGAB config to input files for PGAP.
+
+    Args:
+        - generic (dict): 
+            Dictionary with the path to the genomic FASTA and
+            the submol.yaml file.
+        - metadata (str): 
+            Dictionary with metadata for PGAP.
+        - dir (str): 
+            Path to the directory where the files are saved to.
+    """
+    
     subprocess.run(['cp', generic['fasta']['location'], dir])
 
     with open(Path(dir,'submol.yaml'), 'w') as f:
@@ -571,7 +349,26 @@ def prepare_pgap_input(generic: dict, metadata: str, dir: str):
     with open(Path(dir,'input.yaml'), 'w') as f:
         yaml.dump(generic, f)
 
-def parse_tax_check(file: Path, cutoff: float=90.0, type: Literal['only','continue'] = 'continue') -> tuple[dict[str, str], dict[str, str]|None]:
+def parse_tax_check(file: str, cutoff: float=90.0, type: Literal['only','continue'] = 'continue') -> tuple[dict[str, str], dict[str, str]|None]:
+    """Parses the tax report XML file from PGAP.
+
+    Args:
+        - file (str):
+            Path to the tax report from PGAP.
+        - cutoff (float, optional): 
+            Cutoff for organism similarity.
+            Defaults to 90.0.
+        - type (Literal["only","continue"], optional): 
+            Describes if only the taxonomy check ran.
+            Defaults to 'continue'.
+
+    Returns:
+        dict[str, str]:
+            Dictionary with the taxonomy results above the threshold.
+        dict[str, str]|None:
+            Dictionary of a 100% match if one was found.
+    """
+    
     taxonomy = {}
     results = []
     child_100 = {}
@@ -605,7 +402,31 @@ def parse_tax_check(file: Path, cutoff: float=90.0, type: Literal['only','contin
      
     return taxonomy, child_100
 
-def run_DIAMOND(fasta: str, db: str, sensitivity: Literal["sensitive", "more-sensitive", "very-sensitive", "ultra-sensitive"] = "more-sensitive", coverage: float=95.0, threads: int=2, outdir: str=None, taxonlist: list[int]=None, outname: str='diamond'):
+def run_DIAMOND(fasta: str, db: str, sensitivity: str = "more-sensitive", # QUESTION: alle Optionen in Literal[]?
+                coverage: float=95.0, threads: int=2, outdir: str=None, taxonlist: list[int]=None, outname: str='diamond'):
+    """Run DIAMOND BLASTp on the command line.
+
+    Args:
+        - fasta (str): 
+            Path to the FASTA input file.
+        - db (str):
+            Path to the dmnd database.
+        - sensitivity (optional): 
+            Sensitivity option for DIAMOND.
+            Defaults to "more-sensitive".
+        - coverage (float, optional): 
+            Coverage for DIAMOND. Defaults to 95.0.
+        - threads (int, optional): 
+            Defaults to 2.
+        - outdir (str, optional):
+            Path to directory to save the DIAMOND result file..
+        - taxonlist (list[int], optional): 
+            List of taxonomy IDs for taxonomy specific BLAST runs.
+            Defaults to None.
+        - outname (str, optional): 
+            File name for the output and logging files. Defaults to 'diamond'.
+    """
+    
     outfile = Path(outdir, outname+'_'+sensitivity+'.tsv')
     logfile = Path(outdir, outname+'_'+sensitivity+'_logfile.txt')
     
@@ -625,7 +446,25 @@ def run_DIAMOND(fasta: str, db: str, sensitivity: Literal["sensitive", "more-sen
     with open(logfile, "a") as f:
         f.write(completed_blast.stderr)
 
-def read_DIAMOND_results(results: str, dir: str, cutoff: float=90.0) -> tuple[pd.core.frame.DataFrame, list[str], list[str]]:
+def read_DIAMOND_results(results: str, cutoff: float=90.0) -> tuple[pd.core.frame.DataFrame, list[str], list[str]]:
+    """Function to read in the DIAMOND results and sort out
+    duplicates and hits below the cutoff.
+
+    Args:
+        - results (str):
+            Path to the DIAMOND tsv file.
+        - cutoff (float, optional): 
+            Cutoff for the percentage identity. Defaults to 90.0.
+
+    Returns:
+        pd.core.frame.DataFrame:
+            Dataframe with the found BLAST hits.
+        list[str]:
+            List with the found duplicates.
+        list[str]:
+            List with the hits below the cutoff.
+    """
+    
     colnames = ['qseqid', 'sseqid', 'pident', 'length', 'mismatch', 'gapopen', 'qstart', 'qend', 'sstart', 'send', 'evalue', 'bitscore']
     
     data = pd.read_table(results, header=None, names=colnames, index_col='qseqid')
@@ -641,6 +480,17 @@ def read_DIAMOND_results(results: str, dir: str, cutoff: float=90.0) -> tuple[pd
     return data, duplicates, below_cutoff
 
 def read_PGAP_results(results: str) -> list[str]:
+    """Function to read in the PGAP FASTA file.
+
+    Args:
+        - results (str):
+            Path to the FASTA file.
+
+    Returns:
+        list[str]:
+            List with the annotated proteins from PGAP.
+    """
+    
     records = []
     for seq_record in SeqIO.parse(results, "fasta"):
         records.append(seq_record)
@@ -648,8 +498,36 @@ def read_PGAP_results(results: str) -> list[str]:
     return records
 
 def get_mapping_table(mapping: list[str], diamond: str, pgap: str, dir: str, cutoff: float=90.0, database: Literal['nr', 'swissprot'] = 'nr') -> tuple[dict[str, int], list[str], list[str]]:
+    """Function to combine DIAMOND and PGAP results as an ID mapping table.
+
+    Args:
+        - mapping (list[str]):
+            (Empty) List as the mapping table.
+        - diamond (str):
+            Path to the DIAMOND tsv file.
+        - pgap (str):
+            Path to the PGAP FASTA file.
+        - dir (str):
+            Path to the directory where the remaining proteins are saved to
+            which where not found with DIAMOND.
+        - cutoff (float, optional): 
+            Cutoff for the percentage identity. Defaults to 90.0.
+        - database (Literal["nr", "swissprot"], optional): 
+            Database with which the BLASTp run was performed.
+            Defaults to 'nr'.
+
+    Returns:
+        dict[str, int]:
+            Dictionary with 'mapped', 'not best hits' and 'not found' as the keys
+            and the respective counts as values.
+        list[str]:
+            List of the duplicates found with DIAMOND.
+        list[str]:
+            List of DIAMOND hits below the cutoff.
+    """
+    
     pgap = read_PGAP_results(pgap)
-    diamond, duplicates, below_cutoff = read_DIAMOND_results(diamond, dir, cutoff)
+    diamond, duplicates, below_cutoff = read_DIAMOND_results(diamond, cutoff)
     
     no_diamond = []
     statistics = {
@@ -677,90 +555,41 @@ def get_mapping_table(mapping: list[str], diamond: str, pgap: str, dir: str, cut
 
     return statistics, duplicates, below_cutoff
 
-# TODO: integrate into the SPECIMEN reports class
-class DiamondReport():
-    def __init__(
-        self,
-        statistics: dict,
-        duplicates: dict[str, list],
-        below_cutoff: dict[str, list]
-    ) -> None:
-        self.statistics = statistics
-        self.duplicates = duplicates
-        self.below_cutoff = below_cutoff
-
-    def visualise(self, color_palette: str = "YlGn") -> matplotlib.figure.Figure:
-        try:
-            cmap = matplotlib.colormaps[color_palette]
-        except ValueError:
-            warnings.warn('Unknown color palette, setting it to "YlGn"')
-            cmap = matplotlib.colormaps["YlGn"]
-
-        taxids = list(self.statistics.keys())
-
-        fig, ax = plt.subplots()
-        positions = np.arange(len(self.statistics[taxids[0]].keys()))
-
-        if len(self.statistics.keys()) == 3:
-            barWidth = 0.33
-            bars1 = ax.bar(positions, self.statistics[taxids[0]].values(), label=list(self.statistics.keys())[0], width=0.3, color=cmap(0.25))
-            ax.bar_label(bars1, self.statistics[taxids[0]].values())
-            bars2 = ax.bar(positions+barWidth, self.statistics[taxids[1]].values(), label=list(self.statistics.keys())[1], width=0.3, color=cmap(0.5)) 
-            ax.bar_label(bars2, self.statistics[taxids[1]].values())
-            bars3 = ax.bar(positions+2*barWidth, self.statistics[taxids[2]].values(), label=list(self.statistics.keys())[2], width=0.3, color=cmap(0.75))
-            ax.bar_label(bars3, self.statistics[taxids[2]].values())
-            ax.set_ylabel('count', labelpad=10)
-            plt.legend()
-            plt.xticks(positions+barWidth, ['mapped', 'not best hits', 'not found'])
-            plt.title('Report for the DIAMOND runs')
-
-        elif len(self.statistics.keys()) == 2:
-            barWidth = 0.45
-            bars1 = ax.bar(positions, self.statistics[taxids[0]].values(), label=list(self.statistics.keys())[0], width=0.4, color=cmap(0.5)) 
-            ax.bar_label(bars1, self.statistics[taxids[0]].values())
-            bars2 = ax.bar(positions+barWidth, self.statistics[taxids[1]].values(), label=list(self.statistics.keys())[1], width=0.4, color=cmap(0.75))
-            ax.bar_label(bars2, self.statistics[taxids[1]].values())
-            ax.set_ylabel('count', labelpad=10)
-            plt.legend()
-            plt.xticks(positions+barWidth/2, ['mapped', 'not best hits', 'not found'])
-            plt.title('Report for the DIAMOND runs')
-        
-        elif len(self.statistics.keys()) == 1:
-            bars = ax.bar(self.statistics[taxids[0]].keys(), self.statistics[taxids[0]].values(), label=list(self.statistics.keys())[0], width=0.7, color=cmap(0.75))
-            ax.bar_label(bars, self.statistics[taxids[0]].values())
-            ax.set_ylabel('count', labelpad=10)
-            plt.legend()
-            plt.xticks(positions, ['mapped', 'not best hits', 'not found'])
-            plt.title('Report for the DIAMOND run')
-        
-        return fig
-
-    def save(self, dir: str, color_palette: str = 'YlGn') -> None:
-        dir = str(Path(dir, 'DIAMOND_report'))
-        Path(dir).mkdir(parents=True, exist_ok=False)
-
-        fig = self.visualise(color_palette)
-        fig.savefig(str(Path(dir, 'DIAMOND_visual.png')))
-        
-        for key in self.duplicates:
-            pd.DataFrame(self.duplicates[key]).to_csv(str(Path(dir,f'duplicates_{key}.tsv')), sep="\t")
-        for key in self.below_cutoff:
-            pd.DataFrame(self.below_cutoff[key]).to_csv(str(Path(dir,f'below_cutoff_{key}.tsv')), sep="\t")
-
 def adapt_config(cfg: dict[str, str], dir: str, modelname: str, refseq: str=None, genome: str=None) -> str:
-    # needs to be added: gff, protein fasta, refseq accession, flag from_pgab
+    """Function to adapt a CMPB or HQTB config with new parameters.
+
+    Args:
+        cfg (dict[str, str]): 
+            Dictionary with information for the file to be adapted.
+        dir (str):
+            Path to the directory to save the config to.
+        modelname (str):
+            String to be used as the model name in the next steps.
+        refseq (str, optional): 
+            RefSeq accession if known.
+            Defaults to None.
+        genome (str, optional): 
+            Path to the genomic FASTA file. 
+            Defaults to None.
+
+    Raises:
+        ValueError: Unknown input for pipeline.
+
+    Returns:
+        str:
+            Path to the new config.
+    """
+    
     config = validate_config(cfg['configpath'], cfg['next_step'])
     
-    match cfg['next_step']:
+    match cfg['next_step'].lower():
         case 'cmpb':
             config['general']['gff'] = str(Path(dir,'pgap','output','annot.gff'))
             config['general']['protein_fasta'] = str(Path(dir,'pgap','output','annot_translated_cds.faa'))
             config['carveme']['refseq'] = refseq
             config['cm-polish']['is_lab_strain'] = True
         case 'hqtb':
-            # TODO: integrate HQTB-pipeline -> fasta and gff are __USER__-parameters...
-            # QUESTION: faa or gbff? both possible, test with faa
-            # refineGEMS-Methode utility.io.mimic_genbank..., in case only gbff works
+            # QUESTION: pseudo paths for the user input? __USER__
             if refseq:
                 config['subject']['annotated_genome'] = cfg['fasta']
                 config['subject']['gff'] = cfg['gff']

@@ -57,13 +57,20 @@ CMPB_CONFIG_PATHS_OPTIONAL = [
     "database-mapping",
     "reaction_direction",
 ]  # :meta:
+PGAB_CONFIG_PATHS_REQUIRED = []  #: :meta:
+PGAB_CONFIG_PATHS_OPTIONAL = [
+    "location",
+    "db"
+]  #: :meta:
 PIPELINE_PATHS_OPTIONAL = {
     "hqtb": HQTB_CONFIG_PATH_OPTIONAL,
     "cmpb": CMPB_CONFIG_PATHS_OPTIONAL,
+    "pgab": PGAB_CONFIG_PATHS_OPTIONAL,
 }  #: :meta:
 PIPELINE_PATHS_REQUIRED = {
     "hqtb": HQTB_CONFIG_PATH_REQUIRED,
     "cmpb": CMPB_CONFIG_PATHS_REQUIRED,
+    "pgab": PGAB_CONFIG_PATHS_REQUIRED
 }  #: :meta:
 # config keys for pipelines directories
 PIPELINE_DIR_PATHS = ["dir"]
@@ -79,7 +86,7 @@ PIPELINE_DIR_PATHS = ["dir"]
 
 def build_data_directories(
     pipeline: Literal[
-        "hqtb", "high-quality template based", "cmpb", "carveme modelpolisher based"
+        "hqtb", "high-quality template based", "cmpb", "carveme modelpolisher based", "pgab", "PGAP based"
     ],
     parent_dir: str,
 ):
@@ -87,7 +94,7 @@ def build_data_directories(
     for the given pipeline.
 
     Args:
-        - pipeline (Literal['hqtb','high'):
+        - pipeline (Literal['hqtb', 'cmpb', 'pgab'):
             For which pipeline the structure should be.
         - parent_dir (str):
             Parent directory/ Path to write the structure to.
@@ -203,6 +210,19 @@ def build_data_directories(
             # Path(parent_dir, "cmpb_out", "misc", "auxotrophy").mkdir(
             #     parents=True, exist_ok=False
             # )  #      |- auxothrophy
+        
+        case "pgab" | "PGAP based":
+            print("Creating directory structure...")
+            Path(dir, "pgab_out").mkdir(parents=True, exist_ok=False)  # pgab_out
+            Path(dir, "pgab_out", "pgap").mkdir(
+                parents=True, exist_ok=False
+            )  #   |- yaml files + PGAP output
+            Path(dir, "pgab_out", "nr_blast").mkdir(
+                parents=True, exist_ok=False
+            )  #   |- DIAMOND nr output
+            Path(dir, "pgab_out", "swissprot_blast").mkdir(
+                parents=True, exist_ok=False
+            )  #   |- DIAMOND swissprot output
 
         # default case
         case _:
@@ -218,14 +238,15 @@ def build_data_directories(
 def download_config(
     filename: str = "my_basic_config.yaml",
     type: Literal[
-        "hqtb-basic", "hqtb-advanced", "hqtb-defaults", "media", "cmpb"
+        "hqtb-basic", "hqtb-advanced", "hqtb-defaults", "media", "cmpb", "pgab"
     ] = "hqtb basic",
 ):
     """Load a configuration file from the package and save
     a copy for the user to edit.
 
-    The media config and the config for the cmpb / CarveMe + Modelpolisher based pipeline
-    can be downloaded using 'media' and 'cmpb' respectively
+    The media config, the config for the cmpb / CarveMe + Modelpolisher based pipeline
+    and the config for the pgab / PGAP based pipeline
+    can be downloaded using 'media', 'cmpb' and 'pgab' respectively
 
     For the hqtb / high-quality template based pipeline:
 
@@ -236,9 +257,9 @@ def download_config(
         - filename (str, optional):
             Filename/filepath to save the downloaded config file under.
             Defaults to 'my_basic_config.yaml'.
-        - type (Literal['hqtb-basic','hqtb-advanced','hqtb-defaults','media','cmpb'], optional):
+        - type (Literal['hqtb-basic','hqtb-advanced','hqtb-defaults','media','cmpb','pgab'], optional):
             The type of file to download.
-            Can be 'hqtb-basic', 'hqtb-advanced' or 'hqtb-defaults' or 'media' or 'cmpb'.
+            Can be 'hqtb-basic', 'hqtb-advanced' or 'hqtb-defaults' or 'media' or 'cmpb' or 'pgab'.
             Defaults to 'hqtb basic'.
 
     Raises:
@@ -280,6 +301,12 @@ def download_config(
             with open(config_file, "r") as cfg_file, open(filename, "w") as cfg_out:
                 for line in cfg_file:
                     cfg_out.write(line)
+        # for the pgab pipeline
+        case "pgab":
+            config_file = files("specimen.data.config").joinpath("pgab_config.yaml")
+            with open(config_file, "r") as cfg_file, open(filename, "w") as cfg_out:
+                for line in cfg_file:
+                    cfg_out.write(line)
         # type not found
         case _:
             raise ValueError(f"Unknown type of config file detected: {type}")
@@ -289,7 +316,7 @@ def download_config(
 # ----
 
 
-def validate_config(userc: str, pipeline: Literal["hqtb", "cmpb"] = "hqtb") -> dict:
+def validate_config(userc: str, pipeline: Literal["hqtb", "cmpb", "pgab"] = "hqtb") -> dict:
     """Validate a user hqtb config file for use in the pipeline.
 
     .. note::
@@ -362,7 +389,7 @@ def validate_config(userc: str, pipeline: Literal["hqtb", "cmpb"] = "hqtb") -> d
         return dictA
 
     def dict_recursive_check(
-        dictA: dict, key: str = None, pipeline: Literal["hqtb", "cmpb"] = "hqtb"
+        dictA: dict, key: str = None, pipeline: Literal["hqtb", "cmpb", "pgab"] = "hqtb"
     ):
         """Helper-function for :py:func:`~specimen.util.set_up.validate_config`
         to check if a configuration is valid to run the high-quality template based pipeline.
@@ -436,11 +463,11 @@ def validate_config(userc: str, pipeline: Literal["hqtb", "cmpb"] = "hqtb") -> d
     # load both files
     match pipeline:
         case "hqtb":
-            defaultc_path = files("specimen.data.config").joinpath(
-                "hqtb_config_default.yaml"
-            )
+            defaultc_path = files("specimen.data.config").joinpath("hqtb_config_default.yaml")
         case "cmpb":
             defaultc_path = files("specimen.data.config").joinpath("cmpb_config.yaml")
+        case "pgab":
+            defaultc_path = files("specimen.data.config").joinpath("pgab_config.yaml")
         case _:
             raise ValueError(f"Unknown input for pipeline: {pipeline}")
 
