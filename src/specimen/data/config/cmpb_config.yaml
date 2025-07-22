@@ -33,6 +33,7 @@ general:
   save_all_models: True      # Save a model per step
   memote_always_on: False    # Run MEMOTE after every step
   stats_always_on: False     # Calculate the model statistics after every step
+  from_pgab: False           # Flag, if CMPB is the polishing step after PGAB
 
   # Options used by multiple steps of the workflow
   gff: USER                  # Path to RefSeq/Genbank GFF file:
@@ -58,6 +59,7 @@ carveme:
   # fill out the params below
   gram: USER           # Choose either grampos or gramneg, depending on the Gram-test
                        # results of your organism
+  refseq: USER         # RefSeq accession in case of 100% match in PGAB
 
 # Polish a CarveMe model
 #    Only neccessary, if the model will or has been build with CarveMe

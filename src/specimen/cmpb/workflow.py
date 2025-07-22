@@ -25,7 +25,7 @@ from refinegems.classes.reports import ModelInfoReport, SBOTermReport
 from refinegems.utility.util import test_biomass_presence
 from refinegems.curation.biomass import check_normalise_biomass
 from refinegems.curation.charges import correct_charges_modelseed
-from refinegems.curation.curate import resolve_duplicates, check_direction, polish_model
+from refinegems.curation.curate import resolve_duplicates, check_direction, polish_model, extend_gp_annots_via_mapping_table
 from refinegems.classes.gapfill import KEGGapFiller, BioCycGapFiller, GeneGapFiller
 from refinegems.curation.pathways import set_kegg_pathways, kegg_pathway_analysis
 from refinegems.utility.entities import (
@@ -264,7 +264,11 @@ def run(configpath: Union[str, None] = None):
         step_start = time.time()
         
         out_modelpath = only_modelpath if only_modelpath else Path(MODEL_DIR, modelname+'.xml')
-        if (
+        if config["carveme"]["refseq"] is not None:
+            os.system(
+                f"carve --refseq {config['carveme']['refseq']} --solver scip -o {out_modelpath}"
+            )
+        elif (
             config["carveme"]["gram"] == "grampos"
             or config["carveme"]["gram"] == "gramneg"
         ):
@@ -346,6 +350,17 @@ def run(configpath: Union[str, None] = None):
             mult_charges_tab = pd.DataFrame.from_dict(mult_charges_dict, orient="index")
             mult_charges_tab.to_csv(
                 Path(MISC_DIR, "reac_with_mult_charges.tsv"), sep="\t"
+            )
+            
+        # add information for PGAP-created models via mapping table
+        if config['general']['from_pgab'] and config['carveme']['refseq'] is None:
+            # nr database
+            current_libmodel = extend_gp_annots_via_mapping_table(
+                current_libmodel, str(Path(PARENT_DIR,'mapping_table_nr.csv')), lab_strain=True
+            )
+            # SwissProt database
+            current_libmodel = extend_gp_annots_via_mapping_table(
+                current_libmodel, str(Path(PARENT_DIR,'mapping_table_swissprot.csv')), lab_strain=True
             )
 
         # save model
@@ -760,7 +775,7 @@ def run(configpath: Union[str, None] = None):
 
     # MCC
     # ---
-    logger.info("Running CCC ...")
+    logger.info("Running MCC ...")
     step_start = time.time()
     
     current_model = perform_mcc(

@@ -158,14 +158,14 @@ def build_data_directories(
                     for ssdir in DATA_DIRECTORIES[sub_dir]:
                         new_sub_dir = Path(new_dir, ssdir)
 
-                    # Try to create sub sub directories: if exist, overwrite & warn user
-                    try:
-                        Path(new_sub_dir).mkdir(parents=True, exist_ok=False)
-                        print(f"Creating new sub directory {new_sub_dir}")
-                    except FileExistsError:
-                        warnings.warn(
-                            f"Given sub directory {new_sub_dir} already exists. High possibility of files being overwritten."
-                        )
+                        # Try to create sub sub directories: if exist, overwrite & warn user
+                        try:
+                            Path(new_sub_dir).mkdir(parents=True, exist_ok=False)
+                            print(f"Creating new sub directory {new_sub_dir}")
+                        except FileExistsError:
+                            warnings.warn(
+                                f"Given sub directory {new_sub_dir} already exists. High possibility of files being overwritten."
+                            )
 
             # Path(parent_dir, "cmpb_out").mkdir(parents=True, exist_ok=False)  # cmpb_out
             

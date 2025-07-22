@@ -41,6 +41,7 @@ general:
     strainid: USER             # ID of the strain 
     organism: USER             # Abbreviation for the organism
     memote: False
+    from_pgab: False           # Flag set by PGAB workflow
 
 # database information
 # --------------------

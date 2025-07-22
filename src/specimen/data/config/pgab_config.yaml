@@ -1,0 +1,55 @@
+# Configuration file for the SPECIMEN PGAB pipeline
+
+# Meaning of the default parameters:
+#    The value __USER__ indicates parameters required to be specified by the user
+#    The value USER indicates parameters required only in specific cases
+
+# Meta info:
+#    model:     USER
+#    organism:  USER
+#    date:      USER
+#    author:    USER
+
+# Input for the Prokaryotic Genome Annotation Pipeline
+# ----------------------------------------------------
+pgap:
+  generic:
+    fasta: 
+      class: File
+      location: __USER__
+  metadata:
+    topology: linear                      # all sequences linear or circular? otherwise specify in fasta
+    location: chromosome                  # all sequences chromosomal or from plasmid? otherwise specify in fasta
+    organism:
+      genus_species: __USER__             # binomial name or genus
+      strain: USER
+    locus_tag_prefix: PGAB                # prefix for locus_tags
+  tax-check: continue                     # only, continue, none
+  taxid: None
+  tax_cutoff: 99.0                        # limit for organism similarity
+  skip_diamond: no                        # skip DIAMOND, if a 100% match is found (Literal[yes, no, maybe])
+general:                                  # general options, right now only for modelname and directory
+  modelname: USER
+  authorinitials: USER
+  organism: USER
+  strainid: USER
+  dir: './'
+nr_blast:
+  run: True
+  db: USER
+  pid: 90.0
+  sensitivity: more-sensitive
+  threads: 2
+  coverage: 95.0
+swissprot_blast:
+  run: True
+  db: USER
+  pid: 90.0
+  sensitivity: more-sensitive
+  threads: 2
+  coverage: 95.0
+carveme:
+  gram: None
+polish:
+  next_step: none     # either cmpb, hqtb or none
+  configpath: USER    # path to either the CMPB or HQTB config for further polishing steps
