@@ -57,11 +57,8 @@ CMPB_CONFIG_PATHS_OPTIONAL = [
     "database-mapping",
     "reaction_direction",
 ]  # :meta:
-PGAB_CONFIG_PATHS_REQUIRED = []  #: :meta:
-PGAB_CONFIG_PATHS_OPTIONAL = [
-    "location",
-    "db"
-]  #: :meta:
+PGAB_CONFIG_PATHS_REQUIRED = ["location"]  #: :meta:
+PGAB_CONFIG_PATHS_OPTIONAL = ["db"]  #: :meta:
 PIPELINE_PATHS_OPTIONAL = {
     "hqtb": HQTB_CONFIG_PATH_OPTIONAL,
     "cmpb": CMPB_CONFIG_PATHS_OPTIONAL,
@@ -213,16 +210,19 @@ def build_data_directories(
         
         case "pgab" | "PGAP based":
             print("Creating directory structure...")
-            Path(dir, "pgab_out").mkdir(parents=True, exist_ok=False)  # pgab_out
-            Path(dir, "pgab_out", "pgap").mkdir(
+            Path(parent_dir, "pgab_out").mkdir(parents=True, exist_ok=False)  # pgab_out
+            Path(parent_dir, "pgab_out", "pgap").mkdir(
                 parents=True, exist_ok=False
             )  #   |- yaml files + PGAP output
-            Path(dir, "pgab_out", "nr_blast").mkdir(
+            Path(parent_dir, "pgab_out", "nr_blast").mkdir(
                 parents=True, exist_ok=False
             )  #   |- DIAMOND nr output
-            Path(dir, "pgab_out", "swissprot_blast").mkdir(
+            Path(parent_dir, "pgab_out", "swissprot_blast").mkdir(
                 parents=True, exist_ok=False
             )  #   |- DIAMOND swissprot output
+            Path(parent_dir, "pgab_out", "logs").mkdir(
+                parents=True, exist_ok=False
+            )  #   |- logging
 
         # default case
         case _:

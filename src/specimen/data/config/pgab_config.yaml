@@ -23,7 +23,7 @@ pgap:
       location: __USER__                  # Path to the genome FASTA file
   metadata:
     topology: linear                      # Are all sequences linear or circular? Otherwise specify in FASTA
-    location: chromosome                  # Are all sequences chromosomal or from a plasmid? Otherwise specify in FASTA
+    position: chromosome                  # Are all sequences chromosomal or from a plasmid? Otherwise specify in FASTA
     organism:
       genus_species: __USER__             # Binomial name or genus of the organism
       strain: USER                        # ID of the strain
@@ -73,5 +73,5 @@ carveme:
 # Input for the following polishing step
 # --------------------------------------
 polish:
-  next_step: none                         # Choose either CMPB or HQTB as the next step
+  next_step: stop                         # Choose either CMPB or HQTB as the next step
   configpath: USER                        # Path to the config of the chosen workflow

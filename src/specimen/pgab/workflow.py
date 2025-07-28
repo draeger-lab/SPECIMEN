@@ -11,6 +11,7 @@ import pandas as pd
 import requests
 import shutil
 import subprocess
+import time
 import warnings
 import yaml
 
@@ -27,11 +28,10 @@ from ..cmpb.workflow import run as run_cmpb
 from ..hqtb.workflow import run as run_hqtb
 from ..util.set_up import build_data_directories, validate_config
 
-# TODO: look into warnings instead of print/return
+logger = logging.getLogger(__name__)
+
 # TODO: improve variable names
-# TODO: outputs for the current step
-# TODO: log-file?
-# TODO: information for each of the methods
+# QUESTION: add logging from external methods to logging file?
 def run(configpath: Union[str, None] = None):
     """Run the PGAP-based (PGAB) workflow.
 
@@ -75,22 +75,44 @@ def run(configpath: Union[str, None] = None):
     elif config["general"]["modelname"] is not None:
         modelname = config["general"]["modelname"]
     else:
-        print(
+        logger.info(
             "No values given for the standard name for a model. Default name will be used."
         )
         modelname = "model_" + str(datetime.date.today().year).removeprefix("20")
 
+    # create log
+    # ----------
+    today = datetime.date.today().strftime("%Y%m%d")
+    log_file = Path(dir, "logs", f"specimen_pgab_{str(today)}.log")
+    handler = logging.handlers.RotatingFileHandler(
+        log_file, mode="w", backupCount=10, encoding="utf-8", delay=0
+    )
+    handler.setFormatter(
+        logging.Formatter(
+            "{levelname} \t {name} \t {message}",
+            style="{",
+        )
+    )
+    logger.addHandler(handler)
+    total_time_s = time.time()
+
     # run PGAP
     # --------
-    # run_pgap(config['pgap'], str(Path(dir,'pgap')))
+    logger.info('Running PGAP ...')
+    step_start = time.time()
+    
+    # run_pgap(config['pgap'], dir)
+    
+    step_end = time.time()
+    logger.info(f"\truntime: {step_end-step_start}s\n")
 
     match_100 = None
     match config['pgap']['tax-check']:
         case 'only':
-            print('The taxonomy check with PGAP is finished. The results can be viewed in XML- or txt-format.')
+            logger.info('The taxonomy check with PGAP is finished. The results can be viewed in XML- or txt-format.')
             result = parse_tax_check(str(Path(dir,'pgap','output','ani-tax-report.xml')), type='only')
-            print('As a further step, running the HQTB pipeline with one of these strains as a template is recommended:')
-            print(result.to_string(index=False))
+            logger.info('As a further step, running the HQTB pipeline with one of these strains as a template is recommended:')
+            logger.info(result.to_string(index=False))
             return
         case 'continue':
             taxonomy, match_100 = parse_tax_check(str(Path(dir,'pgap','output','ani-tax-report.xml')), config['pgap']['tax_cutoff'])
@@ -102,9 +124,9 @@ def run(configpath: Union[str, None] = None):
             # TODO: default cutoff?
             if taxid:
                 if config['pgap']['diamond']=='run':
-                    print(f'The taxid(s) which will be used for the taxonomy specific DIAMOND run are {taxid}.')
+                    logger.info(f'The taxid(s) which will be used for the taxonomy specific DIAMOND run are {taxid}.')
             else:
-                print('There was no taxid found above the cutoff. You will have to decide on a taxid manually.')
+                logger.warning('There was no taxid found above the cutoff. You will have to decide on a taxid manually.')
                 return
         case 'none':
             if config['pgap']['taxid']:
@@ -117,7 +139,7 @@ def run(configpath: Union[str, None] = None):
     # option to skip DIAMOND if a 100% match is found
     if match_100 and config['pgap']['diamond']!='run':
         # TODO: maybe revise the structure?
-        print(f'DIAMOND will be skipped because of a found organism with 100% identity. As a next step, the {config['polish']['next_step']} workflow will be started.')
+        logger.info(f'DIAMOND will be skipped because of a found organism with 100% identity. As a next step, the {config['polish']['next_step']} workflow will be started.')
 
         # converting the Genbank accession to a RefSeq accession
         with open('result.txt', 'w') as f: # TODO: merge both open() into one?
@@ -150,7 +172,7 @@ def run(configpath: Union[str, None] = None):
                                 shutil.copyfileobj(file_in, file_out)
                         config['polish']['fasta'] = str(Path(dir,"annot_translated_cds.faa"))
                     else:
-                        print(f"There was no protein FASTA file found for {refseq} the automated way. To run HQTB, you will have to specify the files yourself.")
+                        logger.warning(f"There was no protein FASTA file found for {refseq} the automated way. To run HQTB, you will have to specify the files yourself.")
                         return
                     response = requests.get(f"https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/{numbers[0]}/{numbers[1]}/{numbers[2]}/{accession}/{accession}_genomic.gff.gz")
                     if response.status_code == 200:
@@ -161,31 +183,33 @@ def run(configpath: Union[str, None] = None):
                                 shutil.copyfileobj(file_in, file_out)
                         config['polish']['gff'] = str(Path(dir,"annot.gff"))
                     else:
-                        print(f"There was no GFF file found for {refseq} the automated way. To run HQTB, you will have to specify the files yourself.")
+                        logger.warning(f"There was no GFF file found for {refseq} the automated way. To run HQTB, you will have to specify the files yourself.")
                         return
                     polish_config = adapt_config(config['polish'], dir, modelname, refseq, genome=config['pgap']['generic']['fasta']['location'])
                     run_hqtb(polish_config)
+                case 'stop':
+                    logger.warning('There was no following polishing step defined. This workflow ends here.')
                 case _:
                     raise ValueError(f"Unknown input for next polishing step: {config['polish']['next_step']}")
             return
         else: 
-            print('There was no matching RefSeq-ID found and CarveMe could not be performed.')
+            logger.warning('There was no matching RefSeq-ID found and CarveMe could not be performed.')
             if config['pgap']['diamond']=='maybe':
-                print(f'Because of this, DIAMOND will run with the following taxonomy id(s): {taxid}')
+                logger.info(f'Because of this, DIAMOND will run with the following taxonomy id(s): {taxid}')
             else: return
 
     # data structures for nr BLAST
     fasta_nr = str(Path(dir,'pgap','output','annot_translated_cds.faa'))
     mapping_nr = []
-    # Information for the DIAMONDReport
+    # information for the DIAMONDReport
     duplicates_nr = {}
     below_cutoff_nr = {}
     statistics_nr = {}
     
-    # Data structures for SwissProt BLAST
+    # data structures for SwissProt BLAST
     fasta_sp = str(Path(dir,'pgap','output','annot_translated_cds.faa'))
     mapping_sp = []
-    # Information for the DIAMONDReport
+    # information for the DIAMONDReport
     duplicates_sp = {}
     below_cutoff_sp = {}
     statistics_sp = {}
@@ -197,8 +221,9 @@ def run(configpath: Union[str, None] = None):
             
             # nr database
             if config['nr_blast']['run']:
-                print(datetime.datetime.now())
-                print(f'DIAMOND run with taxid {id} and nr database')
+                logger.info(f'Running DIAMOND run with taxid {id} and nr database ...')
+                step_start = time.time()
+                
                 run_DIAMOND(fasta_nr, config['nr_blast']['db'], 
                             config['nr_blast']['sensitivity'], config['nr_blast']['coverage'], config['nr_blast']['threads'], 
                             str(Path(dir,'nr_blast')), run_id, f'nr_{id}')
@@ -206,13 +231,17 @@ def run(configpath: Union[str, None] = None):
                 statistics_nr[id] = stats_tax
                 duplicates_nr[id] = duplicates_tax
                 below_cutoff_nr[id] = cutoff_tax
+                
+                step_end = time.time()
+                logger.info(f"\truntime: {step_end-step_start}s\n")
 
             fasta_nr = str(Path(dir,'DIAMOND_input_nr.faa'))
             
             # SwissProt
             if config['swissprot_blast']['run']:
-                print(datetime.datetime.now())
-                print(f'DIAMOND run with taxid {id} and SwissProt database')
+                logger.info(f'Running DIAMOND run with taxid {id} and SwissProt database ...')
+                step_start = time.time()
+                
                 run_DIAMOND(fasta_sp, config['swissprot_blast']['db'], 
                             config['swissprot_blast']['sensitivity'], config['swissprot_blast']['coverage'], config['swissprot_blast']['threads'], 
                             str(Path(dir,'swissprot_blast')), run_id, f'swissprot_{id}')
@@ -220,17 +249,23 @@ def run(configpath: Union[str, None] = None):
                 statistics_sp[id] = stats_tax
                 duplicates_sp[id] = duplicates_tax
                 below_cutoff_sp[id] = cutoff_tax
+                
+                step_end = time.time()
+                logger.info(f"\truntime: {step_end-step_start}s\n")
             
             fasta_sp = str(Path(dir,'DIAMOND_input_swissprot.faa'))
 
     # run DIAMOND without taxonomy sensitivity
     if config['nr_blast']['run']:
-        print(datetime.datetime.now())
-        print('DIAMOND run without taxonomy restriction and nr database')
+        logger.info(' Running DIAMOND run without taxonomy restriction and nr database ...')
+        step_start = time.time()
+        
         run_DIAMOND(fasta_nr, config['nr_blast']['db'], 
                     config['nr_blast']['sensitivity'], config['nr_blast']['coverage'], config['nr_blast']['threads'], 
                     str(Path(dir,'nr_blast')), outname='nr_not_taxrestricted')
-        print(datetime.datetime.now())
+        
+        step_end = time.time()
+        logger.info(f"\truntime: {step_end-step_start}s\n")
 
         # Expand mapping table
         stats_notax, duplicates_notax, cutoff_notax = get_mapping_table(mapping_nr, str(Path(dir,'nr_blast','nr_not_taxrestricted_'+config['nr_blast']['sensitivity']+'.tsv')), fasta_nr, dir, config['nr_blast']['pid'], 'nr')
@@ -243,12 +278,15 @@ def run(configpath: Union[str, None] = None):
         report.save(str(Path(dir,'nr_blast')))
         
     if config['swissprot_blast']['run']:
-        print(datetime.datetime.now())
-        print('DIAMOND run without taxonomy restriction and SwissProt database')
+        logger.info('Running DIAMOND run without taxonomy restriction and SwissProt database ...')
+        step_start = time.time()
+        
         run_DIAMOND(fasta_sp, config['swissprot_blast']['db'], 
                     config['swissprot_blast']['sensitivity'], config['swissprot_blast']['coverage'], config['swissprot_blast']['threads'], 
                     str(Path(dir,'swissprot_blast')), outname='swissprot_not_taxrestricted')
-        print(datetime.datetime.now())
+        
+        step_end = time.time()
+        logger.info(f"\truntime: {step_end-step_start}s\n")
 
         # Expand mapping table
         stats_notax, duplicates_notax, cutoff_notax = get_mapping_table(mapping_sp, str(Path(dir,'swissprot_blast','swissprot_not_taxrestricted_'+config['swissprot_blast']['sensitivity']+'.tsv')), fasta_sp, dir, config['swissprot_blast']['pid'], 'swissprot')
@@ -261,27 +299,41 @@ def run(configpath: Union[str, None] = None):
         report.save(str(Path(dir,'swissprot_blast')))
         
     # save mapping tables (even if empty)
-    # mapping_nr = pd.DataFrame(mapping_nr, columns=['model_id','NCBI'])
-    # mapping_nr.to_csv(str(Path(dir, 'mapping_table_nr.csv')), header=True, index=False, sep='\t')
-    # # QUESTION: UniProt instead of DECLASSIFIED?
-    # mapping_sp = pd.DataFrame(mapping_sp, columns=['model_id','UNIPROT'])
-    # mapping_sp.to_csv(str(Path(dir, 'mapping_table_swissprot.csv')), header=True, index=False, sep='\t')
+    mapping_nr = pd.DataFrame(mapping_nr, columns=['model_id','NCBI'])
+    mapping_nr.to_csv(str(Path(dir, 'mapping_table_nr.csv')), header=True, index=False, sep='\t')
+    # QUESTION: UniProt instead of DECLASSIFIED?
+    mapping_sp = pd.DataFrame(mapping_sp, columns=['model_id','UNIPROT'])
+    mapping_sp.to_csv(str(Path(dir, 'mapping_table_swissprot.csv')), header=True, index=False, sep='\t')
 
     # TODO: extra BLAST manually, user input?
     # DIAMOND files in the folder are remaining proteins without BLAST results
     # write note in logging file?
-        
+    
     polish_config = adapt_config(config['polish'], dir, modelname, genome=config['pgap']['generic']['fasta']['location'])
     match config['polish']['next_step'].lower():
         case 'cmpb':
+            logger.info(f'Running next polishing step {config['polish']['next_step']} ...')
+            step_start = time.time()
+            
             run_cmpb(polish_config)
             # print('work in progress...')
         case 'hqtb':
+            logger.info(f'Running next polishing step {config['polish']['next_step']} ...')
+            step_start = time.time()
+            
             # TODO: automated way to find a template model?
             run_hqtb(polish_config)
             # print('work in progress...')
+        case 'stop':
+            logger.warning('There was no following polishing step defined. This workflow ends here.')
         case _:
             raise ValueError(f"Unknown input for next polishing step: {config['polish']['next_step']}")
+        
+    step_end = time.time()
+    logger.info(f"\truntime: {step_end-step_start}s\n")
+    
+    total_time_e = time.time()
+    logger.info(f'Total run time: {total_time_e - total_time_s}')
 
     # QUESTION: What exactly belongs in the header of the mapping table? 'NCBI' for protein_tag and 'UNIPROT' for UniProt?
     
@@ -305,40 +357,46 @@ def run_pgap(config: dict, dir: str):
         ValueError: Unknown input for taxonomy check parameter.
     """
     
-    logfile = str(Path(dir,'log_pgap.txt'))
+    logfile = str(Path(dir,'logs','log_pgap.txt'))
+    dir_pgap = str(Path(dir,'pgap'))
 
-    prepare_pgap_input(config['generic'], config['metadata'], dir)
+    prepare_pgap_input(config['generic'], config['metadata'], dir_pgap)
 
     match config['tax-check']:
         # BUG: does not work without --ignore-all-errors
         case 'only': # user searches an organism, no PGAP
-            completed_pgap = subprocess.run(['./pgap.py', '-r', '--taxcheck-only', '--no-self-update', '--ignore-all-errors', '-o', str(Path(dir, 'output')), str(Path(dir, 'input.yaml'))],
+            completed_pgap = subprocess.run(['./pgap.py', '-r', '--taxcheck-only', '--no-self-update', '--ignore-all-errors', '-o', str(Path(dir_pgap, 'output')), str(Path(dir_pgap, 'input.yaml'))],
                 shell=False, stderr=subprocess.PIPE, text=True)
         case 'continue': # user does taxcheck and PGAP
-            completed_pgap = subprocess.run(['./pgap.py', '-r', '--taxcheck', '--no-self-update', '--ignore-all-errors', '-o', str(Path(dir, 'output')), str(Path(dir, 'input.yaml'))],
+            completed_pgap = subprocess.run(['./pgap.py', '-r', '--taxcheck', '--no-self-update', '--ignore-all-errors', '-o', str(Path(dir_pgap, 'output')), str(Path(dir_pgap, 'input.yaml'))],
                 shell=False, stderr=subprocess.PIPE, text=True)
         case 'none': # user already has an organism
-            completed_pgap = subprocess.run(['./pgap.py', '-r', '--no-self-update', '--ignore-all-errors', '-o', str(Path(dir, 'output')), str(Path(dir, 'input.yaml'))],
+            completed_pgap = subprocess.run(['./pgap.py', '-r', '--no-self-update', '--ignore-all-errors', '-o', str(Path(dir_pgap, 'output')), str(Path(dir_pgap, 'input.yaml'))],
                 shell=False, stderr=subprocess.PIPE, text=True)
         case _:
             raise ValueError(f"Unknown input for taxonomy check: {config['pgap']['tax-check']}")
     with open(logfile, "a") as f:
         f.write(completed_pgap.stderr)
 
-def prepare_pgap_input(generic: dict, metadata: str, dir: str):
+def prepare_pgap_input(generic: dict, metadata: dict, dir: str):
     """Function to convert PGAB config to input files for PGAP.
 
     Args:
         - generic (dict): 
             Dictionary with the path to the genomic FASTA and
             the submol.yaml file.
-        - metadata (str): 
+        - metadata (dict): 
             Dictionary with metadata for PGAP.
         - dir (str): 
             Path to the directory where the files are saved to.
     """
     
     subprocess.run(['cp', generic['fasta']['location'], dir])
+    
+    if 'position' in metadata.keys:
+        metadata['location'] = metadata['position']
+        metadata.pop('position')
+    else: logger.warning('KeyError for \'location\' in metadata dictionary')
 
     with open(Path(dir,'submol.yaml'), 'w') as f:
         yaml.dump(metadata, f)
@@ -380,7 +438,7 @@ def parse_tax_check(file: str, cutoff: float=90.0, type: Literal['only','continu
         if child.tag == 'subject' :
             # Search for a 100% match
             if float(child.get('ANI')) == 100:
-                print(f"An organism with a 100% identity was found. This organism is {child.get('org-name')}.")
+                logger.info(f"An organism with a 100% identity was found. This organism is {child.get('org-name')}.")
                 child_100['taxid'] = child.get('taxid')
                 child_100['accession'] = child.get('asm_accession')
             # Search for matches above the cutoff
@@ -428,7 +486,8 @@ def run_DIAMOND(fasta: str, db: str, sensitivity: str = "more-sensitive", # QUES
     """
     
     outfile = Path(outdir, outname+'_'+sensitivity+'.tsv')
-    logfile = Path(outdir, outname+'_'+sensitivity+'_logfile.txt')
+    dir_log = str(Path(Path(outdir).parents[0],'logs'))
+    logfile = Path(dir_log, 'log_'+outname+'_'+sensitivity+'.txt')
     
     if taxonlist:
         taxonlist = [str(taxon) for taxon in taxonlist]
@@ -580,6 +639,9 @@ def adapt_config(cfg: dict[str, str], dir: str, modelname: str, refseq: str=None
             Path to the new config.
     """
     
+    if cfg['next_step'].lower()=='stop':
+        return
+    
     config = validate_config(cfg['configpath'], cfg['next_step'])
     
     match cfg['next_step'].lower():
@@ -597,6 +659,9 @@ def adapt_config(cfg: dict[str, str], dir: str, modelname: str, refseq: str=None
                 config['subject']['annotated_genome'] = str(Path(dir,'pgap','output','annot_translated_cds.faa'))
                 config['subject']['gff'] = str(Path(dir,'pgap','output','annot.gff'))
             config['subject']['full_sequence'] = genome
+        case 'stop':
+            logger.warning('There was no following polishing step and no config defined . This workflow ends here.')
+            return
         case _:
             raise ValueError(f"Unknown input for pipeline: {cfg['next_step']}")
     config['general']['dir'] = dir
