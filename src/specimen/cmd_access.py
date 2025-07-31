@@ -55,7 +55,7 @@ def setup():
     "-t",
     default="hqtb-basic",
     type=click.Choice(
-        ["hqtb-basic", "hqtb-advanced", "hqtb-defaults", "media", "cmpb"]
+        ["hqtb-basic", "hqtb-advanced", "hqtb-defaults", "media", "cmpb", "pgab"]
     ),
     help="Type of config file to download. Either a more detailed one for advanced usage or a basic one for beginners with less options.",
 )
@@ -74,7 +74,7 @@ def config(filename, type):
 @click.argument(
     "workflow",
     type=click.Choice(
-        ["hqtb", "high-quality template based", "cmpb", "carveme modelpolisher based"]
+        ["hqtb", "high-quality template based", "cmpb", "carveme modelpolisher based", "pgab", "PGAP based"]
     ),
 )
 @click.option(
@@ -885,3 +885,44 @@ def run(config):
     """
 
     specimen.cmpb.workflow.run(config)
+
+
+#################
+# pgab workflow #
+#################
+
+
+@cli.group()
+def pgab():
+    """Workflow for GEM curation based mainly on PGAP."""
+
+
+@pgab.command()
+@click.argument("config", type=click.Path(exists=True))
+def run(config):
+    """Run the workflow for GEM curation based on PGAP annotation using a config file.
+
+    CONFIG is the path to the config file.
+    """
+
+    specimen.pgab.workflow.run(config)
+
+# run complete workflow from config and folder (run multiple  times)
+# ------------------------------------------------------------------
+@pgab.command()
+@click.argument("config", type=str)
+@click.option(
+    "-d",
+    "--directory",
+    default="",
+    type=str,
+    help="Path to the (parent) directory that contains the folders of the subject input files.",
+)
+def wrapper(config, directory):
+    """Run the complete workflow multiple times based on a config file
+    and a folder. The folder should contain subfolders with the subject files
+    (annotated and full genome).
+
+    CONFIG is the path to the configuration file to read the parameters from.
+    """
+    specimen.pgab.workflow.wrapper(config, dir=directory)
