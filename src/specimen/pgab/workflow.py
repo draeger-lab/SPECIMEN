@@ -33,8 +33,6 @@ logger = logging.getLogger(__name__)
 
 # TODO: improve variable names
 # QUESTION: add logging from external methods to logging file?
-# TODO: access points for command line
-# TODO: PGAB wrapper
 def run(configpath: Union[str, None] = None):
     """Run the PGAP-based (PGAB) workflow.
 
@@ -724,5 +722,69 @@ def adapt_config(cfg: dict[str, str], dir: str, modelname: str, refseq: str=None
     with open(new_configpath, 'w') as f:
         yaml.dump(config, f)
     return new_configpath
+
+def wrapper(config: str, dir: str):
+    """Run given settings for the PGAP-based pipeline (PGAB) on multiple genomes.
+    The genomes have to be saved in subfolders named after the organism (genus_epithet, ex. Cutibacterium_acnes).
+    If the strain ID is known, add this to the folder name with an underscore.
+
+    Args:
+        config (str):
+            Path to the PGAB config.
+        dir (str): 
+            Parent directory containing the subfolders with genome FASTA files.
+        organisms (list[str]):
+            List of organism names for PGAP
+    """
+    
+    # load config
+    with open(config, "r") as cfg:
+        config = yaml.load(cfg, Loader=yaml.CLoader)
+    # load / get subfolders to be parsed
+    subfolders = [_.path for _ in os.scandir(dir) if _.is_dir()]
+
+    for subfolder in subfolders:
+        genome = ""
+        organism_name = ""
+        strain_id = ""
+        
+        current_config = config.copy()
+        
+        # check and retrieve path for genome fna
+        dir_content = os.listdir(subfolder)
+        if len(dir_content) == 0:
+            raise FileNotFoundError(f"No genome file found in folder {subfolder}. Could not run PGAB for this organism.")
+        for file in os.listdir(subfolder):
+            if file.endswith(".fna"):
+                genome = os.path.join(subfolder, file)
+            else: raise FileNotFoundError(f"No genome file found in folder {subfolder}. Could not run PGAB for this organism.")
+        
+        try:
+            organism_name = subfolder.replace("\\","/")
+            organism_name = organism_name.split("/")[-1].split("_")
+            if len(organism_name) == 3:
+                strain_id = organism_name[2]
+            organism_name = organism_name[0] + " " + organism_name[1]
+        except IndexError:
+            print(f"Wrong naming structure for {subfolder}. Please rename your folder following the structure genus_epithet_strain.")
+        
+        # TODO: genomes from the same organism???
+        
+        # add path to config
+        current_config['pgap']['generic']['fasta']['location'] = genome
+        current_config['pgap']['metadata']['organism']['genus_species'] = organism_name
+        if strain_id != "":
+            current_config['pgap']['metadata']['organism']['strain'] = strain_id
+        current_config['general']['dir'] = subfolder
+        current_config['general']['modelname'] = organism_name.replace(' ', '_')
+
+        # run pipeline with new config
+        with tempfile.NamedTemporaryFile(suffix=".yaml") as temp_config:
+
+            with open(temp_config.name, "w") as config_stream:
+                yaml.dump(current_config, config_stream)
+            current_config = validate_config(temp_config.name)
+
+            run(temp_config)
 
 # next methods
