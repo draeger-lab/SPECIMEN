@@ -11,6 +11,7 @@ import pandas as pd
 import requests
 import shutil
 import subprocess
+import tempfile
 import time
 import warnings
 import yaml
@@ -32,6 +33,8 @@ logger = logging.getLogger(__name__)
 
 # TODO: improve variable names
 # QUESTION: add logging from external methods to logging file?
+# TODO: access points for command line
+# TODO: PGAB wrapper
 def run(configpath: Union[str, None] = None):
     """Run the PGAP-based (PGAB) workflow.
 
@@ -213,6 +216,14 @@ def run(configpath: Union[str, None] = None):
     duplicates_sp = {}
     below_cutoff_sp = {}
     statistics_sp = {}
+    
+    # data structures for USER BLAST
+    fasta_ub = str(Path(dir,'pgap','output','annot_translated_cds.faa'))
+    mapping_ub = []
+    # information for the DIAMONDReport
+    duplicates_ub = {}
+    below_cutoff_ub = {}
+    statistics_ub = {}
 
     if taxid is not None:
         for id in taxid:
@@ -235,7 +246,7 @@ def run(configpath: Union[str, None] = None):
                 step_end = time.time()
                 logger.info(f"\truntime: {step_end-step_start}s\n")
 
-            fasta_nr = str(Path(dir,'DIAMOND_input_nr.faa'))
+            fasta_nr = str(Path(dir,'remaining_proteins_nr.faa'))
             
             # SwissProt
             if config['swissprot_blast']['run']:
@@ -253,7 +264,25 @@ def run(configpath: Union[str, None] = None):
                 step_end = time.time()
                 logger.info(f"\truntime: {step_end-step_start}s\n")
             
-            fasta_sp = str(Path(dir,'DIAMOND_input_swissprot.faa'))
+            fasta_sp = str(Path(dir,'remaining_proteins_swissprot.faa'))
+            
+            # USER database
+            if config['user_blast']['run']:
+                logger.info(f'Running DIAMOND run with taxid {id} and USER database ...')
+                step_start = time.time()
+                
+                run_DIAMOND(fasta_ub, config['user_blast']['db'], 
+                            config['user_blast']['sensitivity'], config['user_blast']['coverage'], config['user_blast']['threads'], 
+                            str(Path(dir,'user_blast')), run_id, f'user_{id}')
+                stats_tax, duplicates_tax, cutoff_tax = get_mapping_table(mapping_ub, str(Path(dir,'user_blast',f'user_{id}_{config['user_blast']['sensitivity']}.tsv')), fasta_ub, dir, config['user_blast']['pid'], 'user')
+                statistics_ub[id] = stats_tax
+                duplicates_ub[id] = duplicates_tax
+                below_cutoff_ub[id] = cutoff_tax
+                
+                step_end = time.time()
+                logger.info(f"\truntime: {step_end-step_start}s\n")
+            
+            fasta_ub = str(Path(dir,'remaining_proteins_user.faa'))
 
     # run DIAMOND without taxonomy sensitivity
     if config['nr_blast']['run']:
@@ -298,16 +327,39 @@ def run(configpath: Union[str, None] = None):
         report = DIAMONDReport(statistics_sp, duplicates_sp, below_cutoff_sp)
         report.save(str(Path(dir,'swissprot_blast')))
         
+    if config['user_blast']['run']:
+        logger.info('Running DIAMOND run without taxonomy restriction and USER database ...')
+        step_start = time.time()
+        
+        run_DIAMOND(fasta_ub, config['user_blast']['db'], 
+                    config['user_blast']['sensitivity'], config['user_blast']['coverage'], config['user_blast']['threads'], 
+                    str(Path(dir,'user_blast')), outname='user_not_taxrestricted')
+        
+        step_end = time.time()
+        logger.info(f"\truntime: {step_end-step_start}s\n")
+
+        # Expand mapping table
+        stats_notax, duplicates_notax, cutoff_notax = get_mapping_table(mapping_ub, str(Path(dir,'user_blast','user_not_taxrestricted_'+config['user_blast']['sensitivity']+'.tsv')), fasta_ub, dir, config['user_blast']['pid'], 'user')
+        statistics_ub['no_tax_restriction'] = stats_notax
+        duplicates_ub['no_tax_restriction'] = duplicates_notax
+        below_cutoff_ub['no_tax_restriction'] = cutoff_notax
+        
+        # DIAMOND report
+        report = DIAMONDReport(statistics_ub, duplicates_ub, below_cutoff_ub)
+        report.save(str(Path(dir,'user_blast')))
+        
     # save mapping tables (even if empty)
     mapping_nr = pd.DataFrame(mapping_nr, columns=['model_id','NCBI'])
     mapping_nr.to_csv(str(Path(dir, 'mapping_table_nr.csv')), header=True, index=False, sep='\t')
     # QUESTION: UniProt instead of DECLASSIFIED?
     mapping_sp = pd.DataFrame(mapping_sp, columns=['model_id','UNIPROT'])
     mapping_sp.to_csv(str(Path(dir, 'mapping_table_swissprot.csv')), header=True, index=False, sep='\t')
+    # USER database: has to be handled manually
+    logging.info('The results from user specific BLAST have to be manually added to the model.')
+    mapping_ub = pd.DataFrame(mapping_sp, columns=['model_id','UNCLASSIFIED'])
+    mapping_ub.to_csv(str(Path(dir, 'mapping_table_user.csv')), header=True, index=False, sep='\t')
 
-    # TODO: extra BLAST manually, user input?
-    # DIAMOND files in the folder are remaining proteins without BLAST results
-    # write note in logging file?
+    logging.info('The remaining proteins files are proteins that could not be blasted successfully.')
     
     polish_config = adapt_config(config['polish'], dir, modelname, genome=config['pgap']['generic']['fasta']['location'])
     match config['polish']['next_step'].lower():
@@ -610,7 +662,7 @@ def get_mapping_table(mapping: list[str], diamond: str, pgap: str, dir: str, cut
             no_diamond.append(record)
             statistics['not_found'] += 1
             
-    SeqIO.write(no_diamond, str(Path(dir,f'DIAMOND_input_{database}.faa')), "fasta")
+    SeqIO.write(no_diamond, str(Path(dir,f'remaining_proteins_{database}.faa')), "fasta")
 
     return statistics, duplicates, below_cutoff
 
@@ -652,6 +704,7 @@ def adapt_config(cfg: dict[str, str], dir: str, modelname: str, refseq: str=None
             config['cm-polish']['is_lab_strain'] = True
         case 'hqtb':
             # QUESTION: pseudo paths for the user input? __USER__
+            # yaml.load instead of pseudo paths?
             if refseq:
                 config['subject']['annotated_genome'] = cfg['fasta']
                 config['subject']['gff'] = cfg['gff']

@@ -170,43 +170,6 @@ def build_data_directories(
                             warnings.warn(
                                 f"Given sub directory {new_sub_dir} already exists. High possibility of files being overwritten."
                             )
-
-            # Path(parent_dir, "cmpb_out").mkdir(parents=True, exist_ok=False)  # cmpb_out
-            
-            # Path(parent_dir, "cmpb_out", "models").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #   |- models
-            # Path(parent_dir, "cmpb_out", "logs").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #   |- logs
-            # Path(parent_dir, "cmpb_out", "misc").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #   |- misc
-            
-            # Path(parent_dir, "cmpb_out", "misc", "memote").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #      |- memote
-            # Path(parent_dir, "cmpb_out", "misc", "mcc").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #      |- mcc
-            # Path(parent_dir, "cmpb_out", "misc", "gapfill").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #      |- gapfill
-            # Path(parent_dir, "cmpb_out", "misc", "growth").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #      |- growth
-            # Path(parent_dir, "cmpb_out", "misc", "stats").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #      |- stats
-            # Path(parent_dir, "cmpb_out", "misc", "modelpolisher").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #      |- modelpolisher
-            # Path(parent_dir, "cmpb_out", "misc", "kegg_pathway").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #      |- kegg_pathways
-            # Path(parent_dir, "cmpb_out", "misc", "auxotrophy").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #      |- auxothrophy
         
         case "pgab" | "PGAP based":
             print("Creating directory structure...")
@@ -220,6 +183,9 @@ def build_data_directories(
             Path(parent_dir, "pgab_out", "swissprot_blast").mkdir(
                 parents=True, exist_ok=False
             )  #   |- DIAMOND swissprot output
+            Path(parent_dir, "pgab_out", "user_blast").mkdir(
+                parents=True, exist_ok=False
+            )  #   |- DIAMOND USER database output
             Path(parent_dir, "pgab_out", "logs").mkdir(
                 parents=True, exist_ok=False
             )  #   |- logging

@@ -64,11 +64,13 @@ swissprot_blast:
   threads: 2
   coverage: 95.0                          # Coverage (parameter for DIAMOND)
 
-# Information for CarveMe (in case of CMPB)
-# -----------------------------------------
-carveme:
-  gram: None                              # Choose either grampos or gramneg, depending on the Gram-test
-                                          # results of your organism
+user_blast:
+  run: False                               # Option to BLAST with the SwissProt database
+  db: USER                                # Path to the SwissProt DIAMOND database file
+  pid: 90.0                               # Minimal percentage identity for valid BLAST hits
+  sensitivity: more-sensitive             # Sensitivity option for DIAMOND
+  threads: 2
+  coverage: 95.0                          # Coverage (parameter for DIAMOND)
 
 # Input for the following polishing step
 # --------------------------------------
