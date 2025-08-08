@@ -370,15 +370,16 @@ def run(configpath: Union[str, None] = None):
     threshold_add_reacs = config["gapfilling"]["threshold_add_reacs"]
     run_gapfill = False
 
-    # Set up directory for gapfill output, # @TODO only if any of the gapfillers are activated
-    current_sub_dir = Path(MISC_DIR, "gapfill")
-    try:
-        Path(current_sub_dir).mkdir(parents=True, exist_ok=False)
-        print(f"Creating new directory {current_sub_dir}")
-    except FileExistsError:
-        logger.warning(
-            f"Given directory {current_sub_dir} already exists. High possibility of files being overwritten."
-        )
+    # Set up directory for gapfill output, only if any of the gapfillers are activated
+    if any([config["gapfilling"]["KEGGapFiller"], config["gapfilling"]["BioCycGapFiller"], config["gapfilling"]["GeneGapFiller"]]):
+        current_sub_dir = Path(MISC_DIR, "gapfill")
+        try:
+            Path(current_sub_dir).mkdir(parents=True, exist_ok=False)
+            print(f"Creating new directory {current_sub_dir}")
+        except FileExistsError:
+            logger.warning(
+                f"Given directory {current_sub_dir} already exists. High possibility of files being overwritten."
+            )
     
     # KEGGapFiller
     if config["gapfilling"]["KEGGapFiller"]:
