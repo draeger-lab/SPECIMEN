@@ -1,8 +1,8 @@
 Installation
 ==============
 
-Installation via github
------------------------
+Installation via GitHub/pip
+---------------------------
 Download the ``SPECIMEN`` repository `here <https://github.com/cb-Hades/klebsiella-pipeline/tree/main>`_ 
 and run the command :code:`pip install -e .` inside the top-level directory.
 
@@ -44,7 +44,7 @@ The default command executed by the image is ``specimen -h`` and provides the he
 .. code:: console
    :class: copyable
 
-   docker run specimen -h
+   docker run specimen
 
 To use the image interactively and open a bash shell, run the following command:
 
@@ -59,7 +59,7 @@ For example, to run the CMPB pipeline, use:
 .. code:: console
    :class: copyable
 
-   docker run -name <container_name> -v <user_folder>:/sp_cont specimen cmpb run ./path/to/CMPB_config.yaml
+   docker run --name <container_name> -v <user_folder>:/sp_cont specimen cmpb run ./path/to/CMPB_config.yaml
 
 .. hint::
 
