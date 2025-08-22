@@ -14,8 +14,9 @@
 
 SPECIMEN is a collection of different workflows designed for the automated and standardised curation of genome-scale models. It is mainly based on the [refineGEMs toolbox](https://github.com/draeger-lab/refinegems/tree/main), but also includes additional tools like [CarveMe](https://carveme.readthedocs.io/en/latest/).
 
-> Note: <br> 
-  This tool is currently still under active developement, any feedback or ideas are welcome. Also, since its developemental, please note that bugs and error will probably occur. Please feel free to report them to the developers.
+> [!NOTE]
+> This tool is currently still under active developement, any feedback or ideas are welcome. Also, since its 
+> developemental, please note that bugs and errors will probably occur. Please feel free to report them to the developers.
 
 Currently avaible workflow:
 
@@ -23,19 +24,22 @@ Currently avaible workflow:
 
 - HQTB - High-quality template based:\\This pipeline follows the modelling approach of using a high-quality template model as a basis for the reconstruction of a new model from a new genome (e.g. a different strain). 
 
-> Note: Due to some major refactoring changes in refineGEMs this workflow might not run as expected.
+> [!NOTE]
+> Due to some major refactoring changes in refineGEMs this workflow might not run as expected.
 
 - PGAB: under construction
 
 <!-- TOC -->
-- [Installation](#installation)
-    - [Via pip](#pypi-via-pip)
-    - [Via Docker](#docker-via-docker)
-- [Quickstart](#quickstart)
-    - [After install via pip](#pypi-after-install-via-pip)
-    - [After install via Docker](#docker-after-install-via-docker)
-- [Documentation](#documentation)
-- [Repositories using SPECIMEN](#repositories-using-specimen)
+
+- [SPECIMEN](#specimen)
+    - [Installation](#installation)
+        - [pypi Via pip](#pypi-via-pip)
+        - [docker Via Docker](#docker-via-docker)
+    - [Quickstart](#quickstart)
+        - [pypi After install via pip](#pypi-after-install-via-pip)
+        - [docker After install via Docker](#docker-after-install-via-docker)
+    - [Documentation](#documentation)
+    - [Repositories using SPECIMEN](#repositories-using-specimen)
 
 <!-- /TOC -->
 
@@ -74,6 +78,10 @@ After the installation, main functionalities can be accessed either via the comm
 For greater control or for further integration into other scripts, the modules of SPECIMEN can be loaded as a Python package using `import specimen` in a Python script.
 
 ### ![docker](https://skillicons.dev/icons?i=docker) After install via Docker
+
+> [!NOTE]
+> To provide the input files and retrieve the output files mount one folder as workspace folder to the Docker image with `-v`.
+
 The default command executed by the image is ``specimen -h`` and provides the help information for the CLI of 
 ``SPECIMEN``.
 
