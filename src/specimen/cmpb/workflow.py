@@ -111,8 +111,7 @@ def run(configpath: Union[str, None] = None):
             - step (str):
                 Descriptive string for the current step of the pipeline (important for saving the output).
         """
-        # Get cobrapy_model
-        current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
+ 
         # try to set objective to growth
         growth_func_list = test_biomass_presence(model)
         if growth_func_list:
@@ -795,7 +794,7 @@ def run(configpath: Union[str, None] = None):
 
     # MCC
     # ---
-    logger.info("Running CCC ...")
+    logger.info("Running MCC ...")
     step_start = time.time()
     
     current_model = perform_mcc(
