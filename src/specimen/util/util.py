@@ -130,7 +130,7 @@ def create_NCBIinfo_mapping(dir: str, out: str, extension: Literal["gbff"] = "gb
     # extract information and create the mapping file
     # -----------------------------------------------
 
-    with open(out, "w") as out_file:
+    with open(Path(out, "NCBI_mapping.csv"), "w") as out_file:
 
         file_counter = 1
 
