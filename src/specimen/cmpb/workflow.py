@@ -330,11 +330,17 @@ def run(configpath: Union[str, None] = None):
             logger.warning(
                 f"Given directory {current_sub_dir} already exists. High possibility of files being overwritten."
             )
+        
+        # mapping table in case of PGAB
+        if config['general']['from_pgab'] and config['carveme']['refseq'] is None:
+            mapping_table = str(Path(PARENT_DIR,'mapping_table.csv'))
+        else: mapping_table = None
 
         # Polish model
         current_libmodel = polish_model(
             current_libmodel,
             id_db=config["general"]["namespace"],
+            mapping_tbl_file=mapping_table,
             gff_paths=[config["general"]["gff"]],
             email=config["tech-resources"]["email"],
             lab_strain=config["cm-polish"]["is_lab_strain"],
@@ -350,17 +356,6 @@ def run(configpath: Union[str, None] = None):
             mult_charges_tab = pd.DataFrame.from_dict(mult_charges_dict, orient="index")
             mult_charges_tab.to_csv(
                 Path(MISC_DIR, "reac_with_mult_charges.tsv"), sep="\t"
-            )
-            
-        # add information for PGAP-created models via mapping table
-        if config['general']['from_pgab'] and config['carveme']['refseq'] is None:
-            # nr database
-            current_libmodel = extend_gp_annots_via_mapping_table(
-                current_libmodel, str(Path(PARENT_DIR,'mapping_table_nr.csv')), lab_strain=True
-            )
-            # SwissProt database
-            current_libmodel = extend_gp_annots_via_mapping_table(
-                current_libmodel, str(Path(PARENT_DIR,'mapping_table_swissprot.csv')), lab_strain=True
             )
 
         # save model
@@ -409,7 +404,7 @@ def run(configpath: Union[str, None] = None):
 
         else:
             mes = f"No KEGG organism ID provided. Gapfilling with KEGG will be skipped."
-            raise logger.warning(mes, UserWarning)
+            logger.warning(mes, UserWarning)
         
         step_end = time.time()
         logger.info(f"\truntime: {step_end-step_start}s\n")

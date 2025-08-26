@@ -4,21 +4,18 @@
 import datetime
 import gzip
 import logging
-import matplotlib
-import numpy as np
 import os
 import pandas as pd
 import requests
 import shutil
 import subprocess
+import sys
 import tempfile
 import time
-import warnings
 import yaml
 
 from Bio import SeqIO
 from importlib.resources import files
-import matplotlib.pyplot as plt
 from pathlib import Path
 from tqdm.auto import tqdm
 from typing import Union, Literal
@@ -55,7 +52,7 @@ def run(configpath: Union[str, None] = None):
     # create directory structure
     # --------------------------
     # TODO: add required folders
-    # build_data_directories("pgab", config['general']['dir'])
+    build_data_directories("pgab", config['general']['dir'])
 
     dir = str(Path(config['general']['dir'], 'pgab_out'))
 
@@ -102,7 +99,7 @@ def run(configpath: Union[str, None] = None):
     logger.info('Running PGAP ...')
     step_start = time.time()
     
-    # run_pgap(config['pgap'], dir)
+    run_pgap(config['pgap'], dir)
     
     step_end = time.time()
     logger.info(f"\truntime: {step_end-step_start}s\n")
@@ -348,15 +345,17 @@ def run(configpath: Union[str, None] = None):
         
     # save mapping tables (even if empty)
     mapping_nr = pd.DataFrame(mapping_nr, columns=['model_id','NCBI'])
-    mapping_nr.to_csv(str(Path(dir, 'mapping_table_nr.csv')), header=True, index=False, sep='\t')
-    # QUESTION: UniProt instead of DECLASSIFIED?
     mapping_sp = pd.DataFrame(mapping_sp, columns=['model_id','UNIPROT'])
-    mapping_sp.to_csv(str(Path(dir, 'mapping_table_swissprot.csv')), header=True, index=False, sep='\t')
-    # USER database: has to be handled manually
-    logging.info('The results from user specific BLAST have to be manually added to the model.')
-    mapping_ub = pd.DataFrame(mapping_sp, columns=['model_id','UNCLASSIFIED'])
-    mapping_ub.to_csv(str(Path(dir, 'mapping_table_user.csv')), header=True, index=False, sep='\t')
+    mapping_ub = pd.DataFrame(mapping_ub, columns=['model_id','UNCLASSIFIED'])
+    mapping = pd.DataFrame.merge(mapping_nr, mapping_sp, how='outer', on='model_id')
+    mapping = pd.DataFrame.merge(mapping, mapping_ub, how='outer', on='model_id')
+    mapping.to_csv(str(Path(dir, 'mapping_table.csv')), header=True, index=False, sep='\t')
 
+    # USER database: has to be handled manually
+    if config['user_blast']['run']:
+        logging.info('The results from user specific BLAST have to be manually added to the model (e.g. via extend_gp_annots_via_mapping_table from refineGEMs).')
+        logging.warning('Please open an issue to extend this function for more databases.')
+        
     logging.info('The remaining proteins files are proteins that could not be blasted successfully.')
     
     polish_config = adapt_config(config['polish'], dir, modelname, genome=config['pgap']['generic']['fasta']['location'])
@@ -384,8 +383,6 @@ def run(configpath: Union[str, None] = None):
     
     total_time_e = time.time()
     logger.info(f'Total run time: {total_time_e - total_time_s}')
-
-    # QUESTION: What exactly belongs in the header of the mapping table? 'NCBI' for protein_tag and 'UNIPROT' for UniProt?
     
 # TODO
 def save_pgab_user_input() -> dict[str, str]:
@@ -443,7 +440,7 @@ def prepare_pgap_input(generic: dict, metadata: dict, dir: str):
     
     subprocess.run(['cp', generic['fasta']['location'], dir])
     
-    if 'position' in metadata.keys:
+    if 'position' in metadata.keys():
         metadata['location'] = metadata['position']
         metadata.pop('position')
     else: logger.warning('KeyError for \'location\' in metadata dictionary')
@@ -451,7 +448,7 @@ def prepare_pgap_input(generic: dict, metadata: dict, dir: str):
     with open(Path(dir,'submol.yaml'), 'w') as f:
         yaml.dump(metadata, f)
 
-    generic.update({'submol': {'class': 'File', 'location': str(Path(dir,'submol.yaml'))}})
+    generic.update({'submol': {'class': 'File', 'location': 'submol.yaml'}})
     generic['fasta']['location'] = generic['fasta']['location'].split('/')[-1]
 
     with open(Path(dir,'input.yaml'), 'w') as f:
@@ -692,7 +689,8 @@ def adapt_config(cfg: dict[str, str], dir: str, modelname: str, refseq: str=None
     if cfg['next_step'].lower()=='stop':
         return
     
-    config = validate_config(cfg['configpath'], cfg['next_step'])
+    with open(cfg['configpath'], "r") as cfg_path:
+        config = yaml.load(cfg_path, Loader=yaml.CLoader)
     
     match cfg['next_step'].lower():
         case 'cmpb':
@@ -701,8 +699,6 @@ def adapt_config(cfg: dict[str, str], dir: str, modelname: str, refseq: str=None
             config['carveme']['refseq'] = refseq
             config['cm-polish']['is_lab_strain'] = True
         case 'hqtb':
-            # QUESTION: pseudo paths for the user input? __USER__
-            # yaml.load instead of pseudo paths?
             if refseq:
                 config['subject']['annotated_genome'] = cfg['fasta']
                 config['subject']['gff'] = cfg['gff']
@@ -786,5 +782,9 @@ def wrapper(config: str, dir: str):
             current_config = validate_config(temp_config.name)
 
             run(temp_config)
+
+if __name__ == "__main__":
+    config = sys.argv[1]
+    run(config)
 
 # next methods
