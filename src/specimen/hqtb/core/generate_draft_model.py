@@ -374,8 +374,9 @@ def gen_draft_model(
         m.notes["creation"] = "via template"
 
     # save draft model
+    old_desc = draft.id if draft.id else (draft.name if draft.name else "Unknown template")
     draft.id = name
-    draft.notes["Template model"] = draft.name
+    draft.notes["Template model"] = old_desc
     draft.notes["Description"] = (
         f'This model was created with SPECIMEN version {importlib.metadata.version("specimen")}'
     )
