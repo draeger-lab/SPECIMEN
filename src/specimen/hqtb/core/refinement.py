@@ -548,7 +548,7 @@ def cleanup(
         start = time.time()
 
         # check direction
-        model = check_direction(model, biocyc_db)
+        model = check_direction(model, biocyc_db, ("notes","creation","via template"))
 
         end = time.time()
         logger.info(f"\ttime: {end - start}s")
