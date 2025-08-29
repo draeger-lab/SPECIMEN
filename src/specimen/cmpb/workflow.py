@@ -26,7 +26,7 @@ from refinegems.classes.reports import ModelInfoReport, SBOTermReport
 from refinegems.utility.util import test_biomass_presence
 from refinegems.curation.biomass import check_normalise_biomass
 from refinegems.curation.charges import correct_charges_modelseed
-from refinegems.curation.curate import resolve_duplicates, check_direction, polish_model
+from refinegems.curation.curate import resolve_duplicates, check_direction, polish_model, prune_mass_unbalanced_reacs
 from refinegems.classes.gapfill import KEGGapFiller, BioCycGapFiller, GeneGapFiller
 from refinegems.curation.pathways import set_kegg_pathways, kegg_pathway_analysis
 from refinegems.utility.entities import (
@@ -803,6 +803,11 @@ def run(configpath: Union[str, None] = None):
     
     step_end = time.time()
     logger.info(f"MCC\truntime: {step_end-step_start}s\n")
+    
+    # prune model 
+    # -----------
+    # (remove mass unbalanced reactions to ensure model consistency)
+    prune_mass_unbalanced_reacs(current_model)
 
     # save the final model
     current_libmodel = convert_cobra_to_libsbml(current_model, 'notes')
