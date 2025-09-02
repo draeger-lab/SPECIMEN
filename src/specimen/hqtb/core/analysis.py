@@ -146,7 +146,7 @@ def run(
     run_memote(
         model,
         "html",
-        save_res=Path("05_analysis", "final_memote.html"),
+        save_res=Path(dir, "05_analysis", "final_memote.html"),
         
     )
 
