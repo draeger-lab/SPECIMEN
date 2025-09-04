@@ -419,7 +419,7 @@ def run(
             If not given, takes name from filename.
             Defaults to None.
         - medium (str, optional):
-            Name of the to be loaded from the refineGEMs database or 'default' = the one
+            Name of the medium to be loaded from the refineGEMs database or 'default' = the one
             from the template model. If given the keyword 'exchanges', will use all exchange reactions in the model as a medium.
             Defaults to 'default'.
         - namespace (str, optional):
