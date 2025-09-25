@@ -19,6 +19,7 @@ from refinegems.analysis.core_pan import compare_to_core_pan
 from refinegems.curation.pathways import kegg_pathway_analysis
 from refinegems.utility.util import test_biomass_presence
 from refinegems.developement.decorators import suppress_warning
+from refinegems.utility.connections import run_memote
 
 from ...classes.reports import SpecimenModelInfoReport
 
@@ -135,6 +136,19 @@ def run(
 
     statistics_report = SpecimenModelInfoReport(model)
     statistics_report.save(Path(dir, "05_analysis"))
+    
+    # ------
+    # memote
+    # ------
+    
+    logger.info("\n# ------\n# memote\n# ------")
+    
+    run_memote(
+        model,
+        "html",
+        save_res=Path(dir, "05_analysis", "final_memote.html"),
+        
+    )
 
     # -----------------
     # pan-core analysis

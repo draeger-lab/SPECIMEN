@@ -3,6 +3,7 @@
 
 __author__ = "Tobias Fehrenbach, Famke Baeuerle, Gwendolyn O. Döbel and Carolin Brune"
 
+# @DISCUSSION modelname, authorinitials, strainid and organism are required if a model is provided. Should we keep this?
 ################################################################################
 # requirements
 ################################################################################
@@ -25,7 +26,7 @@ from refinegems.classes.reports import ModelInfoReport, SBOTermReport
 from refinegems.utility.util import test_biomass_presence
 from refinegems.curation.biomass import check_normalise_biomass
 from refinegems.curation.charges import correct_charges_modelseed
-from refinegems.curation.curate import resolve_duplicates, check_direction, polish_model, extend_gp_annots_via_mapping_table
+from refinegems.curation.curate import resolve_duplicates, check_direction, polish_model, prune_mass_unbalanced_reacs
 from refinegems.classes.gapfill import KEGGapFiller, BioCycGapFiller, GeneGapFiller
 from refinegems.curation.pathways import set_kegg_pathways, kegg_pathway_analysis
 from refinegems.utility.entities import (
@@ -55,7 +56,8 @@ logger = logging.getLogger(__name__)
 # functions
 ################################################################################
 
-
+# @TODO Add debug switches to test growth on every step (Maybe also on full medium?) -> Maybe as entry point?
+# @ASK Provide the draft model directly from CarveMe only in debug mode or always? -> Is always provided already.
 # dev notes:
 #   in the run function: current_model means the cobrapy model,
 #   while current_libmodel means the libsbml model
@@ -109,8 +111,7 @@ def run(configpath: Union[str, None] = None):
             - step (str):
                 Descriptive string for the current step of the pipeline (important for saving the output).
         """
-        # Get cobrapy_model
-        current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
+ 
         # try to set objective to growth
         growth_func_list = test_biomass_presence(model)
         if growth_func_list:
@@ -282,7 +283,7 @@ def run(configpath: Union[str, None] = None):
         config["input"]["modelpath"] = out_modelpath
         
         step_end = time.time()
-        logger.info(f"\truntime: {step_end-step_start}s\n")
+        logger.info(f"CarveMe\truntime: {step_end-step_start}s\n")
 
     # Set model path for pipeline
     current_modelpath = config["input"]["modelpath"]
@@ -311,7 +312,7 @@ def run(configpath: Union[str, None] = None):
         current_libmodel = convert_cobra_to_libsbml(current_model, 'notes')
         
     step_end = time.time()
-    logger.info(f"\truntime: {step_end-step_start}s\n")
+    logger.info(f"Compartment validation\truntime: {step_end-step_start}s\n")
 
     # CarveMe correction
     ####################
@@ -323,9 +324,10 @@ def run(configpath: Union[str, None] = None):
         step_start = time.time()
         
         # Set up directory for report output
-        current_sub_dir = Path(MISC_DIR, "wrong_annotations")
+        current_sub_dir = Path(MISC_DIR, "model_correction")
         try:
             Path(current_sub_dir).mkdir(parents=True, exist_ok=False)
+            print(f"Creating new directory {current_sub_dir}")
         except FileExistsError:
             logger.warning(
                 f"Given directory {current_sub_dir} already exists. High possibility of files being overwritten."
@@ -346,7 +348,7 @@ def run(configpath: Union[str, None] = None):
             lab_strain=config["cm-polish"]["is_lab_strain"],
             kegg_organism_id=config["general"]["kegg_organism_id"],
             reaction_direction=None, # Currently disabled as underlying function generalises bad.
-            outpath=str(Path(MISC_DIR, "wrong_annotations")),
+            outpath=str(current_sub_dir),
         )
         # rg correct charges
         current_libmodel, mult_charges_dict = correct_charges_modelseed(
@@ -364,7 +366,7 @@ def run(configpath: Union[str, None] = None):
         )
         
         step_end = time.time()
-        logger.info(f"\truntime: {step_end-step_start}s\n")
+        logger.info(f"CarveMe correction\truntime: {step_end-step_start}s\n")
 
     # growth test
     # -----------
@@ -376,6 +378,18 @@ def run(configpath: Union[str, None] = None):
     ############
     threshold_add_reacs = config["gapfilling"]["threshold_add_reacs"]
     run_gapfill = False
+
+    # Set up directory for gapfill output, only if any of the gapfillers are activated
+    if any([config["gapfilling"]["KEGGapFiller"], config["gapfilling"]["BioCycGapFiller"], config["gapfilling"]["GeneGapFiller"]]):
+        current_sub_dir = Path(MISC_DIR, "gapfill")
+        try:
+            Path(current_sub_dir).mkdir(parents=True, exist_ok=False)
+            print(f"Creating new directory {current_sub_dir}")
+        except FileExistsError:
+            logger.warning(
+                f"Given directory {current_sub_dir} already exists. High possibility of files being overwritten."
+            )
+    
     # KEGGapFiller
     if config["gapfilling"]["KEGGapFiller"]:
         
@@ -396,6 +410,9 @@ def run(configpath: Union[str, None] = None):
                 exclude_dna=config["gapfilling"]["exclude-dna"],
                 exclude_rna=config["gapfilling"]["exclude-rna"],
             )
+            # save GapFillerReport
+            kgf.report(str(current_sub_dir))
+            
             # save model
             between_save(
                 current_libmodel, MODEL_DIR, "after_KEGG_gapfill", only_modelpath
@@ -407,7 +424,7 @@ def run(configpath: Union[str, None] = None):
             logger.warning(mes, UserWarning)
         
         step_end = time.time()
-        logger.info(f"\truntime: {step_end-step_start}s\n")
+        logger.info(f"KEGGapFiller\truntime: {step_end-step_start}s\n")
 
     # BioCycGapFiller
     if config["gapfilling"]["BioCycGapFiller"]:
@@ -424,7 +441,7 @@ def run(configpath: Union[str, None] = None):
 
         bcgf.find_missing_genes(current_libmodel)
         bcgf.find_missing_reactions(current_model)
-        current_libmodel = kgf.fill_model(
+        current_libmodel = bcgf.fill_model(
             current_libmodel,
             namespace=config["general"]["namespace"],
             idprefix=config["gapfilling"]["idprefix"],
@@ -432,6 +449,9 @@ def run(configpath: Union[str, None] = None):
             exclude_dna=config["gapfilling"]["formula-check"],
             exclude_rna=config["gapfilling"]["exclude-rna"],
         )
+        # save GapFillerReport
+        bcgf.report(str(current_sub_dir))
+        
         # save model
         between_save(
             current_libmodel, MODEL_DIR, "after_BioCyc_gapfill", only_modelpath
@@ -439,7 +459,7 @@ def run(configpath: Union[str, None] = None):
         current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
         
         step_end = time.time()
-        logger.info(f"\truntime: {step_end-step_start}s\n")
+        logger.info(f"BioCycGapfiller\truntime: {step_end-step_start}s\n")
 
     # GeneGapFiller
     if config["gapfilling"]["GeneGapFiller"]:
@@ -462,7 +482,7 @@ def run(configpath: Union[str, None] = None):
             mail=config["tech-resources"]["email"],
             check_NCBI=config["gapfilling"]["GeneGapFiller parameters"]["check-NCBI"],
             threshold_add_reacs=threshold_add_reacs,
-            outdir=Path(MISC_DIR, "gapfill"),
+            outdir=current_sub_dir,
             sens=config["gapfilling"]["GeneGapFiller parameters"]["sensitivity"],
             cov=config["gapfilling"]["GeneGapFiller parameters"]["coverage"],
             t=config["tech-resources"]["threads"],
@@ -476,13 +496,16 @@ def run(configpath: Union[str, None] = None):
             exclude_dna=config["gapfilling"]["formula-check"],
             exclude_rna=config["gapfilling"]["exclude-rna"],
         )
+        # save GapFillerReport
+        ggf.report(str(current_sub_dir))
+        
         # save model
         between_save(
             current_libmodel, MODEL_DIR, "after_Gene_gapfill", only_modelpath
         )
         
         step_end = time.time()
-        logger.info(f"\truntime: {step_end-step_start}s\n")
+        logger.info(f"GeneGapFiller\truntime: {step_end-step_start}s\n")
 
     current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
 
@@ -518,11 +541,20 @@ def run(configpath: Union[str, None] = None):
 
         result = run_ModelPolisher(current_libmodel, config_mp)
 
-        # @DEBUG Should the run-id be saved somewhere for debugging purposes? result['run_id']
         if result:
+            # Set up directory for result output
+            current_sub_dir = Path(MISC_DIR, "modelpolisher", "run_" + result['run_id'])
+            try:
+                Path(current_sub_dir).mkdir(parents=True, exist_ok=False)
+                print(f"Creating new directory {current_sub_dir}")
+            except FileExistsError:
+                logger.warning(
+                    f"Given directory {current_sub_dir} already exists. High possibility of files being overwritten."
+                )
+            
             if len(result['diff']) > 1:
                 pd.DataFrame(result["diff"]).to_csv(
-                    Path(MISC_DIR, "modelpolisher", "diff_mp.csv"),
+                    Path(current_sub_dir, "diff_mp.csv"),
                     sep=";",
                     header=False,
                 )
@@ -530,12 +562,12 @@ def run(configpath: Union[str, None] = None):
                 logger.warning(f'{result["diff"]}')
             
             pd.DataFrame(result["pre_validation"]).to_csv(
-                Path(MISC_DIR, "modelpolisher", "pre_validation.csv"),
+                Path(current_sub_dir, "pre_validation.csv"),
                 sep=";",
                 header=True,
             )
             pd.DataFrame(result["post_validation"]).to_csv(
-                Path(MISC_DIR, "modelpolisher", "post_validation.csv"),
+                Path(current_sub_dir, "post_validation.csv"),
                 sep=";",
                 header=True,
             )
@@ -555,11 +587,14 @@ def run(configpath: Union[str, None] = None):
             logger.warning('No result was produced with ModelPolisher. This step will be skipped.')
             
         step_end = time.time()
-        logger.info(f"\truntime: {step_end-step_start}s\n")
+        logger.info(f"ModelPolisher\truntime: {step_end-step_start}s\n")
 
     # Annotations
     #############
 
+    # @BUG/@WARNING: 
+    # The correct annotation for pathways gets missing between after the following step and reaction direction.
+    # @IDEA Possible solution would be to run polish_annotations & change_all_qualifiers at the end again?
     # KEGGPathwayGroups
     # -----------------
     if config["kegg_pathway_groups"]["add"]:
@@ -575,9 +610,8 @@ def run(configpath: Union[str, None] = None):
         if missing_list:
             with open(
                 Path(
-                    CMPB_OUT_DIR,
-                    "misc",
-                    "kegg_pathway",
+                    MISC_DIR,
+                    "kegg_pathways",
                     "reac_wo_kegg_pathway_groups.txt",
                 ),
                 "w",
@@ -590,7 +624,7 @@ def run(configpath: Union[str, None] = None):
         )
         
         step_end = time.time()
-        logger.info(f"\truntime: {step_end-step_start}s\n")
+        logger.info(f"KEGGPathwayGroups\truntime: {step_end-step_start}s\n")
 
     # SBOannotator
     # ------------
@@ -600,7 +634,7 @@ def run(configpath: Union[str, None] = None):
     current_libmodel = run_SBOannotator(current_libmodel)
     
     step_end = time.time()
-    logger.info(f"\truntime: {step_end-step_start}s\n")
+    logger.info(f"SBOannotator\truntime: {step_end-step_start}s\n")
     
     between_save(
         current_libmodel, MODEL_DIR, "SBOannotated", only_modelpath
@@ -660,7 +694,7 @@ def run(configpath: Union[str, None] = None):
     )
     
     step_end = time.time()
-    logger.info(f"\truntime: {step_end-step_start}s\n")
+    logger.info(f"Duplicates\truntime: {step_end-step_start}s\n")
 
     # save model
     between_save(
@@ -680,7 +714,7 @@ def run(configpath: Union[str, None] = None):
         current_model = check_direction(current_model, config["reaction_direction"])
 
         step_end = time.time()
-        logger.info(f"\truntime: {step_end-step_start}s\n")
+        logger.info(f"Reaction direction\truntime: {step_end-step_start}s\n")
 
     # save model
     between_save(
@@ -718,7 +752,7 @@ def run(configpath: Union[str, None] = None):
             )
             
     step_end = time.time()
-    logger.info(f"\truntime: {step_end-step_start}s\n")
+    logger.info(f"EGCs\truntime: {step_end-step_start}s\n")
 
     if results:
         between_save(
@@ -763,7 +797,7 @@ def run(configpath: Union[str, None] = None):
     current_model = check_normalise_biomass(current_model)
     
     step_end = time.time()
-    logger.info(f"\truntime: {step_end-step_start}s\n")
+    logger.info(f"BOF\truntime: {step_end-step_start}s\n")
 
     # save model
     between_save(current_model, MODEL_DIR, "after_BOF", only_modelpath)
@@ -778,7 +812,12 @@ def run(configpath: Union[str, None] = None):
     )
     
     step_end = time.time()
-    logger.info(f"\truntime: {step_end-step_start}s\n")
+    logger.info(f"MCC\truntime: {step_end-step_start}s\n")
+    
+    # prune model 
+    # -----------
+    # (remove mass unbalanced reactions to ensure model consistency)
+    prune_mass_unbalanced_reacs(current_model)
 
     # save the final model
     current_libmodel = convert_cobra_to_libsbml(current_model, 'notes')
@@ -811,7 +850,7 @@ def run(configpath: Union[str, None] = None):
     logger.info("\tGenerating KEGG pathway report ...")
     pathway_report = kegg_pathway_analysis(current_model)
     pathway_report.save(
-        Path(MISC_DIR, "kegg_pathway"),
+        Path(MISC_DIR, "kegg_pathways"),
         colors=config["general"]["colours"],
     )
 
@@ -848,7 +887,7 @@ def run(configpath: Union[str, None] = None):
     )
     
     step_end = time.time()
-    logger.info(f"\truntime: {step_end-step_start}s\n")
+    logger.info(f"Final analysis\truntime: {step_end-step_start}s\n")
 
     total_time_e = time.time()
     logger.info(f'Total run time: {total_time_e - total_time_s}')

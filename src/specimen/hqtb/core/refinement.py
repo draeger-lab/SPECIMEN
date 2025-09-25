@@ -34,7 +34,7 @@ from typing import Literal, Union
 from refinegems.analysis.growth import load_media
 from refinegems.classes import egcs
 from refinegems.classes.gapfill import multiple_cobra_gapfill, GeneGapFiller
-from refinegems.curation.curate import resolve_duplicates, check_direction
+from refinegems.curation.curate import resolve_duplicates, check_direction, prune_mass_unbalanced_reacs
 from refinegems.curation.biomass import check_normalise_biomass
 from refinegems.curation.pathways import set_kegg_pathways
 from refinegems.curation.miriam import polish_annotations
@@ -548,7 +548,7 @@ def cleanup(
         start = time.time()
 
         # check direction
-        model = check_direction(model, biocyc_db)
+        model = check_direction(model, biocyc_db, ("notes","creation","via template"))
 
         end = time.time()
         logger.info(f"\ttime: {end - start}s")
@@ -1061,6 +1061,11 @@ def smooth(
 
     end = time.time()
     logger.info(f"\ttime: {end - start}s")
+    
+    # prune model 
+    # (remove mass unbalanced reactions to ensure model consistency)
+    prune_mass_unbalanced_reacs(model)
+    
 
     # ----------------
     # save final model
