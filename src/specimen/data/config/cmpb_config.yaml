@@ -93,9 +93,17 @@ gapfilling:
   # via KEGG ...................
   # requires KEGG organism ID to be set
   KEGGapFiller: False   # activate gap filling via GFF
+  KEGGapFiller parameters:
+    alternative-strain: USER    # KEGG ID for alternative related strain
+    alternative-fasta: USER     # Path to the protein FASTA of the related strain
+    cutoff: 90                  # Cutoff for the sequence identity
+    blast-result: USER          # Path to the BLAST results with the related strain (optional)
   # via BioCyc .................
   BioCycGapFiller: False        # Activate gap filling via BioCyc.
   BioCycGapFiller parameters:   
+    alternative-fasta: USER     # Path to the protein FASTA of the related strain
+    cutoff: 90                  # Cutoff for the sequence identity
+    blast-result: USER          # Path to the BLAST results with the related strain (optional)
     gene-table: USER            # Path to a gene smart table file from BioCyc.
     reacs-table: USER           # Path to a reactions smart table from BioCyc.
     gff: USER                   # Path to a GFF file of the genome of the model.
