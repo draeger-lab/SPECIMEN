@@ -203,7 +203,7 @@ class DIAMONDReport():
         fig, ax = plt.subplots()
         positions = np.arange(len(self.statistics[taxids[0]].keys()))
 
-        # Visualize three DIAMOND runs (with three different taxonomy specifications)
+        # Visualise three DIAMOND runs (with three different taxonomy specifications)
         if len(self.statistics.keys()) == 3:
             barWidth = 0.33
             
@@ -219,7 +219,7 @@ class DIAMONDReport():
             plt.xticks(positions+barWidth, ['mapped', 'not best hits', 'not found'])
             plt.title('Report for the DIAMOND runs')
 
-        # Visualize two DIAMOND runs (with two different taxonomy specifications)
+        # Visualise two DIAMOND runs (with two different taxonomy specifications)
         elif len(self.statistics.keys()) == 2:
             barWidth = 0.45
             
@@ -233,7 +233,7 @@ class DIAMONDReport():
             plt.xticks(positions+barWidth/2, ['mapped', 'not best hits', 'not found'])
             plt.title('Report for the DIAMOND runs')
         
-        # Visualize one DIAMOND run
+        # Visualise one DIAMOND run
         elif len(self.statistics.keys()) == 1:
             bars = ax.bar(self.statistics[taxids[0]].keys(), self.statistics[taxids[0]].values(), label=list(self.statistics.keys())[0], width=0.7, color=cmap(0.75))
             ax.bar_label(bars, self.statistics[taxids[0]].values())
@@ -262,7 +262,7 @@ class DIAMONDReport():
         dir = str(Path(dir, 'DIAMOND_report'))
         Path(dir).mkdir(parents=True, exist_ok=False)
 
-        fig = self.visualize(color_palette)
+        fig = self.visualise(color_palette)
         fig.savefig(str(Path(dir, 'DIAMOND_visual.png')))
         
         for key in self.duplicates:
