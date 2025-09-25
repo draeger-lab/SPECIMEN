@@ -698,6 +698,8 @@ def adapt_config(cfg: dict[str, str], dir: str, modelname: str, refseq: str=None
             config['general']['protein_fasta'] = str(Path(dir,'pgap','output','annot_translated_cds.faa'))
             config['carveme']['refseq'] = refseq
             config['cm-polish']['is_lab_strain'] = True
+            config['gapfilling']['GeneGapFiller parameters']['gff'] = str(Path(dir,'pgap','output','annot.gff'))
+            config['gapfilling']['BioCycGapFiller parameters']['gff'] = str(Path(dir,'pgap','output','annot.gff'))
         case 'hqtb':
             if refseq:
                 config['subject']['annotated_genome'] = cfg['fasta']
@@ -713,6 +715,7 @@ def adapt_config(cfg: dict[str, str], dir: str, modelname: str, refseq: str=None
             raise ValueError(f"Unknown input for pipeline: {cfg['next_step']}")
     config['general']['dir'] = dir
     config['general']['from_pgab'] = True
+    config['general']['modelname'] = modelname
     
     new_configpath = str(Path(dir,f'{cfg['next_step']}_config.yaml'))
     with open(new_configpath, 'w') as f:
