@@ -23,7 +23,7 @@ from cobra.io.sbml import _sbml_to_model
 from refinegems.analysis import growth
 from refinegems.classes.medium import load_media
 from refinegems.classes.reports import ModelInfoReport, SBOTermReport
-from refinegems.utility.util import test_biomass_presence
+from refinegems.utility.util import test_biomass_presence, add_ECO_terms
 from refinegems.curation.biomass import check_normalise_biomass
 from refinegems.curation.charges import correct_charges_modelseed
 from refinegems.curation.curate import resolve_duplicates, check_direction, polish_model, prune_mass_unbalanced_reacs
@@ -629,6 +629,19 @@ def run(configpath: Union[str, None] = None):
     between_save(
         current_libmodel, MODEL_DIR, "SBOannotated", only_modelpath
     )
+    
+    # ECO Terms
+    # ---------
+    
+    logger.info("Adding ECO terms ...")
+    step_start = time.time()
+    
+    add_ECO_terms(current_libmodel)
+
+    step_end = time.time()
+    logger.info(f"\truntime: {step_end-step_start}s\n")
+
+    between_save(current_libmodel, MODEL_DIR, "added_ECO_terms", only_modelpath)
 
     current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
     between_analysis(current_model, config, step="after_annotation")

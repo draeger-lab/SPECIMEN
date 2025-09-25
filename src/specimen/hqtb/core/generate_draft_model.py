@@ -28,6 +28,8 @@ from refinegems.utility.entities import (
 from refinegems.utility.util import test_biomass_presence
 from refinegems.utility.connections import run_memote
 from refinegems.curation.curate import fix_reac_bounds
+from refinegems.utility.cvterms import add_cv_term_reactions
+
 from refinegems.utility.util import MIN_GROWTH_THRESHOLD
 
 # further required programs:
@@ -370,6 +372,7 @@ def gen_draft_model(
     # for each object, save a note that it was added during draft construction
     for r in draft.reactions:
         r.notes["creation"] = "via template"
+        add_cv_term_reactions("0007482", "ECO", r)
     for g in draft.genes:
         g.notes["creation"] = "via template"
     for m in draft.metabolites:
