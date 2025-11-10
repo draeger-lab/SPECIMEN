@@ -504,6 +504,68 @@ def run(configpath: Union[str, None] = None):
         between_growth_test(current_model, config, step="after_gapfill")
         between_analysis(current_model, config, step="after_gapfill")
 
+    # model cleanup - part 1
+    ########################
+
+    # duplicates
+    # ----------
+    
+    logger.info("Handling duplicates ...")
+    step_start = time.time()
+    
+    match config["duplicates"]["reactions"]:
+        case "remove":
+            check_dupl_reac = True
+            remove_dupl_reac = True
+        case "check":
+            check_dupl_reac = True
+            remove_dupl_reac = False
+        case "skip":
+            check_dupl_reac = False
+            remove_dupl_reac = False
+        case _:
+            mes = "Unknown input for duplicates - reactions: will be skipped"
+            logger.warning(mes)
+            check_dupl_reac = False
+            remove_dupl_reac = False
+
+    match config["duplicates"]["metabolites"]:
+        case "remove":
+            check_dupl_meta = "default"
+            remove_dupl_meta = True
+        case "check":
+            check_dupl_meta = "default"
+            remove_dupl_meta = False
+        case "skip":
+            check_dupl_meta = "skip"
+            remove_dupl_meta = False
+        case _:
+            mes = "Unknown input for duplicates - metabolites: will be skipped"
+            logger.warning(mes)
+            check_dupl_meta = "skip"
+            remove_dupl_meta = False
+
+    current_model = resolve_duplicates(
+        current_model,
+        check_reac=check_dupl_reac,
+        check_meta=check_dupl_meta,
+        replace_dupl_meta=remove_dupl_meta,
+        remove_unused_meta=config["duplicates"]["remove_unused_metabs"],
+        remove_dupl_reac=remove_dupl_reac,
+    )
+    
+    step_end = time.time()
+    logger.info(f"Duplicates\truntime: {step_end-step_start}s\n")
+
+    # save model
+    between_save(
+        current_model, MODEL_DIR, "after_duplicate_removal", only_modelpath
+    )
+
+    # in-between testing
+    between_growth_test(current_model, config, step="after_duplicate_removal")
+    between_analysis(current_model, config, step="after_duplicate_removal")
+
     # ModelPolisher
     ###############
     if config["modelpolisher"]:
@@ -632,68 +694,9 @@ def run(configpath: Union[str, None] = None):
 
     current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
     between_analysis(current_model, config, step="after_annotation")
-
-    # model cleanup
-    ###############
-
-    # duplicates
-    # ----------
     
-    logger.info("Handling duplicates ...")
-    step_start = time.time()
-    
-    match config["duplicates"]["reactions"]:
-        case "remove":
-            check_dupl_reac = True
-            remove_dupl_reac = True
-        case "check":
-            check_dupl_reac = True
-            remove_dupl_reac = False
-        case "skip":
-            check_dupl_reac = False
-            remove_dupl_reac = False
-        case _:
-            mes = "Unknown input for duplicates - reactions: will be skipped"
-            logger.warning(mes)
-            check_dupl_reac = False
-            remove_dupl_reac = False
-
-    match config["duplicates"]["metabolites"]:
-        case "remove":
-            check_dupl_meta = "default"
-            remove_dupl_meta = True
-        case "check":
-            check_dupl_meta = "default"
-            remove_dupl_meta = False
-        case "skip":
-            check_dupl_meta = "skip"
-            remove_dupl_meta = False
-        case _:
-            mes = "Unknown input for duplicates - metabolites: will be skipped"
-            logger.warning(mes)
-            check_dupl_meta = "skip"
-            remove_dupl_meta = False
-
-    current_model = resolve_duplicates(
-        current_model,
-        check_reac=check_dupl_reac,
-        check_meta=check_dupl_meta,
-        replace_dupl_meta=remove_dupl_meta,
-        remove_unused_meta=config["duplicates"]["remove_unused_metabs"],
-        remove_dupl_reac=remove_dupl_reac,
-    )
-    
-    step_end = time.time()
-    logger.info(f"Duplicates\truntime: {step_end-step_start}s\n")
-
-    # save model
-    between_save(
-        current_model, MODEL_DIR, "after_duplicate_removal", only_modelpath
-    )
-
-    # in-between testing
-    between_growth_test(current_model, config, step="after_duplicate_removal")
-    between_analysis(current_model, config, step="after_duplicate_removal")
+    # Model cleanup - part 2
+    ########################
 
     # reaction direction
     # ------------------
@@ -710,6 +713,18 @@ def run(configpath: Union[str, None] = None):
     between_save(
         current_model, MODEL_DIR, "after_reac_direction_change", only_modelpath
     )
+    
+    # MCC
+    # ---
+    logger.info("Running MCC ...")
+    step_start = time.time()
+    
+    current_model = perform_mcc(
+        current_model, Path(MISC_DIR, "mcc"), apply=True
+    )
+    
+    step_end = time.time()
+    logger.info(f"MCC\truntime: {step_end-step_start}s\n")
 
     # find and solve energy generating cycles
     # ---------------------------------------
@@ -791,18 +806,6 @@ def run(configpath: Union[str, None] = None):
 
     # save model
     between_save(current_model, MODEL_DIR, "after_BOF", only_modelpath)
-
-    # MCC
-    # ---
-    logger.info("Running MCC ...")
-    step_start = time.time()
-    
-    current_model = perform_mcc(
-        current_model, Path(MISC_DIR, "mcc"), apply=True
-    )
-    
-    step_end = time.time()
-    logger.info(f"MCC\truntime: {step_end-step_start}s\n")
     
     # prune model 
     # -----------
