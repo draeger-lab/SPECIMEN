@@ -27,6 +27,7 @@ from refinegems.utility.util import test_biomass_presence
 from refinegems.curation.biomass import check_normalise_biomass
 from refinegems.curation.charges import correct_charges_modelseed
 from refinegems.curation.curate import resolve_duplicates, check_direction, polish_model, prune_mass_unbalanced_reacs
+from refinegems.curation.miriam import change_all_qualifiers, polish_annotations
 from refinegems.classes.gapfill import KEGGapFiller, BioCycGapFiller, GeneGapFiller
 from refinegems.curation.pathways import set_kegg_pathways, kegg_pathway_analysis
 from refinegems.utility.entities import (
@@ -814,8 +815,19 @@ def run(configpath: Union[str, None] = None):
     # (remove mass unbalanced reactions to ensure model consistency)
     prune_mass_unbalanced_reacs(current_model)
 
-    # save the final model
+    # Clean-up & save the final model
+    # Set up directory for final result
+    current_sub_dir = Path(MISC_DIR, "clean-up")
+    try:
+        Path(current_sub_dir).mkdir(parents=True, exist_ok=False)
+        print(f"Creating new directory {current_sub_dir}")
+    except FileExistsError:
+        logger.warning(
+            f"Given directory {current_sub_dir} already exists. High possibility of files being overwritten."
+        )
     current_libmodel = convert_cobra_to_libsbml(current_model, 'notes')
+    current_libmodel = polish_annotations(current_libmodel, True, str(current_sub_dir))
+    current_libmodel = change_all_qualifiers(current_libmodel, config["cm-polish"]["is_lab_strain"])
     between_save(current_libmodel, MODEL_DIR, "final_model", only_modelpath)
 
     # analysis
