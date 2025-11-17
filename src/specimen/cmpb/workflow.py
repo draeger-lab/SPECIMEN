@@ -25,11 +25,12 @@ from cobra.io.sbml import _sbml_to_model
 from refinegems.analysis import growth
 from refinegems.classes.medium import load_media
 from refinegems.classes.reports import ModelInfoReport, SBOTermReport
-from refinegems.utility.util import test_biomass_presence, add_ECO_terms
+from refinegems.utility.util import test_biomass_presence
 from refinegems.curation.biomass import check_normalise_biomass
 from refinegems.curation.charges import correct_charges_modelseed
-from refinegems.curation.curate import resolve_duplicates, check_direction, polish_model, prune_mass_unbalanced_reacs
-from refinegems.classes.gapfill import KEGGapFiller, BioCycGapFiller, GeneGapFiller, KEGGapFiller_Alternative, BioCycGapFiller_Alternative
+from refinegems.curation.curate import resolve_duplicates, check_direction, polish_model, prune_mass_unbalanced_reacs, add_ECO_terms
+from refinegems.curation.miriam import change_all_qualifiers
+from refinegems.classes.gapfill import KEGGapFiller, BioCycGapFiller, GeneGapFiller, KEGGapFiller_via_homolog
 from refinegems.curation.pathways import set_kegg_pathways, kegg_pathway_analysis
 from refinegems.utility.entities import (
     resolve_compartment_names,
@@ -268,7 +269,11 @@ def run(configpath: Union[str, None] = None):
         step_start = time.time()
         
         out_modelpath = only_modelpath if only_modelpath else Path(MODEL_DIR, modelname+'.xml')
-        if (
+        if config["carveme"]["refseq"] is not None:
+            os.system(
+                f"carve --refseq {config['carveme']['refseq']} --solver scip -o {out_modelpath}"
+            )
+        elif (
             config["carveme"]["gram"] == "grampos"
             or config["carveme"]["gram"] == "gramneg"
         ):
@@ -412,9 +417,12 @@ def run(configpath: Union[str, None] = None):
             )
             current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
         
-        elif config["gapfilling"]["KEGGapFiller parameters"]["alternative-strain"]:
+        elif config["gapfilling"]["KEGGapFiller parameters"]["homologous-id"]:
             logger.info("...using the KEGG ID of a closely related strain.")
             
+            run_gapfill = True
+            
+            # Get BLAST results if they are not passed beforehand
             if config["gapfilling"]["KEGGapFiller parameters"]["blast-result"]:
                 blast_result = config["gapfilling"]["KEGGapFiller parameters"]["blast-result"]
             else:
@@ -423,25 +431,24 @@ def run(configpath: Union[str, None] = None):
                         "diamond",
                         "makedb",
                         "--in",
-                        config["gapfilling"]["KEGGapFiller parameters"]["alternative-fasta"],
+                        config["gapfilling"]["KEGGapFiller parameters"]["homologous-fasta"],
                         "--db",
-                        str(Path(MISC_DIR, "gapfill","alternative_strain.dmnd")),
+                        str(Path(MISC_DIR, "gapfill","homologous_strain.dmnd")),
                     ]
                 )
                 blast_result = run_DIAMOND_blastp(
                     config["general"]["protein_fasta"],
-                    db=str(Path(MISC_DIR, "gapfill","alternative_strain.dmnd")),
+                    db=str(Path(MISC_DIR, "gapfill","homologous_strain.dmnd")),
                     outdir=str(Path(MISC_DIR, "gapfill")),
-                    outname="blast_results_alternative_strain.tsv"
+                    outname="blast_results_homologous_strain.tsv"
                 )
             
-            run_gapfill = True
             # gapfilling with KEGG via alternative KEGG organism ID
-            kgf = KEGGapFiller_Alternative(config["gapfilling"]["KEGGapFiller parameters"]["alternative-strain"])
+            kgf = KEGGapFiller_via_homolog(config["gapfilling"]["KEGGapFiller parameters"]["homologous-id"])
             kgf.find_missing_genes(
-                current_model,
+                current_libmodel,
                 original_fasta=config["general"]["protein_fasta"],
-                alternative_fasta=config["gapfilling"]["KEGGapFiller parameters"]["alternative-fasta"],
+                alternative_fasta=config["gapfilling"]["KEGGapFiller parameters"]["homologous-fasta"],
                 blast_result=blast_result,
                 cutoff=config["gapfilling"]["KEGGapFiller parameters"]["cutoff"])
             kgf.find_missing_reactions(current_model, threshold_add_reacs)
@@ -453,15 +460,18 @@ def run(configpath: Union[str, None] = None):
                 exclude_dna=config["gapfilling"]["exclude-dna"],
                 exclude_rna=config["gapfilling"]["exclude-rna"],
             )
+            # save GapFillerReport
+            kgf.report(str(current_sub_dir))
+            
             # save model
             between_save(
-                current_libmodel, MODEL_DIR, "after_KEGG_gapfill_alternative", only_modelpath
+                current_libmodel, MODEL_DIR, "after_KEGG_gapfill_via_homolog", only_modelpath
             )
             current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
             
         else:
             mes = f"No KEGG organism ID provided. Gapfilling with KEGG will be skipped."
-            raise logger.warning(mes, UserWarning)
+            logger.warning(mes, UserWarning)
         
         step_end = time.time()
         logger.info(f"KEGGapFiller\truntime: {step_end-step_start}s\n")
@@ -474,7 +484,10 @@ def run(configpath: Union[str, None] = None):
         
         run_gapfill = True
         
-        if config["gapfilling"]["BioCycGapFiller parameters"]["alternative-fasta"]:
+        # Get BLAST results if they are not passed beforehand
+        if config["gapfilling"]["BioCycGapFiller parameters"]["homologous-fasta"]:
+            homology = True
+            
             if config["gapfilling"]["BioCycGapFiller parameters"]["blast-result"]:
                 blast_result = config["gapfilling"]["BioCycGapFiller parameters"]["blast-result"]
             else:
@@ -483,69 +496,54 @@ def run(configpath: Union[str, None] = None):
                         "diamond",
                         "makedb",
                         "--in",
-                        config["gapfilling"]["BioCycGapFiller parameters"]["alternative-fasta"],
+                        config["gapfilling"]["BioCycGapFiller parameters"]["homologous-fasta"],
                         "--db",
-                        str(Path(MISC_DIR, "gapfill","alternative_strain.dmnd")),
+                        str(Path(MISC_DIR, "gapfill","homologous_strain.dmnd")),
                     ]
                 )
                 blast_result = run_DIAMOND_blastp(
                     config["general"]["protein_fasta"],
-                    db=str(Path(MISC_DIR, "gapfill","alternative_strain.dmnd")),
+                    db=str(Path(MISC_DIR, "gapfill","homologous_strain.dmnd")),
                     outdir=str(Path(MISC_DIR, "gapfill")),
-                    outname="blast_results_alternative_strain.tsv"
+                    outname="blast_results_homologous_strain.tsv"
                 )
-            
-            
-            bcgf = BioCycGapFiller_Alternative(
-                config["gapfilling"]["BioCycGapFiller parameters"]["gene-table"],
-                config["gapfilling"]["BioCycGapFiller parameters"]["reacs-table"],
-                config["gapfilling"]["BioCycGapFiller parameters"]["gff"],
-            )
-            bcgf.find_missing_genes(
-                current_model,
-                original_fasta=config["general"]["protein_fasta"],
-                alternative_fasta=config["gapfilling"]["BioCycGapFiller parameters"]["alternative-fasta"],
-                blast_result=blast_result,
-                cutoff=config["gapfilling"]["BioCycGapFiller parameters"]["cutoff"])
-            bcgf.find_missing_reactions(current_model)
-            current_libmodel = bcgf.fill_model(
-                current_libmodel,
-                namespace=config["general"]["namespace"],
-                idprefix=config["gapfilling"]["idprefix"],
-                formula_check=config["gapfilling"]["formula-check"],
-                exclude_dna=config["gapfilling"]["formula-check"],
-                exclude_rna=config["gapfilling"]["exclude-rna"],
-            )
-            # save model
-            between_save(
-                current_libmodel, MODEL_DIR, "after_BioCyc_gapfill_alternative", only_modelpath
-            )
-            current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
-        else:
-            bcgf = BioCycGapFiller(
-                config["gapfilling"]["BioCycGapFiller parameters"]["gene-table"],
-                config["gapfilling"]["BioCycGapFiller parameters"]["reacs-table"],
-                config["gapfilling"]["BioCycGapFiller parameters"]["gff"],
-            )
-
-            bcgf.find_missing_genes(current_libmodel)
-            bcgf.find_missing_reactions(current_model)
-            current_libmodel = bcgf.fill_model(
-                current_libmodel,
-                namespace=config["general"]["namespace"],
-                idprefix=config["gapfilling"]["idprefix"],
-                formula_check=config["gapfilling"]["formula-check"],
-                exclude_dna=config["gapfilling"]["exlude-dna"],
-                exclude_rna=config["gapfilling"]["exclude-rna"],
-            )
-            # save GapFillerReport
-            bcgf.report(str(current_sub_dir))
+        else: 
+            blast_result = None
+            homology = False
         
-            # save model
-            between_save(
-                current_libmodel, MODEL_DIR, "after_BioCyc_gapfill", only_modelpath
-            )
-            current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
+        bcgf = BioCycGapFiller(
+            config["gapfilling"]["BioCycGapFiller parameters"]["gene-table"],
+            config["gapfilling"]["BioCycGapFiller parameters"]["reacs-table"],
+            config["gapfilling"]["BioCycGapFiller parameters"]["gff"],
+            homology
+        )
+
+        bcgf.find_missing_genes(
+            current_libmodel,
+            fasta_original=config["general"]["protein_fasta"],
+            fasta_homolog=config["gapfilling"]["BioCycGapFiller parameters"]["homologous-fasta"],
+            blast_result=blast_result,
+            cutoff=config["gapfilling"]["BioCycGapFiller parameters"]["cutoff"])
+        bcgf.find_missing_reactions(current_model)
+        current_libmodel = bcgf.fill_model(
+            current_libmodel,
+            namespace=config["general"]["namespace"],
+            idprefix=config["gapfilling"]["idprefix"],
+            formula_check=config["gapfilling"]["formula-check"],
+            exclude_dna=config["gapfilling"]["exclude-dna"],
+            exclude_rna=config["gapfilling"]["exclude-rna"],
+        )
+        # save GapFillerReport
+        bcgf.report(str(current_sub_dir))
+    
+        # save model
+        if config["gapfilling"]["BioCycGapFiller parameters"]["homologous-fasta"]:
+            name = "after_BioCyc_gapfill_via_homolog"
+        else: name = "after_BioCyc_gapfill"
+        between_save(
+            current_libmodel, MODEL_DIR, name, only_modelpath
+        )
+        current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
         
         step_end = time.time()
         logger.info(f"BioCycGapfiller\truntime: {step_end-step_start}s\n")
@@ -582,7 +580,7 @@ def run(configpath: Union[str, None] = None):
             namespace=config["general"]["namespace"],
             idprefix=config["gapfilling"]["idprefix"],
             formula_check=config["gapfilling"]["formula-check"],
-            exclude_dna=config["gapfilling"]["formula-check"],
+            exclude_dna=config["gapfilling"]["exclude-dna"],
             exclude_rna=config["gapfilling"]["exclude-rna"],
         )
         # save GapFillerReport
@@ -735,7 +733,8 @@ def run(configpath: Union[str, None] = None):
     logger.info("Adding ECO terms ...")
     step_start = time.time()
     
-    add_ECO_terms(current_libmodel)
+    current_libmodel = add_ECO_terms(current_libmodel)
+    change_all_qualifiers(current_libmodel, lab_strain=config["cm-polish"]["is_lab_strain"])
 
     step_end = time.time()
     logger.info(f"\truntime: {step_end-step_start}s\n")
@@ -923,6 +922,8 @@ def run(configpath: Union[str, None] = None):
 
     # save the final model
     current_libmodel = convert_cobra_to_libsbml(current_model, 'notes')
+    # move qualifiers to correct biological or model qualifier type 
+    change_all_qualifiers(current_libmodel, lab_strain=config["cm-polish"]["is_lab_strain"])
     between_save(current_libmodel, MODEL_DIR, "final_model", only_modelpath)
 
     # analysis
