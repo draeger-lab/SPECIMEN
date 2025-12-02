@@ -338,7 +338,6 @@ def run(configpath: Union[str, None] = None):
             email=config["tech-resources"]["email"],
             lab_strain=config["cm-polish"]["is_lab_strain"],
             kegg_organism_id=config["general"]["kegg_organism_id"],
-            reaction_direction=None, # Currently disabled as underlying function generalises bad.
             outpath=str(current_sub_dir),
         )
         # rg correct charges
