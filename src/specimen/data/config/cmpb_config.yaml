@@ -150,7 +150,6 @@ duplicates:
 # optionally check reaction direction 
 # -----------------------------------
 reaction_direction: USER # Path to a Biocyc table containing information about reactions and their usual directionality
-# If provided will also be used in the cm_polish step.
 
 
 # Finding and solvong Energy Generating Cycles (EGCs)
