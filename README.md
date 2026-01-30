@@ -14,8 +14,9 @@
 
 SPECIMEN is a collection of different workflows designed for the automated and standardised curation of genome-scale models. It is mainly based on the [refineGEMs toolbox](https://github.com/draeger-lab/refinegems/tree/main), but also includes additional tools like [CarveMe](https://carveme.readthedocs.io/en/latest/).
 
-> Note: <br> 
-  This tool is currently still under active developement, any feedback or ideas are welcome. Also, since its developemental, please note that bugs and error will probably occur. Please feel free to report them to the developers.
+> [!NOTE]
+> This tool is currently still under active developement, any feedback or ideas are welcome. Also, since its 
+> developemental, please note that bugs and errors will probably occur. Please feel free to report them to the developers.
 
 Currently avaible workflow:
 
@@ -23,24 +24,83 @@ Currently avaible workflow:
 
 - HQTB - High-quality template based:\\This pipeline follows the modelling approach of using a high-quality template model as a basis for the reconstruction of a new model from a new genome (e.g. a different strain). 
 
-> Note: Due to some major refactoring changes in refineGEMs this workflow might not run as expected.
+> [!NOTE]
+> Due to some major refactoring changes in refineGEMs this workflow might not run as expected.
 
 - PGAB: under construction
 
+<!-- TOC -->
+
+- [SPECIMEN](#specimen)
+    - [Installation](#installation)
+        - [pypi Via pip](#pypi-via-pip)
+        - [docker Via Docker](#docker-via-docker)
+    - [Quickstart](#quickstart)
+        - [pypi After install via pip](#pypi-after-install-via-pip)
+        - [docker After install via Docker](#docker-after-install-via-docker)
+    - [Documentation](#documentation)
+    - [Repositories using SPECIMEN](#repositories-using-specimen)
+
+<!-- /TOC -->
+
 ## Installation  
+The workflow collection ``SPECIMEN``can be installed via pip or via Docker.
+
+### ![pypi](https://skillicons.dev/icons?i=py) Via pip 
 
 Download this repository and run the command `pip install -e .` inside the top-level directory.     
 
 When running certain steps, further tools need to be installed:
 
-- [DIAMOND, version 2.0.4 or higher](https://github.com/bbuchfink/diamond), needed for GeneGapFiller and HQTB
+- [DIAMOND, version 2.0.4 or higher](https://github.com/bbuchfink/diamond)
 - [EntrezDirect](https://www.ncbi.nlm.nih.gov/books/NBK179288/), if no NCBI mapping has been created beforehand
 
+### ![docker](https://skillicons.dev/icons?i=docker) Via Docker
+``SPECIMEN`` can also be used via Docker. To build the docker image, firtsly clone the repository:
+
+```bash
+   git clone "https://github.com/draeger-lab/specimen.git"
+```
+
+Then change into the directory and build the image:
+
+```bash
+   cd specimen \
+   docker build -t specimen .
+```
+
 ## Quickstart
+
+### ![pypi](https://skillicons.dev/icons?i=py) After install via pip
 
 After the installation, main functionalities can be accessed either via the command line. Try running `specimen --help` for more information.
 
 For greater control or for further integration into other scripts, the modules of SPECIMEN can be loaded as a Python package using `import specimen` in a Python script.
+
+### ![docker](https://skillicons.dev/icons?i=docker) After install via Docker
+
+> [!NOTE]
+> To provide the input files and retrieve the output files mount one folder as workspace folder to the Docker image with `-v`.
+
+The default command executed by the image is ``specimen -h`` and provides the help information for the CLI of 
+``SPECIMEN``.
+
+```bash
+   docker run specimen
+```
+
+To use the image interactively and open a bash shell, run the following command:
+
+```bash
+   docker run -it --entrypoint bash specimen
+```
+
+To use the image for specific commands, you can simply use every of the CLI commands as entrypoint. 
+For example, to run the CMPB pipeline, use:
+
+```bash
+   docker run --name <container_name> -v <user_folder>:/sp_cont specimen cmpb run ./path/to/CMPB_config.yaml
+```
 
 ## Documentation
 
@@ -48,3 +108,10 @@ For greater control or for further integration into other scripts, the modules o
 > 🚧 The documentation is currently under heavy-rework!
 
 For more information about the available pipelines, the code or for troubleshooting, please refer to the documentation of the tool [here](https://specimen.readthedocs.io/en/latest/).
+
+## Repositories using SPECIMEN
+- draeger-lab/Cacnes - `private`
+- draeger-lab/Cgranulosum - `private`
+- draeger-lab/Koxytoca - `private`
+- draeger-lab/Mfortuitum - `private`
+- draeger-lab/Scohnii - `private`
