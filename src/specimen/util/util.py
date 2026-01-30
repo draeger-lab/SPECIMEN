@@ -7,7 +7,6 @@ __author__ = "Carolin Brune"
 # requirements
 ################################################################################
 
-
 import os
 import os.path
 import subprocess
@@ -17,7 +16,7 @@ from Bio import SeqIO
 from pathlib import Path
 from typing import Literal
 
-from refinegems.utility.io import parse_gff_for_cds, parse_gbff_for_cds
+from refinegems.utility.io import parse_gbff_for_cds
 
 
 ################################################################################
@@ -83,9 +82,9 @@ def create_DIAMOND_db_from_folder(
 
     # save all in new (combined) FASTA
     if save:
-        with open(outname_fasta, "w") as out:
+        with open(outname_fasta, "w") as outfile:
             for f in fasta_files:
-                SeqIO.write(SeqIO.parse(f, "fasta"), out, "fasta")
+                SeqIO.write(SeqIO.parse(f, "fasta"), outfile, "fasta")
 
     # -------------------------
     # generate DIAMOND database
@@ -94,11 +93,11 @@ def create_DIAMOND_db_from_folder(
     outname_dnmd = Path(out, name)
     bl = "\\ "
     print(
-        f'running the following command:\ndiamond makedb --in {outname_fasta.replace(" ",bl)} -d {outname_dnmd.replace(" ",bl)} -p {threads}'
+        f'running the following command:\ndiamond makedb --in {str(outname_fasta).replace(" ",bl)} -d {str(outname_dnmd).replace(" ",bl)} -p {threads}'
     )
     subprocess.run(
         [
-            f'diamond makedb --in {outname_fasta.replace(" ",bl)} -d {outname_dnmd.replace(" ",bl)} -p {threads}'
+            f'diamond makedb --in {str(outname_fasta).replace(" ",bl)} -d {str(outname_dnmd).replace(" ",bl)} -p {threads}'
         ],
         shell=True,
     )
@@ -131,7 +130,7 @@ def create_NCBIinfo_mapping(dir: str, out: str, extension: Literal["gbff"] = "gb
     # extract information and create the mapping file
     # -----------------------------------------------
 
-    with open(out, "w") as out_file:
+    with open(Path(out, "NCBI_mapping.csv"), "w") as out_file:
 
         file_counter = 1
 

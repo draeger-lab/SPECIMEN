@@ -14,8 +14,8 @@ __author__ = "Carolin Brune"
 ################################################################################
 
 import cobra
+import logging
 import os
-import pandas as pd
 import time
 import tempfile
 import warnings
@@ -34,7 +34,7 @@ from typing import Literal, Union
 from refinegems.analysis.growth import load_media
 from refinegems.classes import egcs
 from refinegems.classes.gapfill import multiple_cobra_gapfill, GeneGapFiller
-from refinegems.curation.curate import resolve_duplicates
+from refinegems.curation.curate import resolve_duplicates, check_direction, prune_mass_unbalanced_reacs
 from refinegems.curation.biomass import check_normalise_biomass
 from refinegems.curation.pathways import set_kegg_pathways
 from refinegems.curation.miriam import polish_annotations
@@ -42,15 +42,25 @@ from refinegems.utility.connections import (
     adjust_BOF,
     perform_mcc,
     run_memote,
-    run_SBOannotator,
+    run_SBOannotator
 )
-from refinegems.utility.io import load_model, write_model_to_file
+from refinegems.utility.io import load_model, write_model_to_file, parse_gff_for_cds, convert_cobra_to_libsbml
 from refinegems.utility.util import test_biomass_presence
 
 # further required programs:
 #        - DIAMOND, tested with version 0.9.14 (works only for certain sensitivity mode)
 #                   tested with version 2.1.8 (works for all sensitivity modes for that version)
 
+################################################################################
+# setup logging
+################################################################################
+# general logging
+genlogger = logging.getLogger(__name__)
+# internal logger with logging file
+
+logger = logging.getLogger(__name__ + "-intern")
+logger.setLevel(logging.DEBUG)
+logger.propagate = False
 
 ################################################################################
 # variables
@@ -73,7 +83,7 @@ GGF_REQS = {
     "exclude_dna",
     "exclude_rna",
     "gff",
-}
+} #: :meta:
 
 ################################################################################
 # functions
@@ -81,7 +91,6 @@ GGF_REQS = {
 
 # Part 1: extension
 # -----------------
-
 
 def extend(
     draft: str,
@@ -122,6 +131,13 @@ def extend(
             GFF file of the organism of interest.
         - fasta (str):
             Path to the (protein) FASTA file containing the CDS sequences.
+            
+            .. warning:: 
+                This FASTA needs to be in the extended GenBank format.  
+                This can be downloaded from the NCBI FTB servers 
+                (name usually contains `_tranlated_CDS`) or use 
+                `mimic_genbank` from refineGEMs to create a similar format.
+            
         - db (str):
             Path to the database used for running DIAMOND.
         - dir (str):
@@ -168,7 +184,7 @@ def extend(
                 it is advised to
 
         - formula_check (Literal['none','existence','wildcard','strict'], optional)
-            Level of chemical formula to be accespted for adding reactions.
+            Level of chemical formula to be accepted for adding reactions.
             For more information, refer to the refineGems documentation.
             Defaults to 'existence'.
 
@@ -197,7 +213,7 @@ def extend(
             f"Unknown sensitivity mode {sensitivity}. Choose from: sensitive, more-sensitive, very-sensitive, ultra-sensitive"
         )
 
-    print(
+    logger.info(
         "\nrefinement step 1: extension\n################################################################################\n"
     )
 
@@ -207,17 +223,83 @@ def extend(
 
     try:
         Path(dir, "step1-extension").mkdir(parents=True, exist_ok=False)
-        print(f'Creating new directory {str(Path(dir,"step1-extension"))}')
+        logger.info(f'Creating new directory {str(Path(dir,"step1-extension"))}')
     except FileExistsError:
-        print("Given directory already has required structure.")
+        logger.info("Given directory already has required structure.")
+        
+    # set path for logging file
+    Path(dir, "step1-extension", "extension.log").unlink(missing_ok=True)
+    handler = logging.handlers.RotatingFileHandler(
+        str(Path(dir, "step1-extension", "extension.log")),
+        mode="w",
+        # maxBytes=1000,
+        backupCount=10,
+        encoding="utf-8",
+        delay=0,
+    )
+    handler.setFormatter(
+        logging.Formatter(
+            "{levelname} \t {name} \t {message}",
+            style="{",
+        )
+    )
+    logger.addHandler(handler)
+    
+    # redirect cobrapy logging
+    cobralogger = logging.getLogger("cobra")
+    cobralogger.addHandler(handler)
+    cobralogger.propagate = False
+    # redirect matplotlib logging
+    mpllogger = logging.getLogger("matplotlib")
+    mpllogger.addHandler(handler)
+    mpllogger.propagate = False
+    # redirect refinegems logging
+    rglogger = logging.getLogger("refinegems")
+    rglogger.addHandler(handler)
+    rglogger.propagate = False
+    
+    # -------------
+    # add locus tag
+    # -------------
+    
+    # get ncbiprotein + locus tag mapping
+    gfftable = parse_gff_for_cds(
+        gff, keep_attributes = {"locus_tag": "locus_tag", "protein_id": "ncbiprotein"}
+    )
+    
+    # load model 
+    draft_cobra = load_model(draft, "cobra")
+    
+    # identify, where locus tags are stored / can be stored
+    add_label_via = None
+    if len(set(g.id for g in draft_cobra.genes).intersection(set(gfftable['locus_tag']))) == 0:
+        # case 1: ncbiprotein as ID
+        # add locus tags as notes
+        add_label_via = 'notes'
+        if 'ncbiprotein' in gfftable.columns:
+            gfftable = gfftable.explode('ncbiprotein')
+            add_label_via = 'notes'
+            for g in draft_cobra.genes:
+                hit = list(gfftable[gfftable['ncbiprotein']==g.id]['locus_tag'])
+                if hit:
+                    g.notes['locus_tag'] =  hit[0]
+        else:
+            raise KeyError('No ncbiprotein column detected. Possibly an error GFF file or draft model IDs. Please re-check your input.')
 
+    else:
+        # case 2: locus tag as ID
+        add_label_via = 'id'
+        # also add locus tags to notes
+        for g in draft_cobra.genes:
+            g.notes['locus_tag'] =  g.id
+    
+    # also generate libsbml instance
+    # with locus tag as labels
+    draft_libsbml = convert_cobra_to_libsbml(draft_cobra, add_label_via)
+    
     # ----------------------
     # identify missing genes
     # ----------------------
-
-    # load model
-    draft_libsbml = load_model(draft, "libsbml")
-    draft_cobra = load_model(draft, "cobra")
 
     name = f"{draft_cobra.id}_extended"
 
@@ -277,144 +359,29 @@ def extend(
         # ---------------------------------
 
         if memote:
-            print("\nRunning memote ...\n------------------\n")
+            logger.info("\nRunning memote ...\n------------------\n")
             memote_path = str(Path(dir, "step1-extension", name + ".html"))
             run_memote(
-                draft, "html", return_res=False, save_res=memote_path, verbose=True
+                draft_cobra, "html", return_res=False, save_res=memote_path, verbose=True
             )
     else:
-        print(
+        logger.warning(
             "\tNo missing genes found. The first refinement step, extension, will be skipped. The model will still be re-saved under the new name."
         )
         # save model
         write_model_to_file(draft_libsbml, Path(dir, "step1-extension", name + ".xml"))
 
 
+    # restore logging behaviour 
+    cobralogger.handlers.clear()
+    cobralogger.propagate = False
+    mpllogger.handlers.clear()
+    mpllogger.propagate = False 
+    rglogger.handlers.clear()
+    rglogger.propagate = False 
+
 # Part 2: cleanup
 # ---------------
-
-
-# similar to the one in refineGEMs, but add an extra check to
-# skip reactions created using the template
-def check_direction(model: cobra.Model, data_file: str) -> cobra.Model:
-    """Check the direction of newly created reactions (01-extention) by searching for matching MetaCyc,
-    KEGG and MetaNetX IDs as well as EC number in a downloaded BioCyc (MetaCyc)
-    database table (need to contain at least the following columns:
-    Reactions (MetaCyc ID),EC-Number,KEGG reaction,METANETX,Reaction-Direction.
-
-    ..note::
-
-        Checks only creations that do not contain the notes['creation'] == 'via template',
-        assuming the template was well curated.
-
-    Args:
-        - model (cobra.Model):
-            The GEM containing the reactions to be check for direction.
-        - data_file (str):
-            Path to the MetabCyc (BioCyc) smart table.
-
-    Returns:
-        cobra.Model:
-            The updated model.
-    """
-
-    # create MetaCyc table
-    # --------------------
-    data = pd.read_csv(data_file, sep="\t")
-    # rewrite the columns into a better comparable/searchable format
-    data["KEGG reaction"] = data["KEGG reaction"].str.extract(r".*>(R\d*)<.*")
-    data["METANETX"] = data["METANETX"].str.extract(r".*>(MNXR\d*)<.*")
-    data["EC-Number"] = data["EC-Number"].str.extract(r"EC-(.*)")
-
-    # check direction
-    # --------------------
-    for r in model.reactions:
-        # entry from template, assumed to be already curated
-        if "creation" in r.notes and "via template" == r.notes["creation"]:
-            continue
-        # newly created entry, check direction with BioCyc
-        else:
-            direction = None
-            # easy case: metacyc is already (corretly) annotated
-            if (
-                "metacyc.reaction" in r.annotation
-                and len(data[data["Reactions"] == r.annotation["metacyc.reaction"]])
-                != 0
-            ):
-                direction = data[data["Reactions"] == r.annotation["metacyc.reaction"]][
-                    "Reaction-Direction"
-                ].iloc[0]
-                r.notes["BioCyc direction check"] = f"found {direction}"
-            # complicated case: no metacyc annotation
-            else:
-                annotations = []
-
-                # collect matches
-                if (
-                    "kegg.reaction" in r.annotation
-                    and r.annotation["kegg.reaction"] in data["KEGG reaction"].tolist()
-                ):
-                    annotations.append(
-                        data[data["KEGG reaction"] == r.annotation["kegg.reaction"]][
-                            "Reactions"
-                        ].tolist()
-                    )
-                if (
-                    "metanetx.reaction" in r.annotation
-                    and r.annotation["metanetx.reaction"] in data["METANETX"].tolist()
-                ):
-                    annotations.append(
-                        data[data["METANETX"] == r.annotation["metanetx.reaction"]][
-                            "Reactions"
-                        ].tolist()
-                    )
-                if (
-                    "ec-code" in r.annotation
-                    and r.annotation["ec-code"] in data["EC-Number"].tolist()
-                ):
-                    annotations.append(
-                        data[data["EC-Number"] == r.annotation["ec-code"]][
-                            "Reactions"
-                        ].tolist()
-                    )
-
-                # check results
-                # no matches
-                if len(annotations) == 0:
-                    r.notes["BioCyc direction check"] = "not found"
-
-                # matches found
-                else:
-                    # built intersection
-                    intersec = set(annotations[0]).intersection(*annotations)
-                    # case 1: exactly one match remains
-                    if len(intersec) == 1:
-                        entry = intersec.pop()
-                        direction = data[data["Reactions"] == entry][
-                            "Reaction-Direction"
-                        ].iloc[0]
-                        r.annotation["metacyc.reaction"] = entry
-                        r.notes["BioCyc direction check"] = f"found {direction}"
-
-                    # case 2: multiple matches found -> inconclusive
-                    else:
-                        r.notes["BioCyc direction check"] = f"found, but inconclusive"
-
-            # update direction if possible and needed
-            if not pd.isnull(direction):
-                if "REVERSIBLE" in direction:
-                    # set reaction as reversible by setting default values for upper and lower bounds
-                    r.lower_bound = -1000.0
-                elif "RIGHT-TO-LEFT" in direction:
-                    # invert the default values for the boundaries
-                    r.lower_bound = -1000.0
-                    r.upper_bound = 0.0
-                else:
-                    # left to right case is the standart for adding reactions
-                    # = nothing left to do
-                    continue
-    return model
-
 
 def cleanup(
     model: str,
@@ -422,7 +389,7 @@ def cleanup(
     biocyc_db: str = None,
     run_gene_gapfiller: Union[None, dict] = None,
     check_dupl_reac: bool = False,
-    check_dupl_meta: bool = "default",
+    check_dupl_meta: Literal["default", "exhaustive", "skip"] = "default",
     remove_unused_meta: bool = False,
     remove_dupl_reac: bool = False,
     remove_dupl_meta: bool = False,
@@ -455,7 +422,7 @@ def cleanup(
         - run_gene_gapfiller (Union[None,dict], optional):
             If a dictionary is given, tries to run the GeneGapFiller.
             If set to None, the gap-filling will be skipped
-            The dictionary needs to contain the keys saved in :py:data:`~specimen.hqtb.core.refinement.cleanup.GGF_REQS`.
+            The dictionary needs to contain the keys saved in :py:data:`~specimen.hqtb.core.refinement.GGF_REQS`.
             Defaults to None.
         - check_dupl_reac (bool, optional):
             Option to check for duplicate reactions.
@@ -522,7 +489,7 @@ def cleanup(
     # -------------
     # start program
     # -------------
-    print(
+    logger.info(
         "\nrefinement step 2: clean-up\n################################################################################\n"
     )
 
@@ -532,9 +499,41 @@ def cleanup(
 
     try:
         Path(dir, "step2-clean-up").mkdir(parents=True, exist_ok=False)
-        print(f'Creating new directory {str(Path(dir,"step2-clean-up"))}')
+        logger.info(f'Creating new directory {str(Path(dir,"step2-clean-up"))}')
     except FileExistsError:
-        print("Given directory already has required structure.")
+        logger.info("Given directory already has required structure.")
+    
+    # set path for logging file
+    Path(dir, "step2-clean-up", "cleanup.log").unlink(missing_ok=True)
+    handler = logging.handlers.RotatingFileHandler(
+        str(Path(dir, "step2-clean-up", "cleanup.log")),
+        mode="w",
+        # maxBytes=1000,
+        backupCount=10,
+        encoding="utf-8",
+        delay=0,
+    )
+    handler.setFormatter(
+        logging.Formatter(
+            "{levelname} \t {name} \t {message}",
+            style="{",
+        )
+    )
+    logger.addHandler(handler)
+    
+    # redirect cobrapy logging
+    cobralogger = logging.getLogger("cobra")
+    cobralogger.addHandler(handler)
+    cobralogger.propagate = False
+    # redirect matplotlib logging
+    mpllogger = logging.getLogger("matplotlib")
+    mpllogger.addHandler(handler)
+    mpllogger.propagate = False
+    # redirect refinegems logging
+    rglogger = logging.getLogger("refinegems")
+    rglogger.addHandler(handler)
+    rglogger.propagate = False
+        
 
     model = cobra.io.read_sbml_model(model)
 
@@ -544,21 +543,21 @@ def cleanup(
 
     if biocyc_db:
 
-        print("\n# --------------------\n# check direction\n# --------------------")
+        logger.info("\n# --------------------\n# check direction\n# --------------------")
 
         start = time.time()
 
         # check direction
-        model = check_direction(model, biocyc_db)
+        model = check_direction(model, biocyc_db, ("notes","creation","via template"))
 
         end = time.time()
-        print(f"\ttime: {end - start}s")
+        logger.info(f"\ttime: {end - start}s")
 
     # ----------
     # gapfilling
     # ----------
 
-    print("\n# ----------\n# gapfilling\n# ----------")
+    logger.info("\n# ----------\n# gapfilling\n# ----------")
     start = time.time()
 
     # gapfilling
@@ -568,11 +567,7 @@ def cleanup(
     # -------------
     if run_gene_gapfiller:
         # load model with libsbml
-        libmodel = None
-        with NamedTemporaryFile(suffix=".xml", delete=False) as tmp:
-            write_model_to_file(model, tmp.name)
-            libmodel = load_model(tmp.name, "libsbml")
-        os.remove(tmp.name)
+        libmodel = convert_cobra_to_libsbml(model, "notes")
 
         # run the gene gap filler
         ggf = GeneGapFiller()
@@ -612,7 +607,7 @@ def cleanup(
             model = load_model(tmp.name, "cobra")
         os.remove(tmp.name)
 
-        ggf.report(Path(dir, "step2-cleanup"))
+        ggf.report(Path(dir, "step2-clean-up"))
 
     # gap-filling via COBRApy medium
     # ------------------------------
@@ -625,7 +620,7 @@ def cleanup(
         media_list = load_media(media_path)
 
     #   separate option for cobra gapfilling
-    if len(media_list) > 0:
+    if len(media_list) > 0 and universal:
         # load universal model
         universal_model = load_model(universal, "cobra")
         # run gapfilling
@@ -640,12 +635,12 @@ def cleanup(
         )
 
     end = time.time()
-    print(f"\ttime: {end - start}s")
+    logger.info(f"\ttime: {end - start}s")
 
     # -----------------
     # resove duplicates
     # -----------------
-    print("\n# -----------------\n# resolve duplicates\n# -----------------")
+    logger.info("\n# -----------------\n# resolve duplicates\n# -----------------")
     start = time.time()
 
     model = resolve_duplicates(
@@ -658,7 +653,7 @@ def cleanup(
     )
 
     end = time.time()
-    print(f"\ttime: {end - start}s")
+    logger.info(f"\ttime: {end - start}s")
 
     # ---------------------
     # dead ends and orphans
@@ -680,6 +675,14 @@ def cleanup(
         memote_path = str(Path(dir, "step2-clean-up", name + ".html"))
         run_memote(model, "html", return_res=False, save_res=memote_path, verbose=True)
 
+
+    # restore logging behaviour 
+    cobralogger.handlers.clear()
+    cobralogger.propagate = False
+    mpllogger.handlers.clear()
+    mpllogger.propagate = False 
+    rglogger.handlers.clear()
+    rglogger.propagate = False 
 
 # Part 3: annotation
 # ------------------
@@ -717,7 +720,7 @@ def annotate(
             Defaults to False.
     """
 
-    print(
+    logger.info(
         "\nrefinement step 3: annotation\n################################################################################\n"
     )
 
@@ -727,9 +730,40 @@ def annotate(
 
     try:
         Path(dir, "step3-annotation").mkdir(parents=True, exist_ok=False)
-        print(f'Creating new directory {str(Path(dir,"step3-annotation"))}')
+        logger.info(f'Creating new directory {str(Path(dir,"step3-annotation"))}')
     except FileExistsError:
-        print("Given directory already has required structure.")
+        logger.info("Given directory already has required structure.")
+        
+    # set path for logging file
+    Path(dir, "step3-annotation", "annotation.log").unlink(missing_ok=True)
+    handler = logging.handlers.RotatingFileHandler(
+        str(Path(dir, "step3-annotation", "annotation.log")),
+        mode="w",
+        # maxBytes=1000,
+        backupCount=10,
+        encoding="utf-8",
+        delay=0,
+    )
+    handler.setFormatter(
+        logging.Formatter(
+            "{levelname} \t {name} \t {message}",
+            style="{",
+        )
+    )
+    logger.addHandler(handler)
+    
+    # redirect cobrapy logging
+    cobralogger = logging.getLogger("cobra")
+    cobralogger.addHandler(handler)
+    cobralogger.propagate = False
+    # redirect matplotlib logging
+    mpllogger = logging.getLogger("matplotlib")
+    mpllogger.addHandler(handler)
+    mpllogger.propagate = False
+    # redirect refinegems logging
+    rglogger = logging.getLogger("refinegems")
+    rglogger.addHandler(handler)
+    rglogger.propagate = False
 
     # --------------
     # Load the model
@@ -741,7 +775,7 @@ def annotate(
     # Polish annotations
     # ------------------
 
-    print(
+    logger.info(
         "\n# ----------------------------------\n# polish annotations\n# ----------------------------------"
     )
     start = time.time()
@@ -749,17 +783,17 @@ def annotate(
     model = polish_annotations(
         model,
         True,
-        str(Path(dir, "step3-annotation", model.getId() + "_annotations_polished.xml")),
+        str(Path(dir, "step3-annotation")),
     )
 
     end = time.time()
-    print(f"\ttime: {end - start}s")
+    logger.info(f"\ttime: {end - start}s")
 
     # ------------------
     # add SBO annotation
     # ------------------
 
-    print("\n# ------------------\n# add SBO annotation\n# ------------------")
+    logger.info("\n# ------------------\n# add SBO annotation\n# ------------------")
 
     start = time.time()
 
@@ -769,22 +803,22 @@ def annotate(
     )
 
     end = time.time()
-    print(f"\ttime: {end - start}s")
+    logger.info(f"\ttime: {end - start}s")
 
     # ----------------
     # add KEGG pathway
     # ----------------
-    print("\n# ----------------\n# add KEGG pathway\n# ----------------")
+    logger.info("\n# ----------------\n# add KEGG pathway\n# ----------------")
 
     start = time.time()
 
-    libmodel, nokegg = set_kegg_pathways(
-        str(Path(dir, "step3-annotation", model.getId() + "_SBOannotated.xml")),
+    nokegg = set_kegg_pathways(
+        model,
         viaEC=kegg_viaEC,
         viaRC=kegg_viaRC,
     )
     write_model_to_file(
-        libmodel,
+        model,
         str(Path(dir, "step3-annotation", model.getId() + "_keggpathways.xml")),
     )
     with open(str(Path(dir, "step3-annotation", "reac_no_keggORec")), "w") as f:
@@ -792,7 +826,7 @@ def annotate(
             f.write(f"{line}\n")
 
     end = time.time()
-    print(f"\ttime: {end - start}s")
+    logger.info(f"\ttime: {end - start}s")
 
     # ---------------------------------
     # assess model quality using memote
@@ -810,7 +844,15 @@ def annotate(
         memote_path = str(Path(dir, "step3-annotation", name + "_annotated.html"))
         run_memote(model, "html", return_res=False, save_res=memote_path, verbose=True)
         end = time.time()
-        print(f"\ttotal time: {end - start}s")
+        logger.info(f"\ttotal time: {end - start}s")
+        
+    # restore logging behaviour 
+    cobralogger.handlers.clear()
+    cobralogger.propagate = False
+    mpllogger.handlers.clear()
+    mpllogger.propagate = False 
+    rglogger.handlers.clear()
+    rglogger.propagate = False 
 
 
 # Part 4: smoothing
@@ -823,6 +865,8 @@ def smooth(
     dir: str,
     mcc="skip",
     egc_solver: None | Literal["greedy"] = None,
+    limit: int = 2,
+    chunksize: int = 1,
     namespace: Literal["BiGG"] = "BiGG",
     dna_weight_frac=0.023,
     ion_weight_frac=0.05,
@@ -851,6 +895,12 @@ def smooth(
             If given, uses the option to solve EGCs.
             Current options include greedy (Greedy Solver).
             Defaults to 'greedy'.
+        - limit (int, optional):
+            Maximal number of cores to use during ECG solving step.
+            Defaults to 2.
+        - chunksize (int, optional):
+            Chunksize to use for parallel processing of EGCs during solving.
+            Defaults to 1.
         - namespace (Literal['BiGG'], optional):
             Namespace to use for the model.
             Defaults to 'BiGG'.
@@ -865,7 +915,7 @@ def smooth(
             Defaults to False.
     """
 
-    print(
+    logger.info(
         "\nrefinement step 4: smoothing\n################################################################################\n"
     )
 
@@ -875,15 +925,46 @@ def smooth(
 
     try:
         Path(dir, "step4-smoothing").mkdir(parents=True, exist_ok=False)
-        print(f'Creating new directory {str(Path(dir,"step4-smoothing"))}')
+        logger.info(f'Creating new directory {str(Path(dir,"step4-smoothing"))}')
     except FileExistsError:
-        print("Given directory already has required structure.")
+        logger.info("Given directory already has required structure.")
 
     try:
         Path(dir, "manual_curation").mkdir(parents=True, exist_ok=False)
-        print(f'Creating new directory {str(Path(dir,"manual_curation"))}')
+        logger.info(f'Creating new directory {str(Path(dir,"manual_curation"))}')
     except FileExistsError:
-        print("Given directory already has required structure.")
+        logger.info("Given directory already has required structure.")
+        
+    # set path for logging file
+    Path(dir, "step4-smoothing", "smoothing.log").unlink(missing_ok=True)
+    handler = logging.handlers.RotatingFileHandler(
+        str(Path(dir, "step4-smoothing", "smoothing.log")),
+        mode="w",
+        # maxBytes=1000,
+        backupCount=10,
+        encoding="utf-8",
+        delay=0,
+    )
+    handler.setFormatter(
+        logging.Formatter(
+            "{levelname} \t {name} \t {message}",
+            style="{",
+        )
+    )
+    logger.addHandler(handler)
+    
+    # redirect cobrapy logging
+    cobralogger = logging.getLogger("cobra")
+    cobralogger.addHandler(handler)
+    cobralogger.propagate = False
+    # redirect matplotlib logging
+    mpllogger = logging.getLogger("matplotlib")
+    mpllogger.addHandler(handler)
+    mpllogger.propagate = False
+    # redirect refinegems logging
+    rglogger = logging.getLogger("refinegems")
+    rglogger.addHandler(handler)
+    rglogger.propagate = False
 
     # ---------
     # load data
@@ -895,23 +976,23 @@ def smooth(
     # ---------------
 
     if mcc == "apply":
-        print(
+        logger.info(
             "\n# ----------------------------------\n# mass and charge curation (applied)\n# ----------------------------------"
         )
         start = time.time()
         model = perform_mcc(model, Path(dir, "step4-smoothing"))
         end = time.time()
-        print(f"\ttime: {end - start}s")
+        logger.info(f"\ttime: {end - start}s")
     elif mcc == "extra":
-        print(
+        logger.info(
             "\n# --------------------------------\n# mass and charge curation (extra)\n# --------------------------------"
         )
         start = time.time()
         model = perform_mcc(model, Path(dir, "manual_curation"), False)
         end = time.time()
-        print(f"\ttime: {end - start}s")
+        logger.info(f"\ttime: {end - start}s")
     elif mcc == "skip":
-        print(
+        logger.info(
             "\n# ------------------------\n# mass and charge curation\n# ------------------------\n\tskipped"
         )
     else:
@@ -922,7 +1003,7 @@ def smooth(
     # ----------------------------------
     # check for energy generating cycles
     # ----------------------------------
-    print(
+    logger.info(
         "\n# ---------------------------------------------\n# # check for energy generating cycles\n# ---------------------------------------------"
     )
     start = time.time()
@@ -930,68 +1011,69 @@ def smooth(
     match egc_solver:
         # greedy solver
         case "greedy":
-            print("Using GreedyEGCSolver...")
-            solver = egcs.GreedyEGCSolver()
+            logger.info("Using GreedyEGCSolver...")
+            solver = egcs.GreedyEGCSolver(limit=limit, chunksize=chunksize)
             results = solver.solve_egcs(
                 model, namespace=namespace
             )  # automatically uses c,e as compartments
             if results:
                 for k, v in results.items():
-                    print(f"\t{k}: {v}")
+                    logger.info(f"\t{k}: {v}")
 
         # no solver = EGCs will only be reported
         case _:
-            solver = egcs.EGCSolver()
-            print(f"\tFound EGCs:\n")
-            print(
+            solver = egcs.EGCSolver(limit=limit, chunksize=chunksize)
+            logger.info(f"\tFound EGCs:\n")
+            logger.info(
                 f"\t{solver.find_egcs(model,with_reacs=True,namespace=namespace)}"
             )  # automatically uses c,e as compartments
 
     end = time.time()
-    print(f"\ttime: {end - start}s")
+    logger.info(f"\ttime: {end - start}s")
 
     # --------------------------
     # biomass objective function
     # --------------------------
     # adjust the BOF to the current genome
 
-    print("\n# ----------\n# adjust BOF\n# ----------")
+    logger.info("\n# ----------\n# adjust BOF\n# ----------")
     start = time.time()
 
-    with tempfile.NamedTemporaryFile(suffix=".xml", delete=False) as temp_model:
-        # generate an up-to-date model xml-file
-        cobra.io.write_sbml_model(model, temp_model.name)
-        # update BOF
-        pos_bofs = test_biomass_presence(model)
-        if pos_bofs:
-            model.reactions.get_by_id(pos_bofs[0]).reaction = adjust_BOF(
-                genome, temp_model.name, model, dna_weight_frac, ion_weight_frac
-            )
-            # optimise BOF(s)
-            model = check_normalise_biomass(model)
-        else:
-            # create new BOF
-            bof_reac = Reaction("Biomass_BOFdat")
-            bof_reac.name = "Biomass objective function created by BOFdat"
-            model.add_reactions([bof_reac])
-            model.reactions.get_by_id(bof_reac).reaction = adjust_BOF(
-                genome, temp_model.name, model, dna_weight_frac, ion_weight_frac
-            )
+    # update BOF
+    pos_bofs = test_biomass_presence(model)
+    if pos_bofs:
+        model.reactions.get_by_id(pos_bofs[0]).reaction = adjust_BOF(
+            genome, model, dna_weight_frac, ion_weight_frac
+        )
+        # optimise BOF(s)
+        model = check_normalise_biomass(model)
+    else:
+        # create new BOF
+        bof_reac = Reaction("Biomass_BOFdat")
+        bof_reac.name = "Biomass objective function created by BOFdat"
+        model.add_reactions([bof_reac])
+        model.reactions.get_by_id(bof_reac).reaction = adjust_BOF(
+            genome, model, dna_weight_frac, ion_weight_frac
+        )
 
-            # optimise BOF(s)
-            model = check_normalise_biomass(model)
-    os.remove(temp_model.name)
+    # optimise BOF(s)
+    model = check_normalise_biomass(model)
 
     end = time.time()
-    print(f"\ttime: {end - start}s")
+    logger.info(f"\ttime: {end - start}s")
+    
+    # prune model 
+    # (remove mass unbalanced reactions to ensure model consistency)
+    prune_mass_unbalanced_reacs(model)
+    
 
     # ----------------
     # save final model
     # ----------------
-    print("\n# ----------\n# save model\n# ----------")
+    logger.info("\n# ----------\n# save model\n# ----------")
     model_name = f"{model.id}_smooth"
     outname = Path(dir, "step4-smoothing", model_name + ".xml")
-    print(f"\tsaving to: {outname}")
+    logger.info(f"\tsaving to: {outname}")
     cobra.io.write_sbml_model(model, outname)
 
     # ---------------------------------
@@ -1001,3 +1083,11 @@ def smooth(
     if memote:
         memote_path = str(Path(dir, "step4-smoothing", model_name + ".html"))
         run_memote(model, "html", return_res=False, save_res=memote_path, verbose=True)
+    
+    # restore logging behaviour 
+    cobralogger.handlers.clear()
+    cobralogger.propagate = False
+    mpllogger.handlers.clear()
+    mpllogger.propagate = False 
+    rglogger.handlers.clear()
+    rglogger.propagate = False 

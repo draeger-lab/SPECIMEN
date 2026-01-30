@@ -81,7 +81,7 @@ parameters:
 
     ########## step 1: bidirectional blast ##########
     bidirectional_blast:
-        # options for giveng customised names and setting a header
+        # options for giving customised names and setting a header
         # -> default uses information from the models/files directly
         template_name: null
         input_name: null
@@ -106,12 +106,12 @@ parameters:
         # params for DIAMOND
         sensitivity: more-sensitive # change the sensitivity of DIAMOND
         coverage: 95.0              # Set the min. coverage 
-        pid: 90.0                   # set the minimal percentage identify value for valid hits
-        # params for adding entities during 
+        pid: 90.0                   # set the minimal percentage identity value for valid hits
+        # params for adding entities during extension
         formula-check: 'existence'  # When checking, if a metabolite can be added to the model
                               # also check the formula. For more information about
                               # available options, please refer to the docs of 
-                              # the function isreaction_comlete().
+                              # the function isreaction_complete().
         exclude-dna: True           # Exclude reactions containing 'DNA' in their name
                                     # from being added to the model.
         exclude-rna: True           # Exclude reactions containing 'RNA' in their name
@@ -184,6 +184,15 @@ parameters:
         dna_weight_frac: 0.023
         ion_weight_frac: 0.05
 
+    ########## step 4: validation ##########
+    validation: 
+        run_all: True # run all validation tests
+                      # if set to True, overwrites the following option 
+        tests:        # list of tests to run 
+                      # currently available: modelpolisher, cobra
+            - "modelpolisher"
+            - "cobra"
+
     ########## step 5: analysis ##########
     analysis:
         # How to compare to pan-core model (current option only id)
@@ -205,3 +214,6 @@ performance:
     gapfilling:
         iterations: 3
         chunk_size: 2000
+    egcs:
+        chunk_size: 10 # chunk soze for parallel processing during solving EGCs
+        limit: 2 # max numbers of cores to use while trying to solve EGCs

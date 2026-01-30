@@ -1,4 +1,4 @@
-"""Validate a model (part 4 of the workflow).
+"""Validate a model (step 4 of the workflow).
 
 Implemented tests in include:
 - cobra/sbml check using cobrapy
@@ -14,9 +14,15 @@ import cobra
 import logging
 import pprint
 import time
+import warnings
+
+import pandas as pd
 
 from pathlib import Path
-from typing import Literal
+from typing import Union
+
+from refinegems.utility.connections import run_ModelPolisher
+from refinegems.utility.io import write_model_to_file
 
 ################################################################################
 # setup logging
@@ -37,18 +43,24 @@ logger.propagate = False
 def run(
     dir: str,
     model_path: str,
-    tests: None | Literal["cobra"] = None,
+    tests: Union[None, str, list] = None,
     run_all: bool = True,
 ):
     """SPECIMEN Step 4: Validate the model.
+    
+    Included tests (name : description):
+    - modelpolisher: Semantic control and BiGG annotation fixing with ModelPolisher
+    - cobra: SBML validation using COBRApy
 
     Args:
         - dir (str):
             Path to the output directory.
         - model_path (str):
             Path to the model to be validated
-        - tests (None | Literal['cobra'], optional):
+        - tests (Union[None, str, list], optional):
             Tests to perform.
+            If the test name is either in a string or an element in a list, 
+            the corresponding test will be run.
             Defaults to None.
         - run_all (bool, optional):
             Run al available tests. If True, overwrites
@@ -58,7 +70,7 @@ def run(
 
     total_time_s = time.time()
 
-    # -----------------------
+    # -----------------------^
     # create output directory
     # -----------------------
 
@@ -95,13 +107,100 @@ def run(
     # --------------
     # validate model
     # --------------
+    
     logger.info(
         "\nvalidation\n################################################################################\n"
     )
+    
+    # generalise input 
+    match tests:
+        case None:
+            pass
+        case str():
+            tests = tests.lower()
+        case list():
+            tests = [t.lower() for t in tests]
+        case _:
+            warnings.warn(f"Tests parameter must be of type str or list, got {type(tests)}. Setting to None.")
+            tests = None
+            
+    # ModelPolisher 
+    # -------------
+    
+    if run_all or (tests and "modelpolisher" in tests):
+        logger.info(
+            "\n"
+            "# -------------\n"
+            "# ModelPolisher\n"
+            "# -------------"
+        )
+        logger.warning('ModelPolisher is currently not maintained and might not work as expected. Use at your own risk.')
+        start = time.time()
+        
+        # generate specific directory for ModelPolisher output
+        try:
+            Path(dir, "04_validation", "modelpolisher").mkdir(parents=True, exist_ok=False)
+            logger.info(f'Creating new directory {str(Path(dir,"04_validation", "modelpolisher"))}')
+        except FileExistsError:
+            logger.info("Given directory already has required structure.")
+        
+        # setting ModelPolisher params
+        config_mp = {
+            "allow-model-to-be-saved-on-server": False,
+            "fixing": {"dont-fix": False},
+            "annotation": {
+                "bigg": {
+                    "annotate-with-bigg": True,
+                    "include-any-uri": False,
+                }
+            },
+        }
 
+        # running ModelPolisher
+        result = run_ModelPolisher(str(model_path), config_mp)
+
+        # @DEBUG Should the run-id be saved somewhere for debugging purposes? result['run_id']
+        # @WARNING ModelPolisher is currently not maintained and might not work as expected
+        if result:
+            if len(result['diff']) > 1:
+                pd.DataFrame(result["diff"]).to_csv(
+                    Path(dir, "04_validation", "modelpolisher", "diff_mp.csv"),
+                    sep=";",
+                    header=False,
+                )
+            else:
+                logger.warning(f"{result['diff']}")
+            
+            pd.DataFrame(result["pre_validation"]).to_csv(
+                Path(dir, "04_validation", "modelpolisher", "pre_validation.csv"),
+                sep=";",
+                header=True,
+            )
+            pd.DataFrame(result["post_validation"]).to_csv(
+                Path(dir, "04_validation", "modelpolisher", "post_validation.csv"),
+                sep=";",
+                header=True,
+            )
+
+            # save model
+            model_polisher_model_path = Path(dir, "04_validation", f"{Path(model_path).stem}_after_mp.xml")
+            current_libmodel = result["polished_document"].getModel()
+            write_model_to_file(current_libmodel, model_polisher_model_path)
+
+        else:
+            logger.warning('No result was produced with ModelPolisher. This step will be skipped.')
+        
+        end = time.time()
+        logger.info(f"\ttime: {end - start}s")
+    
+    # COBRApy 
+    # -------
     if run_all or (tests and "cobra" in tests):
         logger.info(
-            "\n# ---------------------------------\n# validate model - cobra validation\n# ---------------------------------"
+            "\n"
+            "# ------------------\n"
+            "# COBRApy validation\n"
+            "# ------------------"
         )
         start = time.time()
 
