@@ -29,7 +29,7 @@ from refinegems.utility.util import test_biomass_presence
 from refinegems.curation.biomass import check_normalise_biomass
 from refinegems.curation.charges import correct_charges_modelseed
 from refinegems.curation.curate import resolve_duplicates, check_direction, polish_model, prune_mass_unbalanced_reacs, add_ECO_terms
-from refinegems.curation.miriam import change_all_qualifiers
+from refinegems.curation.miriam import change_all_qualifiers, polish_annotations
 from refinegems.classes.gapfill import KEGGapFiller, BioCycGapFiller, GeneGapFiller, KEGGapFiller_via_homolog
 from refinegems.curation.pathways import set_kegg_pathways, kegg_pathway_analysis
 from refinegems.utility.entities import (
@@ -345,7 +345,6 @@ def run(configpath: Union[str, None] = None):
             email=config["tech-resources"]["email"],
             lab_strain=config["cm-polish"]["is_lab_strain"],
             kegg_organism_id=config["general"]["kegg_organism_id"],
-            reaction_direction=None, # Currently disabled as underlying function generalises bad.
             outpath=str(current_sub_dir),
         )
         # rg correct charges
@@ -601,6 +600,70 @@ def run(configpath: Union[str, None] = None):
         between_growth_test(current_model, config, step="after_gapfill")
         between_analysis(current_model, config, step="after_gapfill")
 
+    # model cleanup - part 1
+    ########################
+
+    # duplicates
+    # ----------
+    
+    logger.info("Handling duplicates ...")
+    step_start = time.time()
+    
+    match config["duplicates"]["reactions"]:
+        case "remove":
+            check_dupl_reac = True
+            remove_dupl_reac = True
+        case "check":
+            check_dupl_reac = True
+            remove_dupl_reac = False
+        case "skip":
+            check_dupl_reac = False
+            remove_dupl_reac = False
+        case _:
+            mes = "Unknown input for duplicates - reactions: will be skipped"
+            logger.warning(mes)
+            check_dupl_reac = False
+            remove_dupl_reac = False
+
+    match config["duplicates"]["metabolites"]:
+        case "remove":
+            check_dupl_meta = "default"
+            remove_dupl_meta = True
+        case "check":
+            check_dupl_meta = "default"
+            remove_dupl_meta = False
+        case "skip":
+            check_dupl_meta = "skip"
+            remove_dupl_meta = False
+        case _:
+            mes = "Unknown input for duplicates - metabolites: will be skipped"
+            logger.warning(mes)
+            check_dupl_meta = "skip"
+            remove_dupl_meta = False
+
+    current_model = resolve_duplicates(
+        current_model,
+        check_reac=check_dupl_reac,
+        check_meta=check_dupl_meta,
+        replace_dupl_meta=remove_dupl_meta,
+        remove_unused_meta=config["duplicates"]["remove_unused_metabs"],
+        remove_dupl_reac=remove_dupl_reac,
+    )
+    
+    step_end = time.time()
+    logger.info(f"Duplicates\truntime: {step_end-step_start}s\n")
+
+    # save model
+    between_save(
+        current_model, MODEL_DIR, "after_duplicate_removal", only_modelpath
+    )
+
+    # in-between testing
+    between_growth_test(current_model, config, step="after_duplicate_removal")
+    between_analysis(current_model, config, step="after_duplicate_removal")
+
+    current_libmodel = convert_cobra_to_libsbml(current_model, 'notes')
+
     # ModelPolisher
     ###############
     if config["modelpolisher"]:
@@ -743,68 +806,9 @@ def run(configpath: Union[str, None] = None):
 
     current_model = _sbml_to_model(current_libmodel.getSBMLDocument())
     between_analysis(current_model, config, step="after_annotation")
-
-    # model cleanup
-    ###############
-
-    # duplicates
-    # ----------
     
-    logger.info("Handling duplicates ...")
-    step_start = time.time()
-    
-    match config["duplicates"]["reactions"]:
-        case "remove":
-            check_dupl_reac = True
-            remove_dupl_reac = True
-        case "check":
-            check_dupl_reac = True
-            remove_dupl_reac = False
-        case "skip":
-            check_dupl_reac = False
-            remove_dupl_reac = False
-        case _:
-            mes = "Unknown input for duplicates - reactions: will be skipped"
-            logger.warning(mes)
-            check_dupl_reac = False
-            remove_dupl_reac = False
-
-    match config["duplicates"]["metabolites"]:
-        case "remove":
-            check_dupl_meta = "default"
-            remove_dupl_meta = True
-        case "check":
-            check_dupl_meta = "default"
-            remove_dupl_meta = False
-        case "skip":
-            check_dupl_meta = "skip"
-            remove_dupl_meta = False
-        case _:
-            mes = "Unknown input for duplicates - metabolites: will be skipped"
-            logger.warning(mes)
-            check_dupl_meta = "skip"
-            remove_dupl_meta = False
-
-    current_model = resolve_duplicates(
-        current_model,
-        check_reac=check_dupl_reac,
-        check_meta=check_dupl_meta,
-        replace_dupl_meta=remove_dupl_meta,
-        remove_unused_meta=config["duplicates"]["remove_unused_metabs"],
-        remove_dupl_reac=remove_dupl_reac,
-    )
-    
-    step_end = time.time()
-    logger.info(f"Duplicates\truntime: {step_end-step_start}s\n")
-
-    # save model
-    between_save(
-        current_model, MODEL_DIR, "after_duplicate_removal", only_modelpath
-    )
-
-    # in-between testing
-    between_growth_test(current_model, config, step="after_duplicate_removal")
-    between_analysis(current_model, config, step="after_duplicate_removal")
+    # Model cleanup - part 2
+    ########################
 
     # reaction direction
     # ------------------
@@ -821,6 +825,18 @@ def run(configpath: Union[str, None] = None):
     between_save(
         current_model, MODEL_DIR, "after_reac_direction_change", only_modelpath
     )
+    
+    # MCC
+    # ---
+    logger.info("Running MCC ...")
+    step_start = time.time()
+    
+    current_model = perform_mcc(
+        current_model, Path(MISC_DIR, "mcc"), apply=True
+    )
+    
+    step_end = time.time()
+    logger.info(f"MCC\truntime: {step_end-step_start}s\n")
 
     # find and solve energy generating cycles
     # ---------------------------------------
@@ -902,28 +918,26 @@ def run(configpath: Union[str, None] = None):
 
     # save model
     between_save(current_model, MODEL_DIR, "after_BOF", only_modelpath)
-
-    # MCC
-    # ---
-    logger.info("Running MCC ...")
-    step_start = time.time()
-    
-    current_model = perform_mcc(
-        current_model, Path(MISC_DIR, "mcc"), apply=True
-    )
-    
-    step_end = time.time()
-    logger.info(f"MCC\truntime: {step_end-step_start}s\n")
     
     # prune model 
     # -----------
     # (remove mass unbalanced reactions to ensure model consistency)
     prune_mass_unbalanced_reacs(current_model)
 
-    # save the final model
+    # Clean-up & save the final model
+    # Set up directory for final result
+    current_sub_dir = Path(MISC_DIR, "clean-up")
+    try:
+        Path(current_sub_dir).mkdir(parents=True, exist_ok=False)
+        print(f"Creating new directory {current_sub_dir}")
+    except FileExistsError:
+        logger.warning(
+            f"Given directory {current_sub_dir} already exists. High possibility of files being overwritten."
+        )
     current_libmodel = convert_cobra_to_libsbml(current_model, 'notes')
     # move qualifiers to correct biological or model qualifier type 
-    change_all_qualifiers(current_libmodel, lab_strain=config["cm-polish"]["is_lab_strain"])
+    current_libmodel = polish_annotations(current_libmodel, True, str(current_sub_dir))
+    current_libmodel = change_all_qualifiers(current_libmodel, lab_strain=config["cm-polish"]["is_lab_strain"])
     between_save(current_libmodel, MODEL_DIR, "final_model", only_modelpath)
 
     # analysis
