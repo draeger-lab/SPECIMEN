@@ -27,7 +27,7 @@ from refinegems.utility.entities import (
 )
 from refinegems.utility.util import test_biomass_presence
 from refinegems.utility.connections import run_memote
-
+from refinegems.curation.curate import fix_reac_bounds
 from refinegems.utility.util import MIN_GROWTH_THRESHOLD
 
 # further required programs:
@@ -362,8 +362,10 @@ def gen_draft_model(
     # check genes, that have not gotten a new ID assigned
     draft = check_unchanged(draft, bbh)
 
-    # rename compartments to the standart
+    # rename compartments to the standard
     resolve_compartment_names(draft)
+    # smooth out potential issues with reaction bounds
+    fix_reac_bounds(draft)
 
     # for each object, save a note that it was added during draft construction
     for r in draft.reactions:
@@ -374,8 +376,9 @@ def gen_draft_model(
         m.notes["creation"] = "via template"
 
     # save draft model
+    old_desc = draft.id if draft.id else (draft.name if draft.name else "Unknown template")
     draft.id = name
-    draft.notes["Template model"] = draft.name
+    draft.notes["Template model"] = old_desc
     draft.notes["Description"] = (
         f'This model was created with SPECIMEN version {importlib.metadata.version("specimen")}'
     )
@@ -418,7 +421,7 @@ def run(
             If not given, takes name from filename.
             Defaults to None.
         - medium (str, optional):
-            Name of the to be loaded from the refineGEMs database or 'default' = the one
+            Name of the medium to be loaded from the refineGEMs database or 'default' = the one
             from the template model. If given the keyword 'exchanges', will use all exchange reactions in the model as a medium.
             Defaults to 'default'.
         - namespace (str, optional):
@@ -487,6 +490,10 @@ def run(
     )
 
     bbh_data = pd.read_csv(bpbbh, sep="\t")
+    # ensure, IDs are seen as strings
+    bbh_data["query_ID"] = bbh_data["query_ID"].astype(str)
+    bbh_data["subject_ID"] = bbh_data["subject_ID"].astype(str)
+    # load template
     template_model = load_model(template, "cobra")
     # if possible, set growth function as model objective
     growth_objfunc = test_biomass_presence(template_model)

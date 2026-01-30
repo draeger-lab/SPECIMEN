@@ -9,7 +9,6 @@ __author__ = "Carolin Brune"
 import click
 import logging
 import os
-import warnings
 import yaml
 
 from importlib.resources import files
@@ -126,12 +125,10 @@ def build_data_directories(
                 "logs": [],
                 "misc": [
                     'auxotrophy',
-                    'gapfill',
                     'growth',
-                    'kegg_pathway',
+                    'kegg_pathways',
                     'mcc',
                     'memote',
-                    'modelpolisher',
                     'stats',
                     ],
                 "models": [],
@@ -149,7 +146,7 @@ def build_data_directories(
                     Path(new_dir).mkdir(parents=True, exist_ok=False)
                     print(f"Creating new directory {new_dir}")
                 except FileExistsError:
-                    warnings.warn(
+                    logging.warning(
                         f"Given directory {new_dir} already exists. High possibility of files being overwritten."
                     )
 
@@ -158,51 +155,14 @@ def build_data_directories(
                     for ssdir in DATA_DIRECTORIES[sub_dir]:
                         new_sub_dir = Path(new_dir, ssdir)
 
-                    # Try to create sub sub directories: if exist, overwrite & warn user
-                    try:
-                        Path(new_sub_dir).mkdir(parents=True, exist_ok=False)
-                        print(f"Creating new sub directory {new_sub_dir}")
-                    except FileExistsError:
-                        warnings.warn(
-                            f"Given sub directory {new_sub_dir} already exists. High possibility of files being overwritten."
-                        )
-
-            # Path(parent_dir, "cmpb_out").mkdir(parents=True, exist_ok=False)  # cmpb_out
-            
-            # Path(parent_dir, "cmpb_out", "models").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #   |- models
-            # Path(parent_dir, "cmpb_out", "logs").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #   |- logs
-            # Path(parent_dir, "cmpb_out", "misc").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #   |- misc
-            
-            # Path(parent_dir, "cmpb_out", "misc", "memote").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #      |- memote
-            # Path(parent_dir, "cmpb_out", "misc", "mcc").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #      |- mcc
-            # Path(parent_dir, "cmpb_out", "misc", "gapfill").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #      |- gapfill
-            # Path(parent_dir, "cmpb_out", "misc", "growth").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #      |- growth
-            # Path(parent_dir, "cmpb_out", "misc", "stats").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #      |- stats
-            # Path(parent_dir, "cmpb_out", "misc", "modelpolisher").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #      |- modelpolisher
-            # Path(parent_dir, "cmpb_out", "misc", "kegg_pathway").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #      |- kegg_pathways
-            # Path(parent_dir, "cmpb_out", "misc", "auxotrophy").mkdir(
-            #     parents=True, exist_ok=False
-            # )  #      |- auxothrophy
+                        # Try to create sub sub directories: if exist, overwrite & warn user
+                        try:
+                            Path(new_sub_dir).mkdir(parents=True, exist_ok=False)
+                            print(f"Creating new sub directory {new_sub_dir}")
+                        except FileExistsError:
+                            logging.warning(
+                                f"Given sub directory {new_sub_dir} already exists. High possibility of files being overwritten."
+                            )
 
         # default case
         case _:
