@@ -187,7 +187,13 @@ parameters:
         ion_weight_frac: 0.05
 
     ########## step 4: validation ##########
-        # currrently no params available
+    validation: 
+        run_all: True # run all validation tests
+                      # if set to True, overwrites the following option 
+        tests:        # list of tests to run 
+                      # currently available: modelpolisher, cobra
+            # - "modelpolisher"
+            # - "cobra"
 
     ########## step 5: analysis ##########
     analysis:
@@ -210,3 +216,7 @@ performance:
     gapfilling:
         iterations: 3
         chunk_size: 2000
+    egcs:
+        chunk_size: 1 # chunk size for parallel processing during solving EGCs
+        limit: 2 # max numbers of cores to use while trying to solve EGCs
+

@@ -10,7 +10,7 @@ More information about the different files collected here can be found below.
 
 - ``test_modules``: <br>
     Test the different workflows their substeps. <br>
-    Status: Ready to run, just adjust the parameters
+    Status: not up to date
    
 ## Help with Coding
 

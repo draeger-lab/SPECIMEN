@@ -6,6 +6,7 @@ __author__ = "Carolin Brune"
 # requirements
 ################################################################################
 
+import cobra
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,13 +29,16 @@ from refinegems.classes.reports import ModelInfoReport
 class SpecimenModelInfoReport(ModelInfoReport):
     """A SPECIMEN-specific version of the
     ModelInfoReport for a given model.
+    Since this report is a child class of the ModelInfoReport of refineGEMs, 
+    it inherits its parameters. Attributes below are the newly addes ones.
 
     Attributes:
-        model:
-            The GEM loaded with COBRApy.
+        reac:_origin_counts (dict):
+            Dictionary with the label of th origin of the reactions as key and the 
+            corresponding counts as values.
     """
 
-    def __init__(self, model) -> None:
+    def __init__(self, model: cobra.Model) -> None:
 
         # call the superclass
         super().__init__(model)
@@ -86,8 +90,9 @@ class SpecimenModelInfoReport(ModelInfoReport):
                 Defaults to 'YlGn'.
 
         Returns:
-            tuple:
+            tuple: 
                 Two graphics (1) and (2):
+                
                 (1) matplotlib.figure.Figure: The original report figure.
                 (2) matplotlib.figure.Figure: Report for the creation origin.
         """

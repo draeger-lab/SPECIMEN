@@ -188,7 +188,7 @@ def run_diamond_blastp(
     dir: str, db: str, query: str, fasta_path: str, sensitivity: str, threads: int
 ):
     """Run DIAMOND blastp for a given database name and FASTA - relies on the structure
-    created by this file (bidirectional_blast.py).
+    created by :py:mod:`~specimen.hqtb.core.bidirectional_blast`.
 
     Args:
         - dir (str):
@@ -318,7 +318,7 @@ def bdbp_diamond(
 
 def extract_bestbdbp_hits(tvq: str, qvt: str, name: str, cov: float = 0.25):
     """Extract the best directional blastp hits from two tsv files,
-    which were generate by :py:func`~specimen.core.bidirectional_blast.bdbp_diamond`
+    which were generate by :py:func:`~specimen.hqtb.core.bidirectional_blast.bdbp_diamond`
     generated or similar steps.
 
     Args:

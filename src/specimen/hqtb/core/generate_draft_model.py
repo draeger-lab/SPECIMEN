@@ -1,4 +1,7 @@
-"""Generate a draft model from a template."""
+"""Generate a draft model from a template model.
+
+The basic idea has been adapted from Norsigian et al. (2020).
+"""
 
 __author__ = "Carolin Brune"
 ################################################################################
@@ -6,7 +9,6 @@ __author__ = "Carolin Brune"
 ################################################################################
 
 import cobra
-import copy
 import importlib.metadata
 import logging
 import numpy as np
@@ -25,7 +27,7 @@ from refinegems.utility.entities import (
 )
 from refinegems.utility.util import test_biomass_presence
 from refinegems.utility.connections import run_memote
-
+from refinegems.curation.curate import fix_reac_bounds
 from refinegems.utility.util import MIN_GROWTH_THRESHOLD
 
 # further required programs:
@@ -48,11 +50,13 @@ logger.propagate = False
 
 
 def pid_filter(data: pd.DataFrame, pid: float) -> pd.DataFrame:
-    """Filter the data based on PID threshold. Entries above the given value are kept.
+    """Filter the data based on PID threshold. Entries above the given value are 
+    retained.
 
     Args:
         - data (pd.DataFrame):
-            The data from bidirectional_blast.py containing at least a 'PID' column.
+            The data from teh previous step (see :py:mod:`~specimen.hqtb.core.bidirectional_blast`) 
+            containing at least a 'PID' column.
         - pid (float):
             PID threshold value, given in percentage e.g. 80.0.
 
@@ -105,7 +109,9 @@ def edit_template_identifiers(
 
 def remove_absent_genes(model: cobra.Model, genes: list[str]) -> cobra.Model:
     """Remove a list of genes from a given model.
-    Note: genes that are not found in the model are skipped.
+    
+    .. note:: 
+        Genes that are not found in the model are skipped.
 
     Args:
         - model (cobra.Model):
@@ -189,7 +195,8 @@ def rename_found_homologs(draft: cobra.Model, bbh: pd.DataFrame) -> cobra.Model:
         - draft (cobra.Model):
             The draft model with the to-be-renamed genes.
         - bbh (pd.DataFrame):
-            The table from the bidirectional_blast.py script containing the bidirectional blastp best hits information
+            The table from :py:func:`~specimen.hqtb.core.bidirectional_blast.run` containing 
+            the bidirectional blastp best hits information
 
     Returns:
         cobra.Model:
@@ -256,7 +263,8 @@ def check_unchanged(draft: cobra.Model, bbh: pd.DataFrame) -> cobra.Model:
         - draft (cobra.Model):
             The draft model currently in the making.
         - bbh (pd.DataFrame):
-            The table from the bidirectional_blast.py script containing the bidirectional blastp best hits information.
+            The table from :py:func:`~specimen.hqtb.core.bidirectional_blast.run` 
+            containing the bidirectional blastp best hits information.
 
     Returns:
         cobra.Model:
@@ -354,8 +362,10 @@ def gen_draft_model(
     # check genes, that have not gotten a new ID assigned
     draft = check_unchanged(draft, bbh)
 
-    # rename compartments to the standart
+    # rename compartments to the standard
     resolve_compartment_names(draft)
+    # smooth out potential issues with reaction bounds
+    fix_reac_bounds(draft)
 
     # for each object, save a note that it was added during draft construction
     for r in draft.reactions:
@@ -366,8 +376,9 @@ def gen_draft_model(
         m.notes["creation"] = "via template"
 
     # save draft model
+    old_desc = draft.id if draft.id else (draft.name if draft.name else "Unknown template")
     draft.id = name
-    draft.notes["Template model"] = draft.name
+    draft.notes["Template model"] = old_desc
     draft.notes["Description"] = (
         f'This model was created with SPECIMEN version {importlib.metadata.version("specimen")}'
     )
@@ -410,7 +421,7 @@ def run(
             If not given, takes name from filename.
             Defaults to None.
         - medium (str, optional):
-            Name of the to be loaded from the refineGEMs database or 'default' = the one
+            Name of the medium to be loaded from the refineGEMs database or 'default' = the one
             from the template model. If given the keyword 'exchanges', will use all exchange reactions in the model as a medium.
             Defaults to 'default'.
         - namespace (str, optional):
@@ -421,7 +432,7 @@ def run(
             Defaults to False.
 
     Raises:
-        - ValueError: 'Edit_names value {edit_names} not in list of allowed values: no, dot-to-underscore'
+        - ValueError: 'Edit_names value not in list of allowed values: no, dot-to-underscore'
     """
     total_time_s = time.time()
 
@@ -479,6 +490,10 @@ def run(
     )
 
     bbh_data = pd.read_csv(bpbbh, sep="\t")
+    # ensure, IDs are seen as strings
+    bbh_data["query_ID"] = bbh_data["query_ID"].astype(str)
+    bbh_data["subject_ID"] = bbh_data["subject_ID"].astype(str)
+    # load template
     template_model = load_model(template, "cobra")
     # if possible, set growth function as model objective
     growth_objfunc = test_biomass_presence(template_model)
@@ -533,6 +548,6 @@ def run(
     total_time_e = time.time()
     logger.info(f"total runtime: {total_time_e-total_time_s}")
 
-    # restore cobrapy logging behaviour
+    # restore logging behaviour
     cobralogger.handlers.clear()
-    cobralogger.propagate = False
+    cobralogger.propagate = False    

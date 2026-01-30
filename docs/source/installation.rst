@@ -1,8 +1,8 @@
 Installation
 ==============
 
-Installation via github
------------------------
+Installation via GitHub/pip
+---------------------------
 Download the ``SPECIMEN`` repository `here <https://github.com/cb-Hades/klebsiella-pipeline/tree/main>`_ 
 and run the command :code:`pip install -e .` inside the top-level directory.
 
@@ -22,6 +22,49 @@ For all options to run error-free, the following tools need to be installed addi
   via conda on Windows)
 
 Afterwards, ``SPECIMEN`` can either be accessed via the command line or via importing the package into a Python script.
+
+``SPECIMEN`` can also be used via Docker. To build the docker image, firtsly clone the repository:
+
+.. code:: console
+   :class: copyable
+
+   git clone "https://github.com/draeger-lab/specimen.git"
+
+Then change into the directory and build the image:
+
+.. code:: console
+   :class: copyable
+
+   cd specimen \
+   docker build -t specimen .
+
+.. note:: 
+
+   To provide the input files and retrieve the output files mount one folder as workspace folder to the Docker image 
+   with `-v`.
+
+The default command executed by the image is ``specimen -h`` and provides the help information for the CLI of 
+``SPECIMEN``.
+
+.. code:: console
+   :class: copyable
+
+   docker run specimen
+
+To use the image interactively and open a bash shell, run the following command:
+
+.. code:: console
+   :class: copyable
+
+   docker run -it --entrypoint bash specimen
+
+To use the image for specific commands, you can simply use every of the CLI commands as entrypoint. 
+For example, to run the CMPB pipeline, use:
+
+.. code:: console
+   :class: copyable
+
+   docker run --name <container_name> -v <user_folder>:/sp_cont specimen cmpb run ./path/to/CMPB_config.yaml
 
 .. hint::
 

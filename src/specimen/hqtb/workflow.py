@@ -1,9 +1,4 @@
 """Functions to run the workflow to create a GEM based on a high-quality template model.
-
-.. warning::
-
-    This module is under heavy construction due to added content and
-    changes in refineGEMs.
 """
 
 __author__ = "Carolin Brune"
@@ -21,18 +16,23 @@ import yaml
 from datetime import date
 from pathlib import Path
 
+from refinegems.utility.io import mimic_genbank
+from refinegems.developement.decorators import suppress_warning
+
 from . import core
 from .. import util
 
 # further required programs:
 #        - DIAMOND, tested with version 0.9.14 (sensitivity options fail), >2.0.4 (everything works)
-#        - MEMOTE,  tested with version 0.13.0
+#        - MEMOTE,  tested with version >=0.13.0
 
 ################################################################################
 # functions
 ################################################################################
 
-
+# since * can be allowed by gapfiller and will be checked in validation, 
+# separate report is suppressed here
+@suppress_warning("invalid character '*' found in formula") 
 def run(config_file: str = "test_config.yaml"):
     """Run the complete workflow for creating a strain-specific model.
 
@@ -42,7 +42,7 @@ def run(config_file: str = "test_config.yaml"):
             Defaults to 'test_config.yaml'.
 
     Raises:
-        - ValueError: Unkown file extension {extension} for file {config["subject"]["annotated_genome"]}.
+        - ValueError: Unkown file extension.
     """
 
     # read in the configuration file
@@ -148,7 +148,14 @@ def run(config_file: str = "test_config.yaml"):
 
             # step 3.1: extension
             # ...................
-
+            
+            # set a GenBank format FASTA for the extension step (needed for the GapFiller)
+            if config["parameters"]["refinement_cleanup"]["GeneGapFiller parameters"]["fasta"]:
+                fasta_path = config["parameters"]["refinement_cleanup"]["GeneGapFiller parameters"]["fasta"]
+            else:
+                fasta_path = mimic_genbank(config["subject"]["annotated_genome"], config["subject"]["gff"],
+                                       str(Path(config["general"]["dir"])))
+            
             core.refinement.extend(
                 draft=Path(
                     config["general"]["dir"],
@@ -156,11 +163,9 @@ def run(config_file: str = "test_config.yaml"):
                     modelname + "_draft.xml",
                 ),
                 gff=config["subject"]["gff"],
-                fasta=config["subject"][
-                    "annotated_genome"
-                ],  # with all - expected - input
+                fasta=fasta_path, 
                 db=config["data"]["diamond"],
-                dir=Path(config["general"]["dir"] + "03_refinement"),
+                dir=Path(config["general"]["dir"], "03_refinement"),
                 ncbi_mapping=config["data"]["ncbi_map"],
                 email=config["parameters"]["general"]["email"],
                 sensitivity=config["parameters"]["refinement_extension"]["sensitivity"],
@@ -298,11 +303,13 @@ def run(config_file: str = "test_config.yaml"):
                     config["general"]["dir"],
                     "03_refinement",
                     "step3-annotation",
-                    modelname + "_annotated.xml",
+                    modelname + "_keggpathways.xml",
                 ),
                 Path(config["general"]["dir"], "03_refinement"),
                 mcc=config["parameters"]["refinement_smoothing"]["mcc"],
                 egc_solver=config["parameters"]["refinement_smoothing"]["egc"],
+                limit=config["performance"]["egcs"]["limit"],
+                chunksize=config["performance"]["egcs"]["chunk_size"],
                 namespace=config["template"]["namespace"],
                 dna_weight_frac=config["parameters"]["refinement_smoothing"][
                     "dna_weight_frac"
@@ -328,8 +335,8 @@ def run(config_file: str = "test_config.yaml"):
                     "step4-smoothing",
                     modelname + "_smooth.xml",
                 ),
-                tests=None,
-                run_all=True,
+                tests=config["parameters"]["validation"]["tests"], 
+                run_all=config["parameters"]["validation"]["run_all"], 
             )
 
     # step 5: analysis
