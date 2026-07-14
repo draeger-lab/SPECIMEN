@@ -1,7 +1,4 @@
-# Configuration file for the SPECIMEN HQTB pipeline
-
-# This is the advaned config file. For a shorter version, 
-# download the hqtb-basic configuration file.
+# Configuration file for the SPECIMEN HTQB pipeline
 
 # Meaning of the default parameters:
 #    The value __USER__ indicates parameters required to be specified by the user
@@ -30,6 +27,7 @@ subject:
 template:
     annotated_genome: __USER__
     model: __USER__
+    namespace: BiGG
 
 # information about the output
 # ----------------------------
@@ -71,7 +69,6 @@ data:
 # -----------------------------------------------
 
 parameters:
-
     ########## general ##########
     general:
         idprefix: 'HQTB'    # prefix to use for fantasy IDs, if IDs for 
@@ -81,13 +78,12 @@ parameters:
 
     ########## step 1: bidirectional blast ##########
     bidirectional_blast:
-        # options for giving customised names and setting a header
-        # -> default uses information from the models/files directly
+        # default should suffice except special cases
         template_name: null
         input_name: null
         temp_header: null
         in_header: null
-        # change the sensitivity of DIAMOND
+        # can be set by user if wanted, but not necessary
         sensitivity: more-sensitive
 
     ########## step 2: generaft draft model ##########
@@ -95,10 +91,8 @@ parameters:
         # if the gene ids of the template model do not match the
         # identifiers of the annotated genome file, use this option to edit them
         edit_names: "no"
-        # filter for genes based on percentage identity value
         pid: 80.0
-        # Which medium to save the model with.
-        medium: default
+        medium: default 
 
     ########## step 3: refinement ###########
     ########## step 3.1: extension ##########
@@ -106,12 +100,12 @@ parameters:
         # params for DIAMOND
         sensitivity: more-sensitive # change the sensitivity of DIAMOND
         coverage: 95.0              # Set the min. coverage 
-        pid: 90.0                   # set the minimal percentage identity value for valid hits
-        # params for adding entities during extension
+        pid: 90.0                   # set the minimal percentage identify value for valid hits
+        # params for adding entities during 
         formula-check: 'existence'  # When checking, if a metabolite can be added to the model
                               # also check the formula. For more information about
                               # available options, please refer to the docs of 
-                              # the function isreaction_complete().
+                              # the function isreaction_comlete().
         exclude-dna: True           # Exclude reactions containing 'DNA' in their name
                                     # from being added to the model.
         exclude-rna: True           # Exclude reactions containing 'RNA' in their name
@@ -122,6 +116,9 @@ parameters:
 
     ########## step 3.2: cleanup ##########
     refinement_cleanup:
+        
+        # gap-filling
+        # """""""""""
         
         # general options _________________________________________
         # parameters, that apply to all the gap filling algorithms
@@ -140,7 +137,10 @@ parameters:
                                     # the high probability of false positives. 
         
         # enable algorithms ________________________________________
-
+        # via KEGG ..................
+        # ...
+        # via BioCyc .................
+        # ...
         # via GFF ....................
         GeneGapFiller: False              # Activate gap filling via GFF
         GeneGapFiller parameters: 
@@ -160,6 +160,7 @@ parameters:
         media_gap: null             # path to a medium config file. Set it to null to skip this gapfiller
         growth_threshold: 0.05      # Threshold value for minimal growth, that is required for the media.
 
+
         # duplicate handling 
         # """"""""""""""""""
         
@@ -168,6 +169,7 @@ parameters:
         remove_unused_meta: False
         remove_dupl_reac: True
         remove_dupl_meta: True
+
 
     ########## step 3.3: annotation ##########
     refinement_annotation:
@@ -190,15 +192,15 @@ parameters:
                       # if set to True, overwrites the following option 
         tests:        # list of tests to run 
                       # currently available: modelpolisher, cobra
-            - "modelpolisher"
-            - "cobra"
+            # - "modelpolisher"
+            # - "cobra"
 
     ########## step 5: analysis ##########
     analysis:
         # How to compare to pan-core model (current option only id)
         pc_based_on: id
         # simulate growth on different media (media config file (refineGEMs) required)
-        media_analysis: __USER__
+        media_analysis: __USER__ 
         # test for amino acid auxotrophies
         test_aa_auxotrophies: True
         # perform pathway analysis with KEGG
@@ -215,5 +217,6 @@ performance:
         iterations: 3
         chunk_size: 2000
     egcs:
-        chunk_size: 10 # chunk soze for parallel processing during solving EGCs
+        chunk_size: 1 # chunk size for parallel processing during solving EGCs
         limit: 2 # max numbers of cores to use while trying to solve EGCs
+
