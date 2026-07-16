@@ -40,6 +40,7 @@ logger.propagate = False
 # run this part
 # -------------
 
+
 @suppress_warning("invalid character '*' found in formula")
 def run(
     model_path: str,
@@ -50,6 +51,7 @@ def run(
     pc_based_on: Literal["id"] = "id",
     test_aa_auxotrophies: bool = True,
     pathway: bool = True,
+    generate_frog: bool = False,
 ):
     """SPECIMEN Step 5: Analyse the generated model.
 
@@ -76,6 +78,9 @@ def run(
         - pathway (bool, optional):
             Optional to enable KEGG pathway analysis.
             Defaults to True.
+        - generate_frog (bool, optional):
+            Optional to enable FROG report generation.
+            Defaults to False.
     """
 
     total_time_s = time.time()
@@ -93,7 +98,7 @@ def run(
         genlogger.info(f'Creating new directory {Path(dir,"05_analysis")}')
     except FileExistsError:
         genlogger.info("Given directory already has required structure.")
-        
+
     # set path for logging file
     Path(dir, "05_analysis", "analysis.log").unlink(missing_ok=True)
     handler = logging.handlers.RotatingFileHandler(
@@ -111,7 +116,7 @@ def run(
         )
     )
     logger.addHandler(handler)
-    
+
     # redirect cobrapy logging
     cobralogger = logging.getLogger("cobra")
     cobralogger.addHandler(handler)
@@ -136,18 +141,17 @@ def run(
 
     statistics_report = SpecimenModelInfoReport(model)
     statistics_report.save(Path(dir, "05_analysis"))
-    
+
     # ------
     # memote
     # ------
-    
+
     logger.info("\n# ------\n# memote\n# ------")
-    
+
     run_memote(
         model,
         "html",
         save_res=Path(dir, "05_analysis", "final_memote.html"),
-        
     )
 
     # -----------------
@@ -199,6 +203,31 @@ def run(
                 model, media_list[0], media_list[1], namespace
             )
             auxo_report.save(Path(dir, "05_analysis"))
+
+    # -----------
+    # FROG report
+    # -----------
+
+    if generate_frog:
+        logger.info("\n# -----------\n# FROG report\n# -----------")
+        try:
+            import fbc_curation
+
+            frog_out_dir = Path(dir, "05_analysis", "FROG_report")
+            frog_out_dir.mkdir(parents=True, exist_ok=True)
+
+            genlogger.info(f"Generating FROG report in {frog_out_dir}...")
+            # Generate the report based on the SBML model file
+            fbc_curation.run_frog(str(model_path), str(frog_out_dir))
+            genlogger.info("FROG report successfully generated.")
+
+        except ImportError:
+            logger.error(
+                "The 'fbc_curation' package is not installed. Cannot generate FROG report. "
+                "Please install it using 'pip install fbc-curation'."
+            )
+        except Exception as e:
+            logger.error(f"FROG report generation failed: {e}")
 
     total_time_e = time.time()
     logger.info(f"total runtime: {total_time_e-total_time_s}")
