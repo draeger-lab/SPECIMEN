@@ -1,0 +1,74 @@
+name: Workflow suggestion
+description: Propose a new SPECIMEN workflow, workflow step, or change to pipeline structure.
+title: "[Workflow]: "
+labels: ["workflow", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for suggestions that affect SPECIMEN pipeline structure, workflow order, configuration behavior, or complete-run validation.
+  - type: dropdown
+    id: workflow
+    attributes:
+      label: Target workflow
+      options:
+        - CMPB
+        - HQTB
+        - PGAB
+        - New workflow
+        - Cross-workflow change
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: What modelling, curation, reproducibility, or usability problem should this workflow change solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_flow
+    attributes:
+      label: Proposed workflow structure
+      description: Describe the proposed steps, their order, and how data should move between them.
+      placeholder: |
+        1. Input preparation:
+        2. Draft model generation:
+        3. Refinement:
+        4. Validation:
+        5. Reports/output:
+    validations:
+      required: true
+  - type: textarea
+    id: inputs_outputs
+    attributes:
+      label: Inputs, outputs, and example data
+      description: List required inputs, generated outputs, reports, and example datasets or files that would help validate the workflow.
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Configuration impact
+      description: Describe new or changed configuration keys, defaults, compatibility concerns, and migration needs.
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: External tools and computational requirements
+      description: List required software, databases, versions, network access, runtime, memory, disk, or Docker considerations.
+  - type: textarea
+    id: validation
+    attributes:
+      label: Complete-run validation plan
+      description: How should maintainers test that this workflow works end to end and does not break existing workflows?
+    validations:
+      required: true
+  - type: textarea
+    id: docs
+    attributes:
+      label: Documentation, diagrams, and examples
+      description: Which Sphinx pages, HowTo notebooks, pipeline diagrams, or example input/output should be added or updated?
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Are there simpler workflow changes, existing tools, or current SPECIMEN steps that could solve this instead?

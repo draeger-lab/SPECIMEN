@@ -1,0 +1,95 @@
+name: Bug report
+description: Report a reproducible SPECIMEN workflow, configuration, documentation, or external-tool problem.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a SPECIMEN issue. Please include enough workflow and environment detail for maintainers to reproduce the problem.
+  - type: dropdown
+    id: workflow
+    attributes:
+      label: Affected workflow or area
+      options:
+        - CMPB
+        - HQTB
+        - PGAB
+        - Configuration templates
+        - Documentation
+        - Example notebooks or datasets
+        - External tool interface
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the problem and where the workflow failed.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include the command, configuration file, and minimal input data when possible.
+      placeholder: |
+        1. Installed with ...
+        2. Ran ...
+        3. Used configuration ...
+        4. Observed ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      description: What output, report, or workflow behavior did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result, logs, or traceback
+      description: Paste relevant logs, generated reports, or tracebacks.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Configuration details
+      description: Paste relevant configuration sections. Remove private paths, tokens, or unpublished data.
+      render: yaml
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment and external tools
+      description: Include SPECIMEN commit/version, Python version, OS, installation method, and external tool versions.
+      placeholder: |
+        SPECIMEN:
+        Python:
+        OS:
+        Install method:
+        refineGEMs:
+        CarveMe:
+        DIAMOND:
+        EntrezDirect:
+        Docker:
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation context
+      description: Did this fail in a complete pipeline run, a single step, or after changing a configuration template?
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission checks
+      options:
+        - label: I searched existing issues for a similar report.
+          required: true
+        - label: I removed private data, credentials, and unpublished sensitive paths from this report.
+          required: true
