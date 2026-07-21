@@ -19,9 +19,16 @@ body:
         - Documentation
         - Example notebooks or datasets
         - External tool interface
-        - Other
+        - Other (Please specify below)
     validations:
       required: true
+  - type: input
+    id: workflow-other-category
+    attributes:
+      label: If you selected "Other", please specify
+      placeholder: Describe what your suggestion affects
+    validations:
+      required: false
   - type: textarea
     id: summary
     attributes:
@@ -45,7 +52,7 @@ body:
     id: expected
     attributes:
       label: Expected result
-      description: What output, report, or workflow behavior did you expect?
+      description: What output, report, or workflow behaviour did you expect?
     validations:
       required: true
   - type: textarea

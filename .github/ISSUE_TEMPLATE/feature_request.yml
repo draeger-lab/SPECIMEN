@@ -19,9 +19,16 @@ body:
         - Example dataset or notebook
         - Pipeline diagram
         - External tool interface
-        - Other
+        - Other (Please specify below)
     validations:
       required: true
+  - type: input
+    id: workflow-other-category
+    attributes:
+      label: If you selected "Other", please specify
+      placeholder: Describe what your suggestion affects
+    validations:
+      required: false
   - type: textarea
     id: problem
     attributes:
