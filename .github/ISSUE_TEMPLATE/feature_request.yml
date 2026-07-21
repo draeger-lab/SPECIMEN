@@ -1,12 +1,12 @@
 name: Feature request
-description: Suggest a SPECIMEN workflow, configuration, documentation, example, or external-tool improvement.
+description: Suggest a SPECIMEN workflow modification, configuration, documentation, example, or external-tool improvement.
 title: "[Feature]: "
 labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        SPECIMEN feature requests are easiest to evaluate when they describe the workflow need, expected inputs and outputs, dependencies, and validation plan.
+        SPECIMEN feature requests are easiest to evaluate when they describe the workflow modification need, expected inputs and outputs, dependencies, and validation plan.
   - type: dropdown
     id: area
     attributes:
@@ -33,7 +33,7 @@ body:
     id: proposal
     attributes:
       label: Proposed solution
-      description: Describe the new behavior, workflow step, configuration, or documentation change.
+      description: Describe the new behaviour, workflow step, configuration, or documentation change.
     validations:
       required: true
   - type: textarea

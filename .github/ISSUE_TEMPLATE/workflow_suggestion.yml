@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Use this form for suggestions that affect SPECIMEN pipeline structure, workflow order, configuration behavior, or complete-run validation.
+        Use this form for suggestions that affect SPECIMEN workflows, workflow steps, pipeline structure, configuration behaviour, or complete-run validation.
   - type: dropdown
     id: workflow
     attributes:
@@ -17,9 +17,16 @@ body:
         - PGAB
         - New workflow
         - Cross-workflow change
-        - Not sure
+        - Other (Please specify below)
     validations:
       required: true
+  - type: input
+    id: workflow-other-category
+    attributes:
+      label: If you selected "Other", please specify
+      placeholder: Describe what your suggestion affects
+    validations:
+      required: false
   - type: textarea
     id: motivation
     attributes:
