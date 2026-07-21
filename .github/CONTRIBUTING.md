@@ -55,13 +55,13 @@ Feature requests should describe the workflow problem first, then the proposed i
 
 ## Development workflow
 
-1. Create a feature branch from the active development branch.
+1. Create a feature branch from the active development branch `dev`.
 2. Install SPECIMEN in editable mode with the dependencies needed for the workflow you are changing.
 3. Make a focused change to one workflow, configuration area, documentation area, or external-tool interface at a time.
 4. Update or add configuration examples for any new option.
 5. Run the smallest relevant checks while developing, then validate at least one complete affected pipeline run before opening a pull request.
-6. Update documentation, example notebooks, and diagrams when behavior visible to users changes.
-7. Open a pull request with clear validation notes and any known limitations.
+6. Update documentation, example notebooks, and diagrams when behaviour visible to users changes.
+7. Open a pull request targeting the `dev` branch with clear validation notes and any known limitations.
 
 Avoid changing defaults or configuration keys without a compatibility plan. Existing workflows and example configurations should continue to run unless the pull request explicitly documents a breaking change.
 
@@ -88,7 +88,7 @@ When adding a workflow step or pipeline module:
 - Document how it is enabled, disabled, or configured.
 - Keep file and directory naming deterministic.
 - Validate that the step can run as part of a complete pipeline, not only in isolation.
-- Include clear behavior for missing optional inputs, failed external commands, and empty intermediate results.
+- Include clear behaviour for missing optional inputs, failed external commands, and empty intermediate results.
 - Explain how the step interacts with existing CMPB, HQTB, or future workflow stages.
 - Add or update example input/output when the step changes user-visible artifacts.
 
@@ -97,7 +97,7 @@ When adding a workflow step or pipeline module:
 - Follow the existing Python style and formatting used in the repository.
 - Keep workflow code readable and explicit about data paths, generated files, and external commands.
 - Use type hints and reStructuredText docstrings for public functions.
-- Prefer configuration-driven behavior over hard-coded local paths.
+- Prefer configuration-driven behaviour over hard-coded local paths.
 - Keep default configuration files runnable for documented workflows.
 - Document new configuration keys, allowed values, defaults, and compatibility notes.
 - Update Sphinx pages and HowTo notebooks when the user-facing workflow changes.
@@ -119,7 +119,7 @@ Please include this information in the relevant workflow documentation and menti
 
 ## Testing and validation
 
-Validation should match the risk of the change. For workflow changes, maintainers need evidence that complete pipeline behavior still works.
+Validation should match the risk of the change. For workflow changes, maintainers need evidence that complete pipeline behaviour still works.
 
 Useful validation includes:
 
@@ -128,7 +128,7 @@ Useful validation includes:
 - Comparing key output files, generated reports, and logs against expected results
 - Checking that existing configuration templates still load and remain backward compatible
 - Building or previewing affected Sphinx documentation
-- Testing Docker behavior when the change affects installation, paths, or external tools
+- Testing Docker behaviour when the change affects installation, paths, or external tools
 
 If a full run is too expensive, document the reason and provide the strongest smaller validation you could run.
 
@@ -140,7 +140,7 @@ Before requesting review, please confirm:
 - [ ] Existing workflows and configuration templates are not broken unexpectedly.
 - [ ] New or changed configuration keys are documented.
 - [ ] External dependencies, versions, and computational requirements are documented.
-- [ ] Example input/output or notebooks are updated when user-facing behavior changes.
+- [ ] Example input/output or notebooks are updated when user-facing behaviour changes.
 - [ ] Pipeline diagrams are updated when workflow structure changes.
 - [ ] A complete affected pipeline run was tested, or a limitation is explained.
 - [ ] Logs, generated reports, or other validation evidence are summarized in the pull request.
@@ -156,7 +156,7 @@ Maintainers will review contributions for:
 - Robust handling of external tools and generated files
 - Documentation completeness
 - Clarity of validation evidence
-- Impact on existing CMPB, HQTB, and future workflow behavior
+- Impact on existing CMPB, HQTB, and future workflow behaviour
 
 Review may request smaller pull requests, more complete validation, additional documentation, or compatibility adjustments before merge.
 

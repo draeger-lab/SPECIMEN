@@ -28,7 +28,7 @@ Describe what you ran and summarize the result. Include complete pipeline runs w
 - [ ] Minimal example dataset run
 - [ ] Existing configuration templates checked
 - [ ] Documentation build or preview checked
-- [ ] Docker behavior checked, if relevant
+- [ ] Docker behaviour checked, if relevant
 - [ ] External tool versions checked, if relevant
 
 Validation notes:
