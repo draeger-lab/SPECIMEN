@@ -1,0 +1,70 @@
+name: Feature request
+description: Suggest a SPECIMEN workflow modification, configuration, documentation, example, or external-tool improvement.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        SPECIMEN feature requests are easiest to evaluate when they describe the workflow modification need, expected inputs and outputs, dependencies, and validation plan.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Contribution area
+      options:
+        - New workflow step
+        - Existing workflow change
+        - Configuration template
+        - Documentation
+        - Example dataset or notebook
+        - Pipeline diagram
+        - External tool interface
+        - Other (Please specify below)
+    validations:
+      required: true
+  - type: input
+    id: workflow-other-category
+    attributes:
+      label: If you selected "Other", please specify
+      placeholder: Describe what your suggestion affects
+    validations:
+      required: false
+  - type: textarea
+    id: problem
+    attributes:
+      label: Workflow problem or use case
+      description: What modelling, curation, validation, or documentation problem should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the new behaviour, workflow step, configuration, or documentation change.
+    validations:
+      required: true
+  - type: textarea
+    id: inputs_outputs
+    attributes:
+      label: Inputs and outputs
+      description: List required input files, generated output files, reports, and example data that should be added or updated.
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: External dependencies and computational requirements
+      description: List required software, databases, versions, network access, runtime, memory, disk, or Docker considerations.
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Configuration and workflow compatibility
+      description: Explain how this should interact with existing configuration templates and workflows.
+  - type: textarea
+    id: validation
+    attributes:
+      label: Suggested validation
+      description: How could maintainers test the feature in a complete or minimal pipeline run?
+  - type: textarea
+    id: docs
+    attributes:
+      label: Documentation updates
+      description: Note any Sphinx pages, HowTo notebooks, diagrams, or examples that should be updated.

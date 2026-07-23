@@ -39,6 +39,7 @@ Currently avaible workflow:
         - [pypi After install via pip](#pypi-after-install-via-pip)
         - [docker After install via Docker](#docker-after-install-via-docker)
     - [Documentation](#documentation)
+    - [Contributing](#contributing)
     - [Repositories using SPECIMEN](#repositories-using-specimen)
 
 <!-- /TOC -->
@@ -108,6 +109,11 @@ For example, to run the CMPB pipeline, use:
 > 🚧 The documentation is currently under heavy-rework!
 
 For more information about the available pipelines, the code or for troubleshooting, please refer to the documentation of the tool [here](https://specimen.readthedocs.io/en/latest/).
+
+## Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](.github/CONTRIBUTING.md) before opening an issue or submitting a pull request.
+Please also follow our [Code of Conduct](.github/CODE_OF_CONDUCT.md).
 
 ## Repositories using SPECIMEN
 - draeger-lab/Cacnes - `private`
