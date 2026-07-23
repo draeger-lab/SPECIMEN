@@ -8,7 +8,7 @@
 ![GitHub all releases](https://img.shields.io/github/downloads/draeger-lab/specimen/total?logo=github&label=GitHub%20downloads)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12723500.svg)](https://doi.org/10.5281/zenodo.12723500)
 
-![Logo of SPECIMEN](docs/source/images/LogoSPECIMEN.png)
+![Logo of SPECIMEN](docs/source/images/logos/specimen-logo-transparent.png)
 
 # SPECIMEN
 
