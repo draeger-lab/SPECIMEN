@@ -1,4 +1,4 @@
-[![GitHub License](https://img.shields.io/github/license/draeger-lab/specimen)](https://opensource.org/license/GPL-3.0)
+[![GitHub Licence](https://img.shields.io/github/license/draeger-lab/specimen)](https://opensource.org/license/GPL-3.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 ![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Fdraeger-lab%2Fspecimen%2Fmain%2Fpyproject.toml)
 [![Documentation Status](https://readthedocs.org/projects/specimen/badge/?version=latest)](https://specimen.readthedocs.io/en/latest/?badge=latest)
@@ -112,8 +112,15 @@ For more information about the available pipelines, the code or for troubleshoot
 
 ## Contributing
 
-Contributions are welcome! Please read our [Contributing Guide](.github/CONTRIBUTING.md) before opening an issue or submitting a pull request.
-Please also follow our [Code of Conduct](.github/CODE_OF_CONDUCT.md).
+Contributions are welcome! SPECIMEN contributions often involve workflows, configuration templates, documentation, example datasets, pipeline modules, or interfaces to external tools. Please read our [Contributing Guide](.github/CONTRIBUTING.md) before opening an issue or submitting a pull request.
+
+For GitHub issues, please use the matching template:
+
+- [Bug report](.github/ISSUE_TEMPLATE/bug_report.yml) for reproducible errors, failed pipeline runs, configuration problems, or external-tool issues
+- [Feature request](.github/ISSUE_TEMPLATE/feature_request.yml) for general improvements to workflows, configuration, documentation, examples, or tool interfaces
+- [Workflow suggestion](.github/ISSUE_TEMPLATE/workflow_suggestion.yml) for new workflow steps, workflow restructuring, or changes that need complete-run validation
+
+Pull requests should follow the [pull request template](.github/pull_request_template.md) and describe workflow validation, configuration compatibility, external dependencies, and documentation updates. Please also follow our [Code of Conduct](.github/CODE_OF_CONDUCT.md).
 
 ## Repositories using SPECIMEN
 - draeger-lab/Cacnes - `private`

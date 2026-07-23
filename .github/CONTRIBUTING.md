@@ -2,7 +2,7 @@
 
 ## Welcome
 
-Thank you for helping improve SPECIMEN. SPECIMEN is a collection of workflows for automated, standardized curation of genome-scale metabolic models. Contributions are most useful when they keep complete workflows reproducible, configurable, and documented for other modelling projects.
+Thank you for helping improve SPECIMEN. SPECIMEN is a collection of workflows for automated, standardised curation of genome-scale metabolic models. Contributions are most useful when they keep complete workflows reproducible, configurable, and documented for other modelling projects.
 
 This guide focuses on the kinds of changes contributors usually make in SPECIMEN:
 
@@ -57,7 +57,7 @@ Feature requests should describe the workflow problem first, then the proposed i
 
 1. Create a feature branch from the active development branch `dev`.
 2. Install SPECIMEN in editable mode with the dependencies needed for the workflow you are changing.
-3. Make a focused change to one workflow, configuration area, documentation area, or external-tool interface at a time.
+3. Make a focussed change to one workflow, configuration area, documentation area, or external-tool interface at a time.
 4. Update or add configuration examples for any new option.
 5. Run the smallest relevant checks while developing, then validate at least one complete affected pipeline run before opening a pull request.
 6. Update documentation, example notebooks, and diagrams when behaviour visible to users changes.
@@ -90,7 +90,7 @@ When adding a workflow step or pipeline module:
 - Validate that the step can run as part of a complete pipeline, not only in isolation.
 - Include clear behaviour for missing optional inputs, failed external commands, and empty intermediate results.
 - Explain how the step interacts with existing CMPB, HQTB, or future workflow stages.
-- Add or update example input/output when the step changes user-visible artifacts.
+- Add or update example input/output when the step changes user-visible artefacts.
 
 ## Coding and documentation standards
 
@@ -136,7 +136,7 @@ If a full run is too expensive, document the reason and provide the strongest sm
 
 Before requesting review, please confirm:
 
-- [ ] The change has a focused scope and a clear motivation.
+- [ ] The change has a focussed scope and a clear motivation.
 - [ ] Existing workflows and configuration templates are not broken unexpectedly.
 - [ ] New or changed configuration keys are documented.
 - [ ] External dependencies, versions, and computational requirements are documented.
