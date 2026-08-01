@@ -100,12 +100,12 @@ parameters:
         # params for DIAMOND
         sensitivity: more-sensitive # change the sensitivity of DIAMOND
         coverage: 95.0              # Set the min. coverage 
-        pid: 90.0                   # set the minimal percentage identify value for valid hits
+        pid: 90.0                   # set the minimal percentage identity value for valid hits
         # params for adding entities during 
         formula-check: 'existence'  # When checking, if a metabolite can be added to the model
                               # also check the formula. For more information about
                               # available options, please refer to the docs of 
-                              # the function isreaction_comlete().
+                              # the function isreaction_complete().
         exclude-dna: True           # Exclude reactions containing 'DNA' in their name
                                     # from being added to the model.
         exclude-rna: True           # Exclude reactions containing 'RNA' in their name
@@ -115,6 +115,60 @@ parameters:
                                     # the high probability of false positives. 
 
     ########## step 3.2: cleanup ##########
+    refinement_cleanup:
+        
+        # gap-filling
+        # """""""""""
+        
+        # general options _________________________________________
+        # parameters, that apply to all the gap filling algorithms
+        idprefix: 'HQTB'            # prefix to use for fantasy IDs, if IDs for 
+                                    # the namespace do not exist.
+        formula-check: 'existence'  # When checking, if a metabolite can be added to the model
+                                    # also check the formula. For more information about
+                                    # available options, please refer to the docs of 
+                                    # the function isreaction_complete().
+        exclude-dna: True           # Exclude reactions containing 'DNA' in their name
+                                    # from being added to the model.
+        exclude-rna: True           # Exclude reactions containing 'RNA' in their name
+                                    # from being added to the model.
+        threshold_add_reacs: 5      # Threshold values. If the mapping of an EC against reactions
+                                    # exceeds this value, the reactions will not be added, due to 
+                                    # the high probability of false positives. 
+        
+        # enable algorithms ________________________________________
+        # via KEGG ..................
+        # ...
+        # via BioCyc .................
+        # ...
+        # via GFF ....................
+        GeneGapFiller parameters: 
+            fasta: USER                   # FASTA (containing CDS) for the GeneGapFiller. 
+                                          # Depending on the case, might be the same as annotated genome.
+            gff: USER                     # Path to a gff file (does not have to be the RefSeq).
+                                          # Needs to be from the same genome the model was build on.
+            type: 'swissprot'             # Type of database. Can either be 'swissprot' or 'user'.
+            dmnd-database: USER           # Path to the SwissProt/User DIAMOND database file.
+            database-mapping: USER        # Path to the SwissProt/User mapping file (against EC / BRENDA in case of SwissProt)
+            check-NCBI: False             # Enable checking NCBI accession numbers for EC numbers - time costly.
+            sensitivity: 'more-sensitive' # Sensitivity option for the DIAMOND run.
+            coverage: 90.0                # Coverage (parameter for DIAMOND).
+            percentage identity: 90.0     # Percentage identity threshold value for accepting
+                                          # matches found by DIAMOND as homologous.
+        # via COBRApy - medium ........
+        growth_threshold: 0.05      # Threshold value for minimal growth, that is required for the media.
+
+
+        # duplicate handling 
+        # """"""""""""""""""
+        
+        check_dupl_reac: True
+        check_dupl_meta: default
+        remove_unused_meta: False
+        remove_dupl_reac: True
+        remove_dupl_meta: True
+
+
     ########## step 3.3: annotation ##########
     refinement_annotation:
         # for KEGG pathway annotation
@@ -122,6 +176,12 @@ parameters:
         viaRC: False
 
     ########## step 3.4: smoothing ##########
+    refinement_smoothing:
+        # ECG correction
+        # BOFdat weight fractions: depend on organism (current: Klebsiella )
+        dna_weight_frac: 0.023
+        ion_weight_frac: 0.05
+
     ########## step 4: validation ##########
     validation: 
         run_all: True # run all validation tests

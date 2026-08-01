@@ -1,5 +1,4 @@
 import os
-import re
 
 # Define paths relative to the root directory
 CONFIG_DIR = os.path.join("src", "specimen", "data", "config")
@@ -12,8 +11,6 @@ DEV_TAGS = ["# @IDEA", "# @TODO", "# @DEV"]
 
 # Blocks to entirely skip for the basic "quick-and-dirty" configuration
 ADVANCED_BLOCKS = [
-    "refinement_cleanup:",
-    "refinement_smoothing:",
     "GeneGapFiller:",
     "media_gap:",
     "mcc:",
