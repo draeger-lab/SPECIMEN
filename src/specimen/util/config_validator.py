@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import Any, Dict, List, Optional, Union, Callable
+from typing import Any, Dict, List, Optional, Union
 
 logger = logging.getLogger(__name__)
 
@@ -65,13 +65,14 @@ def validate_config(
                 f"Invalid schema definition at '{current_path}'."
             )
 
-        # 1. Check Required fields (Replaces _USER_ logic)
-        if value is None or value == "_USER_":
+        # 1. Check Required fields (Replaces _USER_ and USER logic)
+        if value is None or value == "_USER_" or value == "USER":
             if rule.required:
                 raise ConfigValidationError(
                     f"Missing required configuration parameter: '{current_path}'"
                 )
-            elif value == "_USER_":
+
+            if value == "_USER_":
                 logger.error(
                     f"Deprecated '_USER_' found at '{current_path}'. Please provide a value or remove it."
                 )
@@ -79,11 +80,11 @@ def validate_config(
                     f"Missing required parameter: '{current_path}'"
                 )
 
-            # Replaces USER -> None logic with sensible defaults
             if value == "USER":
                 logger.warning(
                     f"Deprecated 'USER' keyword found at '{current_path}'. Using default: {rule.default}"
                 )
+
             validated[key] = rule.default
             continue
 
@@ -97,7 +98,7 @@ def validate_config(
         # 2. Type Checking
         if value is not None and not isinstance(value, rule.expected_type):
             raise ConfigValidationError(
-                f"Type mismatch at '{current_path}': Expected {rule.expected_type}, got {type(value)}."
+                f"Type mismatch at '{current_path}': Expected {rule.expected_type}, got {type(value).__name__}."
             )
 
         # 3. Numeric Bounds Checking

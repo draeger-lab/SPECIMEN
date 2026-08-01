@@ -1,4 +1,3 @@
-__all__ = ["util", "set_up"]
+__all__ = ["util", "set_up", "config_validator"]
 
-from . import util, set_up
-from .config_validator import validate_config, SchemaField, ConfigValidationError
+from . import util, set_up, config_validator
