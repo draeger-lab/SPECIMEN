@@ -226,8 +226,8 @@ def run(
                 "The 'fbc_curation' package is not installed. Cannot generate FROG report. "
                 "Please install it using 'pip install fbc-curation'."
             )
-        except Exception as e:
-            logger.error(f"FROG report generation failed: {e}")
+        except Exception:
+            logger.exception("FROG report generation failed")
 
     total_time_e = time.time()
     logger.info(f"total runtime: {total_time_e-total_time_s}")
