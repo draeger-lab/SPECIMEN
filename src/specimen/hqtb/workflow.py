@@ -1,5 +1,4 @@
-"""Functions to run the workflow to create a GEM based on a high-quality template model.
-"""
+"""Functions to run the workflow to create a GEM based on a high-quality template model."""
 
 __author__ = "Carolin Brune"
 
@@ -30,9 +29,10 @@ from .. import util
 # functions
 ################################################################################
 
-# since * can be allowed by gapfiller and will be checked in validation, 
+
+# since * can be allowed by gapfiller and will be checked in validation,
 # separate report is suppressed here
-@suppress_warning("invalid character '*' found in formula") 
+@suppress_warning("invalid character '*' found in formula")
 def run(config_file: str = "test_config.yaml"):
     """Run the complete workflow for creating a strain-specific model.
 
@@ -46,7 +46,7 @@ def run(config_file: str = "test_config.yaml"):
     """
 
     # read in the configuration file
-    config = util.set_up.validate_config(config_file)
+    config = util.config_validator.validate_config(config_file)
 
     # step 0: generate output folder(s) (+ for log files)
     # current variables:
@@ -148,14 +148,21 @@ def run(config_file: str = "test_config.yaml"):
 
             # step 3.1: extension
             # ...................
-            
+
             # set a GenBank format FASTA for the extension step (needed for the GapFiller)
-            if config["parameters"]["refinement_cleanup"]["GeneGapFiller parameters"]["fasta"]:
-                fasta_path = config["parameters"]["refinement_cleanup"]["GeneGapFiller parameters"]["fasta"]
+            if config["parameters"]["refinement_cleanup"]["GeneGapFiller parameters"][
+                "fasta"
+            ]:
+                fasta_path = config["parameters"]["refinement_cleanup"][
+                    "GeneGapFiller parameters"
+                ]["fasta"]
             else:
-                fasta_path = mimic_genbank(config["subject"]["annotated_genome"], config["subject"]["gff"],
-                                       str(Path(config["general"]["dir"])))
-            
+                fasta_path = mimic_genbank(
+                    config["subject"]["annotated_genome"],
+                    config["subject"]["gff"],
+                    str(Path(config["general"]["dir"])),
+                )
+
             core.refinement.extend(
                 draft=Path(
                     config["general"]["dir"],
@@ -163,7 +170,7 @@ def run(config_file: str = "test_config.yaml"):
                     modelname + "_draft.xml",
                 ),
                 gff=config["subject"]["gff"],
-                fasta=fasta_path, 
+                fasta=fasta_path,
                 db=config["data"]["diamond"],
                 dir=Path(config["general"]["dir"], "03_refinement"),
                 ncbi_mapping=config["data"]["ncbi_map"],
@@ -335,8 +342,8 @@ def run(config_file: str = "test_config.yaml"):
                     "step4-smoothing",
                     modelname + "_smooth.xml",
                 ),
-                tests=config["parameters"]["validation"]["tests"], 
-                run_all=config["parameters"]["validation"]["run_all"], 
+                tests=config["parameters"]["validation"]["tests"],
+                run_all=config["parameters"]["validation"]["run_all"],
             )
 
     # step 5: analysis
@@ -423,6 +430,6 @@ def wrapper(config_file: str, parent_dir: str = ""):
 
             with open(temp_config.name, "w") as config_stream:
                 yaml.dump(current_config, config_stream)
-            current_config = util.set_up.validate_config(temp_config.name)
+            current_config = util.config_validator.validate_config(temp_config.name)
 
             run(temp_config)

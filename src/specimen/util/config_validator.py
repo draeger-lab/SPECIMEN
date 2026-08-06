@@ -88,13 +88,6 @@ def validate_config(
             validated[key] = rule.default
             continue
 
-        # Clean up legacy 'USER' keyword
-        if value == "USER":
-            logger.warning(
-                f"Deprecated 'USER' keyword found at '{current_path}'. Using default: {rule.default}"
-            )
-            value = rule.default
-
         # 2. Type Checking
         if value is not None and not isinstance(value, rule.expected_type):
             raise ConfigValidationError(
