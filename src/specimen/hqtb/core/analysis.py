@@ -216,10 +216,10 @@ def run(
             frog_out_dir = Path(dir, "05_analysis", "FROG_report")
             frog_out_dir.mkdir(parents=True, exist_ok=True)
 
-            genlogger.info(f"Generating FROG report in {frog_out_dir}...")
+            logger.info(f"Generating FROG report in {frog_out_dir}...")
             # Generate the report based on the SBML model file
             fbc_curation.run_frog(str(model_path), str(frog_out_dir))
-            genlogger.info("FROG report successfully generated.")
+            logger.info("FROG report successfully generated.")
 
         except ImportError:
             logger.error(
