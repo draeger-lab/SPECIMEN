@@ -12,6 +12,7 @@ DEV_TAGS = ["# @IDEA", "# @TODO", "# @DEV"]
 # Blocks to entirely skip for the basic "quick-and-dirty" configuration
 ADVANCED_BLOCKS = [
     "GeneGapFiller:",
+    "GeneGapFiller parameters:",
     "media_gap:",
     "mcc:",
     "egc:",

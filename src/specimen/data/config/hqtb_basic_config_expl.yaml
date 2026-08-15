@@ -142,19 +142,6 @@ parameters:
         # via BioCyc .................
         # ...
         # via GFF ....................
-        GeneGapFiller parameters: 
-            fasta: USER                   # FASTA (containing CDS) for the GeneGapFiller. 
-                                          # Depending on the case, might be the same as annotated genome.
-            gff: USER                     # Path to a gff file (does not have to be the RefSeq).
-                                          # Needs to be from the same genome the model was build on.
-            type: 'swissprot'             # Type of database. Can either be 'swissprot' or 'user'.
-            dmnd-database: USER           # Path to the SwissProt/User DIAMOND database file.
-            database-mapping: USER        # Path to the SwissProt/User mapping file (against EC / BRENDA in case of SwissProt)
-            check-NCBI: False             # Enable checking NCBI accession numbers for EC numbers - time costly.
-            sensitivity: 'more-sensitive' # Sensitivity option for the DIAMOND run.
-            coverage: 90.0                # Coverage (parameter for DIAMOND).
-            percentage identity: 90.0     # Percentage identity threshold value for accepting
-                                          # matches found by DIAMOND as homologous.
         # via COBRApy - medium ........
         growth_threshold: 0.05      # Threshold value for minimal growth, that is required for the media.
 
