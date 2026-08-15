@@ -431,7 +431,7 @@ def run(configpath: Union[str, None] = None, debug_growth: bool = False):
 
         else:
             mes = f"No KEGG organism ID provided. Gapfilling with KEGG will be skipped."
-            raise logger.warning(mes, UserWarning)
+            logger.warning(mes)
 
         step_end = time.time()
         logger.info(f"KEGGapFiller\truntime: {step_end-step_start}s\n")
