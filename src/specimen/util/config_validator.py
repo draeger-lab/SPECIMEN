@@ -65,16 +65,16 @@ def validate_config(
                 f"Invalid schema definition at '{current_path}'."
             )
 
-        # 1. Check Required fields (Replaces _USER_ and USER logic)
-        if value is None or value == "_USER_" or value == "USER":
+        # 1. Check Required fields (Replaces __USER__, _USER_, and USER logic)
+        if value is None or value in ["__USER__", "_USER_", "USER"]:
             if rule.required:
                 raise ConfigValidationError(
                     f"Missing required configuration parameter: '{current_path}'"
                 )
 
-            if value == "_USER_":
+            if value in ["__USER__", "_USER_"]:
                 logger.error(
-                    f"Deprecated '_USER_' found at '{current_path}'. Please provide a value or remove it."
+                    f"Deprecated placeholder '{value}' found at '{current_path}'. Please provide a value or remove it."
                 )
                 raise ConfigValidationError(
                     f"Missing required parameter: '{current_path}'"
@@ -95,7 +95,7 @@ def validate_config(
             )
 
         # 3. Numeric Bounds Checking
-        if isinstance(value, (int, float)):
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
             if rule.min_val is not None and value < rule.min_val:
                 raise ConfigValidationError(
                     f"Value at '{current_path}' ({value}) is below minimum allowed ({rule.min_val})."
