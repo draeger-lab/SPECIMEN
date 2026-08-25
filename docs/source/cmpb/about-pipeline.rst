@@ -53,7 +53,7 @@ The following steps are executed in the workflow:
   - Model statistics
   - Analysing growth
   - Testing for amino acid auxotrophies
-  - Optionally: Analysing with ``FROG`` (future update)
+  - Optionally: Analysing with ``FROG``
   - Optionally: Analysing with ``MEMOTE``
 
 | For each step the model version and, optionally, the according ``MEMOTE`` report can be saved.
