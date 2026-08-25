@@ -115,47 +115,6 @@ parameters:
                                     # the high probability of false positives. 
 
     ########## step 3.2: cleanup ##########
-    refinement_cleanup:
-        
-        # gap-filling
-        # """""""""""
-        
-        # general options _________________________________________
-        # parameters, that apply to all the gap filling algorithms
-        idprefix: 'HQTB'            # prefix to use for fantasy IDs, if IDs for 
-                                    # the namespace do not exist.
-        formula-check: 'existence'  # When checking, if a metabolite can be added to the model
-                                    # also check the formula. For more information about
-                                    # available options, please refer to the docs of 
-                                    # the function isreaction_complete().
-        exclude-dna: True           # Exclude reactions containing 'DNA' in their name
-                                    # from being added to the model.
-        exclude-rna: True           # Exclude reactions containing 'RNA' in their name
-                                    # from being added to the model.
-        threshold_add_reacs: 5      # Threshold values. If the mapping of an EC against reactions
-                                    # exceeds this value, the reactions will not be added, due to 
-                                    # the high probability of false positives. 
-        
-        # enable algorithms ________________________________________
-        # via KEGG ..................
-        # ...
-        # via BioCyc .................
-        # ...
-        # via GFF ....................
-        # via COBRApy - medium ........
-        growth_threshold: 0.05      # Threshold value for minimal growth, that is required for the media.
-
-
-        # duplicate handling 
-        # """"""""""""""""""
-        
-        check_dupl_reac: True
-        check_dupl_meta: default
-        remove_unused_meta: False
-        remove_dupl_reac: True
-        remove_dupl_meta: True
-
-
     ########## step 3.3: annotation ##########
     refinement_annotation:
         # for KEGG pathway annotation
@@ -163,12 +122,6 @@ parameters:
         viaRC: False
 
     ########## step 3.4: smoothing ##########
-    refinement_smoothing:
-        # ECG correction
-        # BOFdat weight fractions: depend on organism (current: Klebsiella )
-        dna_weight_frac: 0.023
-        ion_weight_frac: 0.05
-
     ########## step 4: validation ##########
     validation: 
         run_all: True # run all validation tests

@@ -11,6 +11,8 @@ DEV_TAGS = ["# @IDEA", "# @TODO", "# @DEV"]
 
 # Blocks to entirely skip for the basic "quick-and-dirty" configuration
 ADVANCED_BLOCKS = [
+    "refinement_cleanup:",
+    "refinement_smoothing:",
     "GeneGapFiller:",
     "GeneGapFiller parameters:",
     "media_gap:",
@@ -18,17 +20,26 @@ ADVANCED_BLOCKS = [
     "egc:",
 ]
 
-
-def is_dev_note(line: str) -> bool:
-    """Checks if a line contains developer-specific tags."""
-    return any(tag in line for tag in DEV_TAGS)
-
+def clean_dev_tags(line: str) -> str:
+    """Strips dev tags from a line. Returns the cleaned line, or empty string if it was standalone."""
+    for tag in DEV_TAGS:
+        if tag in line:
+            # Split at the tag and keep the left side
+            cleaned = line.split(tag)[0].rstrip()
+            # If there's content left (like a YAML key), add the newline back
+            if cleaned:
+                return cleaned + "\n"
+            return ""
+    return line
 
 def generate_advanced(lines: list[str]) -> list[str]:
     """Generates advanced config by stripping dev notes."""
-    # Advanced contains all params and user comments, just no dev notes
-    return [line for line in lines if not is_dev_note(line)]
-
+    advanced_lines = []
+    for line in lines:
+        cleaned = clean_dev_tags(line)
+        if cleaned:
+            advanced_lines.append(cleaned)
+    return advanced_lines
 
 def generate_basic(lines: list[str]) -> list[str]:
     """Generates basic config by stripping dev notes and advanced blocks."""
@@ -37,15 +48,15 @@ def generate_basic(lines: list[str]) -> list[str]:
     current_indent = 0
 
     for line in lines:
-        if is_dev_note(line):
+        cleaned = clean_dev_tags(line)
+        if not cleaned:
             continue
 
-        stripped = line.lstrip()
-        indent = len(line) - len(stripped)
+        stripped = cleaned.lstrip()
+        indent = len(cleaned) - len(stripped)
 
         # Handle skipping nested blocks
         if skip_block:
-            # If we find text that is at the same or lower indentation level, the block is over
             if stripped and indent <= current_indent:
                 skip_block = False
             else:
@@ -57,7 +68,7 @@ def generate_basic(lines: list[str]) -> list[str]:
             current_indent = indent
             continue
 
-        basic_lines.append(line)
+        basic_lines.append(cleaned)
 
     return basic_lines
 
