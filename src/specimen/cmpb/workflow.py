@@ -54,8 +54,7 @@ from refinegems.utility.io import (
 from refinegems.developement.decorators import implement
 from refinegems.classes import egcs
 
-from ..util.set_up import save_cmpb_user_input, build_data_directories
-from ..util.config_validator import validate_config
+from ..util.set_up import save_cmpb_user_input, validate_config, build_data_directories
 
 ################################################################################
 # setup logging

@@ -46,7 +46,7 @@ def run(config_file: str = "test_config.yaml"):
     """
 
     # read in the configuration file
-    config = util.config_validator.validate_config(config_file)
+    config = util.set_up.validate_config(config_file)
 
     # step 0: generate output folder(s) (+ for log files)
     # current variables:
@@ -430,6 +430,6 @@ def wrapper(config_file: str, parent_dir: str = ""):
 
             with open(temp_config.name, "w") as config_stream:
                 yaml.dump(current_config, config_stream)
-            current_config = util.config_validator.validate_config(temp_config.name)
+            current_config = util.set_up.validate_config(temp_config.name)
 
             run(temp_config)
