@@ -211,14 +211,16 @@ def run(
     if generate_frog:
         logger.info("\n# -----------\n# FROG report\n# -----------")
         try:
-            import fbc_curation
+            from fbc_curation.worker import run_frog
 
             frog_out_dir = Path(dir, "05_analysis", "FROG_report")
             frog_out_dir.mkdir(parents=True, exist_ok=True)
 
-            logger.info(f"Generating FROG report in {frog_out_dir}...")
+            logger.info(
+                f"Generating FROG report in {frog_out_dir / 'FROG_report.omex'}..."
+            )
             # Generate the report based on the SBML model file
-            fbc_curation.run_frog(str(model_path), str(frog_out_dir))
+            run_frog(str(model_path), str(frog_out_dir / "FROG_report.omex"))
             logger.info("FROG report successfully generated.")
 
         except ImportError:
