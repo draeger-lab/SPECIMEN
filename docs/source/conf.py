@@ -17,10 +17,9 @@ release = '0.0.dev2'
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
 import sys
 from pathlib import Path
-sys.path.insert(0, os.path.abspath(str(Path('..','..','src'))))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'src'))
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -59,8 +58,7 @@ html_css_files = ['custom_theme.css']
 # Adds logo to documentation page
 html_logo = str(Path('images', 'logos', 'specimen-logo-transparent.png'))
 html_theme_options = {
-    'logo_only': True,
-    'display_version': False
+    'logo_only': True
 }
 
 #Adds logo as favicon to tab
@@ -99,6 +97,7 @@ autodoc_mock_imports = ["psycopg2",
                         "ols_client",
                         "charges",
                         "click",
+                        "cloup",
                         "databases",
                         "yaml",
                         "sortedcontainers",
@@ -107,6 +106,6 @@ autodoc_mock_imports = ["psycopg2",
                         "seaborn",
                         "venn",
                         'refinegems',
-                        'xmltodict',
-                        'typing'
+                        'xmltodict'
                         ]
+

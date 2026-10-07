@@ -10,11 +10,6 @@ see :ref:`cmpb-overview`.
 ``CMPB``: Quickstart 
 --------------------
 
-.. warning::
-
-    Currently, the workflow can only be run with an already generated model as input.
-    The CarveMe connection will be added in a future update.
-
 The worfklow can either be run directly from the command line or its functions can be called from inside a Python script.
 The input in both cases is a :doc:`configuration file <cmpb-config>` that contains all information needed (data file paths and parameters) to run it.
 
@@ -57,7 +52,7 @@ from inside a Python script or Jupyter Notebook with "config.yaml" being the pat
 
 The worfklow has two obligatory parameters:
 
-- Path to a model 
+- The generated draft model e.g. using ``CarveMe``
 
     - If no model is given, the `protein_fasta` needs to be provided. The format needs to be the same as the files provides by NCBI under `<GenBank assembly>` -> `ftp` -> `<name>_translated_cds.faa.gz`
 
@@ -65,7 +60,6 @@ The worfklow has two obligatory parameters:
 
 Further data can be added as available and/or needed (all are completely optional):
 
-- The generated draft model e.g. using ``CarveMe``
 - The reference sequence GFF file (for gap analysis via KEGG required, optional for CarveMe polishing)
     - Some of the gap-filling options (BioCyc, Gene) also require a GFF file, but since the type of GFF influcences the results, the input is separated from the first GFF.
 - If available, the KEGG organism ID (for gap analysis via KEGG required, optional for CarveMe polishing)
@@ -82,3 +76,5 @@ Further data can be added as available and/or needed (all are completely optiona
     - Path to a file containing the full genome sequenece of your organism
     - The DNA weight fraction of your organism (experimentally determined or retrieved using literature research)
     - The enzyme/ion weight fraction of your organism (experimentally determined or retrieved using literature research)
+
+- For checking reaction direction, a BioCyc smart table.

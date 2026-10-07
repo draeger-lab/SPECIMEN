@@ -5,7 +5,6 @@ Below, the configuration file with the underlying defaults, is displayed.
 
 .. code-block:: yaml 
     
-
     # Configuration file for the SPECIMEN CMPB workflow
 
     # Meaning of the default parameters:
@@ -23,28 +22,31 @@ Below, the configuration file with the underlying defaults, is displayed.
     # ----------------------
     input:
     modelpath: NULL            # Optional, path to a model.
-                               # If not given, runs CarveMe 
+                                # If not given, runs CarveMe 
     mediapath: __USER__        # Path to a media config to test growth with
 
     # General options
     # ---------------
     general:
     dir: './'                  # Path/Name of a directory to save output to
+    modelname: NULL            # Name of the model, if the three values below are not set
+    authorinitials: USER       # Intials or Abbreviation of the author for naming the model
+    strainid: USER             # ID of the strain 
+    organism: USER             # Abbreviation for the organism
     colours: 'YlGn'            # Set the colour scheme for the plots
-                               # should be a valid matplotlib continuous color palette
+                                # should be a valid matplotlib continuous color palette
     namespace: BiGG            # Namespace to use for the model
-                               # Possible identifiers, currently: BiGG
+                                # Possible identifiers, currently: BiGG
     save_all_models: True      # Save a model per step
     memote_always_on: False    # Run MEMOTE after every step
     stats_always_on: False     # Calculate the model statistics after every step
 
     # Options used by multiple steps of the workflow
-    refseq_gff: USER           # Path to RefSeq GFF file: 
+    gff: USER                  # Path to RefSeq/Genbank GFF file:
                                 # Can be optionally provided for cm-polish.
     kegg_organism_id: USER     # KEGG ID of the organism: Required for gap analysis with 'KEGG'.
                                 # Can be optionally provided for cm-polish.
-    protein_fasta: USER        # Required, if used for CarveMe or GeneGapFiller. Optional
-                                # for cm-polish except for 'is_lab_strain: True'.
+    protein_fasta: USER        # Required, if used for CarveMe or GeneGapFiller.
                                 # The path to the protein FASTA used to create the CarveMe model.
                                 # For more information, please refer to the documentation.
 
@@ -58,11 +60,11 @@ Below, the configuration file with the underlying defaults, is displayed.
     # Build a model using CarveMe
     # ---------------------------
     carveme:
-        # CarveMe requires protein_fasta under general to be set instead of modelpath
-        # if CarveMe should be run, 
-        # fill out the params below
-        gram: USER      # Choose either grampos or gramneg, depending on the Gram-test
-                        # resilts of your organism
+    # CarveMe requires protein_fasta under general to be set instead of modelpath
+    # if CarveMe should be run, 
+    # fill out the params below
+    gram: USER           # Choose either grampos or gramneg, depending on the Gram-test
+                        # results of your organism
 
     # Polish a CarveMe model
     #    Only neccessary, if the model will or has been build with CarveMe
@@ -72,51 +74,70 @@ Below, the configuration file with the underlying defaults, is displayed.
                             # Needs to be set to ensure that protein IDs get the 'bqbiol:isHomologTo' qualifier
                             # & to set the locus_tag to the ones obtained by the annotation
                             # (Warning: Might cause issues if annotatione was not performed with NCBI PGAP!)
+    
 
     # Filling gaps, optional
     # ----------------------
     gapfilling:
-    
-        ########### general options ###########
-        # parameters, that apply to all the gap filling algorithmns
-        idprefix: 'CMPB'            # prefix to use for fantasy IDs, if IDs for 
-                                    # the namespace do not exist.
-        formula-check: 'existence'  # When checking, if a metabolite can be added to the model
-                                    # also check the formula. For more information about
-                                    # available options, please refer to the docs of 
-                                    # the function isreaction_comlete().
-        exclude-dna: True           # Exclude reactions containing 'DNA' in their name
-                                    # from being added to the model.
-        exclude-rna: True           # Exclude reactions containing 'RNA' in their name
-                                    # from being added to the model.
-        
-        ########## enable algorithms ##########
-        # via KEGG ...................
-        # requires KEGG organism ID to be set
-        KEGGapFiller: False   # activate gap filling via GFF
-        # via BioCyc .................
-        BioCycGapFiller: False        # Activate gap filling via BioCyc.
-        BioCycGapFiller parameters:   
-            gene-table: USER            # Path to a gene smart table file from BioCyc.
-            reacs-table: USER           # Path to a reactions smart table from BioCyc.
-            gff: USER                   # Path to a GFF file of the genome of the model.
-        # via GFF ....................
-        GeneGapFiller: False              # Activate gap filling via GFF
-        GeneGapFiller parameters: 
-            gff: USER                     # Path to a gff file (does not have to be the RefSeq).
-                                          # Needs to be from the same genome the model was build on.
-            swissprot-dmnd: USER          # Path to the SwissProt DIAMOND database file.
-            swissprot-mapping: USER       # Path to the SwissProt mapping file (against EC / BRENDA)
-            check-NCBI: False             # Enable checking NCBI accession numbers for EC numbers - time costly.
-            sensitivity: 'more-sensitiv'  # Sensitivity option for the DIAMOND run.
-            coverage: 90.0                # Coverage (parameter for DIAMOND).
-            percentage identity: 90.0     # Percentage identity threshold value for accepting
-                                          # matches found by DIAMOND as homologous.
 
+    ########### general options ###########
+    # parameters, that apply to all the gap filling algorithmns
+    idprefix: 'CMPB'            # prefix to use for fantasy IDs, if IDs for 
+                                # the namespace do not exist.
+    formula-check: 'existence'  # When checking, if a metabolite can be added to the model
+                                # also check the formula. For more information about
+                                # available options, please refer to the docs of 
+                                # the function isreaction_comlete().
+    exclude-dna: True           # Exclude reactions containing 'DNA' in their name
+                                # from being added to the model.
+    exclude-rna: True           # Exclude reactions containing 'RNA' in their name
+                                # from being added to the model.
+    threshold_add_reacs: 5      # Threshold values. If the mapping of an EC against reactions
+                                # exceeds this value, the reactions will not be added, due to 
+                                # the high probability of false positives. 
+
+    ########## enable algorithms ##########
+    # via KEGG ...................
+    # requires KEGG organism ID to be set
+    KEGGapFiller: False   # activate gap filling via GFF
+    # via BioCyc .................
+    BioCycGapFiller: False        # Activate gap filling via BioCyc.
+    BioCycGapFiller parameters:   
+        gene-table: USER            # Path to a gene smart table file from BioCyc.
+        reacs-table: USER           # Path to a reactions smart table from BioCyc.
+        gff: USER                   # Path to a GFF file of the genome of the model.
+    # via GFF ....................
+    GeneGapFiller: False            # Activate gap filling via GFF
+    GeneGapFiller parameters: 
+        gff: USER                     # Path to a gff file (does not have to be the RefSeq).
+                                    # Needs to be from the same genome the model was build on.
+        type: 'swissprot'             # Type of database. Can either be 'swissprot' or 'user'.
+        dmnd-database: USER           # Path to the SwissProt/User DIAMOND database file.
+        database-mapping: USER        # Path to the SwissProt/User mapping file (against EC / BRENDA in case of SwissProt)
+        check-NCBI: False             # Enable checking NCBI accession numbers for EC numbers - time costly.
+        sensitivity: 'more-sensitive' # Sensitivity option for the DIAMOND run.
+        coverage: 90.0                # Coverage (parameter for DIAMOND).
+        percentage identity: 90.0     # Percentage identity threshold value for accepting
+                                    # matches found by DIAMOND as homologous.
+
+    # Polish the model using ModelPolisher
+    # ------------------------------------
+    modelpolisher: True                         # Activate ModelPolisher
+    mp:
+    allow-model-to-be-saved-on-server: False  # Enable saving the model on the server
+    fixing:
+        dont-fix: False                         # Sets unset default values that are mandatory
+    annotation:
+        bigg:
+        annotate-with-bigg: True              # Enable annotation with BiGG
+        include-any-uri: True                 # Enable adding annotations that are not MIRIAM-compliant
 
     # Add KEGG pathways as groups, optional
     # -------------------------------------
-    kegg_pathway_groups: True
+    kegg_pathway_groups: 
+    add: True     # enable checking and setting kegg pathways (groups)
+    viaRC: False  # enable checking for kegg.pathway via reaction class (increases run time)
+    viaEC: False  # enable checking for kegg.pathway via ec number (increases run time)
 
     # Resolve duplicates
     # ------------------
@@ -129,6 +150,12 @@ Below, the configuration file with the underlying defaults, is displayed.
     metabolites: remove
     # Additionally, remove unused metabolites (possibly reduces knowledge-base)
     remove_unused_metabs: False
+
+    # optionally check reaction direction 
+    # -----------------------------------
+    reaction_direction: USER # Path to a Biocyc table containing information about reactions and their usual directionality
+    # If provided will also be used in the cm_polish step.
+
 
     # Finding and solvong Energy Generating Cycles (EGCs)
     # ---------------------------------------------------

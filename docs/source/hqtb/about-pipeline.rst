@@ -61,7 +61,7 @@ boudary parameters.
 
 .. note::
 
-    All steps of the workflow can be run separatly via the command line or 
+    Most steps of the workflow can be run separatly via the command line or 
     the Python integration (see :doc:`run-pipeline`).
 
     All accessible functions are listed in the :ref:`Contents of SPECIMEN` section.

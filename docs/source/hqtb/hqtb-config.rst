@@ -7,6 +7,9 @@ Below, the configuration file with the underlying defaults, is shown.
     
     # Configuration file for the SPECIMEN HQTB pipeline
 
+    # This is the advaned config file. For a shorter version, 
+    # download the hqtb-basic configuration file.
+
     # Meaning of the default parameters:
     #    The value __USER__ indicates parameters required to be specified by the user
     #    The value USER indicates parameters required only in specific cases
@@ -17,123 +20,194 @@ Below, the configuration file with the underlying defaults, is shown.
     #    date:      USER
     #    author:    USER
 
+    ##################################################################################
     # Input for the pipeline
-    # ----------------------
+    ##################################################################################
 
-    # Information about the genome to be used to generate the new model
+    # basic input files
+    # -----------------
+
+    # information about the genome to be used to generate the new model
     subject:
         annotated_genome: __USER__
+        gff: __USER___
         full_sequence: __USER__
 
-    # Information about the template model/genome
+    # information about the template model/genome
     template:
         annotated_genome: __USER__
         model: __USER__
-        namespace: BiGG
 
-    # Information about the output
-    out:
+    # information about the output
+    # ----------------------------
+    general:
         dir: ./specimen_run/
-        name: specimen_model
+        modelname: NULL            # Name of the model, if the three values below are not set
+        authorinitials: USER       # Intials or Abbreviation of the author for naming the model
+        strainid: USER             # ID of the strain 
+        organism: USER             # Abbreviation for the organism
         memote: False
 
-    # Data(bases) required to run the program
+    # database information
+    # --------------------
+
+    # data(bases) required to run the program
     data:
-        # If this parameter is set, assumes that the directory structure from setup
+        # if this parameter is set, assumes that the directory structure from setup
         # is used and uses this path to a directory as the parent folder for the
         # following paths (assumes all data paths are relative ones)
         data_direc: null
-        # Required
+        # required
         diamond: __USER__
-        # Needed but potentially downloaded
-        mnx_chem_prop: MetaNetX/chem_prop.tsv
-        mnx_chem_xref: MetaNetX/chem_xref.tsv
-        mnx_reac_prop: MetaNetX/reac_prop.tsv
-        mnx_reac_xref: MetaNetX/reac_xref.tsv
-        # Optional, but good and manual
+
+        # optional, but good and manual
         ncbi_map: null
-        ncbi_dat: null
-        # Optional for directionality control
+
+        # optional for directionality control
         biocyc: null
-        # Optional:
-        #   The pan-core model is used for analysis and if no universal model
-        #   is given, also for gapfilling.
-        #   If the pan-core model is too small for useful gapfilling, use an
-        #   additional universal model for gapfilling.
-        #   If none is given gapfilling (and core-pan analysis) is skipped
+        # optional:
+        #   the pan-core model is used for analysis and if no universal model
+        #   is given, also for gapfilling
+        #   if the pan-core model is too small for useful gapfilling, use an
+        #   additional universal model for gapfilling
+        #   if none if given gapfilling (and core-pan analysis) is skipped
         universal: null
         pan-core: null
 
-    # Paramters for the single steps of the pipeline
+    # parameters for the single steps of the pipeline
+    # -----------------------------------------------
+
     parameters:
+
+        ########## general ##########
+        general:
+            idprefix: 'HQTB'    # prefix to use for fantasy IDs, if IDs for 
+                                # the namespace do not exist.
+            namespace: 'BiGG'
+            email: USER         # email address. Required for queries against NCBI
+
+        ########## step 1: bidirectional blast ##########
         bidirectional_blast:
-            # Default should suffice except special cases
+            # options for giveng customised names and setting a header
+            # -> default uses information from the models/files directly
             template_name: null
             input_name: null
             temp_header: null
             in_header: null
-            # Can be set by user if wanted, but not necessary
+            # change the sensitivity of DIAMOND
             sensitivity: more-sensitive
 
+        ########## step 2: generaft draft model ##########
         generate_draft_model:
-            edit_names: no
+            # if the gene ids of the template model do not match the
+            # identifiers of the annotated genome file, use this option to edit them
+            edit_names: "no"
+            # filter for genes based on percentage identity value
             pid: 80.0
+            # Which medium to save the model with.
             medium: default
 
+        ########## step 3: refinement ###########
+        ########## step 3.1: extension ##########
         refinement_extension:
-            # Default (usually) fine
-            id: locus_tag
-            # Default fine
-            sensitivity: more-sensitive
-            # Default alright but good to edit for trying different options
-            coverage: 95.0
-            pid: 90.0
-            # Default almost needed, except for special cases
-            exclude_dna: True
-            exclude_rna: True
+            # params for DIAMOND
+            sensitivity: more-sensitive # change the sensitivity of DIAMOND
+            coverage: 95.0              # Set the min. coverage 
+            pid: 90.0                   # set the minimal percentage identify value for valid hits
+            # params for adding entities during 
+            formula-check: 'existence'  # When checking, if a metabolite can be added to the model
+                                # also check the formula. For more information about
+                                # available options, please refer to the docs of 
+                                # the function isreaction_comlete().
+            exclude-dna: True           # Exclude reactions containing 'DNA' in their name
+                                        # from being added to the model.
+            exclude-rna: True           # Exclude reactions containing 'RNA' in their name
+                                        # from being added to the model.
+            threshold_add_reacs: 5      # Threshold values. If the mapping of an EC against reactions
+                                        # exceeds this value, the reactions will not be added, due to 
+                                        # the high probability of false positives. 
 
+        ########## step 3.2: cleanup ##########
         refinement_cleanup:
-            # Default as standard
+            
+            # general options _________________________________________
+            # parameters, that apply to all the gap filling algorithms
+            idprefix: 'HQTB'            # prefix to use for fantasy IDs, if IDs for 
+                                        # the namespace do not exist.
+            formula-check: 'existence'  # When checking, if a metabolite can be added to the model
+                                        # also check the formula. For more information about
+                                        # available options, please refer to the docs of 
+                                        # the function isreaction_comlete().
+            exclude-dna: True           # Exclude reactions containing 'DNA' in their name
+                                        # from being added to the model.
+            exclude-rna: True           # Exclude reactions containing 'RNA' in their name
+                                        # from being added to the model.
+            threshold_add_reacs: 5      # Threshold values. If the mapping of an EC against reactions
+                                        # exceeds this value, the reactions will not be added, due to 
+                                        # the high probability of false positives. 
+            
+            # enable algorithms ________________________________________
+
+            # via GFF ....................
+            GeneGapFiller: False              # Activate gap filling via GFF
+            GeneGapFiller parameters: 
+                fasta: USER                   # FASTA (containing CDS) for the GeneGapFiller. 
+                                            # Depending on the case, might be the same as annotated genome.
+                gff: USER                     # Path to a gff file (does not have to be the RefSeq).
+                                            # Needs to be from the same genome the model was build on.
+                type: 'swissprot'             # Type of database. Can either be 'swissprot' or 'user'.
+                dmnd-database: USER           # Path to the SwissProt/User DIAMOND database file.
+                database-mapping: USER        # Path to the SwissProt/User mapping file (against EC / BRENDA in case of SwissProt)
+                check-NCBI: False             # Enable checking NCBI accession numbers for EC numbers - time costly.
+                sensitivity: 'more-sensitive' # Sensitivity option for the DIAMOND run.
+                coverage: 90.0                # Coverage (parameter for DIAMOND).
+                percentage identity: 90.0     # Percentage identity threshold value for accepting
+                                            # matches found by DIAMOND as homologous.
+            # via COBRApy - medium ........
+            media_gap: null             # path to a medium config file. Set it to null to skip this gapfiller
+            growth_threshold: 0.05      # Threshold value for minimal growth, that is required for the media.
+
+            # duplicate handling 
+            # """"""""""""""""""
+            
             check_dupl_reac: True
             check_dupl_meta: default
             remove_unused_meta: False
             remove_dupl_reac: True
             remove_dupl_meta: True
-            # Current default means no gapfilling
-            media_gap: null
 
+        ########## step 3.3: annotation ##########
         refinement_annotation:
-            # For KEGG pathway annotation
+            # for KEGG pathway annotation
             viaEC: False
             viaRC: False
 
+        ########## step 3.4: smoothing ##########
         refinement_smoothing:
-            # Useful
-            mcc: skip
+            mcc: skip # skip, apply or extra for MassChargeCuration
             # ECG correction
             egc: null
-            # Depend on organism (current: Klebsiella )
+            # BOFdat weight fractions: depend on organism (current: Klebsiella )
             dna_weight_frac: 0.023
             ion_weight_frac: 0.05
 
-        # Validation:
-            # Default should suffice
-
+        ########## step 5: analysis ##########
         analysis:
-            # Default is currently only option
+            # How to compare to pan-core model (current option only id)
             pc_based_on: id
-            # Can be default but useful to edit
-            media_analysis: __USER__ # Edit to fit a default media config file
+            # simulate growth on different media (media config file (refineGEMs) required)
+            media_analysis: __USER__
+            # test for amino acid auxotrophies
             test_aa_auxotrophies: True
-            # Perform pathway analysis with KEGG
+            # perform pathway analysis with KEGG
             pathway: True
 
-    # Options for performance
+    ########## technical params ##########
     performance:
         threads: 2
-        # For the gapfilling, if iterations and chunk_size are set (not null)
+        # for the gapfilling, if iterations and chunk_size are set (not null)
         # use a heuristic for faster performance:
-        #     Instead of using all reactions that can be added at once,
+        #     instead of using all reactions that can be added at once,
         #     run x interations of gapfilling with n-size randomised chunks of reactions
         gapfilling:
             iterations: 3

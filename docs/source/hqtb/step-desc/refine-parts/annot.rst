@@ -7,6 +7,7 @@ The third part of the refinement aims to improve the annotations of the model.
 
 As seen in the picture above, the workflow currently covers:
 
+- ``refineGEMs`` functionality ``polish_annotations``
 - SBOterm annotations
 - KEGG pathway annotations for reactions
 
