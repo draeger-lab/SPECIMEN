@@ -51,7 +51,8 @@ docs = ["accessible-pygments",
        "ipython",
        "sphinxcontrib-bibtex",
        "sphinx_copybutton",
-       "pip-tools"]
+       "pip-tools",
+       "sphinx-icon"]
 
 [project.urls]
 repository = 'https://github.com/draeger-lab/SPECIMEN'
