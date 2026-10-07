@@ -1,6 +1,10 @@
 PGAB: From genome sequence to draft model
 =========================================
 
+.. note:: 
+
+    Status: actively being worked on.
+
 PGAB stands for PGAP-based workflow.
 
 .. note::

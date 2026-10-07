@@ -36,7 +36,7 @@ The following steps are executed in the workflow:
 
 - Step 1.A: If the model is/was built with ``CarveMe`` a correction is performed as ``CarveMe`` adds valuable information for example in the notes and not the corresponding fields of the SBML document. 
 - Step 1.B: The model is gap filled. The gap fill step includes all available algorithmns from the ``refineGEMs`` gapfill module. 
-- Step 2: ``ModelPolisher`` is used to enhance the annotation content (future update). 
+- Step 2: ``ModelPolisher`` is used to enhance the annotation content. 
 - Step 3: Annotations
 
   - Adding pathways as Groups from KEGG

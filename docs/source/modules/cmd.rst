@@ -47,7 +47,7 @@ Options:
 
 .. code:: bash
 
-   specimen data structure [WORKFLOW]
+   specimen setup data-structure [WORKFLOW]
 
 Setup a directory with the basic structure for the data needed for the workflow.
 
@@ -59,6 +59,21 @@ Options:
 
 - ``--dir/-d``: Name/Path of the directory
 - ``--chunk-size/-s``: Parameter for doenloading files from the web.
+
+.. code:: bash
+
+   specimen setup make-ncbi-mapping [FOLDER] 
+
+Generate a mapping file for quicker gene gap-filling.
+
+Argument:
+
+- ``FOLDER``: Path to the input directory to search for files for the mapping.
+
+Options:
+
+- ``--out/-o``: Path to the output directory.
+- ``--extension``: File extension of the annotated genomes to seach for. Defaults to ``gbff``.
 
 specimen hqtb 
 -------------
@@ -83,7 +98,12 @@ Options:
 
    specimen hqtb bdb [TEMPLATE] [INPUT]
 
-Run step 1: bidirectional BLAST of the workflow. Requires the input and template genome as input.
+Run step 1: bidirectional BLAST of the workflow. 
+
+Arguments:
+
+- ``TEMPLATE``: Path to the annotated genome of the template.
+- ``INPUT``: Path to the annotated genome file of the organism-of-interest.
 
 Options:
 
@@ -99,8 +119,12 @@ Options:
 
    specimen hqtb draft [TEMPLATE] [BPBBH]
 
-Run step 2: generate draft model of the worfklow. Requires the results of the bidirectional BLAST 
-and the template model as input.
+Run step 2: generate draft model of the worfklow. 
+
+Arguments:
+
+- ``TEMPLATE``: Path to the template model.
+- ``BPBBH``: Path to the BLASTp directional best hits results file from step 1.
 
 Options:
 
@@ -109,7 +133,7 @@ Options:
 - ``--pid``: Threshold value for the PID. Default to 80.0 (80 percent)
 - ``--name``: Name of the output model.
 - ``--medium``: Medium for the new model. Can be a name of a medium in the refineGEMS database, they keyword *default*, which uses the medium from the template or the keyword *exchanges*, which constructs a medium from all available exchange reactions.
-- ``namespace``: Namespace to use for the model.
+- ``--namespace/--nsp``: Namespace to use for the model.
 - ``--memote``: Run Memote after contructing the draft model.
 
 .. code:: bash 
@@ -117,6 +141,10 @@ Options:
    specimen hqtb validation [MODEL]
 
 Run step 4: validation on a model.
+
+Argument:
+
+- ``MODEL``: Path to the model to be validated, e.g. output of the refinement step.
 
 Options:
 
@@ -128,6 +156,10 @@ Options:
    specimen hqtb analysis [MODEL]
 
 Run step 5: analysis on a model.
+
+Arguments:
+
+- ``MODEL``: Path the model to be analysed.
 
 Options:
 
@@ -153,56 +185,58 @@ Run the first part, extension.
 Required options:
 
 - ``--draft``: Path to the draft model.
-- ``--gene-list/-g``: Path to a csv file containing information on all the genes found in the annotated genome.
+- ``--gff``: Path to the gff file of the draft model.
 - ``--fasta/-f``: Path to the (protein) FASTA file containing the CDS sequences
 - ``--db/--database``: Path to the database used for running DIAMOND.
-- ``--mnx-chem-prop``: Path to the MetaNetX chem_prop namespace file.
-- ``--mnx-chem-xref``: Path to the MetaNetX chem_xref namespace file.
-- ``--mnx-reac-prop``: Path to the MetaNetX reac_prop namespace file.
-- ``--mnx-reac-xref``: Path to the MetaNetX reac_xref namespace file.
 
 Further options:
 
 - ``--ncbi_map``: Path to the ncbi information mapping file. Optional, but recommended.
-- ``--ncbi_dat``: Path to the ncbi database information file. Optional, but recommended.
 - ``--dir/-d``: Path to the directory for the output (directories)
-- ``--id/-i``: Name of the column of the csv file that contains the entries that were used as gene identifiers in the draft model.
+- ``--mail/-m``: Mail address for accessing NCBI.
 - ``--sensitivity/-s``: Sensitivity mode for DIAMOND blastp run. Default is sensitive.
 - ``--coverage/-c``: Threshold value for the query coverage for DIAMOND. Default is 80.0.
 - ``--pid``: PID (percentage identity value) to filter the blast hist by. Default is 90.0, only hits equal or above the given value are kept.
-- ``--threads/-t``: Number of threads to be used.
+- ``--threads/-t``: Number of threads to be used. Defaults to 2.
+- ``--threshold_add_reacs/--thres``: Maximal number of mapped reaction for an EC number allowed while adding them.
+- ``--prefix``: Prefixes for entities where the ID needs to be constructed from scratch. Defaults to `HQTBext`.
+- ``--namespace/-n``: Namespace to use for the model IDs. Defaults to `BiGG`.
 - ``--include_dna``: Include reactions with DNA in their name when added (developer information: True == excluded).
 - ``--include_rna``: Include reactions with RNA in their name when added (developer information: True == excluded).
 - ``--memote``: Use memote on the extended model.
 
-.. code:: bash
+.. .. code:: bash
 
-   specimen hqtb refinement cleanup [MODEL]
+..    specimen hqtb refinement cleanup [MODEL]
 
-Based on a draft model, run the second part of refinement, cleanup.
+.. Based on a draft model, run the second part of refinement, cleanup.
 
-Options:
+.. Options:
 
-- ``--dir/-d``: Path to the directory for the output (directories)
-- ``--biocyc_db``: Path to the BioCyc (MetaCyc) database information file (for reactions). Optional, but recommended. Necessary for checking directionality
-- ``--check_dupl_reac/--cdr``: 'Check for duplicate reactions.
-- ``--check_dupl_meta/--cdm``: default='default``: Check for duplicate metabolites. Can "default" (starting point MetaNetX), exhaustive (iterate over all annotations as starting points) or "skip".
-- ``--objective_function``: '--of``: Name, ID of the objective function of the model. Default is "Growth".
-- ``--remove_dupl_meta/--rdm``: 'Option for removing/replacing duplicate metabolites.
-- ``--remove_unused_meta/--rum``: 'Option for removing unused metabolites from the model. Only used when cdm is not skipped.
-- ``--remove_dupl_reac/--rdr``: 'Option for removing duplicate reaction from the model.
-- ``--universal/-u``: Path to a universal model containing reactions used for gapfilling.
-- ``--media-path/--mp``: Path to a media config to use for gapfilling.
-- ``--namespace/--nsp``: Namespace to use for the model.
-- ``--growth_threshold/-gt``: Threshold value for a model to be considered growing.
-- ``--iterations/-i``: Number of iterations for the gapfilling. If 0 is passed, uses full set of reactions instead of heuristic.
-- ``--chunk_size``: Number of reactions to be tested simultaniously if using the heuristic version of gapfilling. If this is 0, heuristic will not be applied.
+.. - ``--dir/-d``: Path to the directory for the output (directories)
+.. - ``--biocyc_db``: Path to the BioCyc (MetaCyc) database information file (for reactions). Optional, but recommended. Necessary for checking directionality
+.. - ``--check_dupl_reac/--cdr``: 'Check for duplicate reactions.
+.. - ``--check_dupl_meta/--cdm``: default='default``: Check for duplicate metabolites. Can "default" (starting point MetaNetX), exhaustive (iterate over all annotations as starting points) or "skip".
+.. - ``--objective_function``: '--of``: Name, ID of the objective function of the model. Default is "Growth".
+.. - ``--remove_dupl_meta/--rdm``: 'Option for removing/replacing duplicate metabolites.
+.. - ``--remove_unused_meta/--rum``: 'Option for removing unused metabolites from the model. Only used when cdm is not skipped.
+.. - ``--remove_dupl_reac/--rdr``: 'Option for removing duplicate reaction from the model.
+.. - ``--universal/-u``: Path to a universal model containing reactions used for gapfilling.
+.. - ``--media-path/--mp``: Path to a media config to use for gapfilling.
+.. - ``--namespace/--nsp``: Namespace to use for the model.
+.. - ``--growth_threshold/-gt``: Threshold value for a model to be considered growing.
+.. - ``--iterations/-i``: Number of iterations for the gapfilling. If 0 is passed, uses full set of reactions instead of heuristic.
+.. - ``--chunk_size``: Number of reactions to be tested simultaniously if using the heuristic version of gapfilling. If this is 0, heuristic will not be applied.
 
 .. code:: bash
 
    specimen hqtb refinement annotation [MODEL]
    
 Run the thrid part of the refinement, annotation, on a given model.
+
+Argument:
+
+- ``MODEL``: Path to the model to be annotated. 
 
 Options:
 
@@ -214,6 +248,10 @@ Options:
 .. code:: bash 
 
    specimen hqtb refinement smoothing [MODEL]
+
+Argument:
+
+- ``MODEL``: Path to the model to be smoothed. 
 
 Required Options:
 
