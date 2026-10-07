@@ -1,0 +1,32 @@
+# Enable the dependency graph, Dependabot alerts, and Dependabot security updates
+# in the repository's GitHub settings. This file must be on the default branch.
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    # Disable routine version PRs; security PRs have a separate limit and
+    # are triggered by alerts, independently of the version-update schedule.
+    open-pull-requests-limit: 0
+    labels:
+      - "security"
+    groups:
+      package-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+
+  # Read the docs requirements.in and requirements.txt used by Read the Docs.
+  - package-ecosystem: "pip"
+    directory: "/docs"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 0
+    labels:
+      - "security"
+    groups:
+      docs-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
