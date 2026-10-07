@@ -205,6 +205,8 @@ parameters:
         test_aa_auxotrophies: True
         # perform pathway analysis with KEGG
         pathway: True
+        # generate a FROG report for the final model
+        frog: False
 
 ########## technical params ##########
 performance:

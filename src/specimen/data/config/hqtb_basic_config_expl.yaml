@@ -145,6 +145,15 @@ parameters:
         dna_weight_frac: 0.023
         ion_weight_frac: 0.05
 
-    ########## step 5: analysis ##########   
+    ########## step 5: analysis ##########
     analysis:
-        media_analysis: __USER__
+        # How to compare to pan-core model (current option only id)
+        pc_based_on: id
+        # simulate growth on different media (media config file (refineGEMs) required)
+        media_analysis: __USER__ 
+        # test for amino acid auxotrophies
+        test_aa_auxotrophies: True
+        # perform pathway analysis with KEGG
+        pathway: True
+        # generate a FROG report for the final model
+        frog: False
