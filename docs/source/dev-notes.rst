@@ -3,9 +3,6 @@ Notes for Developers
 
 To maintain or extend the toolbox ``SPECIMEN`` please install the package via GitHub.
 
-.. warning::
-   refineGEMs requires at least Python 3.10 since version 2.0.0.
-
 .. hint::
 
    For help and information about known bugs, refer to :ref:`Help & FAQ`.
