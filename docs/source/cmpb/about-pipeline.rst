@@ -2,7 +2,7 @@ About ``CMPB``
 ==============
 
 The *CarveMe + ModelPolisher based (CMPB)* workflow curates a model using ``refineGEMs`` and ``ModelPolisher``.
-The starting point is either the input files for ``CarveMe`` (future update) or an already built model.
+The starting point is either the input files for ``CarveMe`` or an already built model.
 
 This workflow aims at minimising the user's workload by concatenating steps that could be done individually with the 
 integrated tools.
@@ -29,33 +29,42 @@ The following steps are executed in the workflow:
   Many of the steps of the worfklow can be fine tuned and turned off/on. 
   Check the :doc:`configuration file <cmpb-config>` for a full list of all parameters.
 
-- Step 0: Possible inputs
+- Possible inputs
 
-  - Model (e.g. created with CarveMe)
-  - Data to create a model with CarveMe
+  - Start 1: 
+    - Data to create a model with CarveMe
+  - Start 2:
+    - Pre-built model (e.g. from CarveMe)
 
-- Step 1.A: If the model is/was built with ``CarveMe`` a correction is performed as ``CarveMe`` adds valuable information for example in the notes and not the corresponding fields of the SBML document. 
-- Step 1.B: The model is gap filled. The gap fill step includes all available algorithmns from the ``refineGEMs`` gapfill module. 
-- Step 2: ``ModelPolisher`` is used to enhance the annotation content. 
-- Step 3: Annotations
+- Draft generation: If the model is/was built with ``CarveMe`` a correction is performed as ``CarveMe`` adds valuable information for example in the notes and not the corresponding fields of the SBML document. 
+- Refinement: 
+  
+  - The model is gap filled. The gap fill step includes all available algorithmns from the ``refineGEMs`` gapfill module. 
+  - The model is checked for duplicated reactions and metabolites, which can also optionally be removed.
+  - ``ModelPolisher`` is used to enhance the annotation content.
+  - Annotations
 
-  - Adding pathways as Groups from KEGG
-  - Using ``SBOannotator`` to get more specific SBO term annotations
-
-- Step 4: Model cleanup
+    - Adding pathways as Groups from KEGG
+    - Using ``SBOannotator`` to get more specific SBO term annotations
 
   - Using MassChargeCuration
-  - Optionally: Using ``BOFdat``
-  - Optionally: Removing duplicates
+  - Check for energy generating cycles (EGCs)
+  - Improve the biomass objective function (BOF)
+    
+    - Optionally: Apply ``BOFdat``
+    - Normalise the BOF
 
-- Step 5: Model analyses
+- Analysis
 
-  - Model statistics
-  - Analysing growth
-  - Testing for amino acid auxotrophies
-  - Optionally: Analysing with ``FROG`` (future update)
   - Optionally: Analysing with ``MEMOTE``
+  - Analysing the model with ``refineGEMs``
 
+    - Model statistics
+    - Analysing growth
+    - Testing for amino acid auxotrophies
+    
+  - Optionally: Analysing with ``FROG`` (future update)
+  
 | For each step the model version and, optionally, the according ``MEMOTE`` report can be saved.
 | All tools are accessed via ``refineGEMs`` unless stated otherwise. 
 | Steps or tools marked as future update will be added in a later version of the workflow.
