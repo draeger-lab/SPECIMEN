@@ -43,7 +43,7 @@ on the command line or
 .. code-block:: python
     :class: copyable
 
-    specimen.cmpb.workflow.run(config_file='config.yaml')
+    specimen.cmpb.workflow.run(configpath='config.yaml')
 
 from inside a Python script or Jupyter Notebook with "config.yaml" being the path to your configuration file.
 

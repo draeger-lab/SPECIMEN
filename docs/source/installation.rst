@@ -3,7 +3,7 @@ Installation
 
 Installation via GitHub/pip
 ---------------------------
-Download the ``SPECIMEN`` repository `here <https://github.com/cb-Hades/klebsiella-pipeline/tree/main>`_ 
+Download the ``SPECIMEN`` repository `here <https://github.com/draeger-lab/SPECIMEN>`_ 
 and run the command :code:`pip install -e .` inside the top-level directory.
 
 .. hint::

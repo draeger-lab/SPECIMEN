@@ -17,9 +17,9 @@ The following image shows an overview of the steps of the worfklow:
 .. _cmpb_workflow:
 
 .. figure:: ../images/cmpb_pipeline-overview.png
-  :alt: Workflow from CaveMe to close-to-final model
+  :alt: Workflow from CarveMe to close-to-final model
 
-  Workflow from ``CaveMe`` to close-to-final model
+  Workflow from ``CarveMe`` to close-to-final model
 
 The following steps are executed in the workflow:
 

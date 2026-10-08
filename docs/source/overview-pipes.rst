@@ -25,7 +25,7 @@ the model using various tools.
 This workflow can be run on an annotated genome or an already generated CarveMe model and requires very little additional
 information to be run on its base settings. 
 However, additional information can be added from 
-e.g. KEGG or BioCyc to perform an automated gap filling using `refineGEMs <https://github.com/draeger-lab/refinegems/tree/dev-2>`__ :footcite:p:`bauerle2023genome`.
+e.g. KEGG or BioCyc to perform an automated gap filling using `refineGEMs <https://github.com/draeger-lab/refinegems>`__ :footcite:p:`bauerle2023genome`.
 
 .. toctree::
     :maxdepth: 2

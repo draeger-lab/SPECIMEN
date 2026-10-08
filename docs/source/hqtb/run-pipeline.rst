@@ -48,14 +48,14 @@ on the command line or
 .. code-block:: python
     :class: copyable
 
-    specimen.hqtb.workflow.run_complete(config_file='config.yaml')
+    specimen.hqtb.workflow.run(config_file='config.yaml')
 
 from inside a Python script or Jupyter Notebook with "config.yaml" being the path to your configuration file.
 
 .. note::
 
     Additionally, the worfklow can be run with a wrapper to susequently build multiple models for different genomes using the same parameters.
-    The wrapper can be accessed using :code:`specimen hqtb wrapper "config.yaml"` or :code:`specimen.workflow.wrapper_pipeline(config_file='/User/path/to/config.yaml', parent_dir="./")`.
+    The wrapper can be accessed using :code:`specimen hqtb wrapper "config.yaml"` or :code:`specimen.workflow.wrapper(config_file='/User/path/to/config.yaml', parent_dir="./")`.
 
 
 ``HQTB``: Collecting Data
@@ -67,7 +67,7 @@ If you are just starting a new project and do not have all the data ready to go,
 .. code-block:: python
     :class: copyable
 
-    specimen.util.set_up.build_data_directories('your_folder_name')
+    specimen.util.set_up.build_data_directories('choosen workflow', 'your_folder_name (parent directory)')
 
 | The function above creates the following directory structure for your project.
 | The 'contains' column lists what is supposed to be inside the according folder. 
@@ -128,7 +128,7 @@ Further details for collecting the data:
 
     The media, either for analysis or gap filling can be entered into the workflow via a config file. 
     The same media file can be used for both or one file for each step can be entered into the workflow. 
-    The config files are from the `refineGEMs <https://github.com/draeger-lab/refinegems/tree/dev-2>`__ :footcite:p:`bauerle2023genome` toolbox and access its in-build medium database. 
+    The config files are from the `refineGEMs <https://github.com/draeger-lab/refinegems>`__ :footcite:p:`bauerle2023genome` toolbox and access its in-build medium database. 
     Additionally, the config files allow for manual adjustment / external input.
 
     An examplary config file can be accessed using the following command:
