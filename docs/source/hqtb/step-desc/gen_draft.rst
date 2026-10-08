@@ -31,12 +31,10 @@ The draft model is constructed based on the idea of :footcite:t:`norsigian2020wo
 - Renaming the homologous genes to match the names of the new genome
 - Checking unchanged genes
 
-    - remove them, if they are not essential for the growth of the model 
+    - remove them, if they are not essential for the growth of the model
 
     .. note::
 
-        Additionally, genes from the template model, which are part of a enzyme complex, where at least one 
-        gene was mapped successfully, are kept as well. They are, however, reported to provide extensive information 
-        for possible manual curation after running the workflow.
+        Additionally, genes from the template model, which are part of a enzyme complex, where at least one gene was mapped successfully, are kept as well. They are, however, reported to provide extensive information for possible manual curation after running the workflow.
 
 .. footbibliography:: 

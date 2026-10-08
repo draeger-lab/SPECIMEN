@@ -52,8 +52,9 @@ The workflow consists of five main steps:
 
 
 
-The wrapper function allows the curation of multiple models sequentially using the same 
-boudary parameters.
+.. hint::
+    There is a wrapper function which allows the curation of multiple models sequentially using the same 
+    boudary parameters.
 
 .. hint::
     Many of the steps of the workflow can be fine tuned and turned off/on. 
