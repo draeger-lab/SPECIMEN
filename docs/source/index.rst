@@ -63,6 +63,7 @@ How to Cite
    overview-pipes 
    specimen
    help
+   contributing
    dev-notes
 
 .. footbibliography::

@@ -62,7 +62,7 @@ def create_DIAMOND_db_from_folder(
     # -----------------------
 
     # check if folder already has a combined FASTA
-    outname_fasta = Path(out, "combinded.faa")
+    outname_fasta = Path(out, "combined.faa")
     save = True
     if os.path.isfile(outname_fasta):
         print("A combined.faa files already exists in the given folder.")

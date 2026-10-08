@@ -1,4 +1,4 @@
-[![GitHub License](https://img.shields.io/github/license/draeger-lab/specimen)](https://opensource.org/license/GPL-3.0)
+[![GitHub Licence](https://img.shields.io/github/license/draeger-lab/specimen)](https://opensource.org/license/GPL-3.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 ![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Fdraeger-lab%2Fspecimen%2Fmain%2Fpyproject.toml)
 [![Documentation Status](https://readthedocs.org/projects/specimen/badge/?version=latest)](https://specimen.readthedocs.io/en/latest/?badge=latest)
@@ -8,7 +8,7 @@
 ![GitHub all releases](https://img.shields.io/github/downloads/draeger-lab/specimen/total?logo=github&label=GitHub%20downloads)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12723500.svg)](https://doi.org/10.5281/zenodo.12723500)
 
-![Logo of SPECIMEN](docs/source/images/LogoSPECIMEN.png)
+![Logo of SPECIMEN](docs/source/images/logos/specimen-logo-transparent.png)
 
 # SPECIMEN
 
@@ -39,6 +39,7 @@ Currently avaible workflow:
         - [pypi After install via pip](#pypi-after-install-via-pip)
         - [docker After install via Docker](#docker-after-install-via-docker)
     - [Documentation](#documentation)
+    - [Contributing](#contributing)
     - [Repositories using SPECIMEN](#repositories-using-specimen)
 
 <!-- /TOC -->
@@ -108,6 +109,18 @@ For example, to run the CMPB pipeline, use:
 > 🚧 The documentation is currently under heavy-rework!
 
 For more information about the available pipelines, the code or for troubleshooting, please refer to the documentation of the tool [here](https://specimen.readthedocs.io/en/latest/).
+
+## Contributing
+
+Contributions are welcome! SPECIMEN contributions often involve workflows, configuration templates, documentation, example datasets, pipeline modules, or interfaces to external tools. Please read our [Contributing Guide](.github/CONTRIBUTING.md) before opening an issue or submitting a pull request.
+
+For GitHub issues, please use the matching template:
+
+- [Bug report](.github/ISSUE_TEMPLATE/bug_report.yml) for reproducible errors, failed pipeline runs, configuration problems, or external-tool issues
+- [Feature request](.github/ISSUE_TEMPLATE/feature_request.yml) for general improvements to workflows, configuration, documentation, examples, or tool interfaces
+- [Workflow suggestion](.github/ISSUE_TEMPLATE/workflow_suggestion.yml) for new workflow steps, workflow restructuring, or changes that need complete-run validation
+
+Pull requests should follow the [pull request template](.github/pull_request_template.md) and describe workflow validation, configuration compatibility, external dependencies, and documentation updates. Please also follow our [Code of Conduct](.github/CODE_OF_CONDUCT.md).
 
 ## Repositories using SPECIMEN
 - draeger-lab/Cacnes - `private`
