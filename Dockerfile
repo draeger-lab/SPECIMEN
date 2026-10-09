@@ -8,6 +8,14 @@ COPY pyproject.toml ./
 COPY src/ ./src/
 COPY README.md ./
 
+# install DIAMOND 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       build-essential \
+       diamond-aligner \
+       git \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install the package using pip (setuptools will be used automatically)
 RUN pip install .
 
