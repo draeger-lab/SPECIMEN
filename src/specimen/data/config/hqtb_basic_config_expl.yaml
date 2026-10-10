@@ -1,8 +1,5 @@
 # Configuration file for the SPECIMEN HTQB pipeline
 
-# This is the shortend version. More more options, 
-# download the hqtb-advaned configuration file.
-
 # Meaning of the default parameters:
 #    The value __USER__ indicates parameters required to be specified by the user
 #    The value USER indicates parameters required only in specific cases
@@ -51,10 +48,10 @@ data:
     # is used and uses this path to a directory as the parent folder for the
     # following paths (assumes all data paths are relative ones)
     data_direc: null
-    # and the relative paths to the data file below:
     # required
     diamond: __USER__
-    # optional, but speed up the program by a large margin
+
+    # optional, but good and manual
     ncbi_map: null
 
     # optional for directionality control
@@ -81,7 +78,12 @@ parameters:
 
     ########## step 1: bidirectional blast ##########
     bidirectional_blast:
-        # set the sensitivity for DIAMOND
+        # default should suffice except special cases
+        template_name: null
+        input_name: null
+        temp_header: null
+        in_header: null
+        # can be set by user if wanted, but not necessary
         sensitivity: more-sensitive
 
     ########## step 2: generaft draft model ##########
@@ -90,6 +92,7 @@ parameters:
         # identifiers of the annotated genome file, use this option to edit them
         edit_names: "no"
         pid: 80.0
+        medium: default 
 
     ########## step 3: refinement ###########
     ########## step 3.1: extension ##########
@@ -97,54 +100,59 @@ parameters:
         # params for DIAMOND
         sensitivity: more-sensitive # change the sensitivity of DIAMOND
         coverage: 95.0              # Set the min. coverage 
-        pid: 90.0                   # set the minimal percentage identify value for valid hits
+        pid: 90.0                   # set the minimal percentage identity value for valid hits
         # params for adding entities during 
         formula-check: 'existence'  # When checking, if a metabolite can be added to the model
                               # also check the formula. For more information about
                               # available options, please refer to the docs of 
-                              # the function isreaction_comlete().
+                              # the function isreaction_complete().
+        exclude-dna: True           # Exclude reactions containing 'DNA' in their name
+                                    # from being added to the model.
+        exclude-rna: True           # Exclude reactions containing 'RNA' in their name
+                                    # from being added to the model.
+        threshold_add_reacs: 5      # Threshold values. If the mapping of an EC against reactions
+                                    # exceeds this value, the reactions will not be added, due to 
+                                    # the high probability of false positives. 
 
     ########## step 3.2: cleanup ##########
-    refinement_cleanup:
-
-        # gap-filling
-        # """""""""""
-        
-        # general options _________________________________________
-        # parameters, that apply to all the gap filling algorithms
-        # current default means no gapfilling
-        formula-check: 'existence'  # When checking, if a metabolite can be added to the model
-                                    # also check the formula. For more information about
-                                    # available options, please refer to the docs of 
-                                    # the function isreaction_comlete().
-        
-        # enable algorithms ________________________________________
-        GeneGapFiller: False              # Activate gap filling via GFF
-        GeneGapFiller parameters: 
-            fasta: USER                   # FASTA (containing CDS) for the GeneGapFiller. 
-                                          # Depending on the case, might be the same as annotated genome.
-            gff: USER                     # Path to a gff file (does not have to be the RefSeq).
-                                          # Needs to be from the same genome the model was build on.
-            type: 'swissprot'             # Type of database. Can either be 'swissprot' or 'user'.
-            dmnd-database: USER           # Path to the SwissProt/User DIAMOND database file.
-            database-mapping: USER        # Path to the SwissProt/User mapping file (against EC / BRENDA in case of SwissProt)
-            check-NCBI: False             # Enable checking NCBI accession numbers for EC numbers - time costly.
-            sensitivity: 'more-sensitive' # Sensitivity option for the DIAMOND run.
-            coverage: 90.0                # Coverage (parameter for DIAMOND).
-            percentage identity: 90.0     # Percentage identity threshold value for accepting
-                                          # matches found by DIAMOND as homologous.
-        # via COBRApy - medium ........
-        media_gap: null             # path to a medium config file. Set it to null to skip this gapfiller
+    ########## step 3.3: annotation ##########
+    refinement_annotation:
+        # for KEGG pathway annotation
+        viaEC: False
+        viaRC: False
 
     ########## step 3.4: smoothing ##########
-    refinement_smoothing:
-        mcc: skip # skip, apply or extra for MassChargeCuration
-        # ECG correction
-        egc: null
-        # BOFdat weight fractions: depend on organism (current: Klebsiella )
-        dna_weight_frac: 0.023
-        ion_weight_frac: 0.05
+    ########## step 4: validation ##########
+    validation: 
+        run_all: True # run all validation tests
+                      # if set to True, overwrites the following option 
+        tests:        # list of tests to run 
+                      # currently available: modelpolisher, cobra
+            # - "modelpolisher"
+            # - "cobra"
 
-    ########## step 5: analysis ##########   
+    ########## step 5: analysis ##########
     analysis:
-        media_analysis: __USER__
+        # How to compare to pan-core model (current option only id)
+        pc_based_on: id
+        # simulate growth on different media (media config file (refineGEMs) required)
+        media_analysis: __USER__ 
+        # test for amino acid auxotrophies
+        test_aa_auxotrophies: True
+        # perform pathway analysis with KEGG
+        pathway: True
+
+########## technical params ##########
+performance:
+    threads: 2
+    # for the gapfilling, if iterations and chunk_size are set (not null)
+    # use a heuristic for faster performance:
+    #     instead of using all reactions that can be added at once,
+    #     run x interations of gapfilling with n-size randomised chunks of reactions
+    gapfilling:
+        iterations: 3
+        chunk_size: 2000
+    egcs:
+        chunk_size: 1 # chunk size for parallel processing during solving EGCs
+        limit: 2 # max numbers of cores to use while trying to solve EGCs
+
