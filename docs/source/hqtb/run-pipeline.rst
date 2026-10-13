@@ -112,12 +112,13 @@ Further details for collecting the data:
 
     - Downloading a smart table from BioCyc requires a subscription.
     - The SmartTable needs to have the columns 'Reactions', 'EC-Number', 'KEGG reaction', 'METANETX' and 'Reaction-Direction'.
+    - The 'Reactions' column must contain BioCyc reaction IDs.
 
 - RefSeq
 
     - One way to build a DIAMOND reference database is to download a set of reference sequences from the NCBI database, e.g. in the **FAA** format.
-    - Use the function :code:`specimen.util.util.create_DIAMOND_db_from_folder('/User/path/input/directory', '/User/Path/for/output/', name = 'database', extention = 'faa')` to create a DIAMOND database
-    - To speed up the mapping, create an additional mapping file from the e.g. ``GBFF`` files from NCBI using :code:`specimen.util.util.create_NCBIinfo_mapping('/User/path/input/directory', '/User/Path/for/output/', extention = 'gbff')`
+    - Use the function :code:`specimen.util.util.create_DIAMOND_db_from_folder('/User/path/input/directory', '/User/Path/for/output/', name = 'database', extension = 'faa')` to create a DIAMOND database
+    - To speed up the mapping, create an additional mapping file from NCBI ``GBFF`` annotations of the same reference genomes whose protein FASTA files were used to build the DIAMOND database. Use :code:`specimen.util.util.create_NCBIinfo_mapping('/User/path/input/directory', '/User/Path/for/output/', extension = 'gbff')`.
     - To ensure correct mapping to KEGG, an additional information file can be created by constructing a CSV file with the following columns: 'NCBI genome', 'organism', 'locus_tag' (only the part until the seperator '_', the part, that is the same for all locus tags) and 'KEGG.organism'
 
         - The information of the first three columns can be taken from the previous two steps while
