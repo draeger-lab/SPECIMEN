@@ -58,7 +58,6 @@ logger = logging.getLogger(__name__)
 ################################################################################
 
 # @TODO Add debug switches to test growth on every step (Maybe also on full medium?) -> Maybe as entry point?
-# @ASK Provide the draft model directly from CarveMe only in debug mode or always? -> Is always provided already.
 # dev notes:
 #   in the run function: current_model means the cobrapy model,
 #   while current_libmodel means the libsbml model
