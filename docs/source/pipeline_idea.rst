@@ -1,5 +1,5 @@
-PGAB: From genome sequence to draft model
-=========================================
+:icon:`fa-solid fa-dna` PGAB: From genome sequence to draft model
+=================================================================
 
 PGAB stands for Prokaryotic Annotation Pipeline (PGAP)-based workflow.
 

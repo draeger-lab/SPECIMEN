@@ -17,9 +17,9 @@ The following image shows an overview of the steps of the worfklow:
 .. _cmpb_workflow:
 
 .. figure:: ../images/cmpb_pipeline-overview.png
-  :alt: Workflow from CarveMe to close-to-final model
+  :alt: Workflow from either CarveMe (Start 1) or a pre-build model (Start 2) to close-to-final model
 
-  Workflow from ``CarveMe`` to close-to-final model
+  Workflow from ``CarveMe`` (Start 1) or a pre-build model (Start 2) to close-to-final model
 
 The following steps are executed in the workflow:
 
@@ -34,36 +34,36 @@ The following steps are executed in the workflow:
   - Start 1: 
     - Data to create a model with CarveMe
   - Start 2:
-    - Pre-built model (e.g. from CarveMe)
+    - Pre-build model (e.g. from CarveMe)
 
 - Draft generation: If the model is/was built with ``CarveMe`` a correction is performed as ``CarveMe`` adds valuable information for example in the notes and not the corresponding fields of the SBML document. 
 - Refinement: 
   
-  - The model is gap filled. The gap fill step includes all available algorithmns from the ``refineGEMs`` gapfill module. 
+  - The model is gap-filled. The gap-fill step includes all available algorithms from the ``refineGEMs.classes.gapfill`` module. 
   - The model is checked for duplicated reactions and metabolites, which can also optionally be removed.
   - ``ModelPolisher`` is used to enhance the annotation content.
-  - Annotations
+  - Annotation enhancement:
 
-    - Adding pathways as Groups from KEGG
-    - Using ``SBOannotator`` to get more specific SBO term annotations
+    - Adds pathways as Groups from KEGG
+    - Uses ``SBOannotator`` to get more specific SBO term annotations
 
-  - Using MassChargeCuration
-  - Check for energy generating cycles (EGCs)
-  - Improve the biomass objective function (BOF)
+  - Uses MassChargeCuration to improve mass and charge balances
+  - Checks for energy generating cycles (EGCs)
+  - Improves the biomass objective function (BOF):
     
-    - Optionally: Apply ``BOFdat``
-    - Normalise the BOF
+    - Optionally: Applies ``BOFdat``
+    - Normalises the BOF
 
-- Analysis
+- Analysis of the final model:
 
-  - Optionally: Analysing with ``MEMOTE``
-  - Analysing the model with ``refineGEMs``
+  - Optionally: Analysis with ``MEMOTE``
+  - Analysis with ``refineGEMs``:
 
     - Model statistics
-    - Analysing growth
+    - Growth
     - Testing for amino acid auxotrophies
     
-  - Optionally: Analysing with ``FROG`` (future update)
+  - Optionally: Analysis with ``FROG`` (future update)
   
 | For each step the model version and, optionally, the according ``MEMOTE`` report can be saved.
 | All tools are accessed via ``refineGEMs`` unless stated otherwise. 

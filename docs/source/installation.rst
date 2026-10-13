@@ -1,8 +1,15 @@
 Installation
 ==============
 
-Installation via GitHub/pip
----------------------------
+.. important::
+
+    The minimum Python requirement for ``SPECIMEN`` is 3.10.
+
+    Currently, COBRApy is not yet updated on its main branch for Python 3.13.
+    Therefore, the highest recommended Python version is 3.12.
+
+:icon:`fa-brands fa-python` Installation via GitHub/pip
+-------------------------------------------------------
 Download the ``SPECIMEN`` repository `here <https://github.com/draeger-lab/SPECIMEN>`_ 
 and run the command :code:`pip install -e .` inside the top-level directory.
 
@@ -23,7 +30,9 @@ For all options to run error-free, the following tools need to be installed addi
 
 Afterwards, ``SPECIMEN`` can either be accessed via the command line or via importing the package into a Python script.
 
-``SPECIMEN`` can also be used via Docker. To build the docker image, firtsly clone the repository:
+:icon:`fa-brands fa-docker` Installation via GitHub/Docker
+----------------------------------------------------------
+``SPECIMEN`` can also be used via Docker. To build the docker image, firstly clone the repository:
 
 .. code:: console
    :class: copyable
@@ -65,14 +74,3 @@ For example, to run the CMPB pipeline, use:
    :class: copyable
 
    docker run --name <container_name> -v <user_folder>:/sp_cont specimen cmpb run ./path/to/CMPB_config.yaml
-
-.. hint::
-
-    The minimum Python requirement for ``SPECIMEN`` is 3.10.
-
-.. warning:: 
-
-    Currently, COBRApy is not yet updated on its main branch for Python 3.13.\\
-    Therefore, the highest recommended Python version is 3.12.
-    
-

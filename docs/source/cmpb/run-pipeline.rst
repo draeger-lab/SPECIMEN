@@ -54,20 +54,22 @@ The worfklow has two obligatory parameters:
 
 - The generated draft model e.g. using ``CarveMe``
 
-    - If no model is given, the `protein_fasta` needs to be provided. The format needs to be the same as the files provides by NCBI under `<GenBank assembly>` -> `ftp` -> `<name>_translated_cds.faa.gz`
+    - If no model is given, the `protein_fasta` needs to be provided. The format needs to be the same as the files provided by NCBI under `<GenBank assembly>` → `ftp` → `<name>_translated_cds.faa.gz`
 
 - A media configuration (from refineGEMs) for testing the model's growth
 
 Further data can be added as available and/or needed (all are completely optional):
 
 - The reference sequence GFF file (for gap analysis via KEGG required, optional for CarveMe polishing)
+
     - Some of the gap-filling options (BioCyc, Gene) also require a GFF file, but since the type of GFF influcences the results, the input is separated from the first GFF.
 - If available, the KEGG organism ID (for gap analysis via KEGG required, optional for CarveMe polishing)
 - The protein FASTA of your input genome (required for lab\_strain=True, otherwise optional)
 - Additional files for filling gaps: 
 
     - For KEGG see bullet points above 
-    - Gap-filling with BioCyc requires two BioCyc SmartTables, one for the genes and one for the reactions of the organism.
+    - | Gap-filling with BioCyc requires two BioCyc SmartTables, one for the genes and one for the reactions of the organism.
+      | (For more details on the tables and how to obtain them, see `Gap-filling with BioCyc <https://refinegems.readthedocs.io/en/latest/modules-desc/gapfill.html#gap-filling-with-biocyc>`__)
     - | The gap-filling via genes uses a SwissProt database file and mapping (for more information about the setup, see ``refinegems.utility.setup.download_url``).
       | Additionally, if checking protein accession numbers against NCBI should be enabled, an email address needs to be given.
 
@@ -77,4 +79,4 @@ Further data can be added as available and/or needed (all are completely optiona
     - The DNA weight fraction of your organism (experimentally determined or retrieved using literature research)
     - The enzyme/ion weight fraction of your organism (experimentally determined or retrieved using literature research)
 
-- For checking reaction direction, a BioCyc smart table.
+- For checking reaction direction, a BioCyc smart table is required (for more details, see `Check and refine the direction of reactions <https://refinegems.readthedocs.io/en/latest/modules-desc/reacdirec.html#check-and-refine-the-direction-of-reactions>`__).

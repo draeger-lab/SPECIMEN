@@ -3,19 +3,19 @@ Overview of the Workflows
 
 The following workflows are currently available:
 
-- :ref:`CMPB<CMPB Overview>`: CarveMe + ModelPolisher based 
-- :ref:`HQTB<HQTB Overview>`: High-quality template based 
+- :icon:`fa-solid fa-bacterium` :ref:`CMPB<CMPB Overview>`: CarveMe + ModelPolisher based 
+- :icon:`fa-solid fa-share-nodes` :ref:`HQTB<HQTB Overview>`: High-quality template based 
 
 More information about these differnt types of workflows can be found below.
 
-.. hint:: 
+.. important:: 
 
     Which type of workflow to use is heavily dependent on your 
     organism, available information for your organism 
     and the data you wish to use as input.
 
-CarveMe + ModelPolisher based (``CMPB``) workflow
--------------------------------------------------
+:icon:`fa-solid fa-bacterium` CarveMe + ModelPolisher based (``CMPB``) workflow
+-------------------------------------------------------------------------------
 
 .. _CMPB Overview:
 
@@ -35,8 +35,8 @@ e.g. KEGG or BioCyc to perform an automated gap filling using `refineGEMs <https
     Run CMPB <cmpb/run-pipeline>
     CMPB Configuration <cmpb/cmpb-config>
 
-High-quality template based (``HQTB``) workflow
------------------------------------------------
+:icon:`fa-solid fa-share-nodes` High-quality template based (``HQTB``) workflow
+-------------------------------------------------------------------------------
 
 .. _HQTB Overview:
 
@@ -56,8 +56,8 @@ a similar organism compared to the one for which the new model should be curated
     Run HQTB <hqtb/run-pipeline>
     HQTB Configuration <hqtb/hqtb-config>
 
-More ideas for workflows
-------------------------
+:icon:`fa-regular fa-lightbulb` More ideas for workflows
+--------------------------------------------------------
 
 Below are some ideas for workflows, to be implemented in future update(s):
 

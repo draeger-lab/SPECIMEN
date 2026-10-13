@@ -50,7 +50,7 @@ Currently, ``SPECIMEN`` includes the following workflows (for a summary refer to
 How to Cite
 -----------
 
-.. warning::
+.. attention::
 
   Coming soon
 
