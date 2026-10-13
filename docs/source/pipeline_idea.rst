@@ -1,42 +1,33 @@
 PGAB: From genome sequence to draft model
 =========================================
 
-.. note:: 
-
-    Status: actively being worked on.
-
 PGAB stands for PGAP-based workflow.
 
 .. note::
 
-    This workflow is still in the idea stage and will be object to a future update.
+    This workflow is under development on the ``pgab-dev`` branch and is planned
+    for a future update. The overview below describes the planned workflow.
 
-Generating a model for an organism, where no information on genes and proteins is obtainable via any database, 
-causes the problem, that the model will not contain valid database identifiers for any GeneProduct. To resolve this issue, the 
-workflow in Figure :numref:`pgab_workflow` can be used.
+Starting from a genome sequence, PGAB aims to annotate the genome and extend the
+protein annotations with database identifiers before generating a draft model.
+Figure :numref:`pgab_workflow` shows the following stages:
 
-1. First, annotate the genome with NCBI's Prokaryotic Genome Annotation Pipeline (PGAP) to obtain the same FASTA format as used in NCBI and use the flag for taxonomy checking.
-2. Then use DIAMOND with the ``nr`` database from NCBI and the obtained annotated FASTA file as input. Restrict the search to your organism's taxon if known.
-3. Check if any protein in the annotation FASTA file still has no database identifier.
-
-    | -> YES: Rerun DIAMOND without the taxonomy check and without the restriction for the organism's taxon.
-    |
-    | -> NO: Continue with step 4.
-
-4. Add the DIAMOND result to the annotated FASTA file.
-5. Run e.g. ``CarveMe`` to construct a draft model.
-6. Check, if any GeneProducts without NCBI Protein or RefSeq identifiers occur in the model.
-
-    | -> YES: 
-    |     i. Use individual BLAST searches for the remaining GeneProducts.
-    |     ii. Add the results to the annotated and refined FASTA file.
-    |     iii. Create again a draft model with the same program with the newly refined FASTA file.
-    | 
-    | -> NO: The draft model is done.
+1. **Taxonomy check and genome annotation:** Use NCBI's Prokaryotic Genome
+   Annotation Pipeline (PGAP) with the genome FASTA file as input. This stage
+   produces an annotated FASTA file and taxonomy information in XML/TXT format.
+2. **Annotation extension:** Look up RefSeq identifiers and use DIAMOND searches
+   to obtain additional protein annotations. The DIAMOND route includes
+   taxonomy-specific and unrestricted searches against NCBI's ``nr`` database,
+   SwissProt, or a user-provided database.
+3. **Draft generation:** Use the extended annotations with either the
+   :ref:`CMPB<CMPB Overview>` or :ref:`HQTB<HQTB Overview>` workflow to generate
+   the draft model.
+4. **Output:** Export the draft model in SBML format and a mapping table in CSV
+   format linking the annotated proteins to database identifiers.
 
 .. _pgab_workflow:
 
 .. figure:: images/pgab_pipeline-overview.png
-  :alt: Workflow from genome sequence to a draft model
+  :alt: Planned PGAB workflow with PGAP annotation, RefSeq lookup and DIAMOND searches, CMPB or HQTB draft generation, and CSV and SBML outputs
 
-  Workflow from genome sequence to a draft model.
+  Planned PGAB workflow from a genome sequence to a draft model and a mapping table.
