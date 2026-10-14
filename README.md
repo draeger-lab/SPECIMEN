@@ -24,10 +24,6 @@ Currently avaible workflow:
 
 - HQTB - High-quality template based:\\This pipeline follows the modelling approach of using a high-quality template model as a basis for the reconstruction of a new model from a new genome (e.g. a different strain). 
 
-<!-- @ASK Brauchen wir den Hinweis hier noch? Wenn nicht sollte der hier raus und auch im HowTo-Notebook. -->
-> [!NOTE]
-> Due to some major refactoring changes in refineGEMs this workflow might not run as expected.
-
 - :construction: PGAB - Prokaryotic Genome Annotation Pipeline (PGAP)-based: Under construction → see [Documentation on ReadTheDocs](https://specimen.readthedocs.io/en/latest/pipeline_idea.html) or the [``pgab-dev`` branch on GitHub](https://github.com/draeger-lab/SPECIMEN/tree/pgab-dev)
 
 <!-- TOC -->
