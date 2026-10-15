@@ -56,17 +56,9 @@ The workflow consists of five main steps:
     There is a wrapper function which allows the curation of multiple models sequentially using the same 
     boundary parameters.
 
-.. % @DISCUSSION The following notes say nearly the same thing. 
-..               So I think they should be either merged or one of them removed.
-
 .. note::
     Many of the steps of the workflow can be fine-tuned and turned off/on. 
-    Check the :doc:`configuration file <hqtb-config>` for a full list of all parameters.
-
-.. note::
-
-    Most steps of the workflow can be run separately via the command line or 
-    the Python integration (see :doc:`run-pipeline`).
+    In addition to calling the functions from a script, many steps can be run via the CLI.
 
     All accessible functions are listed in the :ref:`Contents of SPECIMEN` section.
 
