@@ -7,16 +7,19 @@ Based on the results of step 1 and the template model, step 2 of the workflow ge
 
     When running this step outside the context of the workflow, the input files 
     need to be related to each other. The identifiers of the genes 
-    for the matches of the bidirectional blast results and the genes in the template model
+    for the matches of the bidirectional BLAST results and the genes in the template model
     need to be the same or can be adjusted using the given parameters as needed.
 
 A graphical representation of the steps can be found below:
 
-.. image:: ../../images/modules/2_gendraft.png
+.. figure:: ../../images/modules/2_gendraft.png
+  :alt: Step 2 of HQTB workflow: Draft Model Generation
+
+  Step 2 of HQTB workflow: Draft Model Generation
 
 The draft model is constructed based on the idea of :footcite:t:`norsigian2020workflow` by:
 
-1. Filtering the BLAST best bidirectional hits by their percentage identity value (only matches with a PID greater than a given threshold are considered homologous).
+1. Filtering the BLAST best bidirectional hits by their percentage identity (PID) value (only matches with a PID greater than a given threshold are considered homologous).
 2. Choosing a medium for the new model. Options include:
 
     - Using the one from the template

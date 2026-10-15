@@ -4,11 +4,15 @@ Step 1: Bidirectional BLAST
 The first step of the workflow is to perform a  bidirectional BLAST using `DIAMOND <https://github.com/bbuchfink/diamond>`__ 
 on the input and template genomes. The aim is to identify genes that are found 
 in both genomes. The bidirectional BLAST ensures a high certainty value. The idea 
-is based on the workflow described by :footcite:t:`norsigian2020workflow`.
+is based on the workflow described by :footcite:t:`norsigian2020workflow`. The 
+result is a TSV file containing the bidirectional BLAST hits (BBH).
 
 Below is an overview of this step of the workflow:
 
-.. image:: ../../images/modules/1_bbh.png
+.. figure:: ../../images/modules/1_bbh.png
+  :alt: Step 1 of HQTB workflow: Bidirectional BLAST
+
+  Step 1 of HQTB workflow: Bidirectional BLAST
 
 
 .. footbibliography:: 

@@ -13,4 +13,7 @@ Which validators are run can be adjusted via parameters or in the configuration 
 
 A graphical representation of the part of this step can be found below.
 
-.. image:: ../../images/modules/4_validation.png
+.. figure:: ../../images/modules/4_validation.png
+  :alt: Step 4 of HQTB workflow: Model Validation
+
+  Step 4 of HQTB workflow: Model Validation

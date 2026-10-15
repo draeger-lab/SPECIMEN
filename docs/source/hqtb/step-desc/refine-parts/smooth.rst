@@ -10,4 +10,7 @@ information in the model, inlcuding:
 
 A graphical overview can be found below.
 
-.. image:: ../../../images/modules/3_4_smoothing.png
+.. figure:: ../../../images/modules/3_4_smoothing.png
+  :alt: Step 3 of HQTB workflow: Model Refinement. Part 4: Smoothing
+
+  Step 3 of HQTB workflow: Model Refinement. Part 4: Smoothing

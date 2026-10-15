@@ -1,5 +1,5 @@
-Step 5: Analyse the Model
-=========================
+Step 5: Model Analysis
+======================
 
 The fifth and final step of the workflow is a short analysis of the curated model, 
 generating a set of tables and graphics to nicely display the model content. Most steps, 
@@ -14,9 +14,12 @@ Current options include:
 
 A graphical overview of the in and outs of this step can be found below.
 
-.. warning:: 
+.. caution:: 
 
-    The pan-core analysis is under heavy rework in its origin package, refinegems.
-    Use at your pwn discretion.
+    The pan-core analysis is under heavy rework in its origin package (``refineGEMs``).
+    Use at your own discretion.
 
-.. image:: ../../images/modules/5_analysis.png
+.. figure:: ../../images/modules/5_analysis.png
+  :alt: Step 5 of HQTB workflow: Model Analysis
+
+  Step 5 of HQTB workflow: Model Analysis

@@ -17,7 +17,10 @@ Overview of the ``HQTB`` Workflow
 
 The following image shows an overview of the steps of the workflow:
 
-.. image:: ../images/hqtb_pipeline-overview.png
+.. figure:: ../images/hqtb_pipeline-overview.png
+  :alt: Workflow from a template model and genome data to a strain-specific one for a new organism
+
+  Workflow from a template model and genome data to a strain-specific one for a new organism
 
 The workflow consists of five main steps:
 
