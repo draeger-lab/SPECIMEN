@@ -7,8 +7,8 @@ and how to collect the neccessary data.
 For more information about the steps of the worfklow, 
 see :ref:`cmpb-overview`.
 
-``CMPB``: Quickstart 
---------------------
+``CMPB``: Quick start 
+---------------------
 
 The worfklow can either be run directly from the command line or its functions can be called from inside a Python script.
 The input in both cases is a :doc:`configuration file <cmpb-config>` that contains all information needed (data file paths and parameters) to run it.
