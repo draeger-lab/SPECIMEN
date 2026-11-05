@@ -3,6 +3,11 @@
 
 Below, the configuration file with the underlying defaults, is displayed.
 
+Set ``general.final_memote`` to ``False`` to skip the final MEMOTE report.
+It defaults to ``True``, including for existing configurations without this key.
+The separate ``general.memote_always_on`` option controls reports between steps;
+set both options to ``False`` to disable all MEMOTE reports.
+
 .. code-block:: yaml 
     
     # Configuration file for the SPECIMEN CMPB workflow
@@ -39,6 +44,7 @@ Below, the configuration file with the underlying defaults, is displayed.
                                 # Possible identifiers, currently: BiGG
     save_all_models: True      # Save a model per step
     memote_always_on: False    # Run MEMOTE after every step
+    final_memote: True         # Generate the final MEMOTE report
     stats_always_on: False     # Calculate the model statistics after every step
 
     # Options used by multiple steps of the workflow

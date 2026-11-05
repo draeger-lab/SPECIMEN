@@ -878,10 +878,15 @@ def cmpb():
 
 @cmpb.command()
 @click.argument("config", type=click.Path(exists=True))
-def run(config):
+@click.option(
+    "--final-memote/--no-final-memote",
+    default=None,
+    help="Generate the final MEMOTE report. Defaults to general.final_memote in the config (True).",
+)
+def run(config, final_memote):
     """Run the workflow for GEM curation based on a CarveMe model using a config file.
 
     CONFIG is the path to the config file.
     """
 
-    specimen.cmpb.workflow.run(config)
+    specimen.cmpb.workflow.run(config, final_memote=final_memote)

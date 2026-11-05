@@ -272,6 +272,9 @@ specimen cmpb
 
 .. code:: bash
 
-   specimen cmpb run [CONFIG]
+   specimen cmpb run [OPTIONS] CONFIG
+
+Use ``--final-memote`` or ``--no-final-memote`` to override
+``general.final_memote`` for the final MEMOTE report.
 
 Run the complete CMPB workflow with a configuration file as input.

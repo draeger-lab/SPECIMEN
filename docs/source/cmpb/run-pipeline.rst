@@ -43,9 +43,24 @@ on the command line or
 .. code-block:: python
     :class: copyable
 
-    specimen.cmpb.workflow.run(config_file='config.yaml')
+    specimen.cmpb.workflow.run(configpath='config.yaml')
 
 from inside a Python script or Jupyter Notebook with "config.yaml" being the path to your configuration file.
+
+To skip the final MEMOTE report, set ``general.final_memote: False`` in the
+configuration, or override it for a single run:
+
+.. code-block:: bash
+
+    specimen cmpb run "config.yaml" --no-final-memote
+
+.. code-block:: python
+
+    specimen.cmpb.workflow.run(configpath='config.yaml', final_memote=False)
+
+``--final-memote`` enables the report regardless of the configuration. Without
+either flag, the configuration is used (default: ``True``). Reports between
+steps remain controlled by ``general.memote_always_on``.
 
 ``CMPB``: Collecting Data
 -------------------------

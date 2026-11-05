@@ -62,7 +62,7 @@ logger = logging.getLogger(__name__)
 # dev notes:
 #   in the run function: current_model means the cobrapy model,
 #   while current_libmodel means the libsbml model
-def run(configpath: Union[str, None] = None):
+def run(configpath: Union[str, None] = None, final_memote: Union[bool, None] = None):
     """Run the CarveMe-ModelPolisher-based (CMPB) workflow.
 
     Args:
@@ -70,6 +70,9 @@ def run(configpath: Union[str, None] = None):
             The Path to a configuration file. If none given, prompts the user to enter the needed
             information step by step.
             Defaults to None.
+        - final_memote (Union[bool,None], optional):
+            Override general.final_memote in the configuration. If None, use the
+            configuration value, which defaults to True.
     """
 
     def between_save(
@@ -192,6 +195,11 @@ def run(configpath: Union[str, None] = None):
         config = save_cmpb_user_input()
     else:
         config = validate_config(configpath, "cmpb")
+
+    if final_memote is not None:
+        config["general"]["final_memote"] = final_memote
+    if not isinstance(config["general"]["final_memote"], bool):
+        raise TypeError("general.final_memote must be a boolean.")
 
     # set up model name
     # -----------------
@@ -868,12 +876,13 @@ def run(configpath: Union[str, None] = None):
 
     # memote
     # ------
-    logger.info("\tGenerating memote report ...")
-    run_memote(
-        current_model,
-        "html",
-        save_res=Path(MISC_DIR, "memote", "final_memote.html"),
-    )
+    if config["general"]["final_memote"]:
+        logger.info("\tGenerating memote report ...")
+        run_memote(
+            current_model,
+            "html",
+            save_res=Path(MISC_DIR, "memote", "final_memote.html"),
+        )
 
     # growth
     # ------

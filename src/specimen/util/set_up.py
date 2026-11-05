@@ -556,6 +556,10 @@ def save_cmpb_user_input(configpath: Union[str, None] = None) -> dict:
         case "n":
             config["general"]["save_all_models"] = False
 
+    config["general"]["final_memote"] = click.confirm(
+        "Do you want to generate the final MEMOTE report?", default=True
+    )
+
     # run memote always y/n
     run_memote = click.prompt(
         "Do you want to run memote after each step?",

@@ -32,6 +32,7 @@ general:
                              # Possible identifiers, currently: BiGG
   save_all_models: True      # Save a model per step
   memote_always_on: False    # Run MEMOTE after every step
+  final_memote: True         # Generate the final MEMOTE report
   stats_always_on: False     # Calculate the model statistics after every step
 
   # Options used by multiple steps of the workflow
