@@ -646,11 +646,6 @@ def run(configpath: Union[str, None] = None):
     # Annotations
     #############
 
-    # @BUG/@WARNING: 
-    # The correct annotation for pathways gets missing between after the following step and reaction direction.
-    # @IDEA Possible solution would be to run polish_annotations & change_all_qualifiers at the end again?
-    # KEGGPathwayGroups
-    # -----------------
     if config["kegg_pathway_groups"]["add"]:
         
         logger.info("Adding KEGG pathway groups ...")
