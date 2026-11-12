@@ -20,12 +20,15 @@ FAQs
 Which types of organism work with ``SPECIMEN``?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``SPECIMEN`` was originally written for prokaryota. However, adapting ``SPECIMEN`` to work with 
-other organism types is something we hope to archieve with a future update. 
-Currently, the workflows have yet to be tested on types of organism other than prokaryota.
+``SPECIMEN`` was originally written for prokaryotes. However, adapting ``SPECIMEN`` to work with 
+other organism types is something we hope to achieve with a future update. 
+Currently, the workflows have yet to be tested on types of organism other than prokaryotes.
 
 Which namespaces can I use?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. 
+    @ASK Still valid? I think we achieved some namespace independancy by now but I am unsure whether it is yet enough to say so.
 
 While we are working towards namespace independency, currently,
 it is advised to stick to the BiGG namespace.

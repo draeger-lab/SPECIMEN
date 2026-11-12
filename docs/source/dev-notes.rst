@@ -7,8 +7,8 @@ To maintain or extend the toolbox ``SPECIMEN`` please install the package via Gi
 
    For help and information about known bugs, refer to :ref:`Help & FAQ`.
 
-Current Status
---------------
+:icon:`fa-solid fa-bars-progress` Current Status
+------------------------------------------------
 Below you can find information on the currently available branches.
 
 If you plan to add a new feature or extension, please create your own branch, as to not implicate other
@@ -18,12 +18,15 @@ developers.
 ^^^^^^^^
 
 Our first development release of ``SPECIMEN``. Please feel free to test and leave issues on GitHub if you encounter bugs or have suggestions.
-The version in this release has as of yet only be tested on prokaryote genomes.
+The version in this release has yet only be tested on prokaryote genomes.
+
+.. important::
+    If a bug/error needs to be fixed on main, please create a hotfix-branch.
 
 .. note::
 
-    The workflows have yet to be tested on more diverse species and specifically Eukarya, if they work without problems on those as well.
-    (Due to the current limitations of the compartments, Eukarya will most likely not work in most cases.)
+    The workflows have yet to be tested on more diverse species and specifically Eukaryotes, if they work without problems on those as well.
+    (Due to the current limitations of the compartments, Eukaryotes will most likely not work in most cases.)
 
 ``docs-update``: ONGOING
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -39,7 +42,6 @@ The version in this release has as of yet only be tested on prokaryote genomes.
 | Development branch. 
 | Place to fix errors, chase bugs and polish the code for new releases.
 | Additionally, features marked as future update throughout the documentation are actively being worked on.
-| If a bug/error needs to be fixed on main, please create a hotfix-branch.
 
 
 Further branches
@@ -52,13 +54,13 @@ Further branches
   - Status: Ongoing work (Master's thesis)
 
 
-Installation for developers
----------------------------
+:icon:`fa-solid fa-circle-arrow-down` Installation for developers
+-----------------------------------------------------------------
 
 Into a Conda environment
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Setup a conda virtual environment and use its pip to install ``refineGEMs`` into that environment.
+Set up a conda virtual environment and use its pip to install ``refineGEMs`` into that environment.
 To run the code below, replace ``<EnvName>`` with the name of your environment and ``<Specific Python version >= 3.10>`` with the specific version of Python you want to use.
 
 .. code:: console
@@ -119,8 +121,8 @@ if you are a Windows user).
    code, it is recommended to change the :code:`pip install` line from the code blocks to 
    :code:`pip install -e . --config-settings editable_mode=strict`.
 
-Additional packages required for development
---------------------------------------------
+:icon:`fa-solid fa-box-open` Additional packages required for development
+-------------------------------------------------------------------------
 
 .. attention::
     The following packages need to be installed to be able to add content to the `SPECIMEN` documentation.
@@ -159,14 +161,14 @@ Alternatively, install the tool with the extra `docs`, e.g.
 
      pip install -e ".[docs]" --config-settings editable_mode=strict
 
-Todo Tree extension
--------------------
+:icon:`fa-solid fa-tree` Todo Tree extension
+--------------------------------------------
 
 If you are working with VS Code or similar, you can install the ``Todo Tree`` extension and copy the 
 content of the ``TodoTree_params.txt`` file in the ``dev`` folder into the corresponding place in your setting 
 to enable highlighting and tracing of the ``@KEYWORD`` labels for bugs, discussions and more.
 
-The usage of these keywords strongly recommended, as it make communication between the developers and tracing of 
+The usage of these keywords is strongly recommended, as it makes communication between the developers and tracing of 
 issues and ideas much easier. The following labels are currently supported:
 
 .. list-table:: Label supported with the SPECIMEN Todo Tree file
@@ -203,13 +205,13 @@ issues and ideas much easier. The following labels are currently supported:
     For the label to be recognised correctly, the following format is required: ``# @KEYWORD``.
 
 
-Developer Information
----------------------
+:icon:`fa-solid fa-circle-info` Developer Information
+-----------------------------------------------------
 
 More developer-relevant information can be found in the :code:`dev` folder on the `github page <https://github.com/draeger-lab/SPECIMEN>`__.
 
-Updating the `requirements.txt`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:icon:`fa-solid fa-file-lines` Updating the `requirements.txt`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | To create the `requirements.txt` adjust the `requirements.in` file as needed in the folder docs.
 | Then navigate to the folder docs in the command line:
 
@@ -233,13 +235,13 @@ To bump to the newest versions possible, use the following command in the `docs`
     pip-compile --upgrade
 
 
-Debugging switches
-^^^^^^^^^^^^^^^^^^
+:icon:`fa-solid fa-bug` Debugging switches
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - You can enable debug logging by replacing ``level=logging.INFO``  with ``level=logging.DEBUG``.
 - If you want your print message to show in the log file, replace the ```print()`` statement by ``logging.info()``.
 - For debugging of pandas warnings or issues ``pd.options.mode.chained_assignment = None`` needs to be commented out.
-- | Additionally, some modules contain comment blocks inf the format shown below.
+- | Additionally, some modules contain comment blocks in the format shown below.
   | By enabling the code lines between the dotted lines, a debugging-mode is run, which e.g. subsets the data to shorten the runtime to make debugging faster.
 
 .. code-block:: python
@@ -250,8 +252,8 @@ Debugging switches
     # ......................
 
 
-Documentation Notes
--------------------
+:icon:`fa-solid fa-file-code` Guidelines for code documentation
+---------------------------------------------------------------
 
 The documentation is generated based on the Sphinx :code:`sphinx.ext.autodoc` extension.
 A mustache-file with additional formatting can be found in the :code:`dev` folder (ready to integrate in e.g. VSCode). 

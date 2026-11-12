@@ -1,18 +1,16 @@
 The specimen.cmd_access submodule
 =================================
 
-.. warning:: 
-
-   The ``HQTB`` workflow is under heavy construction due to 
-   changes in ``refineGEMs``. It might not work as expected 
-   (or throw errors). Please await the next update.
+.. 
+   @TODO Needs to be rechecked if everything is still correct like it is
+   @DISCUSSION The cmd_access.refinement discription is misleading as we have more than one workflow now
 
 .. automodule:: specimen.cmd_access
    :members:
    :undoc-members:
    :show-inheritance:
 
-After a successfull installation, ``SPECIMEN`` can be accessed via the command line
+After a successful installation, ``SPECIMEN`` can be accessed via the command line
 from inside the Python environment it was installed in using:
 
 .. code-block:: bash
@@ -21,7 +19,7 @@ from inside the Python environment it was installed in using:
 
 The following commands are available:
 
-- ``cmpb`` : Workflow for GEM curation based on CarveMe model and ModelPolisher.
+- ``cmpb`` : Workflow for GEM curation based on CarveMe or a CarveMe model and ModelPolisher.
 - ``hqtb`` : Workflow for GEM curation based on a high-quality template.
 - ``setup`` : Setup structure, data and more.
 
@@ -53,12 +51,12 @@ Setup a directory with the basic structure for the data needed for the workflow.
 
 Argument:
 
-- ``WORKFLOW``: The name of the worfklow to setup the structure for.
+- ``WORKFLOW``: The name of the workflow to set up the structure for.
 
 Options:
 
 - ``--dir/-d``: Name/Path of the directory
-- ``--chunk-size/-s``: Parameter for doenloading files from the web.
+- ``--chunk-size/-s``: Parameter for downloading files from the web.
 
 .. code:: bash
 
@@ -73,7 +71,7 @@ Argument:
 Options:
 
 - ``--out/-o``: Path to the output directory.
-- ``--extension``: File extension of the annotated genomes to seach for. Defaults to ``gbff``.
+- ``--extension``: File extension of the annotated genomes to search for. Defaults to ``gbff``.
 
 specimen hqtb 
 -------------
@@ -82,7 +80,7 @@ specimen hqtb
 
    specimen hqtb run [CONFIG]
 
-Run the complete worfklow with a configuration file as input.
+Run the complete workflow with a configuration file as input.
 
 .. code:: bash 
 
@@ -113,28 +111,28 @@ Options:
 - ``--in-header``: Feature qualifier of the gbff of the input to use as header for the FASTA files. Defaults to ``locus_tag``.
 - ``--dir/-d``: Name/Path of the directory to save the output to.
 - ``--threads/-t``: Number of threads to use for DIAMOND.
-- ``--sensitivity/-s``: Sensitvity mode to use for DIAMOND.
+- ``--sensitivity/-s``: Sensitivity mode to use for DIAMOND.
 
 .. code:: bash
 
    specimen hqtb draft [TEMPLATE] [BPBBH]
 
-Run step 2: generate draft model of the worfklow. 
+Run step 2: generate draft model of the workflow. 
 
 Arguments:
 
 - ``TEMPLATE``: Path to the template model.
-- ``BPBBH``: Path to the BLASTp directional best hits results file from step 1.
+- ``BPBBH``: Path to the BLASTp bidirectional best hits results file from step 1.
 
 Options:
 
 - ``--dir/-d``: Name/Path of the directory to save the output to.
-- ``--edit-names``: Choose an option to change the IDs inside the bpbbh-file to fit the model, if neccessary.
-- ``--pid``: Threshold value for the PID. Default to 80.0 (80 percent)
+- ``--edit-names``: Choose an option to change the IDs inside the bpbbh-file to fit the model, if necessary.
+- ``--pid``: Threshold value for the PID. Defaults to 80.0 (80 percent)
 - ``--name``: Name of the output model.
-- ``--medium``: Medium for the new model. Can be a name of a medium in the refineGEMS database, they keyword *default*, which uses the medium from the template or the keyword *exchanges*, which constructs a medium from all available exchange reactions.
+- ``--medium``: Medium for the new model. Can be a name of a medium in the refineGEMS database, the keyword *default*, which uses the medium from the template or the keyword *exchanges*, which constructs a medium from all available exchange reactions.
 - ``--namespace/--nsp``: Namespace to use for the model.
-- ``--memote``: Run Memote after contructing the draft model.
+- ``--memote``: Run MEMOTE after constructing the draft model.
 
 .. code:: bash 
 
@@ -164,7 +162,7 @@ Arguments:
 Options:
 
 - ``--dir``: Path to a directory for the output.
-- ``--pan-core-comparison/--pcc``: Option on which feature the comparison of pan-core model and model should should be based on. Default is "id".
+- ``--pan-core-comparison/--pcc``: Option on which feature the comparison of pan-core model and model should be based on. Default is "id".
 - ``--pan-core-model/--pcm``: Path to a pan-core model.
 - ``--namespace/-n``: Namespace used by the given model. Defaults to BiGG.
 - ``--media-path/--mp``: Path to a media config file. Enables growth analysis if given.
@@ -191,19 +189,19 @@ Required options:
 
 Further options:
 
-- ``--ncbi_map``: Path to the ncbi information mapping file. Optional, but recommended.
+- ``--ncbi_map``: Path to the NCBI information mapping file. Optional, but recommended.
 - ``--dir/-d``: Path to the directory for the output (directories)
 - ``--mail/-m``: Mail address for accessing NCBI.
-- ``--sensitivity/-s``: Sensitivity mode for DIAMOND blastp run. Default is sensitive.
+- ``--sensitivity/-s``: Sensitivity mode for DIAMOND BLASTp run. Default is sensitive.
 - ``--coverage/-c``: Threshold value for the query coverage for DIAMOND. Default is 80.0.
-- ``--pid``: PID (percentage identity value) to filter the blast hist by. Default is 90.0, only hits equal or above the given value are kept.
+- ``--pid``: PID (percentage identity value) to filter the blast hits by. Default is 90.0, only hits equal or above the given value are kept.
 - ``--threads/-t``: Number of threads to be used. Defaults to 2.
-- ``--threshold_add_reacs/--thres``: Maximal number of mapped reaction for an EC number allowed while adding them.
+- ``--threshold_add_reacs/--thres``: Maximum number of mapped reaction for an EC number allowed while adding them.
 - ``--prefix``: Prefixes for entities where the ID needs to be constructed from scratch. Defaults to `HQTBext`.
 - ``--namespace/-n``: Namespace to use for the model IDs. Defaults to `BiGG`.
 - ``--include_dna``: Include reactions with DNA in their name when added (developer information: True == excluded).
 - ``--include_rna``: Include reactions with RNA in their name when added (developer information: True == excluded).
-- ``--memote``: Use memote on the extended model.
+- ``--memote``: Use MEMOTE on the extended model.
 
 .. .. code:: bash
 
@@ -232,7 +230,7 @@ Further options:
 
    specimen hqtb refinement annotation [MODEL]
    
-Run the thrid part of the refinement, annotation, on a given model.
+Run the third part of the refinement, annotation, on a given model.
 
 Argument:
 
@@ -243,7 +241,7 @@ Options:
 - ``--dir``: Path to a directory for the output.
 - ``--kegg-via-ec/--via-ec``: Try to map EC numbers to KEGG pathway, if KEGG reaction cannot be mapped directly.
 - ``--kegg-via-rc/--via-rc``: Try to map RC numbers to KEGG pathway, if KEGG reaction cannot be mapped directly.
-- ``--memote``: Use memote on the extended model.
+- ``--memote``: Use MEMOTE on the extended model.
 
 .. code:: bash 
 
@@ -262,10 +260,10 @@ Further Options:
 - ``--dir/-d``: Path to a directory for the output.
 - ``--egc-solver/--egc``: String sets the type of solver to use to solve EGCs. Otherwise just reports existing EGCs.
 - ``--namespace/--nsp``: Namespace of the model.
-- ``--mcc``: Option to perform MassChargeCuration on the model. Can be used directly on model or as extra information. Choices are "apply","extra" and "skip". Deafult is "skip".
+- ``--mcc``: Option to perform MassChargeCuration on the model. Can be used directly on model or as extra information. Choices are "apply","extra" and "skip". Default is "skip".
 - ``--dna_weight_frac``: DNA macromolecular weight fraction for your organism. Default is 0.023 for Klebsiella based on Liao et al.
 - ``--ion_weight_frac``: weight fraction for the coenzymes and ions. Default is 0.05 based on the default of BOFdat.
-- ``--memote``: Use memote on the extended model.
+- ``--memote``: Use MEMOTE on the extended model.
 
 specimen cmpb
 -------------
