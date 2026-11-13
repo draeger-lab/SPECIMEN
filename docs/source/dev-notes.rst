@@ -17,7 +17,7 @@ developers.
 ``main``
 ^^^^^^^^
 
-Our first development release of ``SPECIMEN``. Please feel free to test and leave issues on GitHub if you encounter bugs or have suggestions.
+The current stable release of ``SPECIMEN``. 
 The version in this release has yet only be tested on prokaryote genomes.
 
 .. important::
@@ -53,6 +53,13 @@ Further branches
 
   - Status: Ongoing work (Master's thesis)
 
+- ``cmpb-dev``: Branch for the development of the CMPB workflow
+
+  - Status: Ongoing work
+
+- ``add-frog``: Branch for the addition of FROG report to the workflows
+
+  - Status: Ongoing work
 
 :icon:`fa-solid fa-circle-arrow-down` Installation for developers
 -----------------------------------------------------------------

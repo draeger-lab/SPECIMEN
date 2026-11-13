@@ -12,7 +12,7 @@ authors = [
 
 description = "SPECIMEN: A collection of workflows for strain-specific metabolic modelling."
 readme = "README.md"
-version = "0.0.dev3"
+version = "1.0.0"
 requires-python = ">=3.10"
 license = {text = "GPL-3.0"}
 keywords = ['Systems Biology', 'GEM', 'Metabolic Modelling', 'Python Package', 'Workflow']
