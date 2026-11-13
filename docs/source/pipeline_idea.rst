@@ -1,42 +1,65 @@
-PGAB: From genome sequence to draft model
-=========================================
+:icon:`fa-solid fa-dna` PGAB: From genome sequence to draft model
+=================================================================
 
-.. note:: 
+PGAB stands for Prokaryotic Annotation Pipeline (PGAP)-based workflow.
 
-    Status: actively being worked on.
+.. caution::
 
-PGAB stands for PGAP-based workflow.
+    This workflow is under development on the ``pgab-dev`` branch and is planned
+    for a future update. The overview below describes the planned workflow.
 
-.. note::
+Starting from a genome sequence, PGAB aims to annotate the genome and extend the
+protein annotations with database identifiers before generating a draft model. 
+After each of the major stages (highlighted in green in :numref:`pgab_workflow`) 
+the workflow can be stopped and only the according output will be returned.
+:numref:`pgab_workflow` shows the following stages:
 
-    This workflow is still in the idea stage and will be object to a future update.
+1. **Taxonomy check and/or genome annotation:** Uses NCBI's Prokaryotic Genome
+   Annotation Pipeline (PGAP) with the genome FASTA file as input. This stage
+   produces an annotated FASTA and GFF file and/or taxonomy information in XML/
+   TXT format depending on the run settings (``tax-check = 'only'``: Taxonomy 
+   information in XML/TXT format, ``tax-check = 'continue'``: All files, 
+   ``tax-check = 'none'``: Annotated FASTA and GFF file).
+2. Depending on the result from stage 1 and the user-input either route 
+   **A - RefSeq Lookup** or route **B - Annotation extension** is selected. If the 
+   taxonomy check was performed and PGAP found a taxon with 100% identity and 
+   the user did not specify that DIAMOND should be run route A is chosen. In all 
+   other cases the next stage is a DIAMOND search to extend the annotation content.
 
-Generating a model for an organism, where no information on genes and proteins is obtainable via any database, 
-causes the problem, that the model will not contain valid database identifiers for any GeneProduct. To resolve this issue, the 
-workflow in Figure :numref:`pgab_workflow` can be used.
+   A. **RefSeq Lookup:** Based on the Genbank identifier with 100% ANI the 
+      corresponding RefSeq identifier is searched.
+   B. **Annotation extension:** DIAMOND is used to obtain additional protein 
+      annotations. The DIAMOND route includes taxonomy-specific and unrestricted 
+      searches against NCBI's ``nr`` database, SwissProt, or a user-provided 
+      database. The taxonomy-specific search is only performed if a taxid was 
+      found with PGAP or if the user provided a taxid.
+3. **Draft generation:** Uses either the data from NCBI based on the looked up 
+   RefSeq identifier (result from 2.A) or the annotated files from PGAP along 
+   with the extended annotations if route 2.B was used with either the 
+   :ref:`CMPB<CMPB Overview>` or :ref:`HQTB<HQTB Overview>` workflow to generate 
+   the draft model.
+4. **Output:** The output varies depending on the following cases:
 
-1. First, annotate the genome with NCBI's Prokaryotic Genome Annotation Pipeline (PGAP) to obtain the same FASTA format as used in NCBI and use the flag for taxonomy checking.
-2. Then use DIAMOND with the ``nr`` database from NCBI and the obtained annotated FASTA file as input. Restrict the search to your organism's taxon if known.
-3. Check if any protein in the annotation FASTA file still has no database identifier.
+   A. Only PGAP was requested: The output of PGAP is returned depending on the 
+      chosen ``tax-check`` setting.
 
-    | -> YES: Rerun DIAMOND without the taxonomy check and without the restriction for the organism's taxon.
-    |
-    | -> NO: Continue with step 4.
+      .. important::
 
-4. Add the DIAMOND result to the annotated FASTA file.
-5. Run e.g. ``CarveMe`` to construct a draft model.
-6. Check, if any GeneProducts without NCBI Protein or RefSeq identifiers occur in the model.
+         **Special case:** ``tax-check = 'only'`` returns only the taxonomy report 
+         and never performs any of the other steps.
 
-    | -> YES: 
-    |     i. Use individual BLAST searches for the remaining GeneProducts.
-    |     ii. Add the results to the annotated and refined FASTA file.
-    |     iii. Create again a draft model with the same program with the newly refined FASTA file.
-    | 
-    | -> NO: The draft model is done.
+   B. Route 2.A was used but no draft model generation requested: Only a warning 
+      is logged and the results from the steps before are returned.
+   C. Route 2.B was used but no draft model generation requested: Only a 
+      mapping table in CSV format linking the annotated proteins to database 
+      identifiers is returned along with the files from the previous steps.
+   D. The user specified that a draft model is generated: The draft model is 
+      returned in SBML format and a mapping table in CSV format as well as the 
+      files from the previous steps.
 
 .. _pgab_workflow:
 
 .. figure:: images/pgab_pipeline-overview.png
-  :alt: Workflow from genome sequence to a draft model
+  :alt: Planned PGAB workflow with PGAP annotation, RefSeq lookup and DIAMOND searches, CMPB or HQTB draft generation, and CSV and SBML outputs
 
-  Workflow from genome sequence to a draft model.
+  Planned PGAB workflow from a genome sequence to a draft model and a mapping table.
