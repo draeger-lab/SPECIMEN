@@ -13,6 +13,7 @@ import tempfile
 import warnings
 import yaml
 
+from copy import deepcopy
 from datetime import date
 from pathlib import Path
 
@@ -386,14 +387,16 @@ def wrapper(config_file: str, parent_dir: str = ""):
     with open(config_file, "r") as cfg:
         config = yaml.load(cfg, Loader=yaml.loader.FullLoader)
     # load / get subfolders to be parsed
-    subfolders = [_.path for _ in os.scandir(parent_dir) if _.is_dir()]
+    subfolders = [path for path in Path(parent_dir).iterdir() if path.is_dir()]
 
     for subfolder in subfolders:
 
-        current_config = config.copy()
+        current_config = deepcopy(config)
         # check and retrieve path for annotated genome
 
-        possible_anno = Path(subfolder).glob("*.gbff") + Path(subfolder).glob("*.faa")
+        possible_anno = [
+            path for suffix in ("*.gbff", "*.faa") for path in subfolder.glob(suffix)
+        ]
         if len(possible_anno) == 1:
             current_anno = possible_anno[0]
         else:
@@ -402,11 +405,11 @@ def wrapper(config_file: str, parent_dir: str = ""):
             )
 
         # check and retrieve path for full genome
-        possible_full = (
-            Path(subfolder).glob("*.fasta")
-            + Path(subfolder).glob("*.fa")
-            + Path(subfolder).glob("*.fna")
-        )
+        possible_full = [
+            path
+            for suffix in ("*.fasta", "*.fa", "*.fna")
+            for path in subfolder.glob(suffix)
+        ]
         if len(possible_full) == 1:
             current_full = possible_full[0]
         else:
@@ -421,8 +424,12 @@ def wrapper(config_file: str, parent_dir: str = ""):
         # run pipeline with new config
         with tempfile.NamedTemporaryFile(suffix=".yaml") as temp_config:
 
-            with open(temp_config.name, "w") as config_stream:
-                yaml.dump(current_config, config_stream)
-            current_config = util.set_up.validate_config(temp_config.name)
+            temp_config_path = Path(temp_config.name)
+            # Serialize paths as strings so the config remains plain YAML.
+            current_config["subject"]["annotated_genome"] = str(current_anno)
+            current_config["subject"]["full_sequence"] = str(current_full)
+            current_config["general"]["dir"] = str(subfolder)
+            with temp_config_path.open("w") as config_stream:
+                yaml.safe_dump(current_config, config_stream)
 
-            run(temp_config)
+            run(temp_config_path)

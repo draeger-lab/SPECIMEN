@@ -58,7 +58,6 @@ logger = logging.getLogger(__name__)
 ################################################################################
 
 # @TODO Add debug switches to test growth on every step (Maybe also on full medium?) -> Maybe as entry point?
-# @ASK Provide the draft model directly from CarveMe only in debug mode or always? -> Is always provided already.
 # dev notes:
 #   in the run function: current_model means the cobrapy model,
 #   while current_libmodel means the libsbml model
@@ -654,11 +653,6 @@ def run(configpath: Union[str, None] = None, final_memote: Union[bool, None] = N
     # Annotations
     #############
 
-    # @BUG/@WARNING: 
-    # The correct annotation for pathways gets missing between after the following step and reaction direction.
-    # @IDEA Possible solution would be to run polish_annotations & change_all_qualifiers at the end again?
-    # KEGGPathwayGroups
-    # -----------------
     if config["kegg_pathway_groups"]["add"]:
         
         logger.info("Adding KEGG pathway groups ...")

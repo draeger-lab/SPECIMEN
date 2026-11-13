@@ -12,7 +12,7 @@ authors = [
 
 description = "SPECIMEN: A collection of workflows for strain-specific metabolic modelling."
 readme = "README.md"
-version = "0.0.dev3"
+version = "1.0.0"
 requires-python = ">=3.10"
 license = {text = "GPL-3.0"}
 keywords = ['Systems Biology', 'GEM', 'Metabolic Modelling', 'Python Package', 'Workflow']
@@ -21,7 +21,10 @@ classifiers = [
     # 'Operating System :: MacOS',
     # "Operating System :: Unix", 
     'Operating System :: OS Independent',
-    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
     'Topic :: Software Development :: Libraries :: Python Modules',
     "Topic :: Scientific/Engineering :: Bio-Informatics",
     'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)'
@@ -49,7 +52,8 @@ docs = ["accessible-pygments",
        "ipython",
        "sphinxcontrib-bibtex",
        "sphinx_copybutton",
-       "pip-tools"]
+       "pip-tools",
+       "sphinx-icon"]
 
 [project.urls]
 repository = 'https://github.com/draeger-lab/SPECIMEN'
