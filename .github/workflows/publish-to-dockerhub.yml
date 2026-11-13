@@ -130,6 +130,8 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Update Docker Hub description
+        # README synchronization must not fail an already published image release.
+        continue-on-error: true
         uses: peter-evans/dockerhub-description@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}

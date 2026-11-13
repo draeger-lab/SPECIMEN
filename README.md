@@ -1,4 +1,4 @@
-![Logo of SPECIMEN](docs/source/images/logos/specimen-logo-transparent.png)
+![Logo of SPECIMEN](https://raw.githubusercontent.com/draeger-lab/SPECIMEN/main/docs/source/images/logos/specimen-logo-transparent.png)
 
 | Topic | Badge(s) |
 | :--- | :---- |
