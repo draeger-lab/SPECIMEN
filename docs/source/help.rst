@@ -27,8 +27,4 @@ Currently, the workflows have yet to be tested on types of organism other than p
 Which namespaces can I use?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. 
-    @ASK Still valid? I think we achieved some namespace independancy by now but I am unsure whether it is yet enough to say so.
-
-While we are working towards namespace independency, currently,
-it is advised to stick to the BiGG namespace.
+BiGG is the recommended and best-supported namespace. We have been working to expand support for other namespaces and encourage you to try them. Feedback on your experience is welcome to make `SPECIMEN` more versatile.

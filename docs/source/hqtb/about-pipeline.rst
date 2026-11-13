@@ -1,8 +1,6 @@
 About HQTB
 ==========
 
-.. % @ASK Norsigian et al is not mentioned. Is that on purpose?
-
 The high-quality template based (``HTQB``) workflow creates and curates a model starting from the annotated 
 genome of your strain of interest and an already curated, ideally very high-quality template model 
 of a closely related strain (species) and additional database information.

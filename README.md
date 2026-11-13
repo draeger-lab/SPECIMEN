@@ -102,10 +102,6 @@ For example, to run the CMPB pipeline, use:
 
 ## Documentation
 
-<!-- @TODO Remove warning after finalisation of ReadTheDocs -->
-> [!WARNING]
-> 🚧 The documentation is currently under heavy-rework!
-
 For more information about the available pipelines, the code or for troubleshooting, please refer to the documentation of the tool [here](https://specimen.readthedocs.io/en/latest/).
 
 ## Contributing

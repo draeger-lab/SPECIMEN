@@ -1,10 +1,6 @@
 The specimen.cmd_access submodule
 =================================
 
-.. 
-   @TODO Needs to be rechecked if everything is still correct like it is
-   @DISCUSSION The cmd_access.refinement discription is misleading as we have more than one workflow now
-
 .. automodule:: specimen.cmd_access
    :members:
    :undoc-members:
@@ -27,31 +23,34 @@ The following commands are available:
 General Options
 ---------------
 
-- ``--help``: Call the help page of the command.
+- ``--help/-h``: Show top-level help. Subcommands support ``--help``.
+- ``--version``: Show the installed version (top-level command only).
 
-specimen setup 
+Uppercase arguments below are required positional arguments.
+
+specimen setup
 --------------
 
 .. code:: bash
 
-   specimen setup config 
+   specimen setup config
 
-Download a configuration file, either for the worfklow or for media.
+Download a configuration file, either for the workflow or for media.
 
 Options:
 
-- ``--filename/-f``: Name/Path to save the config under.
-- ``--type/-t``: Type of config to download. Can be media or basic/advanced for the worfklow config.
+- ``--filename/-f``: Name/Path to save the config under. Defaults to ``config.yaml``.
+- ``--type/-t``: Type of config to download. Choices are ``hqtb-basic`` (default), ``hqtb-advanced``, ``hqtb-defaults``, ``media`` and ``cmpb``.
 
 .. code:: bash
 
-   specimen setup data-structure [WORKFLOW]
+   specimen setup data-structure WORKFLOW
 
 Setup a directory with the basic structure for the data needed for the workflow.
 
 Argument:
 
-- ``WORKFLOW``: The name of the workflow to set up the structure for.
+- ``WORKFLOW``: The workflow: ``hqtb`` or ``cmpb``. The aliases ``"high-quality template based"`` and ``"carveme modelpolisher based"`` are also accepted.
 
 Options:
 
@@ -60,7 +59,7 @@ Options:
 
 .. code:: bash
 
-   specimen setup make-ncbi-mapping [FOLDER] 
+   specimen setup make-ncbi-mapping FOLDER
 
 Generate a mapping file for quicker gene gap-filling.
 
@@ -71,32 +70,33 @@ Argument:
 Options:
 
 - ``--out/-o``: Path to the output directory.
-- ``--extension``: File extension of the annotated genomes to search for. Defaults to ``gbff``.
+- ``--extension/-e``: File extension of the annotated genomes to search for. Defaults to ``gbff``.
 
-specimen hqtb 
+specimen hqtb
 -------------
 
 .. code:: bash
 
-   specimen hqtb run [CONFIG]
+   specimen hqtb run CONFIG
 
 Run the complete workflow with a configuration file as input.
 
-.. code:: bash 
+.. code:: bash
 
-   specimen hqtb wrapper [CONFIG]
-   
-Run the workflow using a config on a directory containing multiple input genomes.
+   specimen hqtb wrapper CONFIG
+
+Run the workflow using a config on a parent directory containing one subdirectory
+per input genome, each with its annotated and full genome files.
 
 Options:
 
-- ``--dir/-d``: Name/Path of the directory that contains the input.
+- ``--directory/-d``: Path to the parent directory containing the input subdirectories.
 
-.. code:: bash 
+.. code:: bash
 
-   specimen hqtb bdb [TEMPLATE] [INPUT]
+   specimen hqtb bdb TEMPLATE INPUT
 
-Run step 1: bidirectional BLAST of the workflow. 
+Run step 1: bidirectional BLAST of the workflow.
 
 Arguments:
 
@@ -115,9 +115,9 @@ Options:
 
 .. code:: bash
 
-   specimen hqtb draft [TEMPLATE] [BPBBH]
+   specimen hqtb draft TEMPLATE BPBBH
 
-Run step 2: generate draft model of the workflow. 
+Run step 2: generate draft model of the workflow.
 
 Arguments:
 
@@ -126,19 +126,19 @@ Arguments:
 
 Options:
 
-- ``--dir/-d``: Name/Path of the directory to save the output to.
+- ``--dir``: Name/Path of the directory to save the output to.
 - ``--edit-names``: Choose an option to change the IDs inside the bpbbh-file to fit the model, if necessary.
 - ``--pid``: Threshold value for the PID. Defaults to 80.0 (80 percent)
 - ``--name``: Name of the output model.
 - ``--medium``: Medium for the new model. Can be a name of a medium in the refineGEMS database, the keyword *default*, which uses the medium from the template or the keyword *exchanges*, which constructs a medium from all available exchange reactions.
-- ``--namespace/--nsp``: Namespace to use for the model.
+- ``--namespace/--nsp``: Namespace to use for the model. Only ``BiGG`` is accepted; defaults to ``BiGG``.
 - ``--memote``: Run MEMOTE after constructing the draft model.
 
-.. code:: bash 
+.. code:: bash
 
-   specimen hqtb validation [MODEL]
+   specimen hqtb validation MODEL
 
-Run step 4: validation on a model.
+Run step 4 of the ``HQTB`` workflow, validation, on a model.
 
 Argument:
 
@@ -147,11 +147,11 @@ Argument:
 Options:
 
 - ``--dir/-d``: Name/Path of the directory to save the output to.
-- ``--run-test/-t``: Specify validation tests to be run (multiple can be set). If the keyword *all* is given, runs all available tests.
+- ``--run-test/-t``: Specify validation tests to be run (multiple can be set). Defaults to ``all``. Supported values are ``all``, ``cobra`` and ``modelpolisher``; ``all`` runs all available tests.
 
-.. code:: bash 
+.. code:: bash
 
-   specimen hqtb analysis [MODEL]
+   specimen hqtb analysis MODEL
 
 Run step 5: analysis on a model.
 
@@ -164,7 +164,7 @@ Options:
 - ``--dir``: Path to a directory for the output.
 - ``--pan-core-comparison/--pcc``: Option on which feature the comparison of pan-core model and model should be based on. Default is "id".
 - ``--pan-core-model/--pcm``: Path to a pan-core model.
-- ``--namespace/-n``: Namespace used by the given model. Defaults to BiGG.
+- ``--namespace/-n``: Namespace used by the given model. Only ``BiGG`` is accepted; defaults to ``BiGG``.
 - ``--media-path/--mp``: Path to a media config file. Enables growth analysis if given.
 - ``--test-aa-auxotrophies/--taa``: Option to test media/model for auxotrophies.
 - ``--pathway/--pathway-analysis``: Option to perform a pathway analysis using KEGG pathway identifiers.
@@ -172,11 +172,11 @@ Options:
 specimen hqtb refinement
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Run the different parts of the step 3: refinement of the workflow.
+Run the different parts of the step 3: refinement of the ``HQTB`` workflow.
 
 .. code:: bash
 
-   specimen hqtb refinement extension 
+   specimen hqtb refinement extension
 
 Run the first part, extension.
 
@@ -189,67 +189,75 @@ Required options:
 
 Further options:
 
-- ``--ncbi_map``: Path to the NCBI information mapping file. Optional, but recommended.
+- ``--ncbi-map``: Path to the NCBI information mapping file. Optional, but recommended.
 - ``--dir/-d``: Path to the directory for the output (directories)
 - ``--mail/-m``: Mail address for accessing NCBI.
 - ``--sensitivity/-s``: Sensitivity mode for DIAMOND BLASTp run. Default is sensitive.
 - ``--coverage/-c``: Threshold value for the query coverage for DIAMOND. Default is 80.0.
-- ``--pid``: PID (percentage identity value) to filter the blast hits by. Default is 90.0, only hits equal or above the given value are kept.
+- ``--pid``: PID (percentage identity value) to filter the blast hits by. Default is 95.0, only hits equal or above the given value are kept.
 - ``--threads/-t``: Number of threads to be used. Defaults to 2.
 - ``--threshold_add_reacs/--thres``: Maximum number of mapped reaction for an EC number allowed while adding them.
 - ``--prefix``: Prefixes for entities where the ID needs to be constructed from scratch. Defaults to `HQTBext`.
-- ``--namespace/-n``: Namespace to use for the model IDs. Defaults to `BiGG`.
-- ``--include_dna``: Include reactions with DNA in their name when added (developer information: True == excluded).
-- ``--include_rna``: Include reactions with RNA in their name when added (developer information: True == excluded).
+- ``--namespace/-n``: Namespace to use for the model IDs. Only ``BiGG`` is accepted; this command sets no default.
+- ``--formula-check``: Chemical formula acceptance level: ``none``, ``existence`` (default), ``wildcard`` or ``strict``.
+- ``--include-dna``: Include reactions with DNA in their name. Excluded by default.
+- ``--include-rna``: Include reactions with RNA in their name. Excluded by default.
 - ``--memote``: Use MEMOTE on the extended model.
-
-.. .. code:: bash
-
-..    specimen hqtb refinement cleanup [MODEL]
-
-.. Based on a draft model, run the second part of refinement, cleanup.
-
-.. Options:
-
-.. - ``--dir/-d``: Path to the directory for the output (directories)
-.. - ``--biocyc_db``: Path to the BioCyc (MetaCyc) database information file (for reactions). Optional, but recommended. Necessary for checking directionality
-.. - ``--check_dupl_reac/--cdr``: 'Check for duplicate reactions.
-.. - ``--check_dupl_meta/--cdm``: default='default``: Check for duplicate metabolites. Can "default" (starting point MetaNetX), exhaustive (iterate over all annotations as starting points) or "skip".
-.. - ``--objective_function``: '--of``: Name, ID of the objective function of the model. Default is "Growth".
-.. - ``--remove_dupl_meta/--rdm``: 'Option for removing/replacing duplicate metabolites.
-.. - ``--remove_unused_meta/--rum``: 'Option for removing unused metabolites from the model. Only used when cdm is not skipped.
-.. - ``--remove_dupl_reac/--rdr``: 'Option for removing duplicate reaction from the model.
-.. - ``--universal/-u``: Path to a universal model containing reactions used for gapfilling.
-.. - ``--media-path/--mp``: Path to a media config to use for gapfilling.
-.. - ``--namespace/--nsp``: Namespace to use for the model.
-.. - ``--growth_threshold/-gt``: Threshold value for a model to be considered growing.
-.. - ``--iterations/-i``: Number of iterations for the gapfilling. If 0 is passed, uses full set of reactions instead of heuristic.
-.. - ``--chunk_size``: Number of reactions to be tested simultaniously if using the heuristic version of gapfilling. If this is 0, heuristic will not be applied.
 
 .. code:: bash
 
-   specimen hqtb refinement annotation [MODEL]
-   
-Run the third part of the refinement, annotation, on a given model.
+   specimen hqtb refinement cleanup MODEL DIR
 
-Argument:
+Run the second part of refinement: cleanup and optional gap-filling.
 
-- ``MODEL``: Path to the model to be annotated. 
+Arguments:
+
+- ``MODEL``: Path to an existing model file.
+- ``DIR``: Path to an existing output directory.
 
 Options:
 
-- ``--dir``: Path to a directory for the output.
-- ``--kegg-via-ec/--via-ec``: Try to map EC numbers to KEGG pathway, if KEGG reaction cannot be mapped directly.
-- ``--kegg-via-rc/--via-rc``: Try to map RC numbers to KEGG pathway, if KEGG reaction cannot be mapped directly.
-- ``--memote``: Use MEMOTE on the extended model.
+- ``--reac-direc``: Path to a BioCyc SmartTable for checking reaction direction.
+- ``--universal/-u``: Path to a universal model for COBRApy gap-filling.
+- ``--media-path/--mp``: Path to a media configuration for gap-filling.
+- ``--growth-threshold/--gt``: Growth threshold for gap-filling. Defaults to 0.05.
+- ``--check-dupl-reac/--cdr``: Check for duplicate reactions.
+- ``--check-dupl-meta/--cdm``: Duplicate metabolite checking mode: ``default`` (default), ``exhaustive`` or ``skip``.
+- ``--remove-unused-meta/--rum``: Remove unused metabolites.
+- ``--remove-dupl-reac/--rdr``: Remove duplicate reactions.
+- ``--remove-dupl-meta/--rdm``: Remove duplicate metabolites.
+- ``--namespace/--nsp``: Namespace of the model. Only ``BiGG`` is accepted; defaults to ``BiGG``.
+- ``--iterations/-i``: Number of gap-filling iterations. Defaults to 3.
+- ``--chunk-size/-c``: Chunk size for gap-filling. Defaults to 10000.
+- ``--memote``: Run MEMOTE on the processed model.
 
-.. code:: bash 
+For COBRApy gap-filling, provide both a universal model and a media configuration.
+Boolean flags are disabled by default.
 
-   specimen hqtb refinement smoothing [MODEL]
+.. code:: bash
+
+   specimen hqtb refinement annotation MODEL
+
+Run the third part of the ``HQTB`` refinement step, annotation, on a given model.
 
 Argument:
 
-- ``MODEL``: Path to the model to be smoothed. 
+- ``MODEL``: Path to the model to be annotated.
+
+Options:
+
+- ``--dir/-d``: Path to a directory for the output.
+- ``--kegg-via-ec/--via-ec/--ec``: Try to map EC numbers to KEGG pathway, if KEGG reaction cannot be mapped directly.
+- ``--kegg-via-rc/--via-rc/--rc``: Try to map RC numbers to KEGG pathway, if KEGG reaction cannot be mapped directly.
+- ``--memote``: Use MEMOTE on the extended model.
+
+.. code:: bash
+
+   specimen hqtb refinement smoothing MODEL
+
+Argument:
+
+- ``MODEL``: Path to the model to be smoothed.
 
 Required Options:
 
@@ -258,8 +266,10 @@ Required Options:
 Further Options:
 
 - ``--dir/-d``: Path to a directory for the output.
-- ``--egc-solver/--egc``: String sets the type of solver to use to solve EGCs. Otherwise just reports existing EGCs.
-- ``--namespace/--nsp``: Namespace of the model.
+- ``--egc-solver/--egc``: Use ``greedy`` to solve energy-generating cycles (EGCs). If omitted, only report existing EGCs.
+- ``--limit``: Maximum number of cores for EGC processing. Defaults to all available cores.
+- ``--chunksize``: Chunk size for parallel EGC processing. Defaults to 100.
+- ``--namespace/--nsp``: Namespace of the model. Only ``BiGG`` is accepted; defaults to ``BiGG``.
 - ``--mcc``: Option to perform MassChargeCuration on the model. Can be used directly on model or as extra information. Choices are "apply","extra" and "skip". Default is "skip".
 - ``--dna_weight_frac``: DNA macromolecular weight fraction for your organism. Default is 0.023 for Klebsiella based on Liao et al.
 - ``--ion_weight_frac``: weight fraction for the coenzymes and ions. Default is 0.05 based on the default of BOFdat.
@@ -270,6 +280,6 @@ specimen cmpb
 
 .. code:: bash
 
-   specimen cmpb run [CONFIG]
+   specimen cmpb run CONFIG
 
 Run the complete CMPB workflow with a configuration file as input.
