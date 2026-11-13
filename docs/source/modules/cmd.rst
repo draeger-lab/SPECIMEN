@@ -46,7 +46,9 @@ Options:
 
    specimen setup data-structure WORKFLOW
 
-Setup a directory with the basic structure for the data needed for the workflow.
+Set up the basic directory structure for the workflow and check the MetaNetX
+namespace in the refineGEMs database. If any required MetaNetX tables are missing,
+install the namespace using refineGEMs.
 
 Argument:
 
@@ -55,7 +57,7 @@ Argument:
 Options:
 
 - ``--dir/-d``: Name/Path of the directory
-- ``--chunk-size/-s``: Parameter for downloading files from the web.
+- ``--chunk-size/-s``: Chunk size passed to refineGEMs when installing MetaNetX. Defaults to 2048.
 
 .. code:: bash
 

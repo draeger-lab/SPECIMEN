@@ -91,13 +91,13 @@ def config(filename, type):
     type=int,
     default=2048,
     show_default=True,
-    help=" Size of the chunks of data while downloading.",
+    help="Chunk size passed to refineGEMs when installing missing MetaNetX tables.",
 )
 def data_structure(workflow, dir, chunk_size):
     """Create a data directory and download basic databases.
 
     Creates the 'ideal' data directory structure and directly downloads
-    the MetaNetX and BiGG data files.
+    the MetaNetX namespace into the refineGEMs database if tables are missing.
 
     WORKFLOW is the type of workflow for which the data structure should be build.
     """
@@ -785,9 +785,9 @@ def validation(model, dir, run_test):
     MODEL is the path to the model to be validated.
     """
     if "all" in run_test:
-        specimen.hqtb.core.validation.run(dir, model, tests=None, all=True)
+        specimen.hqtb.core.validation.run(dir, model, tests=None, run_all=True)
     else:
-        specimen.hqtb.core.validation.run(dir, model, tests=run_test, all=False)
+        specimen.hqtb.core.validation.run(dir, model, tests=list(run_test), run_all=False)
 
 
 # analysis
