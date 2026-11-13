@@ -7,3 +7,6 @@ sphinx_copybutton
 accessible-pygments
 pandoc
 sphinx-icon
+
+# pybtex 0.24 imports pkg_resources, removed in setuptools 82.
+setuptools<82
