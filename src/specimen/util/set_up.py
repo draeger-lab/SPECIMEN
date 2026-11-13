@@ -15,6 +15,8 @@ from importlib.resources import files
 from pathlib import Path
 from typing import Literal, Union
 
+from refinegems.utility.databases import mnx_db_namespace, update_mnx_namespaces
+from refinegems.utility.io import load_a_table_from_database
 from refinegems.utility.set_up import download_config as rg_config
 
 ################################################################################
@@ -80,7 +82,8 @@ def build_data_directories(
     pipeline: Literal[
         "hqtb", "high-quality template based", "cmpb", "carveme modelpolisher based"
     ],
-    parent_dir: str,
+    parent_dir: Union[Path, str],
+    chunk_size: int = 2048,
 ):
     """Set up the necessary directory structure and download files if possible
     for the given pipeline.
@@ -90,10 +93,14 @@ def build_data_directories(
             For which pipeline the structure should be.
         - parent_dir (str):
             Parent directory/ Path to write the structure to.
+        - chunk_size (int, optional):
+            Chunk size passed to refineGEMs when installing MetaNetX. Defaults to 2048.
 
     Raises:
         - ValueError: Unknown input for parameter pipeline
     """
+
+    parent_dir = Path(parent_dir)
 
     match pipeline:
         # HQTB setup
@@ -168,6 +175,16 @@ def build_data_directories(
         case _:
             message = f"Unknown input for parameter pipeline: {pipeline}"
             raise ValueError(message)
+
+    # MetaNetX is stored in the refineGEMs database, not the workflow folders.
+    required_tables = {f"mnx_{name}" for name in mnx_db_namespace}
+    installed_tables = load_a_table_from_database(
+        "SELECT name FROM sqlite_master WHERE type='table'", query=True
+    )
+    if not required_tables.issubset(set(installed_tables["name"])):
+        print("Installing missing MetaNetX namespace in the refineGEMs database...")
+        update_mnx_namespaces(chunksize=chunk_size)
+
 
 
 # ---------------------
@@ -555,6 +572,10 @@ def save_cmpb_user_input(configpath: Union[str, None] = None) -> dict:
             config["general"]["save_all_models"] = True
         case "n":
             config["general"]["save_all_models"] = False
+
+    config["general"]["final_memote"] = click.confirm(
+        "Do you want to generate the final MEMOTE report?", default=True
+    )
 
     # run memote always y/n
     run_memote = click.prompt(

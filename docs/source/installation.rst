@@ -1,9 +1,16 @@
 Installation
 ==============
 
-Installation via GitHub/pip
----------------------------
-Download the ``SPECIMEN`` repository `here <https://github.com/cb-Hades/klebsiella-pipeline/tree/main>`_ 
+.. important::
+
+    The minimum Python requirement for ``SPECIMEN`` is 3.10.
+
+    Currently, COBRApy is not yet updated on its main branch for Python 3.13.
+    Therefore, the highest recommended Python version is 3.12.
+
+:icon:`fa-brands fa-python` Installation via GitHub/pip
+-------------------------------------------------------
+Download the ``SPECIMEN`` repository `here <https://github.com/draeger-lab/SPECIMEN>`_ 
 and run the command :code:`pip install -e .` inside the top-level directory.
 
 .. hint::
@@ -18,12 +25,14 @@ and run the command :code:`pip install -e .` inside the top-level directory.
 
 For all options to run error-free, the following tools need to be installed additionally:
 
-- `DIAMOND, version 2.0.4 or higher <https://github.com/bbuchfink/diamond>`_
-- `EntrezDirect <https://www.ncbi.nlm.nih.gov/books/NBK179288/>`_, if no NCBI mapping has been created beforehand
+- `DIAMOND, version 2.0.4 or higher <https://github.com/bbuchfink/diamond>`_  (cannot be installed 
+  via conda on Windows)
 
 Afterwards, ``SPECIMEN`` can either be accessed via the command line or via importing the package into a Python script.
 
-``SPECIMEN`` can also be used via Docker. To build the docker image, firtsly clone the repository:
+:icon:`fa-brands fa-docker` Installation via GitHub/Docker
+----------------------------------------------------------
+``SPECIMEN`` can also be used via Docker. To build the docker image, firstly clone the repository:
 
 .. code:: console
    :class: copyable
@@ -65,8 +74,3 @@ For example, to run the CMPB pipeline, use:
    :class: copyable
 
    docker run --name <container_name> -v <user_folder>:/sp_cont specimen cmpb run ./path/to/CMPB_config.yaml
-
-.. hint::
-
-    It is advised to install ``SPECIMEN`` inside a conda environment with a Python version of 3.10 or higher.
-

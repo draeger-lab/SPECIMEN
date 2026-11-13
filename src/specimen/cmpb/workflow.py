@@ -72,7 +72,7 @@ logger = logging.getLogger(__name__)
 # dev notes:
 #   in the run function: current_model means the cobrapy model,
 #   while current_libmodel means the libsbml model
-def run(configpath: Union[str, None] = None, debug_growth: bool = False):
+def run(configpath: Union[str, None] = None, debug_growth: bool = False, final_memote: Union[bool, None] = None):
     """Run the CarveMe-ModelPolisher-based (CMPB) workflow.
 
     Args:
@@ -83,6 +83,9 @@ def run(configpath: Union[str, None] = None, debug_growth: bool = False):
         - debug_growth (bool, optional):
             Debug switch to test and report growth at every intermediate step.
             Defaults to False.
+        - final_memote (Union[bool,None], optional):
+            Override general.final_memote in the configuration. If None, use the
+            configuration value, which defaults to True.
     """
 
     def between_save(
@@ -203,6 +206,11 @@ def run(configpath: Union[str, None] = None, debug_growth: bool = False):
         config = save_cmpb_user_input()
     else:
         config = validate_config(configpath, "cmpb")
+
+    if final_memote is not None:
+        config["general"]["final_memote"] = final_memote
+    if not isinstance(config["general"]["final_memote"], bool):
+        raise TypeError("general.final_memote must be a boolean.")
 
     # set up model name
     # -----------------
@@ -669,11 +677,6 @@ def run(configpath: Union[str, None] = None, debug_growth: bool = False):
     # Annotations
     #############
 
-    # @BUG/@WARNING:
-    # The correct annotation for pathways gets missing between after the following step and reaction direction.
-    # @IDEA Possible solution would be to run polish_annotations & change_all_qualifiers at the end again?
-    # KEGGPathwayGroups
-    # -----------------
     if config["kegg_pathway_groups"]["add"]:
 
         logger.info("Adding KEGG pathway groups ...")
@@ -888,12 +891,13 @@ def run(configpath: Union[str, None] = None, debug_growth: bool = False):
 
     # memote
     # ------
-    logger.info("\tGenerating memote report ...")
-    run_memote(
-        current_model,
-        "html",
-        save_res=Path(MISC_DIR, "memote", "final_memote.html"),
-    )
+    if config["general"]["final_memote"]:
+        logger.info("\tGenerating memote report ...")
+        run_memote(
+            current_model,
+            "html",
+            save_res=Path(MISC_DIR, "memote", "final_memote.html"),
+        )
 
     # growth
     # ------

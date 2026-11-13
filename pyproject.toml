@@ -7,14 +7,12 @@ name = 'specimen'
 authors = [
   { name="Carolin Brune"},
   { name="Gwendolyn O. Döbel"},
-]
-maintainers = [
-  {name = "Nina Roßbach"}
+  # {name = "Nina Roßbach"} # soon to be added for pgab
 ]
 
 description = "SPECIMEN: A collection of workflows for strain-specific metabolic modelling."
 readme = "README.md"
-version = "0.0.dev3"
+version = "1.0.0"
 requires-python = ">=3.10"
 license = {text = "GPL-3.0"}
 keywords = ['Systems Biology', 'GEM', 'Metabolic Modelling', 'Python Package', 'Workflow']
@@ -23,7 +21,10 @@ classifiers = [
     # 'Operating System :: MacOS',
     # "Operating System :: Unix", 
     'Operating System :: OS Independent',
-    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
     'Topic :: Software Development :: Libraries :: Python Modules',
     "Topic :: Scientific/Engineering :: Bio-Informatics",
     'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)'
@@ -32,7 +33,7 @@ classifiers = [
 dependencies = [
     # 'refinegems>=2.0', # has all other needed dependancies
     # "refinegems>=2.0.0a0",
-    "refinegems@git+https://github.com/draeger-lab/refinegems@dev",
+    "refinegems@git+https://github.com/draeger-lab/refinegems",
     # @NOTE
     # need to installed but install does not work with PyPi that way
     "bofdat@git+https://github.com/draeger-lab/BOFdat", # our fork with hot fix(es)
@@ -51,7 +52,8 @@ docs = ["accessible-pygments",
        "ipython",
        "sphinxcontrib-bibtex",
        "sphinx_copybutton",
-       "pip-tools"]
+       "pip-tools",
+       "sphinx-icon"]
 
 [project.urls]
 repository = 'https://github.com/draeger-lab/SPECIMEN'

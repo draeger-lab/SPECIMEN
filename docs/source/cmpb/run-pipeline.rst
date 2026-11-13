@@ -7,13 +7,8 @@ and how to collect the neccessary data.
 For more information about the steps of the worfklow, 
 see :ref:`cmpb-overview`.
 
-``CMPB``: Quickstart 
---------------------
-
-.. warning::
-
-    Currently, the workflow can only be run with an already generated model as input.
-    The CarveMe connection will be added in a future update.
+``CMPB``: Quick start 
+---------------------
 
 The worfklow can either be run directly from the command line or its functions can be called from inside a Python script.
 The input in both cases is a :doc:`configuration file <cmpb-config>` that contains all information needed (data file paths and parameters) to run it.
@@ -48,32 +43,48 @@ on the command line or
 .. code-block:: python
     :class: copyable
 
-    specimen.cmpb.workflow.run(config_file='config.yaml')
+    specimen.cmpb.workflow.run(configpath='config.yaml')
 
 from inside a Python script or Jupyter Notebook with "config.yaml" being the path to your configuration file.
+
+To skip the final MEMOTE report, set ``general.final_memote: False`` in the
+configuration, or override it for a single run:
+
+.. code-block:: bash
+
+    specimen cmpb run "config.yaml" --no-final-memote
+
+.. code-block:: python
+
+    specimen.cmpb.workflow.run(configpath='config.yaml', final_memote=False)
+
+``--final-memote`` enables the report regardless of the configuration. Without
+either flag, the configuration is used (default: ``True``). Reports between
+steps remain controlled by ``general.memote_always_on``.
 
 ``CMPB``: Collecting Data
 -------------------------
 
 The worfklow has two obligatory parameters:
 
-- Path to a model 
+- The generated draft model e.g. using ``CarveMe``
 
-    - If no model is given, the `protein_fasta` needs to be provided. The format needs to be the same as the files provides by NCBI under `<GenBank assembly>` -> `ftp` -> `<name>_translated_cds.faa.gz`
+    - If no model is given, the `protein_fasta` needs to be provided. The format needs to be the same as the files provided by NCBI under `<GenBank assembly>` → `ftp` → `<name>_translated_cds.faa.gz`
 
 - A media configuration (from refineGEMs) for testing the model's growth
 
 Further data can be added as available and/or needed (all are completely optional):
 
-- The generated draft model e.g. using ``CarveMe``
 - The reference sequence GFF file (for gap analysis via KEGG required, optional for CarveMe polishing)
+
     - Some of the gap-filling options (BioCyc, Gene) also require a GFF file, but since the type of GFF influcences the results, the input is separated from the first GFF.
 - If available, the KEGG organism ID (for gap analysis via KEGG required, optional for CarveMe polishing)
 - The protein FASTA of your input genome (required for lab\_strain=True, otherwise optional)
 - Additional files for filling gaps: 
 
     - For KEGG see bullet points above 
-    - Gap-filling with BioCyc requires two BioCyc SmartTables, one for the genes and one for the reactions of the organism.
+    - | Gap-filling with BioCyc requires two BioCyc SmartTables, one for the genes and one for the reactions of the organism.
+      | (For more details on the tables and how to obtain them, see `Gap-filling with BioCyc <https://refinegems.readthedocs.io/en/latest/modules-desc/gapfill.html#gap-filling-with-biocyc>`__)
     - | The gap-filling via genes uses a SwissProt database file and mapping (for more information about the setup, see ``refinegems.utility.setup.download_url``).
       | Additionally, if checking protein accession numbers against NCBI should be enabled, an email address needs to be given.
 
@@ -82,3 +93,5 @@ Further data can be added as available and/or needed (all are completely optiona
     - Path to a file containing the full genome sequenece of your organism
     - The DNA weight fraction of your organism (experimentally determined or retrieved using literature research)
     - The enzyme/ion weight fraction of your organism (experimentally determined or retrieved using literature research)
+
+- For checking reaction direction, a BioCyc smart table is required (for more details, see `Check and refine the direction of reactions <https://refinegems.readthedocs.io/en/latest/modules-desc/reacdirec.html#check-and-refine-the-direction-of-reactions>`__).

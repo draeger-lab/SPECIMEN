@@ -4,19 +4,12 @@ Step 3, Part 2: Cleaning the Model
 The third part of the refinement aims to clean the model regarding its entities, including:
 
 - Checking the directionality of reactions using BioCyc.
-- Complete BioCyc/MetaCyc, if only one of the two is present.
-- Find and resolve duplicate metabolites and reactions.
-- Delete unused metabolites.
-- Perform (additional) gap filling.
+- Perform (additional) gap filling with the ``GeneGapFiller`` of the ``refineGEMs`` package 
+  or the ``COBRApy`` implementation
+- Find and resolve duplicate metabolites and reactions
+- Delete unused metabolites
 
-Except for the *complete Bio/MetaCyc annotations* all steps are optional.
+.. figure:: ../../../images/modules/3_2_cleanup.png
+  :alt: Step 3 of HQTB workflow: Model Refinement. Part 2: Cleaning the Model
 
-.. image:: ../../../images/modules/3_2_cleanup.png
-
-.. warning::
-
-    The gap filling is currently only available in the COBRApy variant.
-
-    This part of the workflow is still a working process, 
-    stay tuned for future updates.
-
+  Step 3 of HQTB workflow: Model Refinement. Part 2: Cleaning the Model

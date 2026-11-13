@@ -1,19 +1,19 @@
 Run the ``HQTB`` Workflow
 =========================
 
-This page explains how to run the complete ``HTQB`` (high-quality template based) worfklow 
-and how to collected the neccessary data.
+This page explains how to run the complete ``HTQB`` (high-quality template based) workflow 
+and how to collect the necessary data.
 
-For more information about the steps of the worfklow, 
+For more information about the steps of the workflow, 
 see :ref:`overview-hqtb`.
 
-``HQTB``: Quickstart
---------------------
+``HQTB``: Quick start
+---------------------
 
 The workflow can either be run directly from the command line or its functions can be called from inside a Python script.
 The input in both cases is a configuration file that contains all information needed (data file paths and parameters) to run it.
 
-The `configuration <hqtb-config.html>`__ can be downloaded using the command line:
+The `configuration file <hqtb-config.html>`__ can be downloaded using the command line:
 
 .. code-block:: bash
     :class: copyable
@@ -31,31 +31,31 @@ To download the configuration file using Python, use:
     import specimen
     specimen.util.set_up.download_config(filename='./my_basic_config.yaml', type='hqtb-basic')
 
-As with the command line access, the type can be changed to ``hqtb-advanced``.
+As with the command-line access, the type can be changed to ``hqtb-advanced``.
 
 After downloading the configuration file, open it with an editor and change the parameters as needed.
-Missing entries will be reported when starting the worfklow.
+Missing entries will be reported when starting the workflow.
 
-To run the worfklow using the configuration file, use
+To run the workflow using the configuration file, use
 
 .. code-block:: bash
     :class: copyable
 
-    specimen hqtb run pipeline "config.yaml"
+    specimen hqtb run "config.yaml"
 
 on the command line or
 
 .. code-block:: python
     :class: copyable
 
-    specimen.hqtb.workflow.run_complete(config_file='config.yaml')
+    specimen.hqtb.workflow.run(config_file='config.yaml')
 
 from inside a Python script or Jupyter Notebook with "config.yaml" being the path to your configuration file.
 
 .. note::
 
-    Additionally, the worfklow can be run with a wrapper to susequently build multiple models for different genomes using the same parameters.
-    The wrapper can be accessed using :code:`specimen hqtb run wrapper "config.yaml"` or :code:`specimen.workflow.wrapper_pipeline(config_file='/User/path/to/config.yaml', parent_dir="./")`.
+    Additionally, the workflow can be run with a wrapper to subsequently build multiple models for different genomes using the same parameters.
+    The wrapper can be accessed using :code:`specimen hqtb wrapper "config.yaml"` or :code:`specimen.workflow.wrapper(config_file='/User/path/to/config.yaml', parent_dir="./")`.
 
 
 ``HQTB``: Collecting Data
@@ -67,11 +67,11 @@ If you are just starting a new project and do not have all the data ready to go,
 .. code-block:: python
     :class: copyable
 
-    specimen.util.set_up.build_data_directories('your_folder_name')
+    specimen.util.set_up.build_data_directories('chosen workflow', 'your_folder_name (parent directory)')
 
 | The function above creates the following directory structure for your project.
 | The 'contains' column lists what is supposed to be inside the according folder. 
-  The tags manual/semi/automated report how these files are added to the folder (automated = by the setup function; semi = multiple steps neccessary, some by the program, some by the user; manual = by the user).
+  The tags manual/semi/automated report how these files are added to the folder (automated = by the setup function; semi = multiple steps necessary, some by the program, some by the user; manual = by the user).
   The tags required/optional report whether this input is necessary to run the workflow or if it is an optional input.
 
 .. table::
@@ -92,7 +92,7 @@ If you are just starting a new project and do not have all the data ready to go,
     +--------------------+------------------------------+---------------------+
     | pan-core-models    | pan-core models              | manual, optional    |
     +--------------------+------------------------------+---------------------+
-    || RefSeqs           || DIAMOND database            || semi, required     |
+    || RefSeq            || DIAMOND database            || semi, required     |
     ||                   || for BLAST                   ||                    |
     +--------------------+------------------------------+---------------------+
     | template-models    | template models              | manual, required    |
@@ -103,32 +103,33 @@ If you are just starting a new project and do not have all the data ready to go,
 .. note::
 
     Regarding the annotated_genomes folder, the program currently only supports 
-    the file types ``GBFF`` and ``FAA`` + ``FNA`` (from the NCBI and PROKKA annotation pipelines respectively)
+    the file types ``GBFF`` and ``FAA`` + ``FNA`` (from the NCBI and PROKKA annotation pipelines, respectively)
     as genome annotation formats.
 
 Further details for collecting the data:
 
 - `BioCyc <https://biocyc.org/>`__:
 
-    - Downloading a smart table from BioCyc requires a subscription.
+    - Downloading a SmartTable from BioCyc requires a subscription.
     - The SmartTable needs to have the columns 'Reactions', 'EC-Number', 'KEGG reaction', 'METANETX' and 'Reaction-Direction'.
+    - The 'Reactions' column must contain BioCyc reaction IDs.
 
 - RefSeq
 
     - One way to build a DIAMOND reference database is to download a set of reference sequences from the NCBI database, e.g. in the **FAA** format.
-    - Use the function :code:`specimen.util.util.create_DIAMOND_db_from_folder('/User/path/input/directory', '/User/Path/for/output/', name = 'database', extention = 'faa')` to create a DIAMOND database
-    - To speed up the mapping, create an additional mapping file from the e.g. ``GBFF`` files from NCBI using :code:`specimen.util.util.create_NCBIinfo_mapping('/User/path/input/directory', '/User/Path/for/output/', extention = 'gbff')`
+    - Use the function :code:`specimen.util.util.create_DIAMOND_db_from_folder('/User/path/input/directory', '/User/Path/for/output/', name = 'database', extension = 'faa')` to create a DIAMOND database
+    - To speed up the mapping, create an additional mapping file from NCBI ``GBFF`` annotations of the same reference genomes whose protein FASTA files were used to build the DIAMOND database. Use :code:`specimen.util.util.create_NCBIinfo_mapping('/User/path/input/directory', '/User/Path/for/output/', extension = 'gbff')`.
     - To ensure correct mapping to KEGG, an additional information file can be created by constructing a CSV file with the following columns: 'NCBI genome', 'organism', 'locus_tag' (only the part until the seperator '_', the part, that is the same for all locus tags) and 'KEGG.organism'
 
         - The information of the first three columns can be taken from the previous two steps while
         - For the last column the user needs to check, if the genomes have been entered into KEGG and have an organism identifier.
-        - This file is purely optional for running the worfklow but potentially leads to better results.
+        - This file is purely optional for running the workflow but potentially leads to better results.
 
 - medium:   
 
     The media, either for analysis or gap filling can be entered into the workflow via a config file. 
     The same media file can be used for both or one file for each step can be entered into the workflow. 
-    The config files are from the `refineGEMs <https://github.com/draeger-lab/refinegems/tree/dev-2>`__ :footcite:p:`bauerle2023genome` toolbox and access its in-build medium database. 
+    The config files are from the `refineGEMs <https://github.com/draeger-lab/refinegems>`__ :footcite:p:`bauerle2023genome` toolbox and access its in-build medium database. 
     Additionally, the config files allow for manual adjustment / external input.
 
     An examplary config file can be accessed using the following command:
