@@ -91,13 +91,13 @@ def config(filename, type):
     type=int,
     default=2048,
     show_default=True,
-    help=" Size of the chunks of data while downloading.",
+    help="Chunk size passed to refineGEMs when installing missing MetaNetX tables.",
 )
 def data_structure(workflow, dir, chunk_size):
     """Create a data directory and download basic databases.
 
     Creates the 'ideal' data directory structure and directly downloads
-    the MetaNetX and BiGG data files.
+    the MetaNetX namespace into the refineGEMs database if tables are missing.
 
     WORKFLOW is the type of workflow for which the data structure should be build.
     """
@@ -684,7 +684,7 @@ def annotation(model, dir, kegg_via_ec, kegg_via_rc, memote):
     "--egc-solver",
     "--egc",
     required=False,
-    type=click.Choice([None, "greedy"]),
+    type=click.Choice(["greedy"]),
     default=None,
     multiple=False,
     help="String sets the type of solver to use to solve EGCs. Otherwise just reports existing EGCs.",
@@ -736,7 +736,7 @@ def annotation(model, dir, kegg_via_ec, kegg_via_rc, memote):
     "--memote", is_flag=True, default=False, help="Use memote on the extended model."
 )
 def smoothing(
-    model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, egc, chunksize, limit, namespace, memote
+    model, genome, dir, mcc, dna_weight_frac, ion_weight_frac, egc_solver, chunksize, limit, namespace, memote
 ):
     """Refinement step 4: Smoothing
 
@@ -751,7 +751,7 @@ def smoothing(
         model,
         dir,
         mcc,
-        egc,
+        egc_solver,
         limit,
         chunksize,
         namespace,
@@ -785,9 +785,9 @@ def validation(model, dir, run_test):
     MODEL is the path to the model to be validated.
     """
     if "all" in run_test:
-        specimen.hqtb.core.validation.run(dir, model, tests=None, all=True)
+        specimen.hqtb.core.validation.run(dir, model, tests=None, run_all=True)
     else:
-        specimen.hqtb.core.validation.run(dir, model, tests=run_test, all=False)
+        specimen.hqtb.core.validation.run(dir, model, tests=list(run_test), run_all=False)
 
 
 # analysis
@@ -845,7 +845,7 @@ def validation(model, dir, run_test):
     default=False,
     help="Option to perform a pathway analysis using KEGG pathway identifiers.",
 )
-def analysis(model, dir, pcm, pcc, n, mp, test_aa_auxotrophies, pathway):
+def analysis(model, dir, pan_core_model, pan_core_comparison, namespace, media_path, test_aa_auxotrophies, pathway):
     """Step 5 of the workflow: Analyse the final model.
 
     Includes a statistical analysis and optional a
@@ -856,10 +856,10 @@ def analysis(model, dir, pcm, pcc, n, mp, test_aa_auxotrophies, pathway):
     specimen.hqtb.core.analysis.run(
         model_path=model,
         dir=dir,
-        media_path=mp,
-        namespace=n,
-        pc_model_path=pcm,
-        pc_based_on=pcc,
+        media_path=media_path,
+        namespace=namespace,
+        pc_model_path=pan_core_model,
+        pc_based_on=pan_core_comparison,
         test_aa_auxotrophies=test_aa_auxotrophies,
         pathway=pathway,
     )

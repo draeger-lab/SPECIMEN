@@ -1,7 +1,7 @@
 specimen.hqtb package
 =====================
 
-This subspacke contains everything for the HQTB pipeline.
+This subpackage contains everything for the HQTB pipeline.
 
 specimen.hqtb subpackages
 -------------------------

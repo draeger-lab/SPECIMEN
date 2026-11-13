@@ -1,11 +1,11 @@
 About HQTB
 ==========
 
-The high-quality template based (``HTQB``) workflow curates the model starting from the annotated 
+The high-quality template based (``HTQB``) workflow creates and curates a model starting from the annotated 
 genome of your strain of interest and an already curated, ideally very high-quality template model 
 of a closely related strain (species) and additional database information.
 
-This type of workflow aims to build upon already existing knowledge to speed up model curation
+This type of workflow aims to build upon already existing knowledge to speed up model creation and curation
 and minimize the need to perform steps again that have already been done in a similar context.
 
 .. _overview-hqtb:
@@ -13,9 +13,12 @@ and minimize the need to perform steps again that have already been done in a si
 Overview of the ``HQTB`` Workflow
 ---------------------------------
 
-The following image shows an overrview of the steps of the workflow:
+The following image shows an overview of the steps of the workflow:
 
-.. image:: ../images/hqtb_pipeline-overview.png
+.. figure:: ../images/hqtb_pipeline-overview.png
+  :alt: Workflow from a template model and genome data to a strain-specific one for a new organism
+
+  Workflow from a template model and genome data to a strain-specific one for a new organism
 
 The workflow consists of five main steps:
 
@@ -50,19 +53,13 @@ The workflow consists of five main steps:
     Part 3: Annotation <step-desc/refine-parts/annot.rst>
     Part 4: Smoothing <step-desc/refine-parts/smooth.rst>
 
-
-
-The wrapper function allows the curation of multiple models sequentially using the same 
-boudary parameters.
-
 .. hint::
-    Many of the steps of the workflow can be fine tuned and turned off/on. 
-    Check the :doc:`configuration file <hqtb-config>` for a full list of all parameters.
+    There is a wrapper function which allows the curation of multiple models sequentially using the same 
+    boundary parameters.
 
 .. note::
-
-    Most steps of the workflow can be run separatly via the command line or 
-    the Python integration (see :doc:`run-pipeline`).
+    Many of the steps of the workflow can be fine-tuned and turned off/on. 
+    In addition to calling the functions from a script, many steps can be run via the CLI.
 
     All accessible functions are listed in the :ref:`Contents of SPECIMEN` section.
 
