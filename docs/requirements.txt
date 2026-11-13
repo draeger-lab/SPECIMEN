@@ -80,7 +80,7 @@ mistune==3.3.3
     # via nbconvert
 nbclient==0.10.0
     # via nbconvert
-nbconvert==7.17.1
+nbconvert==7.17.2
     # via nbsphinx
 nbformat==5.10.4
     # via
@@ -128,7 +128,9 @@ pygments==2.20.0
 python-dateutil==2.9.0.post0
     # via jupyter-client
 pyyaml==6.0.1
-    # via pybtex
+    # via
+    #   pybtex
+    #   sphinx-icon
 pyzmq==26.2.0
     # via jupyter-client
 referencing==0.35.1
@@ -155,10 +157,13 @@ sphinx==7.3.7
     #   -r requirements.in
     #   nbsphinx
     #   sphinx-copybutton
+    #   sphinx-icon
     #   sphinx-rtd-theme
     #   sphinxcontrib-bibtex
     #   sphinxcontrib-jquery
 sphinx-copybutton==0.5.2
+    # via -r requirements.in
+sphinx-icon==0.2.2
     # via -r requirements.in
 sphinx-rtd-theme==1.3.0
     # via -r requirements.in
