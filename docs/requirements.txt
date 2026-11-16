@@ -80,7 +80,7 @@ mistune==3.3.3
     # via nbconvert
 nbclient==0.10.0
     # via nbconvert
-nbconvert==7.17.1
+nbconvert==7.17.2
     # via nbsphinx
 nbformat==5.10.4
     # via
@@ -143,8 +143,6 @@ rpds-py==0.19.0
     # via
     #   jsonschema
     #   referencing
-setuptools==75.6.0
-    # via -r requirements.in
 six==1.16.0
     # via
     #   asttokens
